@@ -1,4 +1,4 @@
-package inha.git.banner.department.domain;
+package inha.git.department.domain;
 
 import inha.git.common.BaseEntity;
 import jakarta.persistence.*;

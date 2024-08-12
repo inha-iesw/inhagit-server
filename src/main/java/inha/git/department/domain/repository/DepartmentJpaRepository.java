@@ -1,7 +1,7 @@
-package inha.git.banner.department.domain.repository;
+package inha.git.department.domain.repository;
 
 
-import inha.git.banner.department.domain.Department;
+import inha.git.department.domain.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
