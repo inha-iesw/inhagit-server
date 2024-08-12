@@ -1,6 +1,6 @@
 package inha.git.common.validation.validator;
 
-import inha.git.common.validation.annotation.UsernameUnique;
+import inha.git.common.validation.annotation.EmailUnique;
 import inha.git.user.domain.repository.UserJpaRepository;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @RequiredArgsConstructor
-public class UsernameUniqueValidator implements ConstraintValidator<UsernameUnique, String> {
+public class EmailUniqueValidator implements ConstraintValidator<EmailUnique, String> {
 
     private final UserJpaRepository userJpaRepository;
 
@@ -22,7 +22,7 @@ public class UsernameUniqueValidator implements ConstraintValidator<UsernameUniq
      * @param constraintAnnotation annotation instance for a given constraint declaration
      */
     @Override
-    public void initialize(UsernameUnique constraintAnnotation) {
+    public void initialize(EmailUnique constraintAnnotation) {
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
     /**

@@ -28,22 +28,22 @@ public class User extends BaseEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 20)
     private String email;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 20)
     private String pw;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 12)
     private String name;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 8)
     private String user_number;
 
     @Column(length = 50)
     private String github_token;
 
-    @Column(length = 50)
+    @Column(name = "blocked_at")
     private LocalDateTime blockedAt;
 
     @Column(length = 10)

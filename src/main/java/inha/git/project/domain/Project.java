@@ -23,7 +23,7 @@ public class Project extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 50, name = "repo_name")
+    @Column(nullable = false, length = 100, name = "repo_name")
     private String repoName;
 
     @Column(nullable = false, length = 50)
