@@ -1,7 +1,7 @@
-package inha.git.assistant.domain.repository;
+package inha.git.user.domain.repository;
 
 
-import inha.git.assistant.domain.Assistant;
+import inha.git.user.domain.Assistant;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 

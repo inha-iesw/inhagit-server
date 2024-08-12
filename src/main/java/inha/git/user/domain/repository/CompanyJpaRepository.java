@@ -1,7 +1,7 @@
-package inha.git.commapy.domain.repository;
+package inha.git.user.domain.repository;
 
 
-import inha.git.commapy.domain.Company;
+import inha.git.user.domain.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**

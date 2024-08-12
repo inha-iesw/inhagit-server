@@ -1,4 +1,4 @@
-package inha.git.assistant.domain;
+package inha.git.user.domain;
 
 import inha.git.user.domain.User;
 import jakarta.persistence.*;
