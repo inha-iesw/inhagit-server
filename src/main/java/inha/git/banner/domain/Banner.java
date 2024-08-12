@@ -2,14 +2,8 @@ package inha.git.banner.domain;
 
 import inha.git.common.BaseEntity;
 import inha.git.user.domain.User;
-import inha.git.user.domain.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.time.LocalDateTime;
-import java.util.Collection;
 
 
 /**
