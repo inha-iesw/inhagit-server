@@ -1,15 +1,14 @@
-package inha.git.problem.domain;
+package inha.git.question.domain;
 
 import inha.git.common.BaseEntity;
+import inha.git.problem.domain.ProblemComment;
 import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 
 /**
- * ProblemReplyComment 엔티티는 애플리케이션의 문제 대댓글 정보를 나타냄.
+ * QuestionReplyComment는 엔티티는 애플리케이션의 질문 대댓글 정보를 나타냄.
  */
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -18,7 +17,7 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(name = "problem_reply_comment_tb")
-public class ProblemReplyComment extends BaseEntity {
+public class QuestionReplyComment extends BaseEntity {
 
     @Id
     @Column(name = "problem_reply_comment_id", nullable = false, updatable = false)
@@ -32,8 +31,8 @@ public class ProblemReplyComment extends BaseEntity {
     private String contents;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "problem_comment_id")
-    private ProblemComment problemComment;
+    @JoinColumn(name = "question_comment_id")
+    private QuestionComment questionComment;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

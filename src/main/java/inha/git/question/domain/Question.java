@@ -1,15 +1,13 @@
-package inha.git.problem.domain;
+package inha.git.question.domain;
 
 import inha.git.common.BaseEntity;
 import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 
 /**
- * ProblemReplyComment 엔티티는 애플리케이션의 문제 대댓글 정보를 나타냄.
+ * Question 엔티티는 애플리케이션의 질문 정보를 나타냄.
  */
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -17,11 +15,11 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 @Entity
-@Table(name = "problem_reply_comment_tb")
-public class ProblemReplyComment extends BaseEntity {
+@Table(name = "question_tb")
+public class Question extends BaseEntity {
 
     @Id
-    @Column(name = "problem_reply_comment_id", nullable = false, updatable = false)
+    @Column(name = "question_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
@@ -31,9 +29,9 @@ public class ProblemReplyComment extends BaseEntity {
     @Column(nullable = false, length = 255)
     private String contents;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "problem_comment_id")
-    private ProblemComment problemComment;
+    @Column(nullable = false, length = 50, name = "subject_name")
+    private String subjectName;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
