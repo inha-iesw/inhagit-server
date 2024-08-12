@@ -12,7 +12,7 @@ import java.util.Optional;
 /**
  * ApplicationAuditAware는 스프링 데이터 JPA의 감사 기능을 위한 현재 사용자의 ID를 제공.
  */
-public class ApplicationAuditAware implements AuditorAware<Long> {
+public class ApplicationAuditAware implements AuditorAware<Integer> {
 
     /**
      * 현재 인증된 사용자의 ID를 반환.
@@ -22,7 +22,7 @@ public class ApplicationAuditAware implements AuditorAware<Long> {
      * @return 현재 사용자의 ID를 포함하는 Optional 객체, 인증되지 않은 경우 빈 Optional
      */
     @Override
-    public Optional<Long> getCurrentAuditor() {
+    public Optional<Integer> getCurrentAuditor() {
         Authentication authentication =
                 SecurityContextHolder
                         .getContext()

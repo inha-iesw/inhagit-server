@@ -31,6 +31,12 @@ public class BaseEntity {
     @Column(name = "updatedAt", nullable = false)
     private LocalDateTime updatedAt;
 
+    /*
+     * 엔티티가 삭제된 일자.
+    */
+    @Column(name = "deletedAt")
+    private LocalDateTime deletedAt;
+
     /**
      * 엔티티의 상태로 ACTIVE or INACTIVE.
      */
@@ -53,4 +59,5 @@ public class BaseEntity {
     public void setState(State state) {
         this.state = state;
     }
+
 }
