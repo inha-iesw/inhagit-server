@@ -16,11 +16,11 @@ import lombok.*;
 @Getter
 @Builder
 @Entity
-@Table(name = "problem_reply_comment_tb")
+@Table(name = "question_reply_comment_tb")
 public class QuestionReplyComment extends BaseEntity {
 
     @Id
-    @Column(name = "problem_reply_comment_id", nullable = false, updatable = false)
+    @Column(name = "question_reply_comment_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
