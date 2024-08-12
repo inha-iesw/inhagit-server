@@ -28,7 +28,7 @@ public class AppConfig {
 
   @Bean
   public UserDetailsService userDetailsService() {
-    return username -> userJpaRepository.findByUsernameAndState(username, ACTIVE)
+    return email -> userJpaRepository.findByEmailAndState(email, ACTIVE)
         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
   }
 
@@ -41,7 +41,7 @@ public class AppConfig {
   }
 
   @Bean
-  public AuditorAware<Long> auditorAware() {
+  public AuditorAware<Integer> auditorAware() {
     return new ApplicationAuditAware();
   }
 

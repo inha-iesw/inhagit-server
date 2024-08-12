@@ -17,7 +17,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 import static inha.git.user.domain.enums.Permission.*;
-import static inha.git.user.domain.enums.Role.MANAGER;
 import static io.lettuce.core.AclCategory.ADMIN;
 import static org.springframework.http.HttpMethod.*;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -27,7 +26,14 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfig {
-    private static final String URL = "/api/v1/management/**";
+    // 관리자 전용 경로
+    private static final String ADMIN_URL = "/api/v1/admin/**";
+    // 조교 전용 경로
+    private static final String ASSISTANT_URL = "/api/v1/assistant/**";
+    // 교수 전용 경로
+    private static final String PROFESSOR_URL = "/api/v1/professor/**";
+    // 기업 전용 경로
+    private static final String COMPANY_URL = "/api/v1/company/**";
     private static final String[] WHITE_LIST_URL = {
             "/",
             "/api/v1/auth/**",
@@ -59,11 +65,30 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
-                                .requestMatchers(URL).hasAnyRole(ADMIN.name(), MANAGER.name())
-                                .requestMatchers(GET, URL).hasAnyAuthority(ADMIN_READ.name(), MANAGER_READ.name())
-                                .requestMatchers(POST, URL).hasAnyAuthority(ADMIN_CREATE.name(), MANAGER_CREATE.name())
-                                .requestMatchers(PUT, URL).hasAnyAuthority(ADMIN_UPDATE.name(), MANAGER_UPDATE.name())
-                                .requestMatchers(DELETE, URL).hasAnyAuthority(ADMIN_DELETE.name(), MANAGER_DELETE.name())
+                                // 관리자 전용 접근 설정
+                                .requestMatchers(ADMIN_URL).hasRole(ADMIN.name())
+                                .requestMatchers(GET, ADMIN_URL).hasAuthority(ADMIN_READ.name())
+                                .requestMatchers(POST, ADMIN_URL).hasAuthority(ADMIN_CREATE.name())
+                                .requestMatchers(PUT, ADMIN_URL).hasAuthority(ADMIN_UPDATE.name())
+                                .requestMatchers(DELETE, ADMIN_URL).hasAuthority(ADMIN_DELETE.name())
+                                // 조교 전용 접근 설정
+                                .requestMatchers(ASSISTANT_URL).hasRole("ASSISTANT")
+                                .requestMatchers(GET, ASSISTANT_URL).hasAuthority(ASSISTANT_READ.name())
+                                .requestMatchers(POST, ASSISTANT_URL).hasAuthority(ASSISTANT_CREATE.name())
+                                .requestMatchers(PUT, ASSISTANT_URL).hasAuthority(ASSISTANT_UPDATE.name())
+                                .requestMatchers(DELETE, ASSISTANT_URL).hasAuthority(ASSISTANT_DELETE.name())
+                                // 교수 전용 접근 설정
+                                .requestMatchers(PROFESSOR_URL).hasRole("PROFESSOR")
+                                .requestMatchers(GET, PROFESSOR_URL).hasAuthority(PROFESSOR_READ.name())
+                                .requestMatchers(POST, PROFESSOR_URL).hasAuthority(PROFESSOR_CREATE.name())
+                                .requestMatchers(PUT, PROFESSOR_URL).hasAuthority(PROFESSOR_UPDATE.name())
+                                .requestMatchers(DELETE, PROFESSOR_URL).hasAuthority(PROFESSOR_DELETE.name())
+                                // 기업 전용 접근 설정
+                                .requestMatchers(COMPANY_URL).hasRole("COMPANY")
+                                .requestMatchers(GET, COMPANY_URL).hasAuthority(COMPANY_READ.name())
+                                .requestMatchers(POST, COMPANY_URL).hasAuthority(COMPANY_CREATE.name())
+                                .requestMatchers(PUT, COMPANY_URL).hasAuthority(COMPANY_UPDATE.name())
+                                .requestMatchers(DELETE, COMPANY_URL).hasAuthority(COMPANY_DELETE.name())
                                 .anyRequest()
                                 .authenticated()
                 )

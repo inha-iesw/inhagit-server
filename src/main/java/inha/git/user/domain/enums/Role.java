@@ -27,20 +27,52 @@ public enum Role {
                     ADMIN_UPDATE,
                     ADMIN_DELETE,
                     ADMIN_CREATE,
-                    MANAGER_READ,
-                    MANAGER_UPDATE,
-                    MANAGER_DELETE,
-                    MANAGER_CREATE
+                    ASSISTANT_READ,
+                    ASSISTANT_UPDATE,
+                    ASSISTANT_DELETE,
+                    ASSISTANT_CREATE,
+                    PROFESSOR_READ,
+                    PROFESSOR_UPDATE,
+                    PROFESSOR_DELETE,
+                    PROFESSOR_CREATE,
+                    COMPANY_READ,
+                    COMPANY_UPDATE,
+                    COMPANY_DELETE,
+                    COMPANY_CREATE
             )
     ),
-    MANAGER(
+    //조교
+    ASSISTANT(
             Set.of(
-                    MANAGER_READ,
-                    MANAGER_UPDATE,
-                    MANAGER_DELETE,
-                    MANAGER_CREATE
+                    ASSISTANT_READ,
+                    ASSISTANT_UPDATE,
+                    ASSISTANT_DELETE,
+                    ASSISTANT_CREATE
             )
-    );
+    ),
+    //교수
+    PROFESSOR(
+            Set.of(
+                    PROFESSOR_READ,
+                    PROFESSOR_UPDATE,
+                    PROFESSOR_DELETE,
+                    PROFESSOR_CREATE,
+                    ASSISTANT_READ,
+                    ASSISTANT_UPDATE,
+                    ASSISTANT_DELETE,
+                    ASSISTANT_CREATE
+            )
+    ),
+    //기업
+    COMPANY(
+            Set.of(
+                    COMPANY_READ,
+                    COMPANY_UPDATE,
+                    COMPANY_DELETE,
+                    COMPANY_CREATE
+            )
+    )
+    ;
 
     /**
      * 해당 역할에 부여된 권한 세트.
