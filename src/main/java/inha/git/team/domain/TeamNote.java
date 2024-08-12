@@ -1,4 +1,4 @@
-package inha.git.project.domain;
+package inha.git.team.domain;
 
 import inha.git.common.BaseEntity;
 import inha.git.user.domain.User;
@@ -7,7 +7,7 @@ import lombok.*;
 
 
 /**
- * ProjectComment 엔티티는 애플리케이션의 프로젝트 대댓글 정보를 나타냄.
+ * TeamNote 엔티티는 애플리케이션의 팀 한줄 메모 정보를 나타냄.
  */
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -15,10 +15,11 @@ import lombok.*;
 @Getter
 @Builder
 @Entity
-@Table(name = "project_reply_comment_tb")
-public class ProjectReplyComment extends BaseEntity {
+@Table(name = "team_note_tb")
+public class TeamNote extends BaseEntity {
+
     @Id
-    @Column(name = "project_reply_comment_id", nullable = false, updatable = false)
+    @Column(name = "team_note_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
@@ -30,6 +31,6 @@ public class ProjectReplyComment extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_comment_id")
-    private ProjectComment projectComment;
+    @JoinColumn(name = "team_id")
+    private Team team;
 }
