@@ -1,10 +1,9 @@
 package inha.git.auth.api.mapper;
 
-import dentlix.server.auth.api.controller.dto.request.SignupRequest;
-import dentlix.server.auth.api.controller.dto.response.LoginResponse;
-import dentlix.server.auth.api.controller.dto.response.RefreshResponse;
-import dentlix.server.auth.api.controller.dto.response.SignupResponse;
-import dentlix.server.user.domain.User;
+import inha.git.auth.api.controller.dto.request.SignupRequest;
+import inha.git.auth.api.controller.dto.response.LoginResponse;
+import inha.git.auth.api.controller.dto.response.SignupResponse;
+import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -43,12 +42,5 @@ public interface AuthMapper {
     @Mapping(source = "user.id", target = "userId")
     LoginResponse userToLoginResponse(User user, String accessToken, String refreshToken);
 
-    /**
-     * JWT Access Token을 RefreshResponse로 변환
-     *
-     * @param accessToken JWT Access Token
-     * @return RefreshResponse
-     */
-    RefreshResponse accessTokenToRefreshResponse(String accessToken);
 
 }

@@ -1,5 +1,7 @@
 package inha.git.auth.api.controller;
 
+import inha.git.auth.api.controller.dto.request.EmailCheckRequest;
+import inha.git.auth.api.controller.dto.request.EmailRequest;
 import inha.git.auth.api.controller.dto.request.SignupRequest;
 import inha.git.auth.api.controller.dto.response.SignupResponse;
 import inha.git.auth.api.service.AuthService;
@@ -8,12 +10,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import static inha.git.common.code.status.SuccessStatus.SIGN_UP_OK;
+import static inha.git.common.code.status.SuccessStatus.*;
 
 
 /**
@@ -42,49 +46,29 @@ public class AuthController {
     }
 
     /**
-     * 회원 가입 API
+     * 이메일 인증 API
      *
-     * <p>회원 가입을 처리.</p>
+     * <p>이메일 인증을 처리.</p>
      *
-     * @param signupRequest 회원 가입 요청 정보
+     * @param emailRequest 이메일 인증 요청 정보
      *
-     * @return 회원 가입 결과를 포함하는 BaseResponse<SignupResponse>
+     * @return 이메일 인증 결과를 포함하는 BaseResponse<String>
      */
-    @PostMapping("/signup")
-    @Operation(summary = "회원 가입 API",description = "회원 가입을 처리합니다.")
-    public BaseResponse<SignupResponse> signup(@Validated @RequestBody SignupRequest signupRequest) {
-        return BaseResponse.of(SIGN_UP_OK, authService.signup(signupRequest));
+    @PostMapping ("/number")
+    public BaseResponse<String> mailSend(@RequestBody @Valid EmailRequest emailRequest){
+        log.info("이메일 인증 요청");
+        log.info("이메일 인증 이메일 : {}", emailRequest.email());
+        return BaseResponse.of(EMAIL_SEND_OK, authService.mailSend(emailRequest));
+    }
+    @PostMapping("/number/check")
+    public BaseResponse<Boolean> mailSendCheck(@RequestBody @Valid EmailCheckRequest emailCheckRequest) {
+        return BaseResponse.of(EMAIL_AUTH_OK, authService.mailSendCheck(emailCheckRequest));
     }
 
-    /**
-     * 로그인 API
-     *
-     * <p>로그인을 처리.</p>
-     *
-     * @param loginRequest 로그인 요청 정보
-     *
-     * @return 로그인 결과를 포함하는 BaseResponse<LoginResponse>
-     */
-    @PostMapping("/login")
-    @Operation(summary = "로그인 API",description = "로그인을 처리합니다.")
-    public BaseResponse<LoginResponse> login(@Validated @RequestBody LoginRequest loginRequest) {
-        return BaseResponse.of(LOGIN_OK, authService.login(loginRequest));
-    }
 
-    /**
-     * 리프레시 토큰 재발급 API
-     *
-     * <p>리프레시 토큰을 이용해 새로운 엑세스 토큰을 발급.</p>
-     *
-     * @param request HttpServletRequest
-     * @param response HttpServletResponse
-     *
-     * @return 새로운 엑세스 토큰을 포함하는 BaseResponse<RefreshResponse>
-     */
-    @PostMapping("/refresh-token")
-    @Operation(summary = "리프레시토큰 재발급 API",description = "엑세스 토큰 만료 시 리프레시 토큰을 이용해 새로운 엑세스 토큰을 발급합니다.")
-    public BaseResponse<RefreshResponse> refreshToken(HttpServletRequest request, HttpServletResponse response)  {
-        return BaseResponse.of(REFRESH_OK, authService.refreshToken(request, response));
-    }
+
+
+
+
 
 }

@@ -1,5 +1,6 @@
 package inha.git.auth.api.controller.dto.request;
 
+import inha.git.common.validation.annotation.EmailUnique;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
@@ -8,8 +9,9 @@ import jakarta.validation.constraints.NotNull;
  */
 public record LoginRequest(
         @NotNull
-        @Schema(description = "유저 아이디", example = "testuser")
-        String username,
+        @EmailUnique
+        @Schema(description = "유저 이메일", example = "ghkdrbgur13@inha.edu")
+        String eamil,
         @NotNull
         @Schema(description = "비밀번호", example = "password")
         String password) {

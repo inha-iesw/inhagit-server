@@ -1,22 +1,12 @@
 package inha.git.auth.api.service;
 
 
-import dentlix.server.auth.api.controller.dto.request.LoginRequest;
-import dentlix.server.auth.api.controller.dto.request.SignupRequest;
-import dentlix.server.auth.api.controller.dto.response.LoginResponse;
-import dentlix.server.auth.api.controller.dto.response.RefreshResponse;
-import dentlix.server.auth.api.controller.dto.response.SignupResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import inha.git.auth.api.controller.dto.request.EmailCheckRequest;
+import inha.git.auth.api.controller.dto.request.EmailRequest;
 
 public interface AuthService {
 
+    String mailSend(EmailRequest emailRequest);
 
-    String fastAPIHealth();
-
-    SignupResponse signup(SignupRequest signupRequest);
-
-    LoginResponse login(LoginRequest loginRequest);
-
-    RefreshResponse refreshToken(HttpServletRequest request, HttpServletResponse response);
+    Boolean mailSendCheck(EmailCheckRequest emailCheckRequest);
 }

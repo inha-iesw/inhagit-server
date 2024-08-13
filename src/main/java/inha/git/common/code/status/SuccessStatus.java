@@ -15,8 +15,13 @@ public enum SuccessStatus implements BaseCode {
      * */
     OK(HttpStatus.OK, "COMMON2000", "성공입니다."),
 
-    SIGN_UP_OK(HttpStatus.OK, "AUTH2000", "회원가입 성공"),
-    LOGIN_OK(HttpStatus.OK, "AUTH2001", "로그인 성공"),
+    LOGIN_OK(HttpStatus.OK, "AUTH2000", "로그인 성공"),
+    //이메일 발송 성공
+    EMAIL_SEND_OK(HttpStatus.CREATED, "AUTH2010", "이메일 발송 성공"),
+    //이메일 인증 성공
+    EMAIL_AUTH_OK(HttpStatus.CREATED, "AUTH2001", "이메일 인증 성공"),
+    SIGN_UP_OK(HttpStatus.OK, "AUTH2010", "회원가입 성공"),
+
     REFRESH_OK(HttpStatus.OK, "AUTH2002", "리프레쉬토큰 재발급 성공"),
     LOGOUT_OK(HttpStatus.OK, "AUTH2003", "로그아웃 성공"),
 
