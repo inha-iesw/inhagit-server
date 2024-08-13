@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 /**
  * SignupResponse는 회원 가입 응답 정보를 담는 DTO 클래스.
  */
-public record SignupResponse(
+public record StudentSignupResponse(
 
         @NotNull
         @Schema(description = "유저 아이디", example = "1")

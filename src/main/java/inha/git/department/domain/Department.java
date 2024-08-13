@@ -27,7 +27,5 @@ public class Department extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(nullable = false, length = 50, name = "evidence_file_path")
-    private String evidenceFilePath;
 
 }
