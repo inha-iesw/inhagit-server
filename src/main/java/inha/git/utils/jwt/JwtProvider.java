@@ -38,6 +38,8 @@ public class JwtProvider {
           "<br>" +
           "인증번호를 제대로 입력해주세요";
 
+  public final static String STUDENT_TYPE = "1";
+  public final static String PROFESSOR_TYPE = "2";
   @Value("${jwt.secret_key}")
   private String secretKey;
   @Value("${jwt.expiration}")

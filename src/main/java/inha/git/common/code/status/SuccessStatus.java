@@ -22,7 +22,7 @@ public enum SuccessStatus implements BaseCode {
     EMAIL_AUTH_OK(HttpStatus.CREATED, "AUTH2001", "이메일 인증 성공"),
     //학생 회원가입 성공
     STUDENT_SIGN_UP_OK(HttpStatus.CREATED, "AUTH2012", "학생 회원가입 성공"),
-    SIGN_UP_OK(HttpStatus.OK, "AUTH2010", "회원가입 성공"),
+    PROFESSOR_SIGN_UP_OK(HttpStatus.CREATED, "AUTH2013", "교수 회원가입 성공"),
 
     LOGOUT_OK(HttpStatus.OK, "AUTH2003", "로그아웃 성공"),
 

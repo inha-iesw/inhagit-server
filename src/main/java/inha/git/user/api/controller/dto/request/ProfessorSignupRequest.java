@@ -9,12 +9,10 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
-
 /**
  * SignupRequest는 회원 가입 요청 정보를 담는 DTO 클래스.
  */
-public record StudentSignupRequest(
-
+public record ProfessorSignupRequest(
         @NotEmpty(message = "이메일은 필수 입력 항목입니다.")
         @EmailUnique
         @Email
@@ -32,9 +30,10 @@ public record StudentSignupRequest(
         @Schema(description = "비밀번호", example = "password2@")
         String pw,
 
-        @NotEmpty(message = "학번은 필수 입력 항목입니다.")
+        @NotEmpty(message = "사번 필수 입력 항목입니다.")
         @ValidUserNumber
-        @Schema(description = "학번", example = "12241234")
+        @Size(min = 6, max = 6, message = "사번은 6자리 숫자여야 합니다.")
+        @Schema(description = "사번", example = "221121")
         String userNumber,
 
         @NotNull(message = "학과 목록은 필수 입력 항목입니다.")

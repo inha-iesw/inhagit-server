@@ -8,10 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static inha.git.common.code.status.SuccessStatus.DEPARTMENT_CREATE_OK;
 
@@ -22,11 +19,12 @@ import static inha.git.common.code.status.SuccessStatus.DEPARTMENT_CREATE_OK;
 @Tag(name = "department controller", description = "department 관련 API")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/department")
+@RequestMapping("/api/v1/departments")
 public class DepartmentController {
 
     private final DepartmentService departmentService;
 
+    //추후에 어드민만 접근할 수 있도록 수정해야함
     /**
      * 학과 생성
      *
