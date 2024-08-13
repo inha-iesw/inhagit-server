@@ -2,6 +2,8 @@ package inha.git.auth.api.controller;
 
 import inha.git.auth.api.controller.dto.request.EmailCheckRequest;
 import inha.git.auth.api.controller.dto.request.EmailRequest;
+import inha.git.auth.api.controller.dto.request.LoginRequest;
+import inha.git.auth.api.controller.dto.response.LoginResponse;
 import inha.git.auth.api.service.AuthService;
 import inha.git.auth.api.service.MailService;
 import inha.git.common.BaseResponse;
@@ -73,6 +75,11 @@ public class AuthController {
         return BaseResponse.of(EMAIL_AUTH_OK, mailService.mailSendCheck(emailCheckRequest));
     }
 
+    @PostMapping("/login")
+    @Operation(summary = "로그인 API",description = "로그인을 처리합니다.")
+    public BaseResponse<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
+        return BaseResponse.of(LOGIN_OK, authService.login(loginRequest));
+    }
 
 
 

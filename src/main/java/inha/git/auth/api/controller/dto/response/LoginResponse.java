@@ -12,12 +12,6 @@ public record LoginResponse(
         Long userId,
         @NotNull
         @Schema(description = "액세스 토큰", example = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImV4cCI6MTYzNzIwNjIwM30.1J9")
-        String accessToken,
-        @NotNull
-        @Schema(description = "리프레시 토큰", example = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImV4cCI6MTYzNzIwNjIwM30.1J9")
-        String refreshToken,
-        @NotNull
-        @Schema(description = "닉네임", example = "테스트유저")
-        String nickname
+        String accessToken
 ) {
 }
