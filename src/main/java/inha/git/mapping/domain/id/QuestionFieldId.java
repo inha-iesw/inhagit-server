@@ -18,7 +18,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class QuestionFieldId implements Serializable {
 
-    private Long questionId;
-    private Long fieldId;
+    private Integer questionId;
+    private Integer fieldId;
 
 }

@@ -1,4 +1,4 @@
-package inha.git.department.api.converter;
+package inha.git.department.api.mapper;
 
 import inha.git.department.api.controller.dto.request.CreateDepartmentRequest;
 import inha.git.department.domain.Department;

@@ -18,7 +18,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class PatentRecommedId implements Serializable {
 
-    private Long projectId;
-    private Long userId;
+    private Integer projectId;
+    private Integer userId;
 
 }

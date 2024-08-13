@@ -33,4 +33,10 @@ public class UserDepartment {
     @JoinColumn(name = "department_id", nullable = false)
     private Department department;
 
+    public UserDepartment(User user, Department department) {
+        this.user = user;
+        this.department = department;
+        this.id = new UserDepartmentId(user.getId(), department.getId());
+    }
+
 }

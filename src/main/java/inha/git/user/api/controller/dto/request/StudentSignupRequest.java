@@ -20,7 +20,7 @@ public record StudentSignupRequest(
         @Email
         @ValidEmail
         @Schema(description = "유저 이메일", example = "ghkdrbgur13@inha.edu")
-        String eamil,
+        String email,
 
         @NotEmpty(message = "이름은 필수 입력 항목입니다.")
         @ValidName
@@ -39,6 +39,6 @@ public record StudentSignupRequest(
 
         @NotNull(message = "학과 목록은 필수 입력 항목입니다.")
         @Size(min = 1, message = "최소 한 개의 학과를 선택해야 합니다.")
-        List<Integer> departmentIdxList
+        List<Integer> departmentIdList
 ) {
 }

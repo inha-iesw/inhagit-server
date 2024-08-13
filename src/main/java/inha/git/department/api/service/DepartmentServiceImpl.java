@@ -1,7 +1,7 @@
 package inha.git.department.api.service;
 
 import inha.git.department.api.controller.dto.request.CreateDepartmentRequest;
-import inha.git.department.api.converter.DepartmentMapper;
+import inha.git.department.api.mapper.DepartmentMapper;
 import inha.git.department.domain.Department;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
 import lombok.RequiredArgsConstructor;

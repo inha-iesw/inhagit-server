@@ -18,7 +18,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class UserDepartmentId implements Serializable {
 
-    private Long userId;
-    private Long departmentId;
+    private Integer userId;
+    private Integer departmentId;
 
 }
