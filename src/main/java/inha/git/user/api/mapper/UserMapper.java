@@ -4,10 +4,13 @@ package inha.git.user.api.mapper;
 import inha.git.common.exceptions.BaseException;
 import inha.git.department.domain.Department;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
+import inha.git.user.api.controller.dto.request.CompanySignupRequest;
 import inha.git.user.api.controller.dto.request.ProfessorSignupRequest;
 import inha.git.user.api.controller.dto.request.StudentSignupRequest;
+import inha.git.user.api.controller.dto.response.CompanySignupResponse;
 import inha.git.user.api.controller.dto.response.ProfessorSignupResponse;
 import inha.git.user.api.controller.dto.response.StudentSignupResponse;
+import inha.git.user.domain.Company;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -26,8 +29,9 @@ public interface UserMapper {
     @Mapping(target = "role", constant = "USER")
     User studentSignupRequestToUser(StudentSignupRequest studentSignupRequest);
     @Mapping(target = "role", constant = "PROFESSOR")
-
     User professorSignupRequestToUser(ProfessorSignupRequest professorSignupRequest);
+    @Mapping(target = "role", constant = "COMPANY")
+    User companySignupRequestToUser(CompanySignupRequest companySignupRequest);
 
     // Department 리스트를 기반으로 UserDepartment 설정하는 메서드 정의
     default void mapDepartmentsToUser(User user, List<Integer> departmentIdList, DepartmentJpaRepository departmentRepository) {
@@ -37,12 +41,18 @@ public interface UserMapper {
             user.addDepartment(department);
         }
     }
+    @Mapping(target = "acceptedAt", ignore = true)
+    Company companySignupRequestToCompany(CompanySignupRequest companySignupRequest, String evidenceFilePath);
 
     @Mapping(source = "user.id", target = "userId")
     StudentSignupResponse userToStudentSignupResponse(User user);
 
     @Mapping(source = "user.id", target = "userId")
     ProfessorSignupResponse userToProfessorSignupResponse(User user);
+
+    @Mapping(source = "user.id", target = "userId")
+    CompanySignupResponse userToCompanySignupResponse(User user);
+
 
 
 }

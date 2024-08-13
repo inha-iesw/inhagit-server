@@ -40,6 +40,7 @@ public class JwtProvider {
 
   public final static String STUDENT_TYPE = "1";
   public final static String PROFESSOR_TYPE = "2";
+  public final static String COMPANY_TYPE = "3";
   @Value("${jwt.secret_key}")
   private String secretKey;
   @Value("${jwt.expiration}")

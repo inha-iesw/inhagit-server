@@ -1,8 +1,10 @@
 package inha.git.user.api.controller;
 
 import inha.git.common.BaseResponse;
+import inha.git.user.api.controller.dto.request.CompanySignupRequest;
 import inha.git.user.api.controller.dto.request.ProfessorSignupRequest;
 import inha.git.user.api.controller.dto.request.StudentSignupRequest;
+import inha.git.user.api.controller.dto.response.CompanySignupResponse;
 import inha.git.user.api.controller.dto.response.ProfessorSignupResponse;
 import inha.git.user.api.controller.dto.response.StudentSignupResponse;
 import inha.git.user.api.service.UserService;
@@ -10,14 +12,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import static inha.git.common.code.status.SuccessStatus.PROFESSOR_SIGN_UP_OK;
-import static inha.git.common.code.status.SuccessStatus.STUDENT_SIGN_UP_OK;
+import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
  * UserController는 유저 관련 엔드포인트를 처리.
@@ -46,11 +46,28 @@ public class UserController {
         return BaseResponse.of(STUDENT_SIGN_UP_OK, userService.studentSignup(studentSignupRequest));
     }
 
-    // 교수 회원 가입
+    /**
+     * 교수 회원가입 API
+     *
+     * <p>교수 회원가입을 처리.</p>
+     *
+     * @param professorSignupRequest 교수 회원가입 요청 정보
+     *
+     * @return 교수 회원가입 결과를 포함하는 BaseResponse<ProfessorSignupResponse>
+     */
     @PostMapping("/professor")
     @Operation(summary = "교수 회원가입 API", description = "교수 회원가입을 처리합니다.")
     public BaseResponse<ProfessorSignupResponse> professorSignup(@Validated @RequestBody ProfessorSignupRequest professorSignupRequest) {
         return BaseResponse.of(PROFESSOR_SIGN_UP_OK, userService.professorSignup(professorSignupRequest));
+    }
+
+    // 기업 회원가입
+    @PostMapping(value = "/company",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "기업 회원가입 API", description = "기업 회원가입을 처리합니다.")
+    public BaseResponse<CompanySignupResponse> companySignup(
+            @Validated @RequestPart("company") CompanySignupRequest companySignupRequest,
+            @RequestPart(value = "evidence" ) MultipartFile evidence) {
+        return BaseResponse.of(COMPANY_SIGN_UP_OK, userService.companySignup(companySignupRequest, evidence));
     }
 
 }

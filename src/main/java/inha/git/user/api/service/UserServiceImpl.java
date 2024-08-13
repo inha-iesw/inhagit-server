@@ -2,23 +2,29 @@ package inha.git.user.api.service;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
+import inha.git.user.api.controller.dto.request.CompanySignupRequest;
 import inha.git.user.api.controller.dto.request.ProfessorSignupRequest;
 import inha.git.user.api.controller.dto.request.StudentSignupRequest;
+import inha.git.user.api.controller.dto.response.CompanySignupResponse;
 import inha.git.user.api.controller.dto.response.ProfessorSignupResponse;
 import inha.git.user.api.controller.dto.response.StudentSignupResponse;
 import inha.git.user.api.mapper.UserMapper;
+import inha.git.user.domain.Company;
 import inha.git.user.domain.User;
+import inha.git.user.domain.repository.CompanyJpaRepository;
 import inha.git.user.domain.repository.UserJpaRepository;
+import inha.git.utils.FilePath;
 import inha.git.utils.RedisProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 
 import static inha.git.common.code.status.ErrorStatus.EMAIL_AUTH_NOT_FOUND;
-import static inha.git.utils.jwt.JwtProvider.PROFESSOR_TYPE;
-import static inha.git.utils.jwt.JwtProvider.STUDENT_TYPE;
+import static inha.git.utils.jwt.JwtProvider.*;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +35,7 @@ public class UserServiceImpl implements UserService {
     private final UserJpaRepository userJpaRepository;
     private final PasswordEncoder passwordEncoder;
     private final DepartmentJpaRepository departmentRepository;
+    private final CompanyJpaRepository companyJpaRepository;
     private final RedisProvider redisProvider;
     private final UserMapper userMapper;
 
@@ -63,6 +70,19 @@ public class UserServiceImpl implements UserService {
         userMapper.mapDepartmentsToUser(user, professorSignupRequest.departmentIdList(), departmentRepository);
         user.setPassword(passwordEncoder.encode(professorSignupRequest.pw()));
         return userMapper.userToProfessorSignupResponse(userJpaRepository.save(user));
+    }
+
+    @Transactional
+    @Override
+    public CompanySignupResponse companySignup(CompanySignupRequest companySignupRequest, MultipartFile evidence) {
+        emailAuth(companySignupRequest.email(), COMPANY_TYPE);
+        User user = userMapper.companySignupRequestToUser(companySignupRequest);
+        user.setPassword(passwordEncoder.encode(companySignupRequest.pw()));
+        User savedUser = userJpaRepository.save(user);
+        Company company = userMapper.companySignupRequestToCompany(companySignupRequest,  FilePath.storeFile(evidence, "evidence"));
+        company.setUser(savedUser);
+        companyJpaRepository.save(company);
+        return userMapper.userToCompanySignupResponse(savedUser);
     }
 
 

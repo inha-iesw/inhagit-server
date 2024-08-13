@@ -41,7 +41,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(nullable = false, length = 12)
     private String name;
 
-    @Column(nullable = false, length = 8,name = "user_number")
+    @Column(length = 8,name = "user_number")
     private String userNumber;
 
     @Column(length = 50, name = "github_token")
@@ -57,6 +57,9 @@ public class User extends BaseEntity implements UserDetails {
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserDepartment> userDepartments = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Company company;
 
     @Override
     public String getUsername() {
@@ -106,5 +109,11 @@ public class User extends BaseEntity implements UserDetails {
     public void removeDepartment(Department department) {
         userDepartments.removeIf(userDepartment -> userDepartment.getDepartment().equals(department) && userDepartment.getUser().equals(this));
         department.getUserDepartments().removeIf(userDepartment -> userDepartment.getUser().equals(this) && userDepartment.getDepartment().equals(department));
+    }
+    public void setCompany(Company company) {
+        this.company = company;
+        if (company.getUser() != this) {
+            company.setUser(this);  // 양방향 연관관계 설정
+        }
     }
 }
