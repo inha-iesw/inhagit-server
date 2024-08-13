@@ -113,4 +113,12 @@ public class MailServiceImpl implements MailService {
                 .findFirst()
                 .getAsInt();
     }
+
+    public void emailAuth(String email, String userPosition) {
+        String verificationKey = "verification-" + email + "-" + userPosition;
+        String verificationStatus = redisProvider.getValueOps(verificationKey);
+        if (verificationStatus == null || !verificationStatus.equals(userPosition)) {
+            throw new BaseException(EMAIL_AUTH_NOT_FOUND);
+        }
+    }
 }

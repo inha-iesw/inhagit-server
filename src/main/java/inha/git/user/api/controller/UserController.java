@@ -7,6 +7,9 @@ import inha.git.user.api.controller.dto.request.StudentSignupRequest;
 import inha.git.user.api.controller.dto.response.CompanySignupResponse;
 import inha.git.user.api.controller.dto.response.ProfessorSignupResponse;
 import inha.git.user.api.controller.dto.response.StudentSignupResponse;
+import inha.git.user.api.service.CompanyService;
+import inha.git.user.api.service.ProfessorService;
+import inha.git.user.api.service.StudentService;
 import inha.git.user.api.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +33,9 @@ import static inha.git.common.code.status.SuccessStatus.*;
 public class UserController {
 
     private final UserService userService;
+    private final StudentService studentService;
+    private final ProfessorService professorService;
+    private final CompanyService companyService;
 
     /**
      * 학생 회원가입 API
@@ -43,7 +49,7 @@ public class UserController {
     @PostMapping("/student")
     @Operation(summary = "학생 회원가입 API", description = "학생 회원가입을 처리합니다.")
     public BaseResponse<StudentSignupResponse> studentSignup(@Validated @RequestBody StudentSignupRequest studentSignupRequest) {
-        return BaseResponse.of(STUDENT_SIGN_UP_OK, userService.studentSignup(studentSignupRequest));
+        return BaseResponse.of(STUDENT_SIGN_UP_OK, studentService.studentSignup(studentSignupRequest));
     }
 
     /**
@@ -58,16 +64,24 @@ public class UserController {
     @PostMapping("/professor")
     @Operation(summary = "교수 회원가입 API", description = "교수 회원가입을 처리합니다.")
     public BaseResponse<ProfessorSignupResponse> professorSignup(@Validated @RequestBody ProfessorSignupRequest professorSignupRequest) {
-        return BaseResponse.of(PROFESSOR_SIGN_UP_OK, userService.professorSignup(professorSignupRequest));
+        return BaseResponse.of(PROFESSOR_SIGN_UP_OK, professorService.professorSignup(professorSignupRequest));
     }
 
-    // 기업 회원가입
+    /**
+     * 기업 회원가입 API
+     *
+     * <p>기업 회원가입을 처리.</p>
+     *
+     * @param companySignupRequest 기업 회원가입 요청 정보
+     *
+     * @return 기업 회원가입 결과를 포함하는 BaseResponse<CompanySignupResponse>
+     */
     @PostMapping(value = "/company",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "기업 회원가입 API", description = "기업 회원가입을 처리합니다.")
     public BaseResponse<CompanySignupResponse> companySignup(
             @Validated @RequestPart("company") CompanySignupRequest companySignupRequest,
             @RequestPart(value = "evidence" ) MultipartFile evidence) {
-        return BaseResponse.of(COMPANY_SIGN_UP_OK, userService.companySignup(companySignupRequest, evidence));
+        return BaseResponse.of(COMPANY_SIGN_UP_OK, companyService.companySignup(companySignupRequest, evidence));
     }
 
 }

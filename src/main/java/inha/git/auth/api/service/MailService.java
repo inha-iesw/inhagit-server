@@ -8,4 +8,6 @@ public interface MailService {
     String mailSend(EmailRequest emailRequest);
 
     Boolean mailSendCheck(EmailCheckRequest emailCheckRequest);
+
+    void emailAuth(String email, String userPosition);
 }
