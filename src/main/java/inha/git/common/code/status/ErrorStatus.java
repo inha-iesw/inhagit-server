@@ -63,6 +63,9 @@ public enum ErrorStatus implements BaseErrorCode {
     BANNER_FILE_EMPTY(HttpStatus.BAD_REQUEST, "BANNER4000", "배너 파일이 비어있습니다."),
     FIELD_NOT_FOUND(HttpStatus.NOT_FOUND, "FIELD4000", "분야를 찾을 수 없습니다"),
 
+    NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTICE4000", "해당 공지가 존재하지 않습니다."),
+    NOTICE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "NOTICE4001", "해당 공지를 수정할 권한이 없습니다."),
+
     DEPARTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "DEPARTMENT4000", "학과를 찾을 수 없습니다."),
     ALREADY_ADMIN(HttpStatus.BAD_REQUEST, "ADMIN4000", "이미 관리자 권한이 있습니다."),
     NOT_ADMIN(HttpStatus.BAD_REQUEST, "ADMIN4001", "이미 관리자 권한이 없습니다."),

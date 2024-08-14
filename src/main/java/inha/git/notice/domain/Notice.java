@@ -32,4 +32,9 @@ public class Notice extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public void updateNotice(String title, String contents) {
+        this.title = title;
+        this.contents = contents;
+    }
 }
