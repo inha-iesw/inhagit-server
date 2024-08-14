@@ -1,10 +1,8 @@
 package inha.git.admin.api.service;
 
-import inha.git.admin.api.controller.dto.request.AdminDemotionRequest;
-import inha.git.admin.api.controller.dto.request.AdminPromotionRequest;
-import inha.git.admin.api.controller.dto.request.ProfessorAcceptRequest;
-import inha.git.admin.api.controller.dto.request.ProfessorCancelRequest;
+import inha.git.admin.api.controller.dto.request.*;
 import inha.git.common.exceptions.BaseException;
+import inha.git.user.domain.Company;
 import inha.git.user.domain.Professor;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
@@ -39,8 +37,7 @@ public class AdminApproveServiceImpl implements AdminApproveService {
      */
     @Override
     public String promotion(AdminPromotionRequest adminPromotionRequest) {
-        User user = userJpaRepository.findByIdAndState(adminPromotionRequest.userIdx(), ACTIVE)
-                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        User user = getUser(adminPromotionRequest.userIdx());
         if(user.getRole() == Role.ADMIN) {
             throw new BaseException(ALREADY_ADMIN);
         }
@@ -57,8 +54,7 @@ public class AdminApproveServiceImpl implements AdminApproveService {
      */
     @Override
     public String demotion(AdminDemotionRequest adminDemotionRequest) {
-        User user = userJpaRepository.findByIdAndState(adminDemotionRequest.userIdx(), ACTIVE)
-                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        User user = getUser(adminDemotionRequest.userIdx());
         if(user.getRole() != Role.ADMIN) {
             throw new BaseException(NOT_ADMIN);
         }
@@ -80,8 +76,7 @@ public class AdminApproveServiceImpl implements AdminApproveService {
      */
     @Override
     public String acceptProfessor(ProfessorAcceptRequest professorAcceptRequest) {
-        User user = userJpaRepository.findByIdAndState(professorAcceptRequest.userIdx(), ACTIVE)
-                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        User user = getUser(professorAcceptRequest.userIdx());
         if(user.getRole() != Role.PROFESSOR) {
             throw new BaseException(NOT_PROFESSOR);
         }
@@ -97,8 +92,7 @@ public class AdminApproveServiceImpl implements AdminApproveService {
 
     @Override
     public String cancelProfessor(ProfessorCancelRequest professorCancelRequest) {
-        User user = userJpaRepository.findByIdAndState(professorCancelRequest.userIdx(), ACTIVE)
-                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        User user = getUser(professorCancelRequest.userIdx());
         if(user.getRole() != Role.PROFESSOR) {
             throw new BaseException(NOT_PROFESSOR);
         }
@@ -110,5 +104,26 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         professor.setAcceptedAt(null);
         professorJpaRepository.save(professor);
         return professorCancelRequest.userIdx() + ": 교수 승인 취소 완료";
+    }
+
+    @Override
+    public String acceptCompany(CompanyAcceptRequest companyAcceptRequest) {
+        User user = getUser(companyAcceptRequest.userIdx());
+        if(user.getRole() != Role.COMPANY) {
+            throw new BaseException(NOT_COMPANY);
+        }
+        Company company = companyJpaRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new BaseException(NOT_COMPANY));
+        if(company.getAcceptedAt() != null) {
+            throw new BaseException(ALREADY_ACCEPTED_COMPANY);
+        }
+        company.setAcceptedAt(LocalDateTime.now());
+        companyJpaRepository.save(company);
+        return companyAcceptRequest.userIdx() + ": 기업 승인 완료";
+    }
+
+    private User getUser(Integer userIdx) {
+        return userJpaRepository.findByIdAndState(userIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
     }
 }

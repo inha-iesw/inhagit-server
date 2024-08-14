@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -45,7 +44,6 @@ public class AdminSearchController {
      * @return 검색된 유저 정보를 포함하는 BaseResponse<Page<SearchUserResponse>>
      */
     @GetMapping("/users")
-    @PreAuthorize("hasAuthority('admin:read')")
     @Operation(summary = "관리자 전용 유저 검색 API", description = "관리자 전용 유저 검색 API입니다")
     public BaseResponse<Page<SearchUserResponse>> getAdminUsers(
             @RequestParam(value = "search", required = false) String search,
@@ -65,7 +63,6 @@ public class AdminSearchController {
      * @return 검색된 학생 정보를 포함하는 BaseResponse<Page<SearchStudentResponse>>
      */
     @GetMapping("/students")
-    @PreAuthorize("hasAuthority('admin:read')")
     @Operation(summary = "관리자 전용 학생 검색 API", description = "관리자 전용 학생 검색 API입니다")
     public BaseResponse<Page<SearchStudentResponse>> getAdminStudents(
             @RequestParam(value = "search", required = false) String search,
@@ -85,7 +82,6 @@ public class AdminSearchController {
      * @return 검색된 교수 정보를 포함하는 BaseResponse<Page<SearchProfessorResponse>>
      */
     @GetMapping("/professors")
-    @PreAuthorize("hasAuthority('admin:read')")
     @Operation(summary = "관리자 전용 교수 검색 API", description = "관리자 전용 교수 검색 API입니다")
     public BaseResponse<Page<SearchProfessorResponse>> getAdminProfessors(
             @RequestParam(value = "search", required = false) String search,
@@ -106,7 +102,6 @@ public class AdminSearchController {
      * @return 검색된 회사 정보를 포함하는 BaseResponse<Page<SearchCompanyResponse>>
      */
     @GetMapping("/companies")
-    @PreAuthorize("hasAuthority('admin:read')")
     @Operation(summary = "관리자 전용 회사 검색 API", description = "관리자 전용 회사 검색 API입니다")
     public BaseResponse<Page<SearchCompanyResponse>> getAdminCompanies(
             @RequestParam(value = "search", required = false) String search,

@@ -1,9 +1,6 @@
 package inha.git.admin.api.controller;
 
-import inha.git.admin.api.controller.dto.request.AdminDemotionRequest;
-import inha.git.admin.api.controller.dto.request.AdminPromotionRequest;
-import inha.git.admin.api.controller.dto.request.ProfessorAcceptRequest;
-import inha.git.admin.api.controller.dto.request.ProfessorCancelRequest;
+import inha.git.admin.api.controller.dto.request.*;
 import inha.git.admin.api.service.AdminApproveService;
 import inha.git.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -17,8 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static inha.git.common.code.status.SuccessStatus.DEMOTION_CREATED;
-import static inha.git.common.code.status.SuccessStatus.PROMOTION_CREATED;
+import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
  * AdminApproveController는 관리자 전용 계정 조회 관련 엔드포인트를 처리.
@@ -41,8 +37,7 @@ public class AdminApproveController {
      * @return 승격된 유저 정보를 포함하는 BaseResponse<String>
      */
     @PostMapping("/promotion")
-    @PreAuthorize("hasAuthority('admin:update')")
-    @Operation(summary = "관리자로 승격 API", description = "유저를 관리자로 승격합니다.")
+    @Operation(summary = "관리자로 승격 API(관리자 전용)", description = "유저를 관리자로 승격합니다.")
     public BaseResponse<String> promotion(@Validated @RequestBody AdminPromotionRequest adminPromotionRequest) {
         return BaseResponse.of(PROMOTION_CREATED, adminApproveService.promotion(adminPromotionRequest));
     }
@@ -56,8 +51,7 @@ public class AdminApproveController {
      * @return 승격 취소된 유저 정보를 포함하는 BaseResponse<String>
      */
     @PostMapping("/demotion")
-    @PreAuthorize("hasAuthority('admin:update')")
-    @Operation(summary = "관리자 승격 취소 API", description = "관리자 승격을 취소합니다.")
+    @Operation(summary = "관리자 승격 취소 API(관리자 전용)", description = "관리자 승격을 취소합니다.")
     public BaseResponse<String> demotion(@Validated @RequestBody AdminDemotionRequest adminDemotionRequest) {
         return BaseResponse.of(DEMOTION_CREATED, adminApproveService.demotion(adminDemotionRequest));
     }
@@ -71,10 +65,9 @@ public class AdminApproveController {
      * @return 승인된 교수 정보를 포함하는 BaseResponse<String>
      */
     @PostMapping("/professor/accept")
-    @PreAuthorize("hasAuthority('admin:update')")
-    @Operation(summary = "교수 승인 API", description = "교수 승인을 합니다.")
+    @Operation(summary = "교수 승인 API(관리자 전용)", description = "교수 승인을 합니다.")
     public BaseResponse<String> acceptProfessor(@Validated @RequestBody ProfessorAcceptRequest professorAcceptRequest) {
-        return BaseResponse.of(DEMOTION_CREATED, adminApproveService.acceptProfessor(professorAcceptRequest));
+        return BaseResponse.of(PROFESSOR_ACCEPT_OK, adminApproveService.acceptProfessor(professorAcceptRequest));
     }
 
     /**
@@ -86,9 +79,9 @@ public class AdminApproveController {
      * @return 승인 취소된 교수 정보를 포함하는 BaseResponse<String>
      */
     @PostMapping("/professor/cancel")
-    @PreAuthorize("hasAuthority('admin:update')")
     @Operation(summary = "교수 승인 취소 API", description = "교수 승인을 취소합니다.")
     public BaseResponse<String> cancelProfessor(@Validated @RequestBody ProfessorCancelRequest professorCancelRequest) {
-        return BaseResponse.of(DEMOTION_CREATED, adminApproveService.cancelProfessor(professorCancelRequest));
+        return BaseResponse.of(PROFESSOR_DEMOTE_OK, adminApproveService.cancelProfessor(professorCancelRequest));
     }
+
 }

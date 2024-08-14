@@ -1,10 +1,7 @@
 package inha.git.admin.api.service;
 
 
-import inha.git.admin.api.controller.dto.request.AdminDemotionRequest;
-import inha.git.admin.api.controller.dto.request.AdminPromotionRequest;
-import inha.git.admin.api.controller.dto.request.ProfessorAcceptRequest;
-import inha.git.admin.api.controller.dto.request.ProfessorCancelRequest;
+import inha.git.admin.api.controller.dto.request.*;
 
 public interface AdminApproveService {
 
@@ -13,6 +10,5 @@ public interface AdminApproveService {
 
     String acceptProfessor(ProfessorAcceptRequest professorAcceptRequest);
     String cancelProfessor(ProfessorCancelRequest professorCancelRequest);
-
-
+    String acceptCompany(CompanyAcceptRequest companyAcceptRequest);
 }
