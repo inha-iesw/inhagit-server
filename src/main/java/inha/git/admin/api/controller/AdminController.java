@@ -1,5 +1,6 @@
 package inha.git.admin.api.controller;
 
+import inha.git.admin.api.controller.dto.request.AdminPromotionRequest;
 import inha.git.admin.api.controller.dto.response.SearchCompanyResponse;
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
 import inha.git.admin.api.controller.dto.response.SearchStudentResponse;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
@@ -110,5 +112,13 @@ public class AdminController {
             throw new BaseException(INVALID_PAGE);
         }
         return BaseResponse.of(COMPANY_SEARCH_OK, adminService.getAdminCompanies(search, page));
+    }
+
+    //관리자로 승격
+    @PostMapping("/promotion")
+    @PreAuthorize("hasAuthority('admin:update')")
+    @Operation(summary = "관리자로 승격 API", description = "유저를 관리자로 승격합니다.")
+    public BaseResponse<String> promotion(@Validated @RequestBody AdminPromotionRequest adminPromotionRequest) {
+        return BaseResponse.of(PROMOTION_CREATED, adminService.promotion(adminPromotionRequest));
     }
 }

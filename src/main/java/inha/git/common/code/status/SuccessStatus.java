@@ -31,6 +31,7 @@ public enum SuccessStatus implements BaseCode {
     STUDENT_SEARCH_OK(HttpStatus.OK, "ADMIN2001", "학생 검색 성공"),
     PROFESSOR_SEARCH_OK(HttpStatus.OK, "ADMIN2002", "교수 검색 성공"),
     COMPANY_SEARCH_OK(HttpStatus.OK, "ADMIN2003", "기업 검색 성공"),
+    PROMOTION_CREATED(HttpStatus.CREATED, "ADMIN2010", "관리자 승격 성공"),
 
     DEPARTMENT_CREATE_OK(HttpStatus.CREATED, "DEPARTMENT2010", "학과 생성 성공"),
     DEPARTMENT_SEARCH_OK(HttpStatus.OK, "DEPARTMENT2000", "학과 전체 조회 성공"),

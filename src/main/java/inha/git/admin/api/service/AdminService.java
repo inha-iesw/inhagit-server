@@ -1,5 +1,6 @@
 package inha.git.admin.api.service;
 
+import inha.git.admin.api.controller.dto.request.AdminPromotionRequest;
 import inha.git.admin.api.controller.dto.response.SearchCompanyResponse;
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
 import inha.git.admin.api.controller.dto.response.SearchStudentResponse;
@@ -12,5 +13,6 @@ public interface AdminService {
     Page<SearchStudentResponse> getAdminStudents(String search, Integer page);
     Page<SearchProfessorResponse> getAdminProfessors(String search, Integer page);
     Page<SearchCompanyResponse> getAdminCompanies(String search, Integer page);
+    String promotion(AdminPromotionRequest adminPromotionRequest);
 }
 

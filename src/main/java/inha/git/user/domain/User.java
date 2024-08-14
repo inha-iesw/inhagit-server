@@ -119,4 +119,8 @@ public class User extends BaseEntity implements UserDetails {
             company.setUser(this);  // 양방향 연관관계 설정
         }
     }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }
