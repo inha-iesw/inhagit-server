@@ -93,16 +93,16 @@ public class AdminSearchController {
     }
 
     /**
-     * 관리자 전용 회사 검색 API
+     * 관리자 전용 기업 검색 API
      *
-     * <p>관리자 전용 회사 검색 API입니다.</p>
+     * <p>관리자 전용 기업 검색 API입니다.</p>
      *
      * @param search 검색어
      * @param page 페이지 번호
      * @return 검색된 회사 정보를 포함하는 BaseResponse<Page<SearchCompanyResponse>>
      */
     @GetMapping("/companies")
-    @Operation(summary = "관리자 전용 회사 검색 API", description = "관리자 전용 회사 검색 API입니다")
+    @Operation(summary = "관리자 전용 기업 검색 API", description = "관리자 전용 회사 검색 API입니다")
     public BaseResponse<Page<SearchCompanyResponse>> getAdminCompanies(
             @RequestParam(value = "search", required = false) String search,
             @RequestParam("page") Integer page) {
