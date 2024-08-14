@@ -8,4 +8,6 @@ public interface NoticeService {
     String createNotice(User user, CreateNoticeRequest createNoticeRequest);
 
     String updateNotice(User user, Integer noticeIdx, UpdateNoticeRequest updateNoticeRequest);
+
+    String deleteNotice(User user, Integer noticeIdx);
 }

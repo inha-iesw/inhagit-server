@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.NOTICE_NOT_AUTHORIZED;
 import static inha.git.common.code.status.ErrorStatus.NOTICE_NOT_FOUND;
 
@@ -23,7 +24,7 @@ import static inha.git.common.code.status.ErrorStatus.NOTICE_NOT_FOUND;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
+@Transactional
 public class NoticeServiceImpl implements NoticeService {
 
     private final NoticeJpaRepository noticeJpaRepository;
@@ -37,7 +38,6 @@ public class NoticeServiceImpl implements NoticeService {
      * @return 생성된 공지 이름
      */
     @Override
-    @Transactional
     public String createNotice(User user, CreateNoticeRequest createNoticeRequest) {
         Notice notice = noticeMapper.createNoticeRequestToNotice(user, createNoticeRequest);
         return noticeJpaRepository.save(notice).getTitle() + " 공지가 생성되었습니다.";
@@ -54,15 +54,51 @@ public class NoticeServiceImpl implements NoticeService {
      * @return 수정된 공지 이름
      */
     @Override
-    @Transactional
     public String updateNotice(User user, Integer noticeIdx, UpdateNoticeRequest updateNoticeRequest) {
-        Notice notice = noticeJpaRepository.findByIdAndState(noticeIdx, BaseEntity.State.ACTIVE)
-                .orElseThrow(() -> new BaseException(NOTICE_NOT_FOUND));
+        Notice notice = getNotice(noticeIdx);
+        validateUserAuthorization(user, notice);
+        notice.updateNotice(updateNoticeRequest.title(), updateNoticeRequest.contents());
+        return noticeJpaRepository.save(notice).getTitle() + " 공지가 수정되었습니다.";
+    }
 
+    /**
+     * 공지 삭제
+     *
+     * <p>관리자는 모든 공지를 삭제할 수 있고, 공지 작성자는 자신의 공지만 삭제할 수 있습니다.</p>
+     *
+     * @param user 사용자
+     * @param noticeIdx 공지 인덱스
+     * @return 삭제된 공지 이름
+     */
+    @Override
+    public String deleteNotice(User user, Integer noticeIdx) {
+        Notice notice = getNotice(noticeIdx);
+        validateUserAuthorization(user, notice);
+        notice.setState(INACTIVE);
+        notice.setDeletedAt();
+        return noticeJpaRepository.save(notice).getTitle() + " 공지가 삭제되었습니다.";
+    }
+
+    /**
+     * 사용자 권한 검증
+     *
+     * @param user 사용자
+     * @param notice 공지
+     */
+    private static void validateUserAuthorization(User user, Notice notice) {
         if(user.getRole() != Role.ADMIN && !notice.getUser().getId().equals(user.getId())) {
             throw new BaseException(NOTICE_NOT_AUTHORIZED);
         }
-        notice.updateNotice(updateNoticeRequest.title(), updateNoticeRequest.contents());
-        return noticeJpaRepository.save(notice).getTitle() + " 공지가 수정되었습니다.";
+    }
+
+    /**
+     * 공지 조회
+     *
+     * @param noticeIdx 공지 인덱스
+     * @return 공지
+     */
+    private Notice getNotice(Integer noticeIdx) {
+        return noticeJpaRepository.findByIdAndState(noticeIdx, BaseEntity.State.ACTIVE)
+                .orElseThrow(() -> new BaseException(NOTICE_NOT_FOUND));
     }
 }

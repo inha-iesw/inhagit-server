@@ -14,8 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import static inha.git.common.code.status.SuccessStatus.NOTICE_CREATE_OK;
-import static inha.git.common.code.status.SuccessStatus.NOTICE_UPDATE_OK;
+import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
  * NoticeController는 notice 관련 엔드포인트를 처리.
@@ -65,5 +64,23 @@ public class NoticeController {
                                              @PathVariable("noticeIdx") Integer noticeIdx,
                                              @Validated @RequestBody UpdateNoticeRequest updateNoticeRequest) {
         return BaseResponse.of(NOTICE_UPDATE_OK, noticeService.updateNotice(user, noticeIdx, updateNoticeRequest));
+    }
+
+    /**
+     * 공지 삭제 API
+     *
+     * <p>조교, 교수, 관리자만 호출 가능 -> 공지를 삭제.</p>
+     *
+     * @param user 로그인한 사용자 정보
+     * @param noticeIdx 공지 인덱스
+     *
+     * @return 공지 삭제 결과를 포함하는 BaseResponse<String>
+     */
+    @DeleteMapping("/{noticeIdx}")
+    @PreAuthorize("hasAuthority('assistant:delete')")
+    @Operation(summary = "공지 삭제(조교, 교수, 관리자 전용)", description = "공지를 삭제합니다.")
+    public BaseResponse<String> deleteNotice(@AuthenticationPrincipal User user,
+                                             @PathVariable("noticeIdx") Integer noticeIdx) {
+        return BaseResponse.of(NOTICE_DELETE_OK, noticeService.deleteNotice(user, noticeIdx));
     }
 }

@@ -18,7 +18,7 @@ public class SwaggerConfig implements WebMvcConfigurer {
     @Bean
     public GroupedOpenApi jwtApi() {
         return GroupedOpenApi.builder()
-                .group("jwt-api")
+                .group("inha-git project")
                 .pathsToMatch("/**")
                 .build();
     }
