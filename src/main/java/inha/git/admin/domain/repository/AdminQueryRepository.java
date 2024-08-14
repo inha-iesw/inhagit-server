@@ -1,11 +1,14 @@
 package inha.git.admin.domain.repository;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
+import inha.git.admin.api.controller.dto.response.SearchUserResponse;
 import inha.git.mapping.domain.QUserDepartment;
 import inha.git.user.domain.QProfessor;
 import inha.git.user.domain.QUser;
+import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,11 +25,35 @@ public class AdminQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
+    public Page<SearchUserResponse> searchUsers(String search, Pageable pageable) {
+        QUser user = QUser.user;
+
+        JPAQuery<User> query = queryFactory
+                .select(user)
+                .from(user)
+                .where(nameLike(search))
+                .orderBy(user.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+        List<SearchUserResponse> content = query.fetch().stream()
+                .map(u -> new SearchUserResponse(u))
+                .toList();
+        long total = query.fetchCount();
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    /**
+     * 교수 검색
+     *
+     * @param search   검색어
+     * @param pageable 페이지 정보
+     * @return 교수 목록
+     */
     public Page<SearchProfessorResponse> searchProfessors(String search, Pageable pageable) {
         QUser user = QUser.user;
         QProfessor professor = QProfessor.professor;
         QUserDepartment userDepartment = QUserDepartment.userDepartment;
-        var query = queryFactory
+        JPAQuery<User> query = queryFactory
                 .select(user)
                 .from(user)
                 .leftJoin(professor).on(user.id.eq(professor.user.id))
@@ -49,7 +76,15 @@ public class AdminQueryRepository {
         return new PageImpl<>(content, pageable, total);
     }
 
+    /**
+     * 이름 검색
+     *
+     * @param search 검색어
+     * @return 검색 조건
+     */
     private BooleanExpression nameLike(String search) {
         return StringUtils.hasText(search) ? QUser.user.name.contains(search) : null;
     }
+
+
 }

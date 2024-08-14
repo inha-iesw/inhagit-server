@@ -1,6 +1,7 @@
 package inha.git.admin.api.controller;
 
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
+import inha.git.admin.api.controller.dto.response.SearchUserResponse;
 import inha.git.admin.api.service.AdminService;
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
@@ -28,6 +29,27 @@ public class AdminController {
 
     private final AdminService adminService;
 
+    //전체 유저 검색
+    @GetMapping("/users")
+    @PreAuthorize("hasAuthority('admin:read')")
+    @Operation(summary = "관리자 전용 유저 검색 API", description = "관리자 전용 유저 검색 API입니다")
+    public BaseResponse<Page<SearchUserResponse>> getAdminUsers(
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam("page") Integer page) {
+        if (page < 0) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.onSuccess(adminService.getAdminUsers(search, page));
+    }
+    /**
+     * 관리자 전용 교수 검색 API
+     *
+     * <p>관리자 전용 교수 검색 API입니다.</p>
+     *
+     * @param search 검색어
+     * @param page 페이지 번호
+     * @return 검색된 교수 정보를 포함하는 BaseResponse<Page<SearchProfessorResponse>>
+     */
     @GetMapping("/professors")
     @PreAuthorize("hasAuthority('admin:read')")
     @Operation(summary = "관리자 전용 교수 검색 API", description = "관리자 전용 교수 검색 API입니다")
