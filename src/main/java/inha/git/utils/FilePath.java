@@ -30,7 +30,7 @@ public class FilePath {
             // 파일 저장
             file.transferTo(filePath.toFile());
             // 저장된 파일의 경로 반환 (예: /evidence/파일명)
-            return "/evidence/" + fileName;
+            return "/" + uploadDir + "/" + fileName;
         } catch (IOException e) {
             throw new BaseException(FILE_CONVERT);
         }
