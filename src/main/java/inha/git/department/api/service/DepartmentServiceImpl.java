@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.DEPARTMENT_NOT_FOUND;
 
 /**
@@ -34,7 +36,7 @@ public class DepartmentServiceImpl implements DepartmentService{
      */
     @Override
     public List<SearchDepartmentResponse> getDepartments() {
-        return departmentMapper.departmentsToSearchDepartmentResponses(departmentJpaRepository.findAll());
+        return departmentMapper.departmentsToSearchDepartmentResponses(departmentJpaRepository.findAllByState(ACTIVE));
     }
 
     /**
@@ -60,9 +62,20 @@ public class DepartmentServiceImpl implements DepartmentService{
     @Override
     @Transactional
     public String updateDepartmentName(Integer departmentIdx, UpdateDepartmentRequest updateDepartmentRequest) {
-        Department department = departmentJpaRepository.findById(departmentIdx).orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
+        Department department = departmentJpaRepository.findByIdAndState(departmentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
         department.setName(updateDepartmentRequest.name());
         return department.getName() + " 학과 이름이 변경되었습니다.";
+    }
+
+    @Override
+    @Transactional
+    public String deleteDepartment(Integer departmentIdx) {
+        Department department = departmentJpaRepository.findByIdAndState(departmentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
+        department.setState(INACTIVE);
+        department.setDeletedAt();
+        return department.getName() + " 학과가 삭제되었습니다.";
     }
 
 

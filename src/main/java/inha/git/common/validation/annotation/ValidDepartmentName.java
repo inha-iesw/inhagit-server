@@ -15,7 +15,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidDepartmentName {
 
-    String message() default "학과 이름은 한글로 작성되어야 하며 '학과'로 끝나야 합니다.";
+    String message() default "학과 이름은 한글로 작성되어야 하며 '과'로 끝나야 합니다.";
 
     Class<?>[] groups() default {};
 

@@ -12,5 +12,7 @@ public interface DepartmentService {
     String createDepartment(CreateDepartmentRequest createDepartmentRequest);
 
     String updateDepartmentName(Integer departmentIdx, UpdateDepartmentRequest updateDepartmentRequest);
+
+    String deleteDepartment(Integer departmentIdx);
 }
 

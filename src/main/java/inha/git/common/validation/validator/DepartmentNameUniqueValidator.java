@@ -7,6 +7,8 @@ import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import static inha.git.common.BaseEntity.State.ACTIVE;
+
 /**
  * 학과 이름 중복 검증을 위한 Validator.
  */
@@ -31,6 +33,6 @@ public class DepartmentNameUniqueValidator implements ConstraintValidator<Depart
      */
     @Override
     public boolean isValid(String name, ConstraintValidatorContext context) {
-        return !departmentJpaRepository.existsByName(name);
+        return !departmentJpaRepository.existsByNameAndState(name, ACTIVE);
     }
 }

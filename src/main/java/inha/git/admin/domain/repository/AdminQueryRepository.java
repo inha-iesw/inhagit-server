@@ -7,6 +7,7 @@ import inha.git.admin.api.controller.dto.response.SearchCompanyResponse;
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
 import inha.git.admin.api.controller.dto.response.SearchStudentResponse;
 import inha.git.admin.api.controller.dto.response.SearchUserResponse;
+import inha.git.common.BaseEntity.State;
 import inha.git.mapping.domain.QUserDepartment;
 import inha.git.user.domain.QCompany;
 import inha.git.user.domain.QProfessor;
@@ -41,7 +42,7 @@ public class AdminQueryRepository {
         JPAQuery<User> query = queryFactory
                 .select(user)
                 .from(user)
-                .where(nameLike(search))
+                .where(nameLike(search),user.state.eq(State.ACTIVE))
                 .orderBy(user.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
@@ -68,7 +69,8 @@ public class AdminQueryRepository {
                 .leftJoin(user.userDepartments, userDepartment)
                 .where(
                         user.role.eq(Role.USER),
-                        nameLike(search)
+                        nameLike(search),
+                        user.state.eq(State.ACTIVE)
                 )
                 .orderBy(user.id.desc())
                 .offset(pageable.getOffset())
@@ -99,7 +101,8 @@ public class AdminQueryRepository {
                 .leftJoin(user.userDepartments, userDepartment)
                 .where(
                         user.role.eq(Role.PROFESSOR),
-                        nameLike(search)
+                        nameLike(search),
+                        user.state.eq(State.ACTIVE)
                 )
                 .orderBy(user.id.desc())
                 .offset(pageable.getOffset())
@@ -132,7 +135,8 @@ public class AdminQueryRepository {
                 .leftJoin(company).on(user.id.eq(company.user.id))
                 .where(
                         user.role.eq(Role.COMPANY),
-                        nameLike(search)
+                        nameLike(search),
+                        user.state.eq(State.ACTIVE)
                 )
                 .orderBy(user.id.desc())
                 .offset(pageable.getOffset())

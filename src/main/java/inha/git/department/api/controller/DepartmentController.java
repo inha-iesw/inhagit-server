@@ -76,4 +76,10 @@ public class DepartmentController {
         return BaseResponse.of(DEPARTMENT_UPDATE_OK, departmentService.updateDepartmentName(departmentIdx, updateDepartmentRequest));
     }
 
+    @DeleteMapping("/{departmentIdx}")
+    @PreAuthorize("hasAuthority('admin:delete')")
+    @Operation(summary = "학과 삭제(관리자 전용)", description = "학과를 soft 삭제합니다.(관리자 전용)")
+    public BaseResponse<String> deleteDepartment(@PathVariable("departmentIdx") Integer departmentIdx) {
+        return BaseResponse.of(DEPARTMENT_DELETE_OK, departmentService.deleteDepartment(departmentIdx));
+    }
 }
