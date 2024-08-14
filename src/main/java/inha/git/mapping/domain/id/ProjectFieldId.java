@@ -18,7 +18,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class ProjectFieldId implements Serializable {
 
-    private Long projectId;
-    private Long fieldId;
+    private Integer projectId;
+    private Integer fieldId;
 
 }

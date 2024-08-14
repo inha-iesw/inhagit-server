@@ -1,6 +1,5 @@
 package inha.git.user.domain;
 
-import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -30,9 +29,15 @@ public class Company {
     @Column(nullable = false, length = 50, name = "evidence_file_path")
     private String evidenceFilePath;
 
-    @Column(nullable = false, name = "accepted_at")
+    @Column(name = "accepted_at")
     private LocalDateTime acceptedAt;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public void setUser(User user) {
+        this.user = user;
+        user.setCompany(this);  // 양방향 연관관계 설정
+    }
 }

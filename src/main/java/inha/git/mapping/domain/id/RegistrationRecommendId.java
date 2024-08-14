@@ -18,7 +18,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class RegistrationRecommendId implements Serializable {
 
-    private Long projectId;
-    private Long userId;
+    private Integer projectId;
+    private Integer userId;
 
 }

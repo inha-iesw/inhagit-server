@@ -1,6 +1,8 @@
 package inha.git.user.domain;
 
 import inha.git.common.BaseEntity;
+import inha.git.department.domain.Department;
+import inha.git.mapping.domain.UserDepartment;
 import inha.git.user.domain.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,7 +10,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * User 엔티티는 애플리케이션의 사용자 정보를 나타냄.
@@ -28,27 +32,34 @@ public class User extends BaseEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 30)
     private String email;
 
     @Column(nullable = false, length = 100)
     private String pw;
 
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 12)
     private String name;
 
-    @Column(nullable = false, length = 20)
-    private String user_number;
+    @Column(length = 8,name = "user_number")
+    private String userNumber;
 
-    @Column(length = 50)
-    private String github_token;
+    @Column(length = 50, name = "github_token")
+    private String githubToken;
 
-    @Column(length = 50)
+    @Column(name = "blocked_at")
     private LocalDateTime blockedAt;
 
     @Column(length = 10)
     @Enumerated(EnumType.STRING)
     private Role role;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserDepartment> userDepartments = new ArrayList<>();
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Company company;
 
     @Override
     public String getUsername() {
@@ -86,5 +97,23 @@ public class User extends BaseEntity implements UserDetails {
 
     public void setPassword(String pw) {
         this.pw = pw;
+    }
+
+    // 연관관계 편의 메서드
+    public void addDepartment(Department department) {
+        UserDepartment userDepartment = new UserDepartment(this, department);
+        userDepartments.add(userDepartment);
+        department.getUserDepartments().add(userDepartment);
+    }
+
+    public void removeDepartment(Department department) {
+        userDepartments.removeIf(userDepartment -> userDepartment.getDepartment().equals(department) && userDepartment.getUser().equals(this));
+        department.getUserDepartments().removeIf(userDepartment -> userDepartment.getUser().equals(this) && userDepartment.getDepartment().equals(department));
+    }
+    public void setCompany(Company company) {
+        this.company = company;
+        if (company.getUser() != this) {
+            company.setUser(this);  // 양방향 연관관계 설정
+        }
     }
 }

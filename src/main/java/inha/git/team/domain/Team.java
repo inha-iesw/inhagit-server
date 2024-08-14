@@ -23,7 +23,7 @@ public class Team extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 12)
     private String name;
 
     @Column(nullable = false, name = "max_member_number")

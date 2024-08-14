@@ -18,7 +18,7 @@ public enum ErrorStatus implements BaseErrorCode {
      */
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON4000", "잘못된 요청입니다."),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON4001", "로그인 인증이 필요합니다."),
-    FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON4003", "금지된 요청입니다."),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON4003", "접근 권한이 없는 요청입니다."),
     RESPONSE_ERROR(HttpStatus.NOT_FOUND, "COMMON4004", "값을 불러오는데 실패하였습니다."),
 
     USERS_EMPTY_EMAIL( HttpStatus.BAD_REQUEST, "USER4000", "이메일을 입력해주세요."),
@@ -29,6 +29,7 @@ public enum ErrorStatus implements BaseErrorCode {
     EXIST_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "USER4005", "이미 존재하는 전화번호입니다."),
     INVALID_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "USER4006", "핸드폰 번호 양식에 맞지 않습니다. 예시: +82-10-0000-0000"),
     ALREADY_EXIST_USER(HttpStatus.BAD_REQUEST, "USER4004", "이미 존재하는 사용자입니다."),
+    NOT_APPROVED_USER(HttpStatus.BAD_REQUEST, "USER4007", "아직 승인되지 않은 계정입니다."),
     EMPTY_JWT(HttpStatus.UNAUTHORIZED, "JWT4000", "JWT를 입력해주세요"),
     INVALID_JWT(HttpStatus.UNAUTHORIZED, "JWT4001", "유효하지 않은 JWT입니다."),
     INVALID_USER_JWT(HttpStatus.FORBIDDEN, "JWT4002", "권한이 없는 유저의 접근입니다."),
@@ -48,9 +49,18 @@ public enum ErrorStatus implements BaseErrorCode {
     S3_UPLOAD(HttpStatus.BAD_REQUEST, "S3UPLOAD4001", "S3 파일 업로드 실패."),
     FAILED_TO_CONVERT_MULTIPARTFILE_RESOURCE(HttpStatus.BAD_REQUEST, "FILE4000", "MultipartFileResource 변환에 실패하였습니다."),
     FILE_CONVERT(HttpStatus.BAD_REQUEST, "FILE4001", "파일 변환 실패."),
+    FILE_NOT_FOUND(HttpStatus.BAD_REQUEST, "FILE4002", "파일을 찾을 수 없습니다."),
 
-    PATIENT_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "PATIENT4000", "이미 존재하는 환자입니다."),
-    PATIENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PATIENT4001", "환자를 찾을 수 없습니다."),
+    EMAIL_NOT_FOUND(HttpStatus.BAD_REQUEST, "EMAIL4001", "이메일이 존재하지 않습니다."),
+    EMAIL_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "EMAIL4002", "이미 존재하는 이메일입니다."),
+    EMAIL_SEND_FAIL(HttpStatus.BAD_REQUEST, "EMAIL4003", "이메일 전송에 실패했습니다."),
+    EMAIL_AUTH_FAIL(HttpStatus.BAD_REQUEST, "EMAIL4004", "이메일 인증에 실패했습니다."),
+    EMAIL_AUTH_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL4005", "이메일 인증 시간이 만료되었습니다."),
+    EMAIL_AUTH_ALREADY(HttpStatus.BAD_REQUEST, "EMAIL4006", "이미 인증된 이메일입니다."),
+    EMAIL_AUTH_NOT_FOUND(HttpStatus.BAD_REQUEST, "EMAIL4007", "이메일 인증을 먼저 진행해주세요."),
+    EMAIL_AUTH_NOT_MATCH(HttpStatus.BAD_REQUEST, "EMAIL4008", "이메일 인증번호가 일치하지 않습니다."),
+
+    DEPARTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "DEPARTMENT4000", "학과를 찾을 수 없습니다."),
     /**
      * 500 :  Database, Server 오류
      */

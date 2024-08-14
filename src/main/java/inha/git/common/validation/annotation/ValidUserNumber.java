@@ -1,22 +1,20 @@
 package inha.git.common.validation.annotation;
 
-
-import inha.git.common.validation.validator.UsernameUniqueValidator;
+import inha.git.common.validation.validator.UserNumberValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
 /**
- * 유저아이디 중복 검증을 위한 애노테이션.
+ * 유저번호 유효성 검증을 위한 애노테이션.
  */
 @Documented
-@Constraint(validatedBy = UsernameUniqueValidator.class)
+@Constraint(validatedBy = UserNumberValidator.class)
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface UsernameUnique {
-
-    String message() default "이미 등록된 유저아이디입니다.";
+public @interface ValidUserNumber {
+    String message() default "6~8자리의 숫자를 입력하세요.";
 
     Class<?>[] groups() default {};
 

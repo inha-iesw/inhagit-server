@@ -18,7 +18,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class TeamUserId implements Serializable {
 
-    private Long teamId;
-    private Long userId;
+    private Integer teamId;
+    private Integer userId;
 
 }

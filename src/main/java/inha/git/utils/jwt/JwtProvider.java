@@ -30,6 +30,17 @@ public class JwtProvider {
   public final static String HEADER_AUTHORIZATION = "Authorization";
   public final static String TOKEN_PREFIX = "Bearer ";
 
+  public final static String EMAIL_TITLE = "[INHA GIT] 회원 가입 인증 이메일 입니다.";
+
+  public final static String EMAIL_CONTENT = "[INHA GIT] 로그인 인증입니다." +
+          "<br><br>" +
+          "인증 번호는 <strong><i>%d</i></strong> 입니다." +
+          "<br>" +
+          "인증번호를 제대로 입력해주세요";
+
+  public final static String STUDENT_TYPE = "1";
+  public final static String PROFESSOR_TYPE = "2";
+  public final static String COMPANY_TYPE = "3";
   @Value("${jwt.secret_key}")
   private String secretKey;
   @Value("${jwt.expiration}")
