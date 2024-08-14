@@ -34,9 +34,9 @@ public enum SuccessStatus implements BaseCode {
     PROMOTION_CREATED(HttpStatus.CREATED, "ADMIN2010", "관리자 승격 성공"),
     DEMOTION_CREATED(HttpStatus.CREATED, "ADMIN2011", "관리자 강등 성공"),
     PROFESSOR_ACCEPT_OK(HttpStatus.CREATED, "ADMIN2012", "교수 승인 성공"),
-    PROFESSOR_DEMOTE_OK(HttpStatus.CREATED, "ADMIN2013", "교수 강등 성공"),
+    PROFESSOR_CANCEL_OK(HttpStatus.CREATED, "ADMIN2013", "교수 승인 취소 성공"),
     COMPANY_ACCEPT_OK(HttpStatus.CREATED, "ADMIN2014", "기업 승인 성공"),
-    COMPANY_DEMOTE_OK(HttpStatus.CREATED, "ADMIN2015", "기업 강등 성공"),
+    COMPANY_CANCEL_OK(HttpStatus.CREATED, "ADMIN2015", "기업 승인 취소 성공"),
 
     DEPARTMENT_CREATE_OK(HttpStatus.CREATED, "DEPARTMENT2010", "학과 생성 성공"),
     DEPARTMENT_SEARCH_OK(HttpStatus.OK, "DEPARTMENT2000", "학과 전체 조회 성공"),

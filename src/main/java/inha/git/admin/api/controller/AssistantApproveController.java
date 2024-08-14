@@ -40,4 +40,19 @@ public class AssistantApproveController {
     public BaseResponse<String> acceptCompany(@Validated @RequestBody CompanyAcceptRequest companyAcceptRequest) {
         return BaseResponse.of(COMPANY_ACCEPT_OK, adminApproveService.acceptCompany(companyAcceptRequest));
     }
+
+    /**
+     * 기업 승인 취소 API
+     *
+     * <p>기업 승인을 취소합니다.</p>
+     *
+     * @param companyCancelRequest 기업 승인 취소할 유저 인덱스
+     * @return 승인 취소된 기업 정보를 포함하는 BaseResponse<String>
+     */
+    @PostMapping("/company/cancel")
+    @Operation(summary = "기업 승인 취소 API(조교, 교수, 관리자 전용)", description = "기업 승인을 취소합니다.")
+    public BaseResponse<String> cancelCompany(@Validated @RequestBody CompanyCancelRequest companyCancelRequest) {
+        return BaseResponse.of(COMPANY_CANCEL_OK, adminApproveService.cancelCompany(companyCancelRequest));
+    }
+
 }

@@ -68,6 +68,7 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_ACCEPTED_PROFESSOR(HttpStatus.BAD_REQUEST, "ADMIN4004", "승인되지 않은 교수입니다."),
     NOT_COMPANY(HttpStatus.BAD_REQUEST, "ADMIN4005", "기업 계정이 아닙니다."),
     ALREADY_ACCEPTED_COMPANY(HttpStatus.BAD_REQUEST, "ADMIN4006", "이미 승인된 기업입니다."),
+    NOT_ACCEPTED_COMPANY(HttpStatus.BAD_REQUEST, "ADMIN4007", "승인되지 않은 기업입니다."),
     /**
      * 500 :  Database, Server 오류
      */

@@ -106,6 +106,12 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         return professorCancelRequest.userIdx() + ": 교수 승인 취소 완료";
     }
 
+    /**
+     * 기업 승인
+     *
+     * @param companyAcceptRequest 기업 승인 요청
+     * @return 성공 메시지
+     */
     @Override
     public String acceptCompany(CompanyAcceptRequest companyAcceptRequest) {
         User user = getUser(companyAcceptRequest.userIdx());
@@ -122,8 +128,27 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         return companyAcceptRequest.userIdx() + ": 기업 승인 완료";
     }
 
+    @Override
+    public String cancelCompany(CompanyCancelRequest companyCancelRequest) {
+        User user = getUser(companyCancelRequest.userIdx());
+        if(user.getRole() != Role.COMPANY) {
+            throw new BaseException(NOT_COMPANY);
+        }
+        Company company = companyJpaRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new BaseException(NOT_COMPANY));
+        if(company.getAcceptedAt() == null) {
+            throw new BaseException(NOT_ACCEPTED_COMPANY);
+        }
+        company.setAcceptedAt(null);
+        companyJpaRepository.save(company);
+        return companyCancelRequest.userIdx() + ": 기업 승인 취소 완료";
+    }
+
+
     private User getUser(Integer userIdx) {
         return userJpaRepository.findByIdAndState(userIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_FIND_USER));
     }
+
+
 }

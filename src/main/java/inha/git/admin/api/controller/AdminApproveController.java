@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -81,7 +80,7 @@ public class AdminApproveController {
     @PostMapping("/professor/cancel")
     @Operation(summary = "교수 승인 취소 API", description = "교수 승인을 취소합니다.")
     public BaseResponse<String> cancelProfessor(@Validated @RequestBody ProfessorCancelRequest professorCancelRequest) {
-        return BaseResponse.of(PROFESSOR_DEMOTE_OK, adminApproveService.cancelProfessor(professorCancelRequest));
+        return BaseResponse.of(PROFESSOR_CANCEL_OK, adminApproveService.cancelProfessor(professorCancelRequest));
     }
 
 }
