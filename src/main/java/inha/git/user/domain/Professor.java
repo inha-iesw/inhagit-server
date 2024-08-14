@@ -36,7 +36,7 @@ public class Professor {
         user.setProssor(this);  // 양방향 연관관계 설정
     }
 
-    public void setAcceptedAt() {
-        this.acceptedAt = LocalDateTime.now();
+    public void setAcceptedAt(LocalDateTime acceptedAt) {
+        this.acceptedAt = acceptedAt;
     }
 }

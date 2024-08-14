@@ -3,6 +3,7 @@ package inha.git.admin.api.service;
 import inha.git.admin.api.controller.dto.request.AdminDemotionRequest;
 import inha.git.admin.api.controller.dto.request.AdminPromotionRequest;
 import inha.git.admin.api.controller.dto.request.ProfessorAcceptRequest;
+import inha.git.admin.api.controller.dto.request.ProfessorCancelRequest;
 import inha.git.admin.api.controller.dto.response.SearchCompanyResponse;
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
 import inha.git.admin.api.controller.dto.response.SearchStudentResponse;
@@ -23,6 +24,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.Constant.CREATE_AT;
@@ -154,8 +157,26 @@ public class AdminServiceImpl implements AdminService{
         if(professor.getAcceptedAt() != null) {
             throw new BaseException(ALREADY_ACCEPTED_PROFESSOR);
         }
-        professor.setAcceptedAt();
+        professor.setAcceptedAt(LocalDateTime.now());
         professorJpaRepository.save(professor);
         return professorAcceptRequest.userIdx() + ": 교수 승인 완료";
+    }
+
+    @Override
+    @Transactional
+    public String cancelProfessor(ProfessorCancelRequest professorCancelRequest) {
+        User user = userJpaRepository.findByIdAndState(professorCancelRequest.userIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        if(user.getRole() != Role.PROFESSOR) {
+            throw new BaseException(NOT_PROFESSOR);
+        }
+        Professor professor = professorJpaRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new BaseException(NOT_PROFESSOR));
+        if(professor.getAcceptedAt() == null) {
+            throw new BaseException(NOT_ACCEPTED_PROFESSOR);
+        }
+        professor.setAcceptedAt(null);
+        professorJpaRepository.save(professor);
+        return professorCancelRequest.userIdx() + ": 교수 승인 취소 완료";
     }
 }

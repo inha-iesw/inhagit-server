@@ -3,6 +3,7 @@ package inha.git.admin.api.controller;
 import inha.git.admin.api.controller.dto.request.AdminDemotionRequest;
 import inha.git.admin.api.controller.dto.request.AdminPromotionRequest;
 import inha.git.admin.api.controller.dto.request.ProfessorAcceptRequest;
+import inha.git.admin.api.controller.dto.request.ProfessorCancelRequest;
 import inha.git.admin.api.controller.dto.response.SearchCompanyResponse;
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
 import inha.git.admin.api.controller.dto.response.SearchStudentResponse;
@@ -159,5 +160,20 @@ public class AdminController {
     @Operation(summary = "교수 승인 API", description = "교수 승인을 합니다.")
     public BaseResponse<String> acceptProfessor(@Validated @RequestBody ProfessorAcceptRequest professorAcceptRequest) {
         return BaseResponse.of(DEMOTION_CREATED, adminService.acceptProfessor(professorAcceptRequest));
+    }
+
+    /**
+     * 교수 승인 취소 API
+     *
+     * <p>교수 승인을 취소합니다.</p>
+     *
+     * @param professorCancelRequest 교수 승인 취소할 유저 인덱스
+     * @return 승인 취소된 교수 정보를 포함하는 BaseResponse<String>
+     */
+    @PostMapping("/professor/cancel")
+    @PreAuthorize("hasAuthority('admin:update')")
+    @Operation(summary = "교수 승인 취소 API", description = "교수 승인을 취소합니다.")
+    public BaseResponse<String> cancelProfessor(@Validated @RequestBody ProfessorCancelRequest professorCancelRequest) {
+        return BaseResponse.of(DEMOTION_CREATED, adminService.cancelProfessor(professorCancelRequest));
     }
 }
