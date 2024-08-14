@@ -4,6 +4,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
+import inha.git.admin.api.controller.dto.response.SearchStudentResponse;
 import inha.git.admin.api.controller.dto.response.SearchUserResponse;
 import inha.git.mapping.domain.QUserDepartment;
 import inha.git.user.domain.QProfessor;
@@ -25,6 +26,13 @@ public class AdminQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
+    /**
+     * 사용자 검색
+     *
+     * @param search   검색어
+     * @param pageable 페이지 정보
+     * @return 사용자 목록
+     */
     public Page<SearchUserResponse> searchUsers(String search, Pageable pageable) {
         QUser user = QUser.user;
 
@@ -37,6 +45,35 @@ public class AdminQueryRepository {
                 .limit(pageable.getPageSize());
         List<SearchUserResponse> content = query.fetch().stream()
                 .map(u -> new SearchUserResponse(u))
+                .toList();
+        long total = query.fetchCount();
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    /**
+     * 학생 검색
+     *
+     * @param search   검색어
+     * @param pageable 페이지 정보
+     * @return 학생 목록
+     */
+    public Page<SearchStudentResponse> searchStudents(String search, Pageable pageable) {
+        QUser user = QUser.user;
+        QUserDepartment userDepartment = QUserDepartment.userDepartment;
+        JPAQuery<User> query = queryFactory
+                .select(user)
+                .from(user)
+                .leftJoin(user.userDepartments, userDepartment)
+                .where(
+                        user.role.eq(Role.USER),
+                        nameLike(search)
+                )
+                .orderBy(user.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        List<SearchStudentResponse> content = query.fetch().stream()
+                .map(u -> new SearchStudentResponse(u))
                 .toList();
         long total = query.fetchCount();
         return new PageImpl<>(content, pageable, total);
@@ -85,6 +122,7 @@ public class AdminQueryRepository {
     private BooleanExpression nameLike(String search) {
         return StringUtils.hasText(search) ? QUser.user.name.contains(search) : null;
     }
+
 
 
 }

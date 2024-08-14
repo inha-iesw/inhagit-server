@@ -1,6 +1,7 @@
 package inha.git.admin.api.service;
 
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
+import inha.git.admin.api.controller.dto.response.SearchStudentResponse;
 import inha.git.admin.api.controller.dto.response.SearchUserResponse;
 import inha.git.admin.domain.repository.AdminQueryRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +24,30 @@ public class AdminServiceImpl implements AdminService{
 
     private final AdminQueryRepository adminQueryRepository;
 
+    /**
+     * 관리자 사용자 조회
+     *
+     * @param search 검색어
+     * @param page 페이지
+     * @return 사용자 목록
+     */
     @Override
     public Page<SearchUserResponse> getAdminUsers(String search, Integer page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return adminQueryRepository.searchUsers(search, pageable);
+    }
+
+    /**
+     * 관리자 학생 조회
+     *
+     * @param search 검색어
+     * @param page 페이지
+     * @return 학생 목록
+     */
+    @Override
+    public Page<SearchStudentResponse> getAdminStudents(String search, Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return adminQueryRepository.searchStudents(search, pageable);
     }
 
     /**
@@ -41,4 +62,6 @@ public class AdminServiceImpl implements AdminService{
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return adminQueryRepository.searchProfessors(search, pageable);
     }
+
+
 }
