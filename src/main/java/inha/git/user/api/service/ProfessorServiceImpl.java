@@ -13,7 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static inha.git.utils.jwt.JwtProvider.PROFESSOR_TYPE;
+import static inha.git.common.Constant.SIGN_UP_TYPE;
+
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class ProfessorServiceImpl implements ProfessorService{
     @Transactional
     @Override
     public ProfessorSignupResponse professorSignup(ProfessorSignupRequest professorSignupRequest) {
-        mailService.emailAuth(professorSignupRequest.email(), PROFESSOR_TYPE);
+        mailService.emailAuth(professorSignupRequest.email(), SIGN_UP_TYPE);
         User user = userMapper.professorSignupRequestToUser(professorSignupRequest);
         userMapper.mapDepartmentsToUser(user, professorSignupRequest.departmentIdList(), departmentRepository);
         user.setPassword(passwordEncoder.encode(professorSignupRequest.pw()));

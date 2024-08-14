@@ -17,8 +17,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-import static inha.git.utils.jwt.JwtProvider.HEADER_AUTHORIZATION;
-import static inha.git.utils.jwt.JwtProvider.TOKEN_PREFIX;
+import static inha.git.common.Constant.HEADER_AUTHORIZATION;
+import static inha.git.common.Constant.TOKEN_PREFIX;
 
 
 /**

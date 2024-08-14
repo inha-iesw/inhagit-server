@@ -10,8 +10,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Service;
 
-import static inha.git.utils.jwt.JwtProvider.HEADER_AUTHORIZATION;
-import static inha.git.utils.jwt.JwtProvider.TOKEN_PREFIX;
+import static inha.git.common.Constant.HEADER_AUTHORIZATION;
+import static inha.git.common.Constant.TOKEN_PREFIX;
 
 
 /**
