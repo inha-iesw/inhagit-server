@@ -39,6 +39,7 @@ public class SecurityConfig {
             "/",
             "/api/v1/auth/**",
             "/api/v1/departments",
+            "/api/v1/fields",
             "/api/v1/banners",
             "/api/v1/user/student",
             "/api/v1/user/professor",

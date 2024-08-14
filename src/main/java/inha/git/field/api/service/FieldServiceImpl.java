@@ -3,6 +3,7 @@ package inha.git.field.api.service;
 import inha.git.common.exceptions.BaseException;
 import inha.git.field.api.controller.request.CreateFieldRequest;
 import inha.git.field.api.controller.request.UpdateFieldRequest;
+import inha.git.field.api.controller.response.SearchFieldResponse;
 import inha.git.field.api.mapper.FieldMapper;
 import inha.git.field.domain.Field;
 import inha.git.field.domain.repository.FieldJpaRepository;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.code.status.ErrorStatus.FIELD_NOT_FOUND;
@@ -25,6 +28,11 @@ public class FieldServiceImpl implements FieldService {
 
     private final FieldJpaRepository fieldJpaRepository;
     private final FieldMapper fieldMapper;
+
+    @Override
+    public List<SearchFieldResponse> getFields() {
+        return fieldMapper.fieldsToSearchFieldResponses(fieldJpaRepository.findAllByState(ACTIVE));
+    }
 
     /**
      * 분야 생성

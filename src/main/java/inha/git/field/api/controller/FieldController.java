@@ -3,6 +3,7 @@ package inha.git.field.api.controller;
 import inha.git.common.BaseResponse;
 import inha.git.field.api.controller.request.CreateFieldRequest;
 import inha.git.field.api.controller.request.UpdateFieldRequest;
+import inha.git.field.api.controller.response.SearchFieldResponse;
 import inha.git.field.api.service.FieldService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,8 +13,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import static inha.git.common.code.status.SuccessStatus.FIELD_CREATE_OK;
-import static inha.git.common.code.status.SuccessStatus.FIELD_UPDATE_OK;
+import java.util.List;
+
+import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
  * FieldController는 field 관련 엔드포인트를 처리.
@@ -26,6 +28,19 @@ import static inha.git.common.code.status.SuccessStatus.FIELD_UPDATE_OK;
 public class FieldController {
 
     private final FieldService fieldService;
+
+    /**
+     * 분야 전체 조회 API
+     *
+     * <p>분야 전체를 조회합니다.</p>
+     *
+     * @return 분야 전체 조회 결과를 포함하는 BaseResponse<List<SearchFieldResponse>>
+     */
+    @GetMapping
+    @Operation(summary = "분야 전체 조회 API", description = "분야 전체를 조회합니다.")
+    public BaseResponse<List<SearchFieldResponse>> getDepartments() {
+        return BaseResponse.of(FIELD_SEARCH_OK, fieldService.getFields());
+    }
 
     /**
      * 분야 생성 API
