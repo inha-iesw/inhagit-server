@@ -76,5 +76,12 @@ public class FieldController {
         return BaseResponse.of(FIELD_UPDATE_OK, fieldService.updateField(fieldIdx, updateFieldRequest));
     }
 
+    @DeleteMapping("/{fieldIdx}")
+    @PreAuthorize("hasAuthority('admin:delete')")
+    @Operation(summary = "분야 삭제(관리자 전용)", description = "분야를 삭제합니다.")
+    public BaseResponse<String> deleteField(@PathVariable("fieldIdx") Integer fieldIdx) {
+        return BaseResponse.of(FIELD_DELETE_OK, fieldService.deleteField(fieldIdx));
+    }
+
 
 }

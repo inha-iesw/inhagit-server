@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.FIELD_NOT_FOUND;
 
 /**
@@ -60,5 +61,21 @@ public class FieldServiceImpl implements FieldService {
                 .orElseThrow(() -> new BaseException(FIELD_NOT_FOUND));
         field.setName(updateFieldRequest.name());
         return field.getName() + " 분야가 수정되었습니다.";
+    }
+
+    /**
+     * 분야 삭제
+     *
+     * @param fieldIdx 분야 인덱스
+     * @return 삭제된 분야 이름
+     */
+    @Override
+    @Transactional
+    public String deleteField(Integer fieldIdx) {
+        Field field = fieldJpaRepository.findByIdAndState(fieldIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(FIELD_NOT_FOUND));
+        field.setState(INACTIVE);
+        field.setDeletedAt();
+        return field.getName() + " 분야가 삭제되었습니다.";
     }
 }

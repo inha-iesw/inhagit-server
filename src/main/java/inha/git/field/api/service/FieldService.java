@@ -13,4 +13,5 @@ public interface FieldService {
     String updateField(Integer fieldIdx, UpdateFieldRequest updateFieldRequest);
 
 
+    String deleteField(Integer fieldIdx);
 }
