@@ -1,5 +1,6 @@
 package inha.git.admin.api.controller;
 
+import inha.git.admin.api.controller.dto.request.AdminDemotionRequest;
 import inha.git.admin.api.controller.dto.request.AdminPromotionRequest;
 import inha.git.admin.api.controller.dto.response.SearchCompanyResponse;
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
@@ -114,11 +115,25 @@ public class AdminController {
         return BaseResponse.of(COMPANY_SEARCH_OK, adminService.getAdminCompanies(search, page));
     }
 
-    //관리자로 승격
+    /**
+     * 관리자로 승격 API
+     *
+     * <p>유저를 관리자로 승격합니다.</p>
+     *
+     * @param adminPromotionRequest 관리자로 승격할 유저 인덱스
+     * @return 승격된 유저 정보를 포함하는 BaseResponse<String>
+     */
     @PostMapping("/promotion")
     @PreAuthorize("hasAuthority('admin:update')")
     @Operation(summary = "관리자로 승격 API", description = "유저를 관리자로 승격합니다.")
     public BaseResponse<String> promotion(@Validated @RequestBody AdminPromotionRequest adminPromotionRequest) {
         return BaseResponse.of(PROMOTION_CREATED, adminService.promotion(adminPromotionRequest));
+    }
+
+    @PostMapping("/demotion")
+    @PreAuthorize("hasAuthority('admin:update')")
+    @Operation(summary = "관리자 승격 취소 API", description = "관리자 승격을 취소합니다.")
+    public BaseResponse<String> demotion(@Validated @RequestBody AdminDemotionRequest adminDemotionRequest) {
+        return BaseResponse.of(DEMOTION_CREATED, adminService.demotion(adminDemotionRequest));
     }
 }
