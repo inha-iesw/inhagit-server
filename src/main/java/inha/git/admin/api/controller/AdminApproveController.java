@@ -78,7 +78,7 @@ public class AdminApproveController {
      * @return 승인 취소된 교수 정보를 포함하는 BaseResponse<String>
      */
     @PostMapping("/professor/cancel")
-    @Operation(summary = "교수 승인 취소 API", description = "교수 승인을 취소합니다.")
+    @Operation(summary = "교수 승인 취소 API(관리자 전용)", description = "교수 승인을 취소합니다.")
     public BaseResponse<String> cancelProfessor(@Validated @RequestBody ProfessorCancelRequest professorCancelRequest) {
         return BaseResponse.of(PROFESSOR_CANCEL_OK, adminApproveService.cancelProfessor(professorCancelRequest));
     }
