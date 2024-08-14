@@ -36,7 +36,6 @@ public class SecurityConfig {
     private static final String COMPANY_URL = "/api/v1/company/**";
     private static final String[] WHITE_LIST_URL = {
             "/",
-            "/api/v1/**",
             "/api/v1/auth/**",
             "/api/v1/test/**",
             "/v2/api-docs",
@@ -100,11 +99,13 @@ public class SecurityConfig {
                         logout.logoutUrl("/api/v1/auth/logout")
                                 .addLogoutHandler(logoutHandler)
                                 .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext())
+
+                )
+                .exceptionHandling(exceptionHandling ->
+                        exceptionHandling
+                                .authenticationEntryPoint(customAuthenticationEntryPoint)
+                                .accessDeniedHandler(customAccessDeniedHandler)
                 );
-        http.exceptionHandling(exceptionHandling -> exceptionHandling
-                .authenticationEntryPoint(customAuthenticationEntryPoint));
-        http.exceptionHandling(exceptionHandling -> exceptionHandling
-                .accessDeniedHandler(customAccessDeniedHandler));
         return http.build();
 
     }

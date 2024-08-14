@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,15 +25,18 @@ public class DepartmentController {
 
     private final DepartmentService departmentService;
 
-    //추후에 어드민만 접근할 수 있도록 수정해야함
     /**
-     * 학과 생성
+     * 학과 생성 API
      *
-     * @param createDepartmentRequest 학과 생성 요청
-     * @return 생성된 학과 이름
+     * <p>ADMIN계정만 호출 가능 -> 학과를 생성.</p>
+     *
+     * @param createDepartmentRequest 학과 생성 요청 정보
+     *
+     * @return 학과 생성 결과를 포함하는 BaseResponse<String>
      */
     @PostMapping
-    @Operation(summary = "학과 생성", description = "학과를 생성합니다.")
+    @PreAuthorize("hasAuthority('admin:create')")
+    @Operation(summary = "학과 생성", description = "학과를 생성합니다.(관리자 전용)")
     public BaseResponse<String> createDepartment(@Validated @RequestBody CreateDepartmentRequest createDepartmentRequest) {
         return BaseResponse.of(DEPARTMENT_CREATE_OK, departmentService.createDepartment(createDepartmentRequest));
     }
