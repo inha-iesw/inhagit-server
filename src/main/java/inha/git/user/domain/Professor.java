@@ -28,6 +28,15 @@ public class Professor {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(nullable = false, name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "accepted_at")
+    private LocalDateTime acceptedAt;
+
+    public void setUser(User user) {
+        this.user = user;
+        user.setProssor(this);  // 양방향 연관관계 설정
+    }
+
+    public void setAcceptedAt(LocalDateTime acceptedAt) {
+        this.acceptedAt = acceptedAt;
+    }
 }

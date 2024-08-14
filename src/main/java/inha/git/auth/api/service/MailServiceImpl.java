@@ -16,9 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 
+import static inha.git.common.Constant.EMAIL_CONTENT;
+import static inha.git.common.Constant.EMAIL_TITLE;
 import static inha.git.common.code.status.ErrorStatus.*;
-import static inha.git.utils.jwt.JwtProvider.EMAIL_CONTENT;
-import static inha.git.utils.jwt.JwtProvider.EMAIL_TITLE;
 
 /**
  * MailServiceImpl은 이메일 인증 관련 비즈니스 로직을 처리하는 서비스 클래스.

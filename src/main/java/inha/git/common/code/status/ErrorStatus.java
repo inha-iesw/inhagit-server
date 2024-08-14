@@ -61,6 +61,14 @@ public enum ErrorStatus implements BaseErrorCode {
     EMAIL_AUTH_NOT_MATCH(HttpStatus.BAD_REQUEST, "EMAIL4008", "이메일 인증번호가 일치하지 않습니다."),
 
     DEPARTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "DEPARTMENT4000", "학과를 찾을 수 없습니다."),
+    ALREADY_ADMIN(HttpStatus.BAD_REQUEST, "ADMIN4000", "이미 관리자 권한이 있습니다."),
+    NOT_ADMIN(HttpStatus.BAD_REQUEST, "ADMIN4001", "이미 관리자 권한이 없습니다."),
+    NOT_PROFESSOR(HttpStatus.BAD_REQUEST, "ADMIN4002", "교수 계정이 아닙니다."),
+    ALREADY_ACCEPTED_PROFESSOR(HttpStatus.BAD_REQUEST, "ADMIN4003", "이미 승인된 교수입니다."),
+    NOT_ACCEPTED_PROFESSOR(HttpStatus.BAD_REQUEST, "ADMIN4004", "승인되지 않은 교수입니다."),
+    NOT_COMPANY(HttpStatus.BAD_REQUEST, "ADMIN4005", "기업 계정이 아닙니다."),
+    ALREADY_ACCEPTED_COMPANY(HttpStatus.BAD_REQUEST, "ADMIN4006", "이미 승인된 기업입니다."),
+    NOT_ACCEPTED_COMPANY(HttpStatus.BAD_REQUEST, "ADMIN4007", "승인되지 않은 기업입니다."),
     /**
      * 500 :  Database, Server 오류
      */

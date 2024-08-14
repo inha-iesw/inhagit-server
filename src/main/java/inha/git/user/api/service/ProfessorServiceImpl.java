@@ -5,7 +5,9 @@ import inha.git.department.domain.repository.DepartmentJpaRepository;
 import inha.git.user.api.controller.dto.request.ProfessorSignupRequest;
 import inha.git.user.api.controller.dto.response.ProfessorSignupResponse;
 import inha.git.user.api.mapper.UserMapper;
+import inha.git.user.domain.Professor;
 import inha.git.user.domain.User;
+import inha.git.user.domain.repository.ProfessorJpaRepository;
 import inha.git.user.domain.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +15,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static inha.git.utils.jwt.JwtProvider.PROFESSOR_TYPE;
+import static inha.git.common.Constant.SIGN_UP_TYPE;
+
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +27,7 @@ public class ProfessorServiceImpl implements ProfessorService{
     private final UserJpaRepository userJpaRepository;
     private final PasswordEncoder passwordEncoder;
     private final DepartmentJpaRepository departmentRepository;
+    private final ProfessorJpaRepository professorJpaRepository;
     private final UserMapper userMapper;
     private final MailService mailService;
     /**
@@ -35,10 +39,13 @@ public class ProfessorServiceImpl implements ProfessorService{
     @Transactional
     @Override
     public ProfessorSignupResponse professorSignup(ProfessorSignupRequest professorSignupRequest) {
-        mailService.emailAuth(professorSignupRequest.email(), PROFESSOR_TYPE);
+        mailService.emailAuth(professorSignupRequest.email(), SIGN_UP_TYPE);
         User user = userMapper.professorSignupRequestToUser(professorSignupRequest);
         userMapper.mapDepartmentsToUser(user, professorSignupRequest.departmentIdList(), departmentRepository);
         user.setPassword(passwordEncoder.encode(professorSignupRequest.pw()));
+        Professor professor = userMapper.professorSignupRequestToProfessor(professorSignupRequest);
+        professor.setUser(user);
+        professorJpaRepository.save(professor);
         return userMapper.userToProfessorSignupResponse(userJpaRepository.save(user));
     }
 }

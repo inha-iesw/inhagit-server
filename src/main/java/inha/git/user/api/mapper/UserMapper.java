@@ -11,6 +11,7 @@ import inha.git.user.api.controller.dto.response.CompanySignupResponse;
 import inha.git.user.api.controller.dto.response.ProfessorSignupResponse;
 import inha.git.user.api.controller.dto.response.StudentSignupResponse;
 import inha.git.user.domain.Company;
+import inha.git.user.domain.Professor;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -43,6 +44,9 @@ public interface UserMapper {
     }
     @Mapping(target = "acceptedAt", ignore = true)
     Company companySignupRequestToCompany(CompanySignupRequest companySignupRequest, String evidenceFilePath);
+
+    @Mapping(target = "acceptedAt", ignore = true)
+    Professor professorSignupRequestToProfessor(ProfessorSignupRequest professorSignupRequest);
 
     @Mapping(source = "user.id", target = "userId")
     StudentSignupResponse userToStudentSignupResponse(User user);

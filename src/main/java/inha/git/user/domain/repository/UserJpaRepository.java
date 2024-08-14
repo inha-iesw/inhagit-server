@@ -1,7 +1,7 @@
 package inha.git.user.domain.repository;
 
 
-import inha.git.common.BaseEntity;
+import inha.git.common.BaseEntity.State;
 import inha.git.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -19,7 +19,10 @@ public interface UserJpaRepository extends JpaRepository<User, Integer> {
      * @param state 찾으려는 사용자의 상태 (ACTIVE 또는 INACTIVE)
      * @return 조건에 맞는 사용자를 포함하는 Optional 객체
      */
-    Optional<User> findByEmailAndState(String email, BaseEntity.State state);
+    Optional<User> findByEmailAndState(String email, State state);
 
-    boolean existsByEmail(String email);
+    boolean existsByEmailAndState(String email, State state);
+    boolean existsByUserNumberAndState(String userNumber, State state);
+
+    Optional<User> findByIdAndState(Integer id, State state);
 }

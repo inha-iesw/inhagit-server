@@ -13,7 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static inha.git.utils.jwt.JwtProvider.STUDENT_TYPE;
+import static inha.git.common.Constant.SIGN_UP_TYPE;
 
 /**
  * StudentServiceImpl은 학생 관련 비즈니스 로직을 처리하는 서비스 클래스.
@@ -40,7 +40,7 @@ public class StudentServiceImpl implements StudentService{
     @Transactional
     @Override
     public StudentSignupResponse studentSignup(StudentSignupRequest studentSignupRequest) {
-        mailService.emailAuth(studentSignupRequest.email(), STUDENT_TYPE);
+        mailService.emailAuth(studentSignupRequest.email(), SIGN_UP_TYPE);
         User user = userMapper.studentSignupRequestToUser(studentSignupRequest);
         userMapper.mapDepartmentsToUser(user, studentSignupRequest.departmentIdList(), departmentRepository);
         user.setPassword(passwordEncoder.encode(studentSignupRequest.pw()));

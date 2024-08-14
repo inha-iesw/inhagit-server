@@ -60,4 +60,9 @@ public class BaseEntity {
         this.state = state;
     }
 
+    public void setDeletedAt() {
+        this.deletedAt = LocalDateTime.now();
+    }
+
+
 }

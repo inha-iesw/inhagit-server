@@ -61,6 +61,9 @@ public class User extends BaseEntity implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Company company;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Professor professor;
+
     @Override
     public String getUsername() {
         return email;
@@ -114,6 +117,17 @@ public class User extends BaseEntity implements UserDetails {
         this.company = company;
         if (company.getUser() != this) {
             company.setUser(this);  // 양방향 연관관계 설정
+        }
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public void setProssor(Professor professor) {
+        this.professor = professor;
+        if (professor.getUser() != this) {
+            professor.setUser(this);  // 양방향 연관관계 설정
         }
     }
 }

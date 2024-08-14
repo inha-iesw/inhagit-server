@@ -5,11 +5,11 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
 /**
- * 학과 이름이 한글로 되어 있고 "학과"로 끝나는지 검증하기 위한 Validator.
+ * 학과 이름이 한글로 되어 있고 "과"로 끝나는지 검증하기 위한 Validator.
  */
 public class DepartmentNameFormatValidator implements ConstraintValidator<ValidDepartmentName, String> {
 
-    private static final String KOREAN_DEPARTMENT_NAME_REGEX = "^[가-힣]+학과$";
+    private static final String KOREAN_DEPARTMENT_NAME_REGEX = "^[가-힣]+과$";
 
     @Override
     public void initialize(ValidDepartmentName constraintAnnotation) {
