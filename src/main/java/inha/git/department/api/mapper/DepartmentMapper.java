@@ -18,10 +18,10 @@ public interface DepartmentMapper {
     /**
      * CreateDepartmentRequest를 Department 엔티티로 변환
      *
-     * @param request 부서 생성 요청
+     * @param createDepartmentRequest 기업 생성 요청
      * @return Department 엔티티
      */
-    Department createDepartmentRequestToDepartment(CreateDepartmentRequest request);
+    Department createDepartmentRequestToDepartment(CreateDepartmentRequest createDepartmentRequest);
 
     @Mapping(source = "department.id", target = "idx")
     SearchDepartmentResponse departmentToSearchDepartmentResponse(Department department);

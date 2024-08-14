@@ -25,4 +25,7 @@ public class Field extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String name;
 
+    public void setName(String name) {
+        this.name = name;
+    }
 }
