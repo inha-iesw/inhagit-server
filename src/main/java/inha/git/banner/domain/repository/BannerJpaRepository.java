@@ -2,7 +2,10 @@ package inha.git.banner.domain.repository;
 
 
 import inha.git.banner.domain.Banner;
+import inha.git.common.BaseEntity.State;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
 
 
 /**
@@ -10,5 +13,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface BannerJpaRepository extends JpaRepository<Banner, Integer> {
 
+    List<Banner> findAllByState(State state);
 
 }

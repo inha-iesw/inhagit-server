@@ -12,7 +12,18 @@ import java.util.UUID;
 import static inha.git.common.code.status.ErrorStatus.FILE_CONVERT;
 import static inha.git.common.code.status.ErrorStatus.FILE_NOT_FOUND;
 
+/**
+ * FilePath는 파일을 저장하고 저장된 파일의 경로를 반환하는 클래스.
+ */
 public class FilePath {
+
+    /**
+     * 파일을 저장하고 저장된 파일의 경로를 반환하는 메서드
+     *
+     * @param file      저장할 파일
+     * @param uploadDir 저장할 디렉토리
+     * @return 저장된 파일의 경로
+     */
 
     public static String storeFile(MultipartFile file, String uploadDir) {
         if (file.isEmpty()) {

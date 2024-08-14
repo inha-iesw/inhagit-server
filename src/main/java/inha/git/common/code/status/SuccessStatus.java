@@ -42,7 +42,8 @@ public enum SuccessStatus implements BaseCode {
     DEPARTMENT_SEARCH_OK(HttpStatus.OK, "DEPARTMENT2000", "학과 전체 조회 성공"),
     DEPARTMENT_UPDATE_OK(HttpStatus.OK, "DEPARTMENT2001", "학과명 수정 성공"),
     DEPARTMENT_DELETE_OK(HttpStatus.OK, "DEPARTMENT2002", "학과 삭제 성공"),
-    BANNER_CREATED_OK(HttpStatus.CREATED, "BANNER2010", "배너 생성 성공");
+    BANNER_CREATED_OK(HttpStatus.CREATED, "BANNER2010", "배너 생성 성공"),
+    BANNER_SEARCH_OK(HttpStatus.OK, "BANNER2000", "배너 조회 성공");
 
     private final HttpStatus httpStatus;
     private final String code;
