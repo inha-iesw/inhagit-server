@@ -63,6 +63,8 @@ public enum ErrorStatus implements BaseErrorCode {
     DEPARTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "DEPARTMENT4000", "학과를 찾을 수 없습니다."),
     ALREADY_ADMIN(HttpStatus.BAD_REQUEST, "ADMIN4000", "이미 관리자 권한이 있습니다."),
     NOT_ADMIN(HttpStatus.BAD_REQUEST, "ADMIN4001", "이미 관리자 권한이 없습니다."),
+    NOT_PROFESSOR(HttpStatus.BAD_REQUEST, "ADMIN4002", "교수 계정이 아닙니다."),
+    ALREADY_ACCEPTED_PROFESSOR(HttpStatus.BAD_REQUEST, "ADMIN4003", "이미 승인된 교수입니다."),
     /**
      * 500 :  Database, Server 오류
      */

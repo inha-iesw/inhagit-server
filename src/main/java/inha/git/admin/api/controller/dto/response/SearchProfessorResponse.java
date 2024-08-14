@@ -51,7 +51,7 @@ public record SearchProfessorResponse(
                 user.getUserDepartments().stream()
                         .map(ud -> new SearchDepartmentResponse(ud.getDepartment().getId(), ud.getDepartment().getName()))
                         .toList(),
-                professor != null ? professor.getCreatedAt() : null
+                professor != null ? professor.getAcceptedAt() : null
         );
     }
 

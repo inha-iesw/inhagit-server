@@ -2,6 +2,7 @@ package inha.git.admin.api.controller;
 
 import inha.git.admin.api.controller.dto.request.AdminDemotionRequest;
 import inha.git.admin.api.controller.dto.request.AdminPromotionRequest;
+import inha.git.admin.api.controller.dto.request.ProfessorAcceptRequest;
 import inha.git.admin.api.controller.dto.response.SearchCompanyResponse;
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
 import inha.git.admin.api.controller.dto.response.SearchStudentResponse;
@@ -130,10 +131,33 @@ public class AdminController {
         return BaseResponse.of(PROMOTION_CREATED, adminService.promotion(adminPromotionRequest));
     }
 
+    /**
+     * 관리자 승격 취소 API
+     *
+     * <p>관리자 승격을 취소합니다.</p>
+     *
+     * @param adminDemotionRequest 관리자 승격 취소할 유저 인덱스
+     * @return 승격 취소된 유저 정보를 포함하는 BaseResponse<String>
+     */
     @PostMapping("/demotion")
     @PreAuthorize("hasAuthority('admin:update')")
     @Operation(summary = "관리자 승격 취소 API", description = "관리자 승격을 취소합니다.")
     public BaseResponse<String> demotion(@Validated @RequestBody AdminDemotionRequest adminDemotionRequest) {
         return BaseResponse.of(DEMOTION_CREATED, adminService.demotion(adminDemotionRequest));
+    }
+
+    /**
+     * 교수 승인 API
+     *
+     * <p>교수 승인을 합니다.</p>
+     *
+     * @param professorAcceptRequest 교수 승인할 유저 인덱스
+     * @return 승인된 교수 정보를 포함하는 BaseResponse<String>
+     */
+    @PostMapping("/professor/accept")
+    @PreAuthorize("hasAuthority('admin:update')")
+    @Operation(summary = "교수 승인 API", description = "교수 승인을 합니다.")
+    public BaseResponse<String> acceptProfessor(@Validated @RequestBody ProfessorAcceptRequest professorAcceptRequest) {
+        return BaseResponse.of(DEMOTION_CREATED, adminService.acceptProfessor(professorAcceptRequest));
     }
 }

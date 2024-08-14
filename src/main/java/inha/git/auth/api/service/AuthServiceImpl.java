@@ -5,6 +5,7 @@ import inha.git.auth.api.controller.dto.response.LoginResponse;
 import inha.git.auth.api.mapper.AuthMapper;
 import inha.git.common.exceptions.BaseException;
 import inha.git.user.domain.Company;
+import inha.git.user.domain.Professor;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.user.domain.repository.CompanyJpaRepository;
@@ -51,8 +52,11 @@ public class AuthServiceImpl implements AuthService {
         }
         Role role = findUser.getRole();
         if(role == Role.PROFESSOR) {
-            professorJpaRepository.findByUserId(findUser.getId())
-                    .orElseThrow(() -> new BaseException(NOT_APPROVED_USER));
+            Professor professor = professorJpaRepository.findByUserId(findUser.getId())
+                    .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+            if(professor.getAcceptedAt() == null) {
+                throw new BaseException(NOT_APPROVED_USER);
+            }
         }
         else if(role == Role.COMPANY) {
             Company company = companyJpaRepository.findByUserId(findUser.getId())

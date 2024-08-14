@@ -2,12 +2,14 @@ package inha.git.admin.api.service;
 
 import inha.git.admin.api.controller.dto.request.AdminDemotionRequest;
 import inha.git.admin.api.controller.dto.request.AdminPromotionRequest;
+import inha.git.admin.api.controller.dto.request.ProfessorAcceptRequest;
 import inha.git.admin.api.controller.dto.response.SearchCompanyResponse;
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
 import inha.git.admin.api.controller.dto.response.SearchStudentResponse;
 import inha.git.admin.api.controller.dto.response.SearchUserResponse;
 import inha.git.admin.domain.repository.AdminQueryRepository;
 import inha.git.common.exceptions.BaseException;
+import inha.git.user.domain.Professor;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.user.domain.repository.CompanyJpaRepository;
@@ -109,6 +111,12 @@ public class AdminServiceImpl implements AdminService{
         return adminPromotionRequest.userIdx() + ": 관리자 권한 부여 완료";
     }
 
+    /**
+     * 관리자 권한 박탈
+     *
+     * @param adminDemotionRequest 관리자 권한 박탈 요청
+     * @return 성공 메시지
+     */
     @Override
     @Transactional
     public String demotion(AdminDemotionRequest adminDemotionRequest) {
@@ -125,5 +133,29 @@ public class AdminServiceImpl implements AdminService{
             user.setRole(Role.USER);
         }
         return adminDemotionRequest.userIdx() + ": 관리자 권한 박탈 완료 -> " + user.getRole() + "로 변경 완료";
+    }
+
+    /**
+     * 교수 승인
+     *
+     * @param professorAcceptRequest 교수 승인 요청
+     * @return 성공 메시지
+     */
+    @Override
+    @Transactional
+    public String acceptProfessor(ProfessorAcceptRequest professorAcceptRequest) {
+        User user = userJpaRepository.findByIdAndState(professorAcceptRequest.userIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        if(user.getRole() != Role.PROFESSOR) {
+            throw new BaseException(NOT_PROFESSOR);
+        }
+        Professor professor = professorJpaRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new BaseException(NOT_PROFESSOR));
+        if(professor.getAcceptedAt() != null) {
+            throw new BaseException(ALREADY_ACCEPTED_PROFESSOR);
+        }
+        professor.setAcceptedAt();
+        professorJpaRepository.save(professor);
+        return professorAcceptRequest.userIdx() + ": 교수 승인 완료";
     }
 }
