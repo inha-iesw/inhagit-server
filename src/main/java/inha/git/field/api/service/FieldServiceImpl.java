@@ -30,6 +30,11 @@ public class FieldServiceImpl implements FieldService {
     private final FieldJpaRepository fieldJpaRepository;
     private final FieldMapper fieldMapper;
 
+    /**
+     * 분야 전체 조회
+     *
+     * @return 분야 전체 조회 결과
+     */
     @Override
     public List<SearchFieldResponse> getFields() {
         return fieldMapper.fieldsToSearchFieldResponses(fieldJpaRepository.findAllByState(ACTIVE));

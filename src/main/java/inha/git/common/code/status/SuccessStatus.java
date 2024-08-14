@@ -47,7 +47,13 @@ public enum SuccessStatus implements BaseCode {
     FIELD_CREATE_OK(HttpStatus.CREATED, "FIELD2010", "분야 생성 성공"),
     FIELD_UPDATE_OK(HttpStatus.OK, "FIELD2001", "분야 수정 성공"),
     FIELD_DELETE_OK(HttpStatus.OK, "FIELD2002", "분야 삭제 성공"),
-    FIELD_SEARCH_OK(HttpStatus.OK, "FIELD2000", "분야 전체 조회 성공");
+    FIELD_SEARCH_OK(HttpStatus.OK, "FIELD2000", "분야 전체 조회 성공"),
+
+    NOTICE_CREATE_OK(HttpStatus.CREATED, "NOTICE2010", "공지 생성 성공"),
+    NOTICE_UPDATE_OK(HttpStatus.OK, "NOTICE2001", "공지 수정 성공"),
+    NOTICE_DELETE_OK(HttpStatus.OK, "NOTICE2002", "공지 삭제 성공"),
+    NOTICE_SEARCH_OK(HttpStatus.OK, "NOTICE2000", "공지 전체 조회 성공"),
+    NOTICE_DETAIL_OK(HttpStatus.OK, "NOTICE2003", "공지 상세 조회 성공");
 
     private final HttpStatus httpStatus;
     private final String code;

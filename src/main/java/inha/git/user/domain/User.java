@@ -3,6 +3,7 @@ package inha.git.user.domain;
 import inha.git.common.BaseEntity;
 import inha.git.department.domain.Department;
 import inha.git.mapping.domain.UserDepartment;
+import inha.git.notice.domain.Notice;
 import inha.git.user.domain.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -64,6 +65,10 @@ public class User extends BaseEntity implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Professor professor;
 
+    @Builder.Default
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Notice> notices = new ArrayList<>();
+
     @Override
     public String getUsername() {
         return email;
@@ -107,6 +112,13 @@ public class User extends BaseEntity implements UserDetails {
         UserDepartment userDepartment = new UserDepartment(this, department);
         userDepartments.add(userDepartment);
         department.getUserDepartments().add(userDepartment);
+    }
+
+    public void addNotice(Notice notice) {
+        notices.add(notice);
+        if (notice.getUser() != this) {
+            notice.setUser(this);  // 양방향 연관관계 설정
+        }
     }
 
     public void removeDepartment(Department department) {

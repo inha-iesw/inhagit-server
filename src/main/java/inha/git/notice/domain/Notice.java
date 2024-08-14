@@ -32,4 +32,14 @@ public class Notice extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public void updateNotice(String title, String contents) {
+        this.title = title;
+        this.contents = contents;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+        user.getNotices().add(this);  // 양방향 연관관계 설정
+    }
 }

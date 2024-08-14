@@ -21,7 +21,7 @@ import static inha.git.common.code.status.SuccessStatus.*;
  * FieldController는 field 관련 엔드포인트를 처리.
  */
 @Slf4j
-@Tag(name = "notice controller", description = "field 관련 API")
+@Tag(name = "field controller", description = "field 관련 API")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/fields")

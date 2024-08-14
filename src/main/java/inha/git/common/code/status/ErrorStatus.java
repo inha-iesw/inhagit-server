@@ -40,8 +40,8 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_TOKEN(HttpStatus.BAD_REQUEST, "TOKEN4002,", "유효하지 않은 토큰입니다."),
     INVALID_OAUTH_TYPE(HttpStatus.BAD_REQUEST, "OAUTH4000", "알 수 없는 소셜 로그인 형식입니다."),
 
-    INVALID_PAGE(HttpStatus.BAD_REQUEST, "PAGE4000", "페이지는 0 이상이어야 합니다."),
-    INVALID_SIZE(HttpStatus.BAD_REQUEST, "PAGE4001", "사이즈는 0이상이어야 합니다."),
+    INVALID_PAGE(HttpStatus.BAD_REQUEST, "PAGE4000", "페이지는 1 이상이어야 합니다."),
+    INVALID_SIZE(HttpStatus.BAD_REQUEST, "PAGE4001", "사이즈는 1 이상이어야 합니다."),
 
     JSON_CONVERT_ERROR(HttpStatus.BAD_REQUEST, "JSON4000", "JSON 변환에 실패하였습니다."),
 
@@ -62,6 +62,9 @@ public enum ErrorStatus implements BaseErrorCode {
 
     BANNER_FILE_EMPTY(HttpStatus.BAD_REQUEST, "BANNER4000", "배너 파일이 비어있습니다."),
     FIELD_NOT_FOUND(HttpStatus.NOT_FOUND, "FIELD4000", "분야를 찾을 수 없습니다"),
+
+    NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTICE4000", "해당 공지가 존재하지 않습니다."),
+    NOTICE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "NOTICE4001", "해당 공지를 수정할 권한이 없습니다."),
 
     DEPARTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "DEPARTMENT4000", "학과를 찾을 수 없습니다."),
     ALREADY_ADMIN(HttpStatus.BAD_REQUEST, "ADMIN4000", "이미 관리자 권한이 있습니다."),
