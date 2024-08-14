@@ -3,6 +3,7 @@ package inha.git.department.api.controller;
 import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
 import inha.git.common.BaseResponse;
 import inha.git.department.api.controller.dto.request.CreateDepartmentRequest;
+import inha.git.department.api.controller.dto.request.UpdateDepartmentRequest;
 import inha.git.department.api.service.DepartmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,8 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static inha.git.common.code.status.SuccessStatus.DEPARTMENT_CREATE_OK;
-import static inha.git.common.code.status.SuccessStatus.DEPARTMENT_SEARCH_OK;
+import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
  * DepartmentController는 학과 관련 엔드포인트를 처리.
@@ -53,9 +53,27 @@ public class DepartmentController {
      */
     @PostMapping
     @PreAuthorize("hasAuthority('admin:create')")
-    @Operation(summary = "학과 생성", description = "학과를 생성합니다.(관리자 전용)")
+    @Operation(summary = "학과 생성(관리자 전용)", description = "학과를 생성합니다.(관리자 전용)")
     public BaseResponse<String> createDepartment(@Validated @RequestBody CreateDepartmentRequest createDepartmentRequest) {
         return BaseResponse.of(DEPARTMENT_CREATE_OK, departmentService.createDepartment(createDepartmentRequest));
+    }
+
+    /**
+     * 학과명 수정 API
+     *
+     * <p>ADMIN계정만 호출 가능 -> 학과명을 수정.</p>
+     *
+     * @param departmentIdx 학과 인덱스
+     * @param updateDepartmentRequest 학과명 수정 요청 정보
+     *
+     * @return 학과명 수정 결과를 포함하는 BaseResponse<String>
+     */
+    @PutMapping("/{departmentIdx}")
+    @PreAuthorize("hasAuthority('admin:update')")
+    @Operation(summary = "학과명 수정(관리자 전용)", description = "학과명을 수정합니다.(관리자 전용)")
+    public BaseResponse<String> updateDepartmentName(@PathVariable("departmentIdx") Integer departmentIdx,
+                                                     @Validated @RequestBody UpdateDepartmentRequest updateDepartmentRequest) {
+        return BaseResponse.of(DEPARTMENT_UPDATE_OK, departmentService.updateDepartmentName(departmentIdx, updateDepartmentRequest));
     }
 
 }

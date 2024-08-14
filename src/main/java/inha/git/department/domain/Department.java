@@ -33,4 +33,8 @@ public class Department extends BaseEntity {
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserDepartment> userDepartments = new ArrayList<>();
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
 }
