@@ -4,17 +4,24 @@ import inha.git.common.BaseEntity;
 import inha.git.common.exceptions.BaseException;
 import inha.git.notice.api.controller.dto.request.CreateNoticeRequest;
 import inha.git.notice.api.controller.dto.request.UpdateNoticeRequest;
+import inha.git.notice.api.controller.dto.response.SearchNoticeResponse;
 import inha.git.notice.api.mapper.NoticeMapper;
 import inha.git.notice.domain.Notice;
 import inha.git.notice.domain.repository.NoticeJpaRepository;
+import inha.git.notice.domain.repository.NoticeQueryRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static inha.git.common.BaseEntity.State.INACTIVE;
+import static inha.git.common.Constant.CREATE_AT;
 import static inha.git.common.code.status.ErrorStatus.NOTICE_NOT_AUTHORIZED;
 import static inha.git.common.code.status.ErrorStatus.NOTICE_NOT_FOUND;
 
@@ -29,6 +36,13 @@ public class NoticeServiceImpl implements NoticeService {
 
     private final NoticeJpaRepository noticeJpaRepository;
     private final NoticeMapper noticeMapper;
+    private final NoticeQueryRepository noticeQueryRepository;
+
+    @Override
+    public Page<SearchNoticeResponse> getNotices(Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return noticeQueryRepository.getNotices(pageable);
+    }
 
     /**
      * 공지 생성

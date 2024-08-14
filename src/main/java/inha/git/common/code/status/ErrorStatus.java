@@ -40,8 +40,8 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_TOKEN(HttpStatus.BAD_REQUEST, "TOKEN4002,", "유효하지 않은 토큰입니다."),
     INVALID_OAUTH_TYPE(HttpStatus.BAD_REQUEST, "OAUTH4000", "알 수 없는 소셜 로그인 형식입니다."),
 
-    INVALID_PAGE(HttpStatus.BAD_REQUEST, "PAGE4000", "페이지는 0 이상이어야 합니다."),
-    INVALID_SIZE(HttpStatus.BAD_REQUEST, "PAGE4001", "사이즈는 0이상이어야 합니다."),
+    INVALID_PAGE(HttpStatus.BAD_REQUEST, "PAGE4000", "페이지는 1 이상이어야 합니다."),
+    INVALID_SIZE(HttpStatus.BAD_REQUEST, "PAGE4001", "사이즈는 1 이상이어야 합니다."),
 
     JSON_CONVERT_ERROR(HttpStatus.BAD_REQUEST, "JSON4000", "JSON 변환에 실패하였습니다."),
 

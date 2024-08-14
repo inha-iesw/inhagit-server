@@ -48,10 +48,10 @@ public class AdminSearchController {
     public BaseResponse<Page<SearchUserResponse>> getAdminUsers(
             @RequestParam(value = "search", required = false) String search,
             @RequestParam("page") Integer page) {
-        if (page < 0) {
+        if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(USER_SEARCH_OK, adminSearchService.getAdminUsers(search, page));
+        return BaseResponse.of(USER_SEARCH_OK, adminSearchService.getAdminUsers(search, page - 1));
     }
     /**
      * 관리자 전용 학생 검색 API
@@ -67,10 +67,10 @@ public class AdminSearchController {
     public BaseResponse<Page<SearchStudentResponse>> getAdminStudents(
             @RequestParam(value = "search", required = false) String search,
             @RequestParam("page") Integer page) {
-        if (page < 0) {
+        if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(STUDENT_SEARCH_OK, adminSearchService.getAdminStudents(search, page));
+        return BaseResponse.of(STUDENT_SEARCH_OK, adminSearchService.getAdminStudents(search, page - 1));
     }
     /**
      * 관리자 전용 교수 검색 API
@@ -86,10 +86,10 @@ public class AdminSearchController {
     public BaseResponse<Page<SearchProfessorResponse>> getAdminProfessors(
             @RequestParam(value = "search", required = false) String search,
             @RequestParam("page") Integer page) {
-        if (page < 0) {
+        if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(PROFESSOR_SEARCH_OK, adminSearchService.getAdminProfessors(search, page));
+        return BaseResponse.of(PROFESSOR_SEARCH_OK, adminSearchService.getAdminProfessors(search, page - 1));
     }
 
     /**
@@ -106,9 +106,9 @@ public class AdminSearchController {
     public BaseResponse<Page<SearchCompanyResponse>> getAdminCompanies(
             @RequestParam(value = "search", required = false) String search,
             @RequestParam("page") Integer page) {
-        if (page < 0) {
+        if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(COMPANY_SEARCH_OK, adminSearchService.getAdminCompanies(search, page));
+        return BaseResponse.of(COMPANY_SEARCH_OK, adminSearchService.getAdminCompanies(search, page - 1));
     }
 }
