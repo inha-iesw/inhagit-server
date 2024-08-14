@@ -1,9 +1,13 @@
 package inha.git.department.api.mapper;
 
+import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
 import inha.git.department.api.controller.dto.request.CreateDepartmentRequest;
 import inha.git.department.domain.Department;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+
+import java.util.List;
 
 /**
  * DepartmentMapper는 Department 엔티티와 관련된 데이터 변환 기능을 제공.
@@ -18,4 +22,8 @@ public interface DepartmentMapper {
      * @return Department 엔티티
      */
     Department createDepartmentRequestToDepartment(CreateDepartmentRequest request);
+
+    @Mapping(source = "department.id", target = "idx")
+    SearchDepartmentResponse departmentToSearchDepartmentResponse(Department department);
+    List<SearchDepartmentResponse> departmentsToSearchDepartmentResponses(List<Department> departmentList);
 }
