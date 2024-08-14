@@ -1,6 +1,8 @@
 package inha.git.notice.api.mapper;
 
 import inha.git.notice.api.controller.dto.request.CreateNoticeRequest;
+import inha.git.notice.api.controller.dto.response.SearchNoticeResponse;
+import inha.git.notice.api.controller.dto.response.SearchNoticeUserResponse;
 import inha.git.notice.domain.Notice;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
@@ -22,4 +24,11 @@ public interface NoticeMapper {
      */
     @Mapping(target = "user", source = "user")
     Notice createNoticeRequestToNotice(User user, CreateNoticeRequest createNoticeRequest);
+
+    @Mapping(target = "searchNoticeUserResponse", source = "searchNoticeUserResponse")
+    SearchNoticeResponse noticeToSearchNoticeResponse(Notice notice, SearchNoticeUserResponse searchNoticeUserResponse);
+
+    @Mapping(target = "idx", source = "id")
+    @Mapping(target = "name", source = "name")
+    SearchNoticeUserResponse userToSearchNoticeUserResponse(User user);
 }

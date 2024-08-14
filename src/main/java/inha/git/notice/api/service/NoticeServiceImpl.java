@@ -5,12 +5,14 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.notice.api.controller.dto.request.CreateNoticeRequest;
 import inha.git.notice.api.controller.dto.request.UpdateNoticeRequest;
 import inha.git.notice.api.controller.dto.response.SearchNoticeResponse;
+import inha.git.notice.api.controller.dto.response.SearchNoticesResponse;
 import inha.git.notice.api.mapper.NoticeMapper;
 import inha.git.notice.domain.Notice;
 import inha.git.notice.domain.repository.NoticeJpaRepository;
 import inha.git.notice.domain.repository.NoticeQueryRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
+import inha.git.user.domain.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,8 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.Constant.CREATE_AT;
-import static inha.git.common.code.status.ErrorStatus.NOTICE_NOT_AUTHORIZED;
-import static inha.git.common.code.status.ErrorStatus.NOTICE_NOT_FOUND;
+import static inha.git.common.code.status.ErrorStatus.*;
 
 /**
  * NoticeServiceImpl는 NoticeService 인터페이스를 구현하는 클래스.
@@ -37,11 +38,28 @@ public class NoticeServiceImpl implements NoticeService {
     private final NoticeJpaRepository noticeJpaRepository;
     private final NoticeMapper noticeMapper;
     private final NoticeQueryRepository noticeQueryRepository;
+    private final UserJpaRepository userJpaRepository;
 
+    /**
+     * 공지 조회
+     *
+     * @param page 페이지 번호
+     * @return 공지 페이지
+     */
     @Override
-    public Page<SearchNoticeResponse> getNotices(Integer page) {
+    @Transactional(readOnly = true)
+    public Page<SearchNoticesResponse> getNotices(Integer page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return noticeQueryRepository.getNotices(pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SearchNoticeResponse getNotice(Integer noticeIdx) {
+        Notice notice = findNotice(noticeIdx);
+        User user = userJpaRepository.findById(notice.getUser().getId())
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        return noticeMapper.noticeToSearchNoticeResponse(notice, noticeMapper.userToSearchNoticeUserResponse(user));
     }
 
     /**
@@ -69,7 +87,7 @@ public class NoticeServiceImpl implements NoticeService {
      */
     @Override
     public String updateNotice(User user, Integer noticeIdx, UpdateNoticeRequest updateNoticeRequest) {
-        Notice notice = getNotice(noticeIdx);
+        Notice notice = findNotice(noticeIdx);
         validateUserAuthorization(user, notice);
         notice.updateNotice(updateNoticeRequest.title(), updateNoticeRequest.contents());
         return noticeJpaRepository.save(notice).getTitle() + " 공지가 수정되었습니다.";
@@ -86,12 +104,14 @@ public class NoticeServiceImpl implements NoticeService {
      */
     @Override
     public String deleteNotice(User user, Integer noticeIdx) {
-        Notice notice = getNotice(noticeIdx);
+        Notice notice = findNotice(noticeIdx);
         validateUserAuthorization(user, notice);
         notice.setState(INACTIVE);
         notice.setDeletedAt();
         return noticeJpaRepository.save(notice).getTitle() + " 공지가 삭제되었습니다.";
     }
+
+
 
     /**
      * 사용자 권한 검증
@@ -111,7 +131,7 @@ public class NoticeServiceImpl implements NoticeService {
      * @param noticeIdx 공지 인덱스
      * @return 공지
      */
-    private Notice getNotice(Integer noticeIdx) {
+    private Notice findNotice(Integer noticeIdx) {
         return noticeJpaRepository.findByIdAndState(noticeIdx, BaseEntity.State.ACTIVE)
                 .orElseThrow(() -> new BaseException(NOTICE_NOT_FOUND));
     }

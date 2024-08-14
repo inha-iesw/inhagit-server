@@ -2,7 +2,7 @@ package inha.git.notice.domain.repository;
 
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import inha.git.notice.api.controller.dto.response.SearchNoticeResponse;
+import inha.git.notice.api.controller.dto.response.SearchNoticesResponse;
 import inha.git.notice.api.controller.dto.response.SearchNoticeUserResponse;
 import inha.git.notice.domain.Notice;
 import inha.git.notice.domain.QNotice;
@@ -15,12 +15,21 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * 공지사항 쿼리 레포지토리
+ */
 @Repository
 @RequiredArgsConstructor
 public class NoticeQueryRepository {
 
     private final JPAQueryFactory queryFactory;
-    public Page<SearchNoticeResponse> getNotices(Pageable pageable) {
+    /**
+     * 공지사항 목록 조회
+     *
+     * @param pageable 페이지 정보
+     * @return 공지사항 페이지
+     */
+    public Page<SearchNoticesResponse> getNotices(Pageable pageable) {
         QNotice notice = QNotice.notice;
         QUser user = QUser.user;
 
@@ -28,14 +37,15 @@ public class NoticeQueryRepository {
                 .select(notice)
                 .from(notice)
                 .leftJoin(notice.user, user)
+                .where(notice.state.eq(Notice.State.ACTIVE))
                 .orderBy(notice.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
         List<Notice> notices = query.fetch();
         long total = query.fetchCount();
-        List<SearchNoticeResponse> content = notices.stream()
-                .map(n -> new SearchNoticeResponse(
+        List<SearchNoticesResponse> content = notices.stream()
+                .map(n -> new SearchNoticesResponse(
                         n.getId(),
                         n.getTitle(),
                         n.getCreatedAt(),

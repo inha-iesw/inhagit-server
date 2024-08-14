@@ -5,6 +5,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.notice.api.controller.dto.request.CreateNoticeRequest;
 import inha.git.notice.api.controller.dto.request.UpdateNoticeRequest;
 import inha.git.notice.api.controller.dto.response.SearchNoticeResponse;
+import inha.git.notice.api.controller.dto.response.SearchNoticesResponse;
 import inha.git.notice.api.service.NoticeService;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,13 +33,28 @@ public class NoticeController {
 
     private final NoticeService noticeService;
 
+    /**
+     * 공지 조회 API
+     *
+     * <p>공지를 조회.</p>
+     *
+     * @param page 페이지 번호
+     *
+     * @return 공지 조회 결과를 포함하는 BaseResponse<Page<SearchNoticeResponse>>
+     */
     @GetMapping
     @Operation(summary = "공지 조회", description = "공지를 조회합니다.")
-    public BaseResponse<Page<SearchNoticeResponse>> getNotices(@RequestParam("page") Integer page) {
+    public BaseResponse<Page<SearchNoticesResponse>> getNotices(@RequestParam("page") Integer page) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
         return BaseResponse.of(NOTICE_SEARCH_OK, noticeService.getNotices(page - 1));
+    }
+
+    @GetMapping("/{noticeIdx}")
+    @Operation(summary = "공지 상세 조회", description = "공지를 상세 조회합니다.")
+    public BaseResponse<SearchNoticeResponse> getNotice(@PathVariable("noticeIdx") Integer noticeIdx) {
+        return BaseResponse.of(NOTICE_DETAIL_OK, noticeService.getNotice(noticeIdx));
     }
 
     /**
