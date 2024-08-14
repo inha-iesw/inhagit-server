@@ -1,5 +1,6 @@
 package inha.git.admin.api.service;
 
+import inha.git.admin.api.controller.dto.response.SearchCompanyResponse;
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
 import inha.git.admin.api.controller.dto.response.SearchStudentResponse;
 import inha.git.admin.api.controller.dto.response.SearchUserResponse;
@@ -61,6 +62,19 @@ public class AdminServiceImpl implements AdminService{
     public Page<SearchProfessorResponse> getAdminProfessors(String search, Integer page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return adminQueryRepository.searchProfessors(search, pageable);
+    }
+
+    /**
+     * 관리자 회사 조회
+     *
+     * @param search 검색어
+     * @param page 페이지
+     * @return 회사 목록
+     */
+    @Override
+    public Page<SearchCompanyResponse> getAdminCompanies(String search, Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return adminQueryRepository.searchCompanies(search, pageable);
     }
 
 

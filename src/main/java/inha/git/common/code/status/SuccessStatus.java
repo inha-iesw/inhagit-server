@@ -27,8 +27,10 @@ public enum SuccessStatus implements BaseCode {
     LOGOUT_OK(HttpStatus.OK, "AUTH2003", "로그아웃 성공"),
 
     //관리자전용
-    //교수 검색 성공
-    PROFESSOR_SEARCH_OK(HttpStatus.OK, "PROFESSOR2000", "교수 검색 성공"),
+    USER_SEARCH_OK(HttpStatus.OK, "ADMIN2000", "유저 검색 성공"),
+    STUDENT_SEARCH_OK(HttpStatus.OK, "ADMIN2001", "학생 검색 성공"),
+    PROFESSOR_SEARCH_OK(HttpStatus.OK, "ADMIN2002", "교수 검색 성공"),
+    COMPANY_SEARCH_OK(HttpStatus.OK, "ADMIN2003", "기업 검색 성공"),
 
     DEPARTMENT_CREATE_OK(HttpStatus.CREATED, "DEPARTMENT2010", "학과 생성 성공");
 

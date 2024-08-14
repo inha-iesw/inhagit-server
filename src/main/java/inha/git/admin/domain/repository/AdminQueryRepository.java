@@ -3,10 +3,12 @@ package inha.git.admin.domain.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import inha.git.admin.api.controller.dto.response.SearchCompanyResponse;
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
 import inha.git.admin.api.controller.dto.response.SearchStudentResponse;
 import inha.git.admin.api.controller.dto.response.SearchUserResponse;
 import inha.git.mapping.domain.QUserDepartment;
+import inha.git.user.domain.QCompany;
 import inha.git.user.domain.QProfessor;
 import inha.git.user.domain.QUser;
 import inha.git.user.domain.User;
@@ -108,6 +110,36 @@ public class AdminQueryRepository {
                         u,
                         u.getProfessor()
                 ))
+                .toList();
+        long total = query.fetchCount();
+        return new PageImpl<>(content, pageable, total);
+    }
+    /**
+     * 회사 검색
+     *
+     * @param search   검색어
+     * @param pageable 페이지 정보
+     * @return 회사 목록
+     */
+    public Page<SearchCompanyResponse> searchCompanies(String search, Pageable pageable) {
+        QUser user = QUser.user;
+        QCompany company = QCompany.company;
+        QUserDepartment userDepartment = QUserDepartment.userDepartment;
+        JPAQuery<User> query = queryFactory
+                .select(user)
+                .from(user)
+                .leftJoin(user.userDepartments, userDepartment)
+                .leftJoin(company).on(user.id.eq(company.user.id))
+                .where(
+                        user.role.eq(Role.COMPANY),
+                        nameLike(search)
+                )
+                .orderBy(user.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        List<SearchCompanyResponse> content = query.fetch().stream()
+                .map(u -> new SearchCompanyResponse(u, u.getCompany()))
                 .toList();
         long total = query.fetchCount();
         return new PageImpl<>(content, pageable, total);
