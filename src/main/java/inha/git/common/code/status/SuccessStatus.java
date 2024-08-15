@@ -53,7 +53,13 @@ public enum SuccessStatus implements BaseCode {
     NOTICE_UPDATE_OK(HttpStatus.OK, "NOTICE2001", "공지 수정 성공"),
     NOTICE_DELETE_OK(HttpStatus.OK, "NOTICE2002", "공지 삭제 성공"),
     NOTICE_SEARCH_OK(HttpStatus.OK, "NOTICE2000", "공지 전체 조회 성공"),
-    NOTICE_DETAIL_OK(HttpStatus.OK, "NOTICE2003", "공지 상세 조회 성공");
+    NOTICE_DETAIL_OK(HttpStatus.OK, "NOTICE2003", "공지 상세 조회 성공"),
+
+    PROJECT_CREATE_OK(HttpStatus.CREATED, "PROJECT2010", "프로젝트 생성 성공"),
+    PROJECT_UPDATE_OK(HttpStatus.OK, "PROJECT2001", "프로젝트 수정 성공"),
+    PROJECT_DELETE_OK(HttpStatus.OK, "PROJECT2002", "프로젝트 삭제 성공"),
+    PROJECT_SEARCH_OK(HttpStatus.OK, "PROJECT2000", "프로젝트 전체 조회 성공"),
+    PROJECT_DETAIL_OK(HttpStatus.OK, "PROJECT2003", "프로젝트 상세 조회 성공");
 
     private final HttpStatus httpStatus;
     private final String code;

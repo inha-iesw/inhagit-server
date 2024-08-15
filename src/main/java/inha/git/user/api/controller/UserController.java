@@ -12,7 +12,9 @@ import inha.git.user.api.service.ProfessorService;
 import inha.git.user.api.service.StudentService;
 import inha.git.user.api.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -80,6 +82,7 @@ public class UserController {
     @Operation(summary = "기업 회원가입 API", description = "기업 회원가입을 처리합니다.")
     public BaseResponse<CompanySignupResponse> companySignup(
             @Validated @RequestPart("company") CompanySignupRequest companySignupRequest,
+            @Validated @NotNull(message = "evidence 파일을 첨부해주세요.")
             @RequestPart(value = "evidence" ) MultipartFile evidence) {
         return BaseResponse.of(COMPANY_SIGN_UP_OK, companyService.companySignup(companySignupRequest, evidence));
     }

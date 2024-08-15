@@ -50,6 +50,11 @@ public enum ErrorStatus implements BaseErrorCode {
     FAILED_TO_CONVERT_MULTIPARTFILE_RESOURCE(HttpStatus.BAD_REQUEST, "FILE4000", "MultipartFileResource 변환에 실패하였습니다."),
     FILE_CONVERT(HttpStatus.BAD_REQUEST, "FILE4001", "파일 변환 실패."),
     FILE_NOT_FOUND(HttpStatus.BAD_REQUEST, "FILE4002", "파일을 찾을 수 없습니다."),
+    FILE_NOT_ZIP(HttpStatus.BAD_REQUEST, "FILE4003", "zip 파일만 업로드 가능합니다."),
+    FILE_MAX_FILES(HttpStatus.BAD_REQUEST, "FILE4004", "압축 파일 내의 파일 수는 100개 이하로 제한됩니다."),
+    FILE_MAX_SIZE(HttpStatus.BAD_REQUEST, "FILE4005", "압축 파일의 총 크기는 200MB 이하로 제한됩니다."),
+    FILE_DELETE_FAIL(HttpStatus.BAD_REQUEST, "FILE4006", "파일 삭제에 실패하였습니다."),
+
 
     EMAIL_NOT_FOUND(HttpStatus.BAD_REQUEST, "EMAIL4001", "이메일이 존재하지 않습니다."),
     EMAIL_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "EMAIL4002", "이미 존재하는 이메일입니다."),
@@ -65,6 +70,8 @@ public enum ErrorStatus implements BaseErrorCode {
 
     NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTICE4000", "해당 공지가 존재하지 않습니다."),
     NOTICE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "NOTICE4001", "해당 공지를 수정할 권한이 없습니다."),
+
+    COMPANY_CANNOT_CREATE_PROJECT(HttpStatus.BAD_REQUEST, "PROJECT4000", "기업 회원은 프로젝트를 생성할 수 없습니다."),
 
     DEPARTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "DEPARTMENT4000", "학과를 찾을 수 없습니다."),
     ALREADY_ADMIN(HttpStatus.BAD_REQUEST, "ADMIN4000", "이미 관리자 권한이 있습니다."),

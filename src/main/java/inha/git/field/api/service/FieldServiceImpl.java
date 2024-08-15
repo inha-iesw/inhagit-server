@@ -1,9 +1,9 @@
 package inha.git.field.api.service;
 
 import inha.git.common.exceptions.BaseException;
-import inha.git.field.api.controller.request.CreateFieldRequest;
-import inha.git.field.api.controller.request.UpdateFieldRequest;
-import inha.git.field.api.controller.response.SearchFieldResponse;
+import inha.git.field.api.controller.dto.request.CreateFieldRequest;
+import inha.git.field.api.controller.dto.request.UpdateFieldRequest;
+import inha.git.field.api.controller.dto.response.SearchFieldResponse;
 import inha.git.field.api.mapper.FieldMapper;
 import inha.git.field.domain.Field;
 import inha.git.field.domain.repository.FieldJpaRepository;

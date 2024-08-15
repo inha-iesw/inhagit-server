@@ -1,7 +1,7 @@
 package inha.git.field.api.mapper;
 
-import inha.git.field.api.controller.request.CreateFieldRequest;
-import inha.git.field.api.controller.response.SearchFieldResponse;
+import inha.git.field.api.controller.dto.request.CreateFieldRequest;
+import inha.git.field.api.controller.dto.response.SearchFieldResponse;
 import inha.git.field.domain.Field;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -23,8 +23,20 @@ public interface FieldMapper {
      */
     Field createFieldRequestToField(CreateFieldRequest createFieldRequest);
 
+    /**
+     * Field 엔티티를 SearchFieldResponse로 변환
+     *
+     * @param field 분야 정보
+     * @return SearchFieldResponse
+     */
     @Mapping(source = "id", target = "idx")
     SearchFieldResponse fieldToSearchFieldResponse(Field field);
+    /**
+     * Field 엔티티 목록을 SearchFieldResponse 목록으로 변환
+     *
+     * @param fields 분야 정보 목록
+     * @return SearchFieldResponse 목록
+     */
     List<SearchFieldResponse> fieldsToSearchFieldResponses(List<Field> fields);
 
 }

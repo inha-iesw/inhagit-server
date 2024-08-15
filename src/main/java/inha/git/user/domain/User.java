@@ -4,11 +4,13 @@ import inha.git.common.BaseEntity;
 import inha.git.department.domain.Department;
 import inha.git.mapping.domain.UserDepartment;
 import inha.git.notice.domain.Notice;
+import inha.git.project.domain.Project;
 import inha.git.user.domain.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -69,6 +71,9 @@ public class User extends BaseEntity implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Notice> notices = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Project> projects = new ArrayList<>();
+
     @Override
     public String getUsername() {
         return email;
@@ -121,10 +126,7 @@ public class User extends BaseEntity implements UserDetails {
         }
     }
 
-    public void removeDepartment(Department department) {
-        userDepartments.removeIf(userDepartment -> userDepartment.getDepartment().equals(department) && userDepartment.getUser().equals(this));
-        department.getUserDepartments().removeIf(userDepartment -> userDepartment.getUser().equals(this) && userDepartment.getDepartment().equals(department));
-    }
+
     public void setCompany(Company company) {
         this.company = company;
         if (company.getUser() != this) {
@@ -142,4 +144,5 @@ public class User extends BaseEntity implements UserDetails {
             professor.setUser(this);  // 양방향 연관관계 설정
         }
     }
+
 }

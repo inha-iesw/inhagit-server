@@ -1,7 +1,6 @@
 package inha.git.project.domain;
 
 import inha.git.common.BaseEntity;
-import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,4 +33,5 @@ public class ProjectUpload extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
+
 }

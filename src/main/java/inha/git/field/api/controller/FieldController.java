@@ -1,9 +1,9 @@
 package inha.git.field.api.controller;
 
 import inha.git.common.BaseResponse;
-import inha.git.field.api.controller.request.CreateFieldRequest;
-import inha.git.field.api.controller.request.UpdateFieldRequest;
-import inha.git.field.api.controller.response.SearchFieldResponse;
+import inha.git.field.api.controller.dto.request.CreateFieldRequest;
+import inha.git.field.api.controller.dto.request.UpdateFieldRequest;
+import inha.git.field.api.controller.dto.response.SearchFieldResponse;
 import inha.git.field.api.service.FieldService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

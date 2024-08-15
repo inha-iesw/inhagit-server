@@ -25,6 +25,14 @@ public class Constant {
     public final static Integer ADMIN_TYPE = 1;
     public final static String CREATE_AT = "createAt";
 
+    public final static String BASE_DIR = System.getProperty("user.dir") + "/source/";
+    public final static String BASE_DIR_2 = System.getProperty("user.dir") + "/source";
+    public final static String PROJECT_ZIP = "project-zip";
+    public final static String PROJECT = "project";
+    public final static String EVIDENCE = "evidence";
+    public final static String BANNER = "banner";
+    public final static String PROJECT_UPLOAD = "/project/";
+
     public static Integer mapRoleToPosition(Role role) {
         if(role == Role.USER) {
             return STUDENT_TYPE;  // 학생이 1인 경우

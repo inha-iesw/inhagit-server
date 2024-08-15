@@ -1,9 +1,17 @@
 package inha.git.project.domain;
 
 import inha.git.common.BaseEntity;
+import inha.git.field.domain.Field;
+import inha.git.mapping.domain.ProjectField;
+import inha.git.mapping.domain.id.ProjectFieldId;
 import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -23,7 +31,7 @@ public class Project extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 100, name = "repo_name")
+    @Column(length = 100, name = "repo_name")
     private String repoName;
 
     @Column(nullable = false, length = 50)
@@ -36,15 +44,27 @@ public class Project extends BaseEntity {
     private String subjectName;
 
     @Column(nullable = false, name = "patent_recommend_count")
-    private Integer patentRecommendCount;
+    private Integer patentRecommendCount = 0;
 
     @Column(nullable = false, name = "founding_recommend_count")
-    private Integer foundingRecommendCount;
+    private Integer foundingRecommendCount = 0;
 
     @Column(nullable = false, name = "registration_recommend_count")
-    private Integer registrationRecommendCount;
+    private Integer registrationRecommendCount = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectField> projectFields = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectUpload> projectUploads = new ArrayList<>();
+
+
+
+
 }
