@@ -1,17 +1,13 @@
 package inha.git.project.domain;
 
 import inha.git.common.BaseEntity;
-import inha.git.field.domain.Field;
 import inha.git.mapping.domain.ProjectField;
-import inha.git.mapping.domain.id.ProjectFieldId;
 import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -34,12 +30,15 @@ public class Project extends BaseEntity {
     @Column(length = 100, name = "repo_name")
     private String repoName;
 
+    @Setter
     @Column(nullable = false, length = 50)
     private String title;
 
+    @Setter
     @Column(nullable = false, length = 255)
     private String contents;
 
+    @Setter
     @Column(nullable = false, length = 50, name = "subject_name")
     private String subjectName;
 
@@ -60,11 +59,7 @@ public class Project extends BaseEntity {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectField> projectFields = new ArrayList<>();
 
-    @Builder.Default
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProjectUpload> projectUploads = new ArrayList<>();
-
-
-
+    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ProjectUpload projectUpload;
 
 }

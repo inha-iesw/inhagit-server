@@ -21,16 +21,15 @@ public class ProjectUpload extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 255)
-    private String contents;
-
+    @Setter
     @Column(nullable = false, length = 255, name = "directory_name")
     private String directoryName;
 
+    @Setter
     @Column(nullable = false, length = 255, name = "zip_directory_name")
     private String zipDirectoryName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
 

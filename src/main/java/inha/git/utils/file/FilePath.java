@@ -1,6 +1,7 @@
-package inha.git.utils;
+package inha.git.utils.file;
 
 import inha.git.common.exceptions.BaseException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -16,6 +17,7 @@ import static inha.git.common.code.status.ErrorStatus.*;
 /**
  * FilePath는 파일을 저장하고 저장된 파일의 경로를 반환하는 클래스.
  */
+@Slf4j
 public class FilePath {
 
     /**
@@ -70,6 +72,7 @@ public class FilePath {
     public static boolean deleteDirectory(String dirPath) {
         File directory = new File(dirPath);
         if (!directory.exists()) {
+            log.error("Directory does not exist: " + dirPath);
             return false;
         }
 
@@ -79,11 +82,20 @@ public class FilePath {
                 if (file.isDirectory()) {
                     deleteDirectory(file.getAbsolutePath());
                 } else {
-                    file.delete();
+                    boolean deleted = file.delete();
+                    if (!deleted) {
+                        log.error("Failed to delete file: " + file.getAbsolutePath());
+                    }
                 }
             }
         }
-        return directory.delete();
+
+        boolean isDirDeleted = directory.delete();
+        if (!isDirDeleted) {
+            log.error("Failed to delete directory: " + dirPath);
+        }
+
+        return isDirDeleted;
     }
     /**
      * 파일 확장자 반환

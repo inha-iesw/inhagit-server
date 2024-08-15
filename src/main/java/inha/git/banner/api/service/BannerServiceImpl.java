@@ -6,7 +6,7 @@ import inha.git.banner.api.mapper.BannerMapper;
 import inha.git.banner.domain.Banner;
 import inha.git.banner.domain.repository.BannerJpaRepository;
 import inha.git.user.domain.User;
-import inha.git.utils.FilePath;
+import inha.git.utils.file.FilePath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

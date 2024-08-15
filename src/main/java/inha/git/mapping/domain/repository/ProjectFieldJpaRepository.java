@@ -3,6 +3,7 @@ package inha.git.mapping.domain.repository;
 
 import inha.git.mapping.domain.ProjectField;
 import inha.git.mapping.domain.id.ProjectFieldId;
+import inha.git.project.domain.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 
@@ -12,4 +13,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ProjectFieldJpaRepository extends JpaRepository<ProjectField, ProjectFieldId> {
 
 
+    void deleteByProject(Project project);
 }

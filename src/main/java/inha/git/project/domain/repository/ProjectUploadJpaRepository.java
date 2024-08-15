@@ -1,8 +1,11 @@
 package inha.git.project.domain.repository;
 
 
+import inha.git.common.BaseEntity;
 import inha.git.project.domain.ProjectUpload;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
 
 
 /**
@@ -10,5 +13,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface ProjectUploadJpaRepository extends JpaRepository<ProjectUpload, Integer> {
 
-
+    Optional<ProjectUpload> findByProjectIdAndState(Integer projectIdx, BaseEntity.State state);
 }

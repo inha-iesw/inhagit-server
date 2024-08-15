@@ -1,4 +1,4 @@
-package inha.git.utils;
+package inha.git.utils.file;
 
 import inha.git.common.exceptions.BaseException;
 
@@ -24,7 +24,6 @@ public class UnZip {
      *
      * @param zipFilePath 압축 파일 경로
      * @param outputDir   압축 해제할 디렉토리
-     * @return 압축 해제된 파일들이 저장된 최상위 폴더 경로
      */
     public static void unzipFile(String zipFilePath, String folderName, String outputDir) {
         // 고유한 폴더명 생성 (타임스탬프 + UUID 6자리)
@@ -35,7 +34,7 @@ public class UnZip {
             // 최상위 폴더 생성
             Files.createDirectories(outputPath);
 
-            try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFilePath), Charset.forName("EUC-KR"))) {
+            try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFilePath), Charset.forName("UTF-8"))) {
                 ZipEntry zipEntry;
 
                 // 압축 파일의 각 항목 처리

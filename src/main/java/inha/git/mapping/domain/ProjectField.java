@@ -33,4 +33,11 @@ public class ProjectField  {
     private Field field;
 
 
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public void setField(Field field) {
+        this.field = field;
+    }
 }

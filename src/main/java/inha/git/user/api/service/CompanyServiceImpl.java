@@ -8,7 +8,7 @@ import inha.git.user.domain.Company;
 import inha.git.user.domain.User;
 import inha.git.user.domain.repository.CompanyJpaRepository;
 import inha.git.user.domain.repository.UserJpaRepository;
-import inha.git.utils.FilePath;
+import inha.git.utils.file.FilePath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
