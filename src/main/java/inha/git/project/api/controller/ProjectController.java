@@ -5,6 +5,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.project.api.controller.api.request.CreateProjectRequest;
 import inha.git.project.api.controller.api.request.UpdateProjectRequest;
 import inha.git.project.api.controller.api.response.CreateProjectResponse;
+import inha.git.project.api.controller.api.response.SearchProjectResponse;
 import inha.git.project.api.controller.api.response.SearchProjectsResponse;
 import inha.git.project.api.controller.api.response.UpdateProjectResponse;
 import inha.git.project.api.service.ProjectService;
@@ -54,6 +55,23 @@ public class ProjectController {
         }
         return BaseResponse.of(PROJECT_SEARCH_OK, projectService.getProjects(page - 1));
     }
+
+    /**
+     * 프로젝트 상세 조회 API
+     *
+     * <p>프로젝트 상세를 조회합니다.</p>
+     *
+     * @param projectIdx 프로젝트 ID
+     * @return 프로젝트 상세 조회 결과를 포함하는 BaseResponse<SearchProjectResponse>
+     */
+    @GetMapping("/{projectIdx}")
+    @Operation(summary = "프로젝트 상세 조회 API", description = "프로젝트 상세를 조회합니다.")
+    public BaseResponse<SearchProjectResponse> getProject(
+            @AuthenticationPrincipal User user,
+            @PathVariable("projectIdx") Integer projectIdx) {
+        return BaseResponse.of(PROJECT_DETAIL_OK, projectService.getProject(user ,projectIdx));
+    }
+
     /**
      * 프로젝트 생성
      *

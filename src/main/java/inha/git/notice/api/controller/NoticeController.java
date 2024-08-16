@@ -51,6 +51,15 @@ public class NoticeController {
         return BaseResponse.of(NOTICE_SEARCH_OK, noticeService.getNotices(page - 1));
     }
 
+    /**
+     * 공지 상세 조회 API
+     *
+     * <p>공지를 상세 조회.</p>
+     *
+     * @param noticeIdx 공지 인덱스
+     *
+     * @return 공지 상세 조회 결과를 포함하는 BaseResponse<SearchNoticeResponse>
+     */
     @GetMapping("/{noticeIdx}")
     @Operation(summary = "공지 상세 조회 API", description = "공지를 상세 조회합니다.")
     public BaseResponse<SearchNoticeResponse> getNotice(@PathVariable("noticeIdx") Integer noticeIdx) {

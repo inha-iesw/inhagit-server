@@ -5,8 +5,7 @@ import inha.git.mapping.domain.ProjectField;
 import inha.git.mapping.domain.id.ProjectFieldId;
 import inha.git.project.api.controller.api.request.CreateProjectRequest;
 import inha.git.project.api.controller.api.request.UpdateProjectRequest;
-import inha.git.project.api.controller.api.response.CreateProjectResponse;
-import inha.git.project.api.controller.api.response.UpdateProjectResponse;
+import inha.git.project.api.controller.api.response.*;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectUpload;
 import inha.git.user.domain.User;
@@ -14,6 +13,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+
+import java.util.List;
 
 /**
  * ProjectMapper는 Project 엔티티와 관련된 데이터 변환 기능을 제공.
@@ -96,4 +97,30 @@ public interface ProjectMapper {
     default ProjectField createProjectField(Project project, Field field) {
         return new ProjectField(new ProjectFieldId(project.getId(), field.getId()), project, field);
     }
+
+    @Mapping(target = "idx", source = "field.id")
+    @Mapping(target = "name", source = "field.name")
+    SearchFieldResponse projectFieldToSearchFieldResponse(Field field);
+
+    @Mapping(target = "patent", source = "patentRecommendCount")
+    @Mapping(target = "founding", source = "foundingRecommendCount")
+    @Mapping(target = "registration", source = "registrationRecommendCount")
+    SearchRecommendCount projectToSearchRecommendCountResponse(Project project);
+
+    @Mapping(target = "idx", source = "user.id")
+    @Mapping(target = "name", source = "user.name")
+    SearchUserResponse userToSearchUserResponse(User user);
+
+    @Mapping(target = "patent", source = "isRecommendPatent")
+    @Mapping(target = "founding", source = "isRecommendFounding")
+    @Mapping(target = "registration", source = "isRecommendRegistration")
+    SearchRecommendState projectToSearchRecommendState(Boolean isRecommendPatent, Boolean isRecommendFounding, Boolean isRecommendRegistration);
+
+    @Mapping(target = "idx", source = "project.id")
+    @Mapping(target = "subject", source = "project.subjectName")
+    @Mapping(target = "filePath", source = "projectUpload.directoryName")
+    @Mapping(target = "zipFilePath", source = "projectUpload.zipDirectoryName")
+    @Mapping(target = "repoName", source = "project.repoName")
+    @Mapping(target = "createdAt", source = "project.createdAt")
+    SearchProjectResponse projectToSearchProjectResponse(Project project, ProjectUpload projectUpload, List<SearchFieldResponse> fieldList, SearchRecommendCount recommendCount, SearchUserResponse author, SearchRecommendState recommendState);
 }
