@@ -224,4 +224,14 @@ public interface ProjectMapper {
      */
     @Mapping(target = "idx", source = "projectComment.id")
     CreateCommentResponse toCreateCommentResponse(ProjectComment projectComment);
+
+
+    /**
+     * ProjectComment 엔티티를 UpdateCommentResponse로 변환
+     *
+     * @param projectComment 프로젝트 댓글 엔티티
+     * @return UpdateCommentResponse
+     */
+    @Mapping(target = "idx", source = "projectComment.id")
+    UpdateCommentResponse toUpdateCommentResponse(ProjectComment projectComment);
 }

@@ -77,6 +77,8 @@ public enum ErrorStatus implements BaseErrorCode {
     MY_PROJECT_RECOMMEND(HttpStatus.BAD_REQUEST, "PROJECT4003", "자신의 프로젝트에는 추천할 수 없습니다."),
     PROJECT_ALREADY_RECOMMEND(HttpStatus.BAD_REQUEST, "PROJECT4004", "이미 추천한 프로젝트입니다."),
     PROJECT_NOT_RECOMMEND(HttpStatus.BAD_REQUEST, "PROJECT4005", "추천하지 않은 프로젝트입니다."),
+    PROJECT_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PROJECT4006", "프로젝트 댓글을 찾을 수 없습니다."),
+    PROJECT_COMMENT_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "PROJECT4007", "댓글을 수정할 권한이 없습니다."),
 
 
 

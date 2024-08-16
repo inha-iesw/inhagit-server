@@ -2,7 +2,9 @@ package inha.git.project.api.service;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.project.api.controller.api.request.CreateCommentRequest;
+import inha.git.project.api.controller.api.request.UpdateCommentRequest;
 import inha.git.project.api.controller.api.response.CreateCommentResponse;
+import inha.git.project.api.controller.api.response.UpdateCommentResponse;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectComment;
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
-import static inha.git.common.code.status.ErrorStatus.PROJECT_NOT_FOUND;
+import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,14 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
     private final ProjectCommentJpaRepository projectCommentJpaRepository;
     private final ProjectReplyCommentJpaRepository projectReplyCommentJpaRepository;
     private final ProjectMapper projectMapper;
+
+    /**
+     * 댓글 생성
+     *
+     * @param user                사용자 정보
+     * @param createCommentRequest 댓글 생성 요청
+     * @return CreateCommentResponse
+     */
     @Override
     @Transactional
     public CreateCommentResponse createComment(User user, CreateCommentRequest createCommentRequest) {
@@ -36,5 +46,26 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         ProjectComment projectComment = projectMapper.toProjectComment(createCommentRequest, user, project);
         projectCommentJpaRepository.save(projectComment);
         return projectMapper.toCreateCommentResponse(projectComment);
+    }
+
+    /**
+     * 댓글 수정
+     *
+     * @param user                사용자 정보
+     * @param commentIdx          댓글 식별자
+     * @param updateCommentRequest 댓글 수정 요청
+     * @return UpdateCommentResponse
+     */
+    @Override
+    @Transactional
+    public UpdateCommentResponse updateComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest) {
+        ProjectComment projectComment = projectCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_COMMENT_NOT_FOUND));
+        if(!projectComment.getUser().getId().equals(user.getId())) {
+            throw new BaseException(PROJECT_COMMENT_NOT_AUTHORIZED);
+        }
+        projectComment.setContents(updateCommentRequest.contents());
+        projectCommentJpaRepository.save(projectComment);
+        return projectMapper.toUpdateCommentResponse(projectComment);
     }
 }
