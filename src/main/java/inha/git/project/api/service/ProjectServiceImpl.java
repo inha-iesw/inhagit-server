@@ -4,10 +4,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.field.domain.Field;
 import inha.git.field.domain.repository.FieldJpaRepository;
 import inha.git.mapping.domain.ProjectField;
-import inha.git.mapping.domain.repository.FoundingRecommendJpaRepository;
-import inha.git.mapping.domain.repository.PatentRecommendJpaRepository;
 import inha.git.mapping.domain.repository.ProjectFieldJpaRepository;
-import inha.git.mapping.domain.repository.RegistrationRecommendJpaRepository;
 import inha.git.project.api.controller.api.request.CreateProjectRequest;
 import inha.git.project.api.controller.api.request.UpdateProjectRequest;
 import inha.git.project.api.controller.api.response.*;
@@ -15,7 +12,6 @@ import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectUpload;
 import inha.git.project.domain.repository.ProjectJpaRepository;
-import inha.git.project.domain.repository.ProjectQueryRepository;
 import inha.git.project.domain.repository.ProjectUploadJpaRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
@@ -23,10 +19,6 @@ import inha.git.utils.file.FilePath;
 import inha.git.utils.file.UnZip;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
@@ -46,7 +38,7 @@ import static inha.git.common.code.status.ErrorStatus.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
+@Transactional
 public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectJpaRepository projectJpaRepository;
@@ -54,53 +46,6 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectFieldJpaRepository projectFieldJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
     private final ProjectMapper projectMapper;
-    private final ProjectQueryRepository projectQueryRepository;
-    private final PatentRecommendJpaRepository patentRecommendJpaRepository;
-    private final FoundingRecommendJpaRepository foundingRecommendJpaRepository;
-    private final RegistrationRecommendJpaRepository registrationRecommendJpaRepository;
-
-    /**
-     * 프로젝트 전체 조회
-     *
-     * @param page 페이지 번호
-     * @return 검색된 프로젝트 정보 페이지
-     */
-    @Override
-    public Page<SearchProjectsResponse> getProjects(Integer page) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
-        return projectQueryRepository.getProjects(pageable);
-    }
-
-    @Override
-    public SearchProjectResponse getProject(User user, Integer projectIdx) {
-        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
-                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-
-        ProjectUpload projectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
-                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-
-        List<SearchFieldResponse> searchFieldResponses = projectFieldJpaRepository.findByProject(project)
-                .stream()
-                .map(projectField -> projectMapper.projectFieldToSearchFieldResponse(projectField.getField()))
-                .toList();
-
-        SearchRecommendCount searchRecommendCountResponse = projectMapper.projectToSearchRecommendCountResponse(project);
-        SearchUserResponse searchUserResponse = projectMapper.userToSearchUserResponse(project.getUser());
-
-        boolean isRecommendPatent = patentRecommendJpaRepository.existsByUserAndProject(user, project);
-        boolean isRecommendRegistration = registrationRecommendJpaRepository.existsByUserAndProject(user, project);
-        boolean isRecommendFounding = foundingRecommendJpaRepository.existsByUserAndProject(user, project);
-
-        SearchRecommendState searchRecommendState = projectMapper.projectToSearchRecommendState
-                (isRecommendPatent, isRecommendFounding, isRecommendRegistration);
-
-        return projectMapper.projectToSearchProjectResponse(
-                project, projectUpload, searchFieldResponses, searchRecommendCountResponse, searchUserResponse, searchRecommendState
-        );
-    }
-
-
-
 
     /**
      * 프로젝트 생성

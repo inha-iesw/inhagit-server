@@ -33,6 +33,11 @@ public class Constant {
     public final static String BANNER = "banner";
     public final static String PROJECT_UPLOAD = "/project/";
 
+    public final static String GIT = ".git";
+    public final static String DS_STORE = ".DS_Store";
+    public final static String DIRECTORY = "directory";
+    public final static String FILE = "file";
+
     public static Integer mapRoleToPosition(Role role) {
         if(role == Role.USER) {
             return STUDENT_TYPE;  // 학생이 1인 경우

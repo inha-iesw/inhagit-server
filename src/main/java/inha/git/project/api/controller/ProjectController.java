@@ -4,10 +4,8 @@ import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.project.api.controller.api.request.CreateProjectRequest;
 import inha.git.project.api.controller.api.request.UpdateProjectRequest;
-import inha.git.project.api.controller.api.response.CreateProjectResponse;
-import inha.git.project.api.controller.api.response.SearchProjectResponse;
-import inha.git.project.api.controller.api.response.SearchProjectsResponse;
-import inha.git.project.api.controller.api.response.UpdateProjectResponse;
+import inha.git.project.api.controller.api.response.*;
+import inha.git.project.api.service.ProjectSearchService;
 import inha.git.project.api.service.ProjectService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
@@ -23,6 +21,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 import static inha.git.common.code.status.ErrorStatus.*;
 import static inha.git.common.code.status.SuccessStatus.*;
 
@@ -37,6 +37,7 @@ import static inha.git.common.code.status.SuccessStatus.*;
 public class ProjectController {
 
     private final ProjectService projectService;
+    private final ProjectSearchService projectSearchService;
 
 
     /**
@@ -53,7 +54,7 @@ public class ProjectController {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(PROJECT_SEARCH_OK, projectService.getProjects(page - 1));
+        return BaseResponse.of(PROJECT_SEARCH_OK, projectSearchService.getProjects(page - 1));
     }
 
     /**
@@ -69,7 +70,24 @@ public class ProjectController {
     public BaseResponse<SearchProjectResponse> getProject(
             @AuthenticationPrincipal User user,
             @PathVariable("projectIdx") Integer projectIdx) {
-        return BaseResponse.of(PROJECT_DETAIL_OK, projectService.getProject(user ,projectIdx));
+        return BaseResponse.of(PROJECT_DETAIL_OK, projectSearchService.getProject(user ,projectIdx));
+    }
+
+    /**
+     * 프로젝트 파일 조회 API
+     *
+     * <p>프로젝트 파일을 조회합니다.</p>
+     *
+     * @param projectIdx 프로젝트 ID
+     * @param path       파일 경로
+     * @return 프로젝트 파일 조회 결과를 포함하는 BaseResponse<List<SearchFileResponse>>
+     */
+    @GetMapping("/{projectIdx}/file")
+    @Operation(summary = "프로젝트 파일 조회 API", description = "프로젝트 파일을 조회합니다.")
+    public BaseResponse<List<SearchFileResponse>> getProjectFile(
+            @PathVariable("projectIdx") Integer projectIdx,
+            @RequestParam(value = "path", defaultValue = "/") String path) {
+        return BaseResponse.of(FILE_SEARCH_OK, projectSearchService.getProjectFileByIdx(projectIdx, path));
     }
 
     /**

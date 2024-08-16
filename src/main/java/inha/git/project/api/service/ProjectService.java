@@ -11,8 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface ProjectService {
-    Page<SearchProjectsResponse> getProjects(Integer page);
-    SearchProjectResponse getProject(User user, Integer projectIdx);
+
     CreateProjectResponse createProject(User user, CreateProjectRequest createProjectRequest, MultipartFile file);
     UpdateProjectResponse updateProject(User user, Integer projectIdx, UpdateProjectRequest updateProjectRequest, MultipartFile file);
 
