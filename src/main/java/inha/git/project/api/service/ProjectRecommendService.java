@@ -8,4 +8,6 @@ public interface ProjectRecommendService {
     String createProjectFoundingRecommend(User user, RecommendRequest recommendRequest);
 
     String createProjectPatentRecommend(User user, RecommendRequest recommendRequest);
+
+    String createProjectRegistrationRecommend(User user, RecommendRequest recommendRequest);
 }

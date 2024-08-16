@@ -52,4 +52,11 @@ public class ProjectRecommendController {
         return BaseResponse.of(PATENT_RECOMMEND_SUCCESS, projectRecommendService.createProjectPatentRecommend(user,recommendRequest));
     }
 
+    @PostMapping("/recommend/registration")
+    @Operation(summary = "프로젝트 등록 추천 API", description = "특정 프로젝트에 등록 추천을 합니다.")
+    public BaseResponse<String> recommendRegistration(@AuthenticationPrincipal User user,
+                                                      @RequestBody @Valid RecommendRequest recommendRequest) {
+        return BaseResponse.of(REGISTRATION_RECOMMEND_SUCCESS, projectRecommendService.createProjectRegistrationRecommend(user,recommendRequest));
+    }
+
 }

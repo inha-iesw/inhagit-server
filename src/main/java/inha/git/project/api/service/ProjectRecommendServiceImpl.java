@@ -55,8 +55,30 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         return recommendRequest.idx() + "번 프로젝트 특허 추천 완료";
     }
 
+    /**
+     * 프로젝트 등록 추천
+     *
+     * @param user 로그인한 사용자 정보
+     * @param recommendRequest 추천할 프로젝트 정보
+     * @return 추천 성공 메시지
+     */
+    @Override
+    public String createProjectRegistrationRecommend(User user, RecommendRequest recommendRequest) {
+        Project project = getProject(recommendRequest);
+        validRecommend(project, user, registrationRecommendJpaRepository.existsByUserAndProject(user, project));
+        registrationRecommendJpaRepository.save(projectMapper.createProjectRegistrationRecommend(user, project));
+        project.setRegistrationRecommendCount(project.getRegistrationRecommendCount() + 1);
+        return recommendRequest.idx() + "번 프로젝트 등록 추천 완료";
+    }
 
 
+    /**
+     * 추천할 프로젝트가 유효한지 확인
+     *
+     * @param project 프로젝트 정보
+     * @param user 로그인한 사용자 정보
+     * @param patentRecommendJpaRepository 특허 추천 레포지토리
+     */
     private void validRecommend(Project project, User user, boolean patentRecommendJpaRepository) {
         if (project.getUser().getId().equals(user.getId())) {
             throw new BaseException(MY_PROJECT_RECOMMEND);
@@ -66,6 +88,12 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         }
     }
 
+    /**
+     * 추천할 프로젝트 정보 조회
+     *
+     * @param recommendRequest 추천할 프로젝트 정보
+     * @return 추천할 프로젝트 정보
+     */
     private Project getProject(RecommendRequest recommendRequest) {
         return projectJpaRepository.findByIdAndState(recommendRequest.idx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));

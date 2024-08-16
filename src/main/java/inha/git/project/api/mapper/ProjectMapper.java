@@ -4,9 +4,11 @@ import inha.git.field.domain.Field;
 import inha.git.mapping.domain.FoundingRecommend;
 import inha.git.mapping.domain.PatentRecommend;
 import inha.git.mapping.domain.ProjectField;
+import inha.git.mapping.domain.RegistrationRecommend;
 import inha.git.mapping.domain.id.FoundingRecommendId;
 import inha.git.mapping.domain.id.PatentRecommedId;
 import inha.git.mapping.domain.id.ProjectFieldId;
+import inha.git.mapping.domain.id.RegistrationRecommendId;
 import inha.git.project.api.controller.api.request.CreateProjectRequest;
 import inha.git.project.api.controller.api.request.UpdateProjectRequest;
 import inha.git.project.api.controller.api.response.*;
@@ -185,5 +187,16 @@ public interface ProjectMapper {
      */
     default PatentRecommend createProjectPatentRecommend(User user, Project project) {
         return new PatentRecommend(new PatentRecommedId(user.getId(), project.getId()), project, user);
+    }
+
+    /**
+     * 등록 추천 엔티티 생성
+     *
+     * @param user    사용자 정보
+     * @param project 프로젝트 정보
+     * @return 등록 추천 엔티티
+     */
+    default RegistrationRecommend createProjectRegistrationRecommend(User user, Project project) {
+        return new RegistrationRecommend(new RegistrationRecommendId(user.getId(), project.getId()), project, user);
     }
 }
