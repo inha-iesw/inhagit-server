@@ -3,9 +3,7 @@ package inha.git.project.api.service;
 import inha.git.common.exceptions.BaseException;
 import inha.git.project.api.controller.api.request.CreateCommentRequest;
 import inha.git.project.api.controller.api.request.UpdateCommentRequest;
-import inha.git.project.api.controller.api.response.CreateCommentResponse;
-import inha.git.project.api.controller.api.response.DeleteCommentResponse;
-import inha.git.project.api.controller.api.response.UpdateCommentResponse;
+import inha.git.project.api.controller.api.response.CommentResponse;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectComment;
@@ -43,12 +41,12 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
      */
     @Override
     @Transactional
-    public CreateCommentResponse createComment(User user, CreateCommentRequest createCommentRequest) {
+    public CommentResponse createComment(User user, CreateCommentRequest createCommentRequest) {
         Project project = projectJpaRepository.findByIdAndState(createCommentRequest.projectIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         ProjectComment projectComment = projectMapper.toProjectComment(createCommentRequest, user, project);
         projectCommentJpaRepository.save(projectComment);
-        return projectMapper.toCreateCommentResponse(projectComment);
+        return projectMapper.toCommentResponse(projectComment);
     }
 
     /**
@@ -61,7 +59,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
      */
     @Override
     @Transactional
-    public UpdateCommentResponse updateComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest) {
+    public CommentResponse updateComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest) {
         ProjectComment projectComment = projectCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_COMMENT_NOT_FOUND));
         if(!projectComment.getUser().getId().equals(user.getId())) {
@@ -69,7 +67,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         }
         projectComment.setContents(updateCommentRequest.contents());
         projectCommentJpaRepository.save(projectComment);
-        return projectMapper.toUpdateCommentResponse(projectComment);
+        return projectMapper.toCommentResponse(projectComment);
     }
 
     /**
@@ -81,7 +79,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
      */
     @Override
     @Transactional
-    public DeleteCommentResponse deleteComment(User user, Integer commentIdx) {
+    public CommentResponse deleteComment(User user, Integer commentIdx) {
         ProjectComment projectComment = projectCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_COMMENT_NOT_FOUND));
         if(!projectComment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
@@ -90,6 +88,6 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         projectComment.setDeletedAt();
         projectComment.setState(INACTIVE);
         projectCommentJpaRepository.save(projectComment);
-        return projectMapper.toDeleteCommentResponse(projectComment);
+        return projectMapper.toCommentResponse(projectComment);
     }
 }

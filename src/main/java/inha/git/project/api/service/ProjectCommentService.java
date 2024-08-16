@@ -2,15 +2,13 @@ package inha.git.project.api.service;
 
 import inha.git.project.api.controller.api.request.CreateCommentRequest;
 import inha.git.project.api.controller.api.request.UpdateCommentRequest;
-import inha.git.project.api.controller.api.response.CreateCommentResponse;
-import inha.git.project.api.controller.api.response.DeleteCommentResponse;
-import inha.git.project.api.controller.api.response.UpdateCommentResponse;
+import inha.git.project.api.controller.api.response.CommentResponse;
 import inha.git.user.domain.User;
 
 public interface ProjectCommentService {
-    CreateCommentResponse createComment(User user, CreateCommentRequest createCommentRequest);
-    UpdateCommentResponse updateComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest);
+    CommentResponse createComment(User user, CreateCommentRequest createCommentRequest);
+    CommentResponse updateComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest);
 
-    DeleteCommentResponse deleteComment(User user, Integer commentIdx);
+    CommentResponse deleteComment(User user, Integer commentIdx);
 }
 

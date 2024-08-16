@@ -57,7 +57,7 @@ public class ProjectServiceImpl implements ProjectService {
      */
     @Override
     @Transactional
-    public CreateProjectResponse createProject(User user, CreateProjectRequest createProjectRequest, MultipartFile file) {
+    public ProjectResponse createProject(User user, CreateProjectRequest createProjectRequest, MultipartFile file) {
         String[] paths = storeAndUnzipFile(file);
         String zipFilePath = paths[0];
         String folderName = paths[1];
@@ -73,7 +73,7 @@ public class ProjectServiceImpl implements ProjectService {
         List<ProjectField> projectFields = createAndSaveProjectFields(createProjectRequest.fieldIdxList(), savedProject);
         projectFieldJpaRepository.saveAll(projectFields);
 
-        return projectMapper.projectToCreateProjectResponse(savedProject);
+        return projectMapper.projectToProjectResponse(savedProject);
     }
 
     /**
@@ -87,7 +87,7 @@ public class ProjectServiceImpl implements ProjectService {
      */
     @Override
     @Transactional
-    public UpdateProjectResponse updateProject(User user, Integer projectIdx, UpdateProjectRequest updateProjectRequest, MultipartFile file) {
+    public ProjectResponse updateProject(User user, Integer projectIdx, UpdateProjectRequest updateProjectRequest, MultipartFile file) {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         if(!project.getUser().equals(user) && !user.getRole().equals(Role.ADMIN)) {
@@ -125,13 +125,13 @@ public class ProjectServiceImpl implements ProjectService {
                 log.error("기존 파일 또는 디렉토리 삭제에 실패했습니다.");
             }
         }
-        return projectMapper.projectToUpdateProjectResponse(savedProject);
+        return projectMapper.projectToProjectResponse(savedProject);
     }
 
 
     //댓글, 추천 등도 개발완료 뒤 추가 예정
     @Override
-    public DeleteProjectResponse deleteProject(User user, Integer projectIdx) {
+    public ProjectResponse deleteProject(User user, Integer projectIdx) {
         return null;
     }
 

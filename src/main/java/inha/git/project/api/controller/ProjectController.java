@@ -101,7 +101,7 @@ public class ProjectController {
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "프로젝트 생성(기업 제외) API", description = "프로젝트를 생성합니다.")
-    public BaseResponse<CreateProjectResponse> createProject(
+    public BaseResponse<ProjectResponse> createProject(
             @AuthenticationPrincipal User user,
             @Validated @RequestPart("createProjectRequest") CreateProjectRequest createProjectRequest,
             @RequestPart(value = "file") MultipartFile file) {
@@ -123,7 +123,7 @@ public class ProjectController {
      */
     @PutMapping(value = "/{projectIdx}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "프로젝트 수정 API(기업 제외)", description = "프로젝트를 수정합니다.")
-    public BaseResponse<UpdateProjectResponse> updateProject(
+    public BaseResponse<ProjectResponse> updateProject(
             @AuthenticationPrincipal User user,
             @PathVariable("projectIdx") Integer projectIdx,
             @Validated @RequestPart("updateProjectRequest") UpdateProjectRequest updateProjectRequest,
@@ -140,7 +140,7 @@ public class ProjectController {
 
     @DeleteMapping("/{projectIdx}")
     @Operation(summary = "프로젝트 삭제 API", description = "프로젝트를 삭제합니다.")
-    public BaseResponse<DeleteProjectResponse> deleteProject(
+    public BaseResponse<ProjectResponse> deleteProject(
             @AuthenticationPrincipal User user,
             @PathVariable("projectIdx") Integer projectIdx) {
         return BaseResponse.of(PROJECT_DELETE_OK, projectService.deleteProject(user, projectIdx));

@@ -3,9 +3,7 @@ package inha.git.project.api.controller;
 import inha.git.common.BaseResponse;
 import inha.git.project.api.controller.api.request.CreateCommentRequest;
 import inha.git.project.api.controller.api.request.UpdateCommentRequest;
-import inha.git.project.api.controller.api.response.CreateCommentResponse;
-import inha.git.project.api.controller.api.response.DeleteCommentResponse;
-import inha.git.project.api.controller.api.response.UpdateCommentResponse;
+import inha.git.project.api.controller.api.response.CommentResponse;
 import inha.git.project.api.service.ProjectCommentService;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,7 +37,7 @@ public class ProjectCommentController {
      */
     @PostMapping
     @Operation(summary = "프로젝트 댓글 생성 API", description = "프로젝트 댓글을 생성합니다.")
-    public BaseResponse<CreateCommentResponse> createComment(
+    public BaseResponse<CommentResponse> createComment(
             @AuthenticationPrincipal User user,
             @Validated @RequestBody CreateCommentRequest createCommentRequest
     ) {
@@ -52,11 +50,11 @@ public class ProjectCommentController {
      * @param user                사용자 정보
      * @param commentIdx          댓글 식별자
      * @param updateCommentRequest 댓글 수정 요청
-     * @return BaseResponse<UpdateCommentResponse>
+     * @return BaseResponse<CommentResponse>
      */
     @PutMapping("/{commentIdx}")
     @Operation(summary = "프로젝트 댓글 수정 API", description = "프로젝트 댓글을 수정합니다.")
-    public BaseResponse<UpdateCommentResponse> updateComment(
+    public BaseResponse<CommentResponse> updateComment(
             @AuthenticationPrincipal User user,
             @PathVariable("commentIdx") Integer commentIdx,
             @Validated @RequestBody UpdateCommentRequest updateCommentRequest
@@ -69,13 +67,17 @@ public class ProjectCommentController {
      *
      * @param user       사용자 정보
      * @param commentIdx 댓글 식별자
-     * @return BaseResponse<DeleteCommentResponse>
+     * @return BaseResponse<CommentResponse>
      */
     @DeleteMapping("/{commentIdx}")
     @Operation(summary = "프로젝트 댓글 삭제 API", description = "프로젝트 댓글을 삭제합니다.")
-    public BaseResponse<DeleteCommentResponse> deleteComment(
+    public BaseResponse<CommentResponse> deleteComment(
             @AuthenticationPrincipal User user,
             @PathVariable("commentIdx") Integer commentIdx) {
         return BaseResponse.of(PROJECT_COMMENT_DELETE_OK, projectCommentService.deleteComment(user, commentIdx));
     }
+
+    //@PostMapping("/reply")
+    //@Operation(summary = "프로젝트 댓글 답글 생성 API", description = "프로젝트 댓글에 답글을 생성합니다.")
+
 }

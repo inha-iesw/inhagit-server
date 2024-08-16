@@ -55,23 +55,14 @@ public interface ProjectMapper {
     void updateProjectRequestToProject(UpdateProjectRequest updateProjectRequest, @MappingTarget Project project);
 
     /**
-     * Project 엔티티를 CreateProjectResponse로 변환
+     * Project 엔티티를 ProjectResponse로 변환
      *
      * @param project 프로젝트 엔티티
-     * @return CreateProjectResponse
+     * @return ProjectResponse
      */
     @Mapping(target = "idx", source = "project.id")
-    CreateProjectResponse projectToCreateProjectResponse(Project project);
+    ProjectResponse projectToProjectResponse(Project project);
 
-
-    /**
-     * Project 엔티티를 UpdateProjectResponse로 변환
-     *
-     * @param project 프로젝트 엔티티
-     * @return UpdateProjectResponse
-     */
-    @Mapping(target = "idx", source = "project.id")
-    UpdateProjectResponse projectToUpdateProjectResponse(Project project);
 
     /**
      * Project 엔티티를 UpdateProjectResponse로 변환
@@ -217,30 +208,12 @@ public interface ProjectMapper {
     ProjectComment toProjectComment(CreateCommentRequest createCommentRequest, User user, Project project);
 
     /**
-     * ProjectComment 엔티티를 CreateCommentResponse로 변환
+     * ProjectComment 엔티티를 CommentResponse로 변환
      *
      * @param projectComment 프로젝트 댓글 엔티티
-     * @return CreateCommentResponse
+     * @return CommentResponse
      */
     @Mapping(target = "idx", source = "projectComment.id")
-    CreateCommentResponse toCreateCommentResponse(ProjectComment projectComment);
+    CommentResponse toCommentResponse(ProjectComment projectComment);
 
-
-    /**
-     * ProjectComment 엔티티를 UpdateCommentResponse로 변환
-     *
-     * @param projectComment 프로젝트 댓글 엔티티
-     * @return UpdateCommentResponse
-     */
-    @Mapping(target = "idx", source = "projectComment.id")
-    UpdateCommentResponse toUpdateCommentResponse(ProjectComment projectComment);
-
-    /**
-     * ProjectComment 엔티티를 DeleteCommentResponse로 변환
-     *
-     * @param projectComment 프로젝트 댓글 엔티티
-     * @return DeleteCommentResponse
-     */
-    @Mapping(target = "idx", source = "projectComment.id")
-    DeleteCommentResponse toDeleteCommentResponse(ProjectComment projectComment);
 }
