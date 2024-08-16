@@ -15,4 +15,6 @@ public interface RegistrationRecommendJpaRepository extends JpaRepository<Regist
 
 
     boolean existsByUserAndProject(User user, Project project);
+
+    void deleteByUserAndProject(User user, Project project);
 }

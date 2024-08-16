@@ -106,5 +106,20 @@ public class ProjectRecommendController {
         return BaseResponse.of(PATENT_RECOMMEND_CANCEL_SUCCESS, projectRecommendService.cancelProjectPatentRecommend(user,recommendRequest));
     }
 
+    /**
+     * 프로젝트 등록 추천 취소 API
+     *
+     * <p>특정 프로젝트에 등록 추천을 취소합니다.</p>
+     *
+     * @param user 로그인한 사용자 정보
+     * @param recommendRequest 추천할 프로젝트 정보
+     * @return 추천 취소 성공 메시지를 포함하는 BaseResponse<String>
+     */
+    @DeleteMapping("/recommend/registration")
+    @Operation(summary = "프로젝트 등록 추천 취소 API", description = "특정 프로젝트에 등록 추천을 취소합니다.")
+    public BaseResponse<String> cancelRegistrationRecommend(@AuthenticationPrincipal User user,
+                                                            @RequestBody @Valid RecommendRequest recommendRequest) {
+        return BaseResponse.of(REGISTRATION_RECOMMEND_CANCEL_SUCCESS, projectRecommendService.cancelProjectRegistrationRecommend(user,recommendRequest));
+    }
 
 }

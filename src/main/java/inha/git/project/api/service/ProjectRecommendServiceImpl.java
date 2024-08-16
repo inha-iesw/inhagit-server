@@ -94,6 +94,13 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         return recommendRequest.idx() + "번 프로젝트 창업 추천 취소 완료";
     }
 
+    /**
+     * 프로젝트 특허 추천 취소
+     *
+     * @param user 로그인한 사용자 정보
+     * @param recommendRequest 추천할 프로젝트 정보
+     * @return 추천 취소 성공 메시지
+     */
     @Override
     public String cancelProjectPatentRecommend(User user, RecommendRequest recommendRequest) {
         Project project = getProject(recommendRequest);
@@ -101,6 +108,22 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         patentRecommendJpaRepository.deleteByUserAndProject(user, project);
         project.setPatentRecommendCount(project.getPatentRecommendCount() - 1);
         return recommendRequest.idx() + "번 프로젝트 특허 추천 취소 완료";
+    }
+
+    /**
+     * 프로젝트 등록 추천 취소
+     *
+     * @param user 로그인한 사용자 정보
+     * @param recommendRequest 추천할 프로젝트 정보
+     * @return 추천 취소 성공 메시지
+     */
+    @Override
+    public String cancelProjectRegistrationRecommend(User user, RecommendRequest recommendRequest) {
+        Project project = getProject(recommendRequest);
+        validRecommendCancel(project, user, registrationRecommendJpaRepository.existsByUserAndProject(user, project));
+        registrationRecommendJpaRepository.deleteByUserAndProject(user, project);
+        project.setRegistrationRecommendCount(project.getRegistrationRecommendCount() - 1);
+        return recommendRequest.idx() + "번 프로젝트 등록 추천 취소 완료";
     }
 
 
