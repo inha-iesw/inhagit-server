@@ -35,14 +35,18 @@ public class SecurityConfig {
     private static final String PROFESSOR_URL = "/api/v1/professor/**";
     // 기업 전용 경로
     private static final String COMPANY_URL = "/api/v1/company/**";
-    private static final String[] WHITE_LIST_URL = {
-            "/",
-            "/api/v1/auth/**",
+
+    private static final String[] GET_ONLY_WHITE_LIST_URL = {
             "/api/v1/departments",
             "/api/v1/fields",
             "/api/v1/banners",
             "/api/v1/notices",
-            "/api/v1/notices/{noticeIdx}",
+            "/api/v1/projects",
+            "/api/v1/notices/{noticeIdx}"
+    };
+    private static final String[] WHITE_LIST_URL = {
+            "/",
+            "/api/v1/auth/**",
             "/api/v1/user/student",
             "/api/v1/user/professor",
             "/api/v1/user/company",
@@ -71,9 +75,11 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers(WHITE_LIST_URL)
-                                .permitAll()
+
+                        req.requestMatchers(WHITE_LIST_URL).permitAll().
+                                requestMatchers(GET, GET_ONLY_WHITE_LIST_URL).permitAll()  // GET 요청만 허용
                                 // 관리자 전용 접근 설정
                                 .requestMatchers(ADMIN_URL).hasRole(ADMIN.name())
                                 .requestMatchers(GET, ADMIN_URL).hasAuthority(ADMIN_READ.name())

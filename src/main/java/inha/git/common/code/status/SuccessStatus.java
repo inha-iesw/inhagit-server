@@ -53,7 +53,28 @@ public enum SuccessStatus implements BaseCode {
     NOTICE_UPDATE_OK(HttpStatus.OK, "NOTICE2001", "공지 수정 성공"),
     NOTICE_DELETE_OK(HttpStatus.OK, "NOTICE2002", "공지 삭제 성공"),
     NOTICE_SEARCH_OK(HttpStatus.OK, "NOTICE2000", "공지 전체 조회 성공"),
-    NOTICE_DETAIL_OK(HttpStatus.OK, "NOTICE2003", "공지 상세 조회 성공");
+    NOTICE_DETAIL_OK(HttpStatus.OK, "NOTICE2003", "공지 상세 조회 성공"),
+
+    PROJECT_CREATE_OK(HttpStatus.CREATED, "PROJECT2010", "프로젝트 생성 성공"),
+    PROJECT_UPDATE_OK(HttpStatus.OK, "PROJECT2001", "프로젝트 수정 성공"),
+    PROJECT_DELETE_OK(HttpStatus.OK, "PROJECT2002", "프로젝트 삭제 성공"),
+    PROJECT_SEARCH_OK(HttpStatus.OK, "PROJECT2000", "프로젝트 전체 조회 성공"),
+    PROJECT_DETAIL_OK(HttpStatus.OK, "PROJECT2003", "프로젝트 상세 조회 성공"),
+    FILE_SEARCH_OK(HttpStatus.OK, "PROJECT2004", "프로젝트 파일 조회 성공"),
+    FOUNDING_RECOMMEND_SUCCESS(HttpStatus.CREATED, "PROJECT2011", "창업 추천 성공"),
+    PATENT_RECOMMEND_SUCCESS(HttpStatus.CREATED, "PROJECT2012", "특허 추천 성공"),
+    REGISTRATION_RECOMMEND_SUCCESS(HttpStatus.CREATED, "PROJECT2013", "등록 추천 성공"),
+    FOUNDING_RECOMMEND_CANCEL_SUCCESS(HttpStatus.CREATED, "PROJECT2014", "창업 추천 취소 성공"),
+    PATENT_RECOMMEND_CANCEL_SUCCESS(HttpStatus.CREATED, "PROJECT2015", "특허 추천 취소 성공"),
+    REGISTRATION_RECOMMEND_CANCEL_SUCCESS(HttpStatus.CREATED, "PROJECT2016", "등록 추천 취소 성공"),
+    PROJECT_COMMENT_CREATE_OK(HttpStatus.CREATED, "PROJECT2017", "프로젝트 댓글 생성 성공"),
+    PROJECT_COMMENT_DELETE_OK(HttpStatus.OK, "PROJECT2018", "프로젝트 댓글 삭제 성공"),
+    PROJECT_COMMENT_UPDATE_OK(HttpStatus.OK, "PROJECT2019", "프로젝트 댓글 수정 성공"),
+    PROJECT_COMMENT_SEARCH_OK(HttpStatus.OK, "PROJECT2020", "프로젝트 댓글 전체 조회 성공"),
+    PROJECT_COMMENT_REPLY_CREATE_OK(HttpStatus.CREATED, "PROJECT2021", "프로젝트 대댓글 생성 성공"),
+    PROJECT_COMMENT_REPLY_DELETE_OK(HttpStatus.OK, "PROJECT2022", "프로젝트 대댓글 삭제 성공"),
+    PROJECT_COMMENT_REPLY_UPDATE_OK(HttpStatus.OK, "PROJECT2023", "프로젝트 대댓글 수정 성공");
+
 
     private final HttpStatus httpStatus;
     private final String code;

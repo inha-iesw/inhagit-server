@@ -1,4 +1,4 @@
-package inha.git.field.api.controller.response;
+package inha.git.field.api.controller.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;

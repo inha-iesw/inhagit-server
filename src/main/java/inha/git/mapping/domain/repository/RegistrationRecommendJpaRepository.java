@@ -3,6 +3,8 @@ package inha.git.mapping.domain.repository;
 
 import inha.git.mapping.domain.RegistrationRecommend;
 import inha.git.mapping.domain.id.RegistrationRecommendId;
+import inha.git.project.domain.Project;
+import inha.git.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 
@@ -12,4 +14,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface RegistrationRecommendJpaRepository extends JpaRepository<RegistrationRecommend, RegistrationRecommendId> {
 
 
+    boolean existsByUserAndProject(User user, Project project);
+
+    void deleteByUserAndProject(User user, Project project);
 }

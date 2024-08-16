@@ -32,4 +32,8 @@ public class ProjectReplyComment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_comment_id")
     private ProjectComment projectComment;
+
+    public void setContents(String contents) {
+        this.contents = contents;
+    }
 }

@@ -28,6 +28,7 @@ public record CompanySignupRequest(
 
         @NotBlank(message = "소속을 입력하세요.")
         @Size(min = 1, max = 12, message = "소속은 1자에서 12자 사이여야 합니다.")
+        @Schema(description = "소속", example = "인하대학교")
         String affiliation
 ) {
 }

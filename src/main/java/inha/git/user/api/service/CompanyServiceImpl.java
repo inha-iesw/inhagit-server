@@ -8,7 +8,7 @@ import inha.git.user.domain.Company;
 import inha.git.user.domain.User;
 import inha.git.user.domain.repository.CompanyJpaRepository;
 import inha.git.user.domain.repository.UserJpaRepository;
-import inha.git.utils.FilePath;
+import inha.git.utils.file.FilePath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import static inha.git.common.Constant.EVIDENCE;
 import static inha.git.common.Constant.SIGN_UP_TYPE;
 
 
@@ -45,7 +46,7 @@ public class CompanyServiceImpl implements CompanyService{
         User user = userMapper.companySignupRequestToUser(companySignupRequest);
         user.setPassword(passwordEncoder.encode(companySignupRequest.pw()));
         User savedUser = userJpaRepository.save(user);
-        Company company = userMapper.companySignupRequestToCompany(companySignupRequest,  FilePath.storeFile(evidence, "evidence"));
+        Company company = userMapper.companySignupRequestToCompany(companySignupRequest,  FilePath.storeFile(evidence, EVIDENCE));
         company.setUser(savedUser);
         companyJpaRepository.save(company);
         return userMapper.userToCompanySignupResponse(savedUser);

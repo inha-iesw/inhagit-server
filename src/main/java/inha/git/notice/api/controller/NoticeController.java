@@ -43,7 +43,7 @@ public class NoticeController {
      * @return 공지 조회 결과를 포함하는 BaseResponse<Page<SearchNoticeResponse>>
      */
     @GetMapping
-    @Operation(summary = "공지 조회", description = "공지를 조회합니다.")
+    @Operation(summary = "공지 조회 API", description = "공지를 조회합니다.")
     public BaseResponse<Page<SearchNoticesResponse>> getNotices(@RequestParam("page") Integer page) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
@@ -51,8 +51,17 @@ public class NoticeController {
         return BaseResponse.of(NOTICE_SEARCH_OK, noticeService.getNotices(page - 1));
     }
 
+    /**
+     * 공지 상세 조회 API
+     *
+     * <p>공지를 상세 조회.</p>
+     *
+     * @param noticeIdx 공지 인덱스
+     *
+     * @return 공지 상세 조회 결과를 포함하는 BaseResponse<SearchNoticeResponse>
+     */
     @GetMapping("/{noticeIdx}")
-    @Operation(summary = "공지 상세 조회", description = "공지를 상세 조회합니다.")
+    @Operation(summary = "공지 상세 조회 API", description = "공지를 상세 조회합니다.")
     public BaseResponse<SearchNoticeResponse> getNotice(@PathVariable("noticeIdx") Integer noticeIdx) {
         return BaseResponse.of(NOTICE_DETAIL_OK, noticeService.getNotice(noticeIdx));
     }
@@ -69,7 +78,7 @@ public class NoticeController {
      */
     @PostMapping
     @PreAuthorize("hasAuthority('assistant:create')")
-    @Operation(summary = "공지 생성(조교, 교수, 관리자 전용)", description = "공지를 생성합니다.")
+    @Operation(summary = "공지 생성(조교, 교수, 관리자 전용) API", description = "공지를 생성합니다.")
     public BaseResponse<String> createNotice(@AuthenticationPrincipal User user,
                                              @Validated @RequestBody CreateNoticeRequest createNoticeRequest) {
         return BaseResponse.of(NOTICE_CREATE_OK, noticeService.createNotice(user, createNoticeRequest));
@@ -88,7 +97,7 @@ public class NoticeController {
      */
     @PutMapping("/{noticeIdx}")
     @PreAuthorize("hasAuthority('assistant:update')")
-    @Operation(summary = "공지 수정(조교, 교수, 관리자 전용)", description = "공지를 수정합니다.")
+    @Operation(summary = "공지 수정(조교, 교수, 관리자 전용) API", description = "공지를 수정합니다.")
     public BaseResponse<String> updateNotice(@AuthenticationPrincipal User user,
                                              @PathVariable("noticeIdx") Integer noticeIdx,
                                              @Validated @RequestBody UpdateNoticeRequest updateNoticeRequest) {
@@ -107,7 +116,7 @@ public class NoticeController {
      */
     @DeleteMapping("/{noticeIdx}")
     @PreAuthorize("hasAuthority('assistant:delete')")
-    @Operation(summary = "공지 삭제(조교, 교수, 관리자 전용)", description = "공지를 삭제합니다.")
+    @Operation(summary = "공지 삭제(조교, 교수, 관리자 전용) API", description = "공지를 삭제합니다.")
     public BaseResponse<String> deleteNotice(@AuthenticationPrincipal User user,
                                              @PathVariable("noticeIdx") Integer noticeIdx) {
         return BaseResponse.of(NOTICE_DELETE_OK, noticeService.deleteNotice(user, noticeIdx));

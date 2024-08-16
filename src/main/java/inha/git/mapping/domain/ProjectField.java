@@ -22,13 +22,22 @@ public class ProjectField  {
     @EmbeddedId
     private ProjectFieldId id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("projectId")
-    @ManyToOne
-    @JoinColumn(name = "project_id", nullable = false)
+    @JoinColumn(name = "project_id")
     private Project project;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("fieldId")
-    @ManyToOne
-    @JoinColumn(name = "field_id", nullable = false)
+    @JoinColumn(name = "field_id")
     private Field field;
+
+
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public void setField(Field field) {
+        this.field = field;
+    }
 }

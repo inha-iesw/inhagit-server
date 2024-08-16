@@ -53,7 +53,7 @@ public class DepartmentController {
      */
     @PostMapping
     @PreAuthorize("hasAuthority('admin:create')")
-    @Operation(summary = "학과 생성(관리자 전용)", description = "학과를 생성합니다.(관리자 전용)")
+    @Operation(summary = "학과 생성(관리자 전용) API", description = "학과를 생성합니다.(관리자 전용)")
     public BaseResponse<String> createDepartment(@Validated @RequestBody CreateDepartmentRequest createDepartmentRequest) {
         return BaseResponse.of(DEPARTMENT_CREATE_OK, departmentService.createDepartment(createDepartmentRequest));
     }
@@ -70,7 +70,7 @@ public class DepartmentController {
      */
     @PutMapping("/{departmentIdx}")
     @PreAuthorize("hasAuthority('admin:update')")
-    @Operation(summary = "학과명 수정(관리자 전용)", description = "학과명을 수정합니다.(관리자 전용)")
+    @Operation(summary = "학과명 수정(관리자 전용) API", description = "학과명을 수정합니다.(관리자 전용)")
     public BaseResponse<String> updateDepartmentName(@PathVariable("departmentIdx") Integer departmentIdx,
                                                      @Validated @RequestBody UpdateDepartmentRequest updateDepartmentRequest) {
         return BaseResponse.of(DEPARTMENT_UPDATE_OK, departmentService.updateDepartmentName(departmentIdx, updateDepartmentRequest));
@@ -78,7 +78,7 @@ public class DepartmentController {
 
     @DeleteMapping("/{departmentIdx}")
     @PreAuthorize("hasAuthority('admin:delete')")
-    @Operation(summary = "학과 삭제(관리자 전용)", description = "학과를 soft 삭제합니다.(관리자 전용)")
+    @Operation(summary = "학과 삭제(관리자 전용) API", description = "학과를 soft 삭제합니다.(관리자 전용)")
     public BaseResponse<String> deleteDepartment(@PathVariable("departmentIdx") Integer departmentIdx) {
         return BaseResponse.of(DEPARTMENT_DELETE_OK, departmentService.deleteDepartment(departmentIdx));
     }
