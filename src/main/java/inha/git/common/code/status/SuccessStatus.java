@@ -61,7 +61,13 @@ public enum SuccessStatus implements BaseCode {
     PROJECT_SEARCH_OK(HttpStatus.OK, "PROJECT2000", "프로젝트 전체 조회 성공"),
     PROJECT_DETAIL_OK(HttpStatus.OK, "PROJECT2003", "프로젝트 상세 조회 성공"),
     FILE_SEARCH_OK(HttpStatus.OK, "PROJECT2004", "프로젝트 파일 조회 성공"),
-    FOUNDING_RECOMMEND_SUCCESS(HttpStatus.CREATED, "PROJECT2011", "창업 추천 성공");
+    FOUNDING_RECOMMEND_SUCCESS(HttpStatus.CREATED, "PROJECT2011", "창업 추천 성공"),
+    PATENT_RECOMMEND_SUCCESS(HttpStatus.CREATED, "PROJECT2012", "특허 추천 성공"),
+    REGISTRATION_RECOMMEND_SUCCESS(HttpStatus.CREATED, "PROJECT2013", "등록 추천 성공"),
+    FOUNDING_RECOMMEND_CANCEL_SUCCESS(HttpStatus.CREATED, "PROJECT2014", "창업 추천 취소 성공"),
+    PATENT_RECOMMEND_CANCEL_SUCCESS(HttpStatus.CREATED, "PROJECT2015", "특허 추천 취소 성공"),
+    REGISTRATION_RECOMMEND_CANCEL_SUCCESS(HttpStatus.CREATED, "PROJECT2016", "등록 추천 취소 성공");
+
 
     private final HttpStatus httpStatus;
     private final String code;

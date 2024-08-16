@@ -29,19 +29,45 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     private final PatentRecommendJpaRepository patentRecommendJpaRepository;
     private final FoundingRecommendJpaRepository foundingRecommendJpaRepository;
     private final RegistrationRecommendJpaRepository registrationRecommendJpaRepository;
+
+    /**
+     * 프로젝트 창업 추천
+     *
+     * @param user 로그인한 사용자 정보
+     * @param recommendRequest 추천할 프로젝트 정보
+     * @return 추천 성공 메시지
+     */
     @Override
     public String createProjectFoundingRecommend(User user, RecommendRequest recommendRequest) {
-        Project project = projectJpaRepository.findByIdAndState(recommendRequest.idx(), ACTIVE)
-                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-        if(project.getUser().getId().equals(user.getId())) {
+        Project project = getProject(recommendRequest);
+        validRecommend(project, user, foundingRecommendJpaRepository.existsByUserAndProject(user, project));
+        foundingRecommendJpaRepository.save(projectMapper.createProjectFoundingRecommend(user, project));
+        project.setFoundRecommendCount(project.getFoundingRecommendCount() + 1);
+        return recommendRequest.idx() + "번 프로젝트 창업 추천 완료";
+    }
+
+    @Override
+    public String createProjectPatentRecommend(User user, RecommendRequest recommendRequest) {
+        Project project = getProject(recommendRequest);
+        validRecommend(project, user, patentRecommendJpaRepository.existsByUserAndProject(user, project));
+        patentRecommendJpaRepository.save(projectMapper.createProjectPatentRecommend(user, project));
+        project.setPatentRecommendCount(project.getPatentRecommendCount() + 1);
+        return recommendRequest.idx() + "번 프로젝트 특허 추천 완료";
+    }
+
+
+
+    private void validRecommend(Project project, User user, boolean patentRecommendJpaRepository) {
+        if (project.getUser().getId().equals(user.getId())) {
             throw new BaseException(MY_PROJECT_RECOMMEND);
         }
-
-        if (foundingRecommendJpaRepository.existsByUserAndProject(user, project)) {
+        if (patentRecommendJpaRepository) {
             throw new BaseException(PROJECT_ALREADY_RECOMMEND);
         }
-        foundingRecommendJpaRepository.save(projectMapper.createProjectFoundingRecommend(user, project));
-        project.setRecommendCount(project.getFoundingRecommendCount() + 1);
-        return recommendRequest.idx() + "번 프로젝트 창업 추천 완료";
+    }
+
+    private Project getProject(RecommendRequest recommendRequest) {
+        return projectJpaRepository.findByIdAndState(recommendRequest.idx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
     }
 }

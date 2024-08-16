@@ -3,10 +3,8 @@ package inha.git.project.api.controller;
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.project.api.controller.api.request.CreateProjectRequest;
-import inha.git.project.api.controller.api.request.RecommendRequest;
 import inha.git.project.api.controller.api.request.UpdateProjectRequest;
 import inha.git.project.api.controller.api.response.*;
-import inha.git.project.api.service.ProjectRecommendService;
 import inha.git.project.api.service.ProjectSearchService;
 import inha.git.project.api.service.ProjectService;
 import inha.git.user.domain.User;
@@ -14,7 +12,6 @@ import inha.git.user.domain.enums.Role;
 import inha.git.utils.file.ValidFile;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -41,7 +38,7 @@ public class ProjectController {
 
     private final ProjectService projectService;
     private final ProjectSearchService projectSearchService;
-    private final ProjectRecommendService projectRecommendService;
+
 
 
     /**
@@ -149,10 +146,5 @@ public class ProjectController {
         return BaseResponse.of(PROJECT_DELETE_OK, projectService.deleteProject(user, projectIdx));
     }
 
-    @PostMapping("/recommend/founding")
-    @Operation(summary = "프로젝트 창업 추천 API", description = "특정 프로젝트에 창업 추천을 합니다.")
-    public BaseResponse<String> recommendFounding(@AuthenticationPrincipal User user,
-                                                @RequestBody @Valid RecommendRequest recommendRequest) {
-        return BaseResponse.of(FOUNDING_RECOMMEND_SUCCESS, projectRecommendService.createProjectFoundingRecommend(user,recommendRequest));
-    }
+
 }

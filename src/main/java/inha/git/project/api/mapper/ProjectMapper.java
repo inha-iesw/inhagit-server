@@ -2,8 +2,10 @@ package inha.git.project.api.mapper;
 
 import inha.git.field.domain.Field;
 import inha.git.mapping.domain.FoundingRecommend;
+import inha.git.mapping.domain.PatentRecommend;
 import inha.git.mapping.domain.ProjectField;
 import inha.git.mapping.domain.id.FoundingRecommendId;
+import inha.git.mapping.domain.id.PatentRecommedId;
 import inha.git.mapping.domain.id.ProjectFieldId;
 import inha.git.project.api.controller.api.request.CreateProjectRequest;
 import inha.git.project.api.controller.api.request.UpdateProjectRequest;
@@ -100,24 +102,61 @@ public interface ProjectMapper {
         return new ProjectField(new ProjectFieldId(project.getId(), field.getId()), project, field);
     }
 
+    /**
+     * Field 엔티티를 SearchFieldResponse로 변환
+     *
+     * @param field 필드 엔티티
+     * @return SearchFieldResponse
+     */
     @Mapping(target = "idx", source = "field.id")
     @Mapping(target = "name", source = "field.name")
     SearchFieldResponse projectFieldToSearchFieldResponse(Field field);
 
+    /**
+     * Project 엔티티를 SearchProjectResponse로 변환
+     *
+     * @param project 프로젝트 엔티티
+     * @return SearchProjectResponse
+     */
     @Mapping(target = "patent", source = "patentRecommendCount")
     @Mapping(target = "founding", source = "foundingRecommendCount")
     @Mapping(target = "registration", source = "registrationRecommendCount")
     SearchRecommendCount projectToSearchRecommendCountResponse(Project project);
 
+    /**
+     * User 엔티티를 SearchUserResponse로 변환
+     *
+     * @param user 사용자 엔티티
+     * @return SearchUserResponse
+     */
     @Mapping(target = "idx", source = "user.id")
     @Mapping(target = "name", source = "user.name")
     SearchUserResponse userToSearchUserResponse(User user);
 
+    /**
+     * Boolean 값을 SearchRecommendState로 변환
+     *
+     * @param isRecommendPatent      특허 추천 여부
+     * @param isRecommendFounding    창업 추천 여부
+     * @param isRecommendRegistration 등록 추천 여부
+     * @return SearchRecommendState
+     */
     @Mapping(target = "patent", source = "isRecommendPatent")
     @Mapping(target = "founding", source = "isRecommendFounding")
     @Mapping(target = "registration", source = "isRecommendRegistration")
     SearchRecommendState projectToSearchRecommendState(Boolean isRecommendPatent, Boolean isRecommendFounding, Boolean isRecommendRegistration);
 
+    /**
+     * Project 엔티티를 SearchProjectResponse로 변환
+     *
+     * @param project         프로젝트 엔티티
+     * @param projectUpload   프로젝트 업로드 엔티티
+     * @param fieldList       필드 리스트
+     * @param recommendCount  추천 수
+     * @param author          작성자 정보
+     * @param recommendState  추천 상태
+     * @return SearchProjectResponse
+     */
     @Mapping(target = "idx", source = "project.id")
     @Mapping(target = "subject", source = "project.subjectName")
     @Mapping(target = "filePath", source = "projectUpload.directoryName")
@@ -126,7 +165,25 @@ public interface ProjectMapper {
     @Mapping(target = "createdAt", source = "project.createdAt")
     SearchProjectResponse projectToSearchProjectResponse(Project project, ProjectUpload projectUpload, List<SearchFieldResponse> fieldList, SearchRecommendCount recommendCount, SearchUserResponse author, SearchRecommendState recommendState);
 
+    /**
+     * FoundingRecommend 엔티티 생성
+     *
+     * @param user    사용자 정보
+     * @param project 프로젝트 정보
+     * @return 창업 추천 엔티티
+     */
     default FoundingRecommend createProjectFoundingRecommend(User user, Project project) {
         return new FoundingRecommend(new FoundingRecommendId(user.getId(), project.getId()), project, user);
+    }
+
+    /**
+     * 특허 추천 엔티티 생성
+     *
+     * @param user    사용자 정보
+     * @param project 프로젝트 정보
+     * @return 특허 추천 엔티티
+     */
+    default PatentRecommend createProjectPatentRecommend(User user, Project project) {
+        return new PatentRecommend(new PatentRecommedId(user.getId(), project.getId()), project, user);
     }
 }
