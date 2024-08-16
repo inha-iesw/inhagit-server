@@ -14,7 +14,6 @@ import inha.git.project.api.controller.api.dto.request.CreateProjectRequest;
 import inha.git.project.api.controller.api.dto.request.CreateReplyCommentRequest;
 import inha.git.project.api.controller.api.dto.request.UpdateProjectRequest;
 import inha.git.project.api.controller.api.dto.response.*;
-import inha.git.project.api.controller.api.response.*;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectComment;
 import inha.git.project.domain.ProjectReplyComment;
