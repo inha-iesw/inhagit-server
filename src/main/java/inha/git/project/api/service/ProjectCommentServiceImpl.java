@@ -107,6 +107,14 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         return projectMapper.toReplyCommentResponse(projectReplyComment);
     }
 
+    /**
+     * 답글 수정
+     *
+     * @param user                사용자 정보
+     * @param replyCommentIdx      답글 식별자
+     * @param updateCommentRequest 답글 수정 요청
+     * @return UpdateCommentResponse
+     */
     @Override
     public ReplyCommentResponse updateReply(User user, Integer replyCommentIdx, UpdateCommentRequest updateCommentRequest) {
         ProjectReplyComment projectReplyComment = projectReplyCommentJpaRepository.findByIdAndState(replyCommentIdx, ACTIVE)
@@ -115,6 +123,26 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
             throw new BaseException(PROJECT_COMMENT_REPLY_UPDATE_NOT_AUTHORIZED);
         }
         projectReplyComment.setContents(updateCommentRequest.contents());
+        projectReplyCommentJpaRepository.save(projectReplyComment);
+        return projectMapper.toReplyCommentResponse(projectReplyComment);
+    }
+
+    /**
+     * 답글 삭제
+     *
+     * @param user            사용자 정보
+     * @param replyCommentIdx 답글 식별자
+     * @return DeleteCommentResponse
+     */
+    @Override
+    public ReplyCommentResponse deleteReply(User user, Integer replyCommentIdx) {
+        ProjectReplyComment projectReplyComment = projectReplyCommentJpaRepository.findByIdAndState(replyCommentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_COMMENT_REPLY_NOT_FOUND));
+        if(!projectReplyComment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new BaseException(PROJECT_COMMENT_REPLY_UPDATE_NOT_AUTHORIZED);
+        }
+        projectReplyComment.setDeletedAt();
+        projectReplyComment.setState(INACTIVE);
         projectReplyCommentJpaRepository.save(projectReplyComment);
         return projectMapper.toReplyCommentResponse(projectReplyComment);
     }

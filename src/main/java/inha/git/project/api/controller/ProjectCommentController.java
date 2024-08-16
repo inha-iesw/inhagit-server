@@ -94,6 +94,14 @@ public class ProjectCommentController {
         return BaseResponse.of(PROJECT_COMMENT_REPLY_CREATE_OK, projectCommentService.createReply(user, createReplyCommentRequest));
     }
 
+    /**
+     * 프로젝트 댓글 답글 수정 API
+     *
+     * @param user                사용자 정보
+     * @param replyCommentIdx     답글 식별자
+     * @param updateCommentRequest 답글 수정 요청
+     * @return BaseResponse<ReplyCommentResponse>
+     */
     @PutMapping("/reply/{replyCommentIdx}")
     @Operation(summary = "프로젝트 댓글 답글 수정 API", description = "프로젝트 댓글에 답글을 수정합니다.")
     public BaseResponse<ReplyCommentResponse> updateReply(
@@ -102,6 +110,21 @@ public class ProjectCommentController {
             @Validated @RequestBody UpdateCommentRequest updateCommentRequest
     ) {
         return BaseResponse.of(PROJECT_COMMENT_REPLY_UPDATE_OK, projectCommentService.updateReply(user, replyCommentIdx, updateCommentRequest));
+    }
+
+    /**
+     * 프로젝트 댓글 답글 삭제 API
+     *
+     * @param user            사용자 정보
+     * @param replyCommentIdx 답글 식별자
+     * @return BaseResponse<ReplyCommentResponse>
+     */
+    @DeleteMapping("/reply/{replyCommentIdx}")
+    @Operation(summary = "프로젝트 댓글 답글 삭제 API", description = "프로젝트 댓글에 답글을 삭제합니다.")
+    public BaseResponse<ReplyCommentResponse> deleteReply(
+            @AuthenticationPrincipal User user,
+            @PathVariable("replyCommentIdx") Integer replyCommentIdx) {
+        return BaseResponse.of(PROJECT_COMMENT_REPLY_DELETE_OK, projectCommentService.deleteReply(user, replyCommentIdx));
     }
 
 }
