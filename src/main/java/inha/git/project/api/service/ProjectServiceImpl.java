@@ -8,17 +8,24 @@ import inha.git.mapping.domain.repository.ProjectFieldJpaRepository;
 import inha.git.project.api.controller.api.request.CreateProjectRequest;
 import inha.git.project.api.controller.api.request.UpdateProjectRequest;
 import inha.git.project.api.controller.api.response.CreateProjectResponse;
+import inha.git.project.api.controller.api.response.SearchProjectsResponse;
 import inha.git.project.api.controller.api.response.UpdateProjectResponse;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectUpload;
 import inha.git.project.domain.repository.ProjectJpaRepository;
+import inha.git.project.domain.repository.ProjectQueryRepository;
 import inha.git.project.domain.repository.ProjectUploadJpaRepository;
 import inha.git.user.domain.User;
+import inha.git.user.domain.enums.Role;
 import inha.git.utils.file.FilePath;
 import inha.git.utils.file.UnZip;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
@@ -30,8 +37,7 @@ import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.Constant.*;
-import static inha.git.common.code.status.ErrorStatus.FIELD_NOT_FOUND;
-import static inha.git.common.code.status.ErrorStatus.PROJECT_NOT_FOUND;
+import static inha.git.common.code.status.ErrorStatus.*;
 
 /**
  * ProjectService는 프로젝트 관련 비즈니스 로직을 처리.
@@ -47,6 +53,20 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectFieldJpaRepository projectFieldJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
     private final ProjectMapper projectMapper;
+    private final ProjectQueryRepository projectQueryRepository;
+
+    /**
+     * 프로젝트 전체 조회
+     *
+     * @param page 페이지 번호
+     * @return 검색된 프로젝트 정보 페이지
+     */
+    @Override
+    public Page<SearchProjectsResponse> getProjects(Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return projectQueryRepository.getProjects(pageable);
+    }
+
 
     /**
      * 프로젝트 생성
@@ -91,7 +111,9 @@ public class ProjectServiceImpl implements ProjectService {
     public UpdateProjectResponse updateProject(User user, Integer projectIdx, UpdateProjectRequest updateProjectRequest, MultipartFile file) {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-
+        if(!project.getUser().equals(user) && !user.getRole().equals(Role.ADMIN)) {
+            throw new BaseException(PROJECT_NOT_AUTHORIZED);
+        }
         ProjectUpload findProjectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
 
@@ -126,6 +148,8 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return projectMapper.projectToUpdateProjectResponse(savedProject);
     }
+
+
 
     /**
      * 파일 저장 및 압축 해제

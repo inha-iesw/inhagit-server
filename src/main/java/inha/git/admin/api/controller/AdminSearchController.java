@@ -44,7 +44,7 @@ public class AdminSearchController {
      * @return 검색된 유저 정보를 포함하는 BaseResponse<Page<SearchUserResponse>>
      */
     @GetMapping("/users")
-    @Operation(summary = "관리자 전용 유저 검색 API", description = "관리자 전용 유저 검색 API입니다")
+    @Operation(summary = "유저 검색 API(관리자 전용)", description = "관리자 전용 유저 검색 API입니다")
     public BaseResponse<Page<SearchUserResponse>> getAdminUsers(
             @RequestParam(value = "search", required = false) String search,
             @RequestParam("page") Integer page) {
@@ -63,7 +63,7 @@ public class AdminSearchController {
      * @return 검색된 학생 정보를 포함하는 BaseResponse<Page<SearchStudentResponse>>
      */
     @GetMapping("/students")
-    @Operation(summary = "관리자 전용 학생 검색 API", description = "관리자 전용 학생 검색 API입니다")
+    @Operation(summary = "학생 검색 API(관리자 전용)", description = "관리자 전용 학생 검색 API입니다")
     public BaseResponse<Page<SearchStudentResponse>> getAdminStudents(
             @RequestParam(value = "search", required = false) String search,
             @RequestParam("page") Integer page) {
@@ -82,7 +82,7 @@ public class AdminSearchController {
      * @return 검색된 교수 정보를 포함하는 BaseResponse<Page<SearchProfessorResponse>>
      */
     @GetMapping("/professors")
-    @Operation(summary = "관리자 전용 교수 검색 API", description = "관리자 전용 교수 검색 API입니다")
+    @Operation(summary = "교수 검색 API(관리자 전용)", description = "관리자 전용 교수 검색 API입니다")
     public BaseResponse<Page<SearchProfessorResponse>> getAdminProfessors(
             @RequestParam(value = "search", required = false) String search,
             @RequestParam("page") Integer page) {
@@ -102,7 +102,7 @@ public class AdminSearchController {
      * @return 검색된 회사 정보를 포함하는 BaseResponse<Page<SearchCompanyResponse>>
      */
     @GetMapping("/companies")
-    @Operation(summary = "관리자 전용 기업 검색 API", description = "관리자 전용 회사 검색 API입니다")
+    @Operation(summary = "기업 검색 API(관리자 전용)", description = "관리자 전용 회사 검색 API입니다")
     public BaseResponse<Page<SearchCompanyResponse>> getAdminCompanies(
             @RequestParam(value = "search", required = false) String search,
             @RequestParam("page") Integer page) {

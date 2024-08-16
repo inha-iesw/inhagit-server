@@ -53,7 +53,7 @@ public class FieldController {
      */
     @PostMapping
     @PreAuthorize("hasAuthority('admin:create')")
-    @Operation(summary = "분야 생성(관리자 전용)", description = "분야를 생성합니다.")
+    @Operation(summary = "분야 생성(관리자 전용) API", description = "분야를 생성합니다.")
     public BaseResponse<String> createField(@Validated @RequestBody CreateFieldRequest createFieldRequest) {
         return BaseResponse.of(FIELD_CREATE_OK, fieldService.createField(createFieldRequest));
     }
@@ -70,7 +70,7 @@ public class FieldController {
      */
     @PutMapping("/{fieldIdx}")
     @PreAuthorize("hasAuthority('admin:update')")
-    @Operation(summary = "분야 수정(관리자 전용)", description = "분야를 수정합니다.")
+    @Operation(summary = "분야 수정(관리자 전용) API", description = "분야를 수정합니다.")
     public BaseResponse<String> updateField(@PathVariable("fieldIdx") Integer fieldIdx,
                                             @Validated @RequestBody UpdateFieldRequest updateFieldRequest) {
         return BaseResponse.of(FIELD_UPDATE_OK, fieldService.updateField(fieldIdx, updateFieldRequest));
@@ -78,7 +78,7 @@ public class FieldController {
 
     @DeleteMapping("/{fieldIdx}")
     @PreAuthorize("hasAuthority('admin:delete')")
-    @Operation(summary = "분야 삭제(관리자 전용)", description = "분야를 삭제합니다.")
+    @Operation(summary = "분야 삭제(관리자 전용) API", description = "분야를 삭제합니다.")
     public BaseResponse<String> deleteField(@PathVariable("fieldIdx") Integer fieldIdx) {
         return BaseResponse.of(FIELD_DELETE_OK, fieldService.deleteField(fieldIdx));
     }

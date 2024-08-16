@@ -5,6 +5,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.project.api.controller.api.request.CreateProjectRequest;
 import inha.git.project.api.controller.api.request.UpdateProjectRequest;
 import inha.git.project.api.controller.api.response.CreateProjectResponse;
+import inha.git.project.api.controller.api.response.SearchProjectsResponse;
 import inha.git.project.api.controller.api.response.UpdateProjectResponse;
 import inha.git.project.api.service.ProjectService;
 import inha.git.user.domain.User;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -21,8 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import static inha.git.common.code.status.ErrorStatus.*;
-import static inha.git.common.code.status.SuccessStatus.PROJECT_CREATE_OK;
-import static inha.git.common.code.status.SuccessStatus.PROJECT_UPDATE_OK;
+import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
  * ProjectController는 project 관련 엔드포인트를 처리.
@@ -36,6 +37,23 @@ public class ProjectController {
 
     private final ProjectService projectService;
 
+
+    /**
+     * 프로젝트 전체 조회 API
+     *
+     * <p>프로젝트 전체를 조회합니다.</p>
+     *
+     * @param page 페이지 번호
+     * @return 검색된 프로젝트 정보를 포함하는 BaseResponse<Page<SearchProjectsResponse>>
+     */
+    @GetMapping
+    @Operation(summary = "프로젝트 전체 조회 API", description = "프로젝트 전체를 조회합니다.")
+    public BaseResponse<Page<SearchProjectsResponse>> getProjects(@RequestParam("page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(PROJECT_SEARCH_OK, projectService.getProjects(page - 1));
+    }
     /**
      * 프로젝트 생성
      *
@@ -45,7 +63,7 @@ public class ProjectController {
      * @return 생성된 프로젝트 정보
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "프로젝트 생성 API", description = "프로젝트를 생성합니다.")
+    @Operation(summary = "프로젝트 생성(기업 제외) API", description = "프로젝트를 생성합니다.")
     public BaseResponse<CreateProjectResponse> createProject(
             @AuthenticationPrincipal User user,
             @Validated @RequestPart("createProjectRequest") CreateProjectRequest createProjectRequest,
@@ -67,7 +85,7 @@ public class ProjectController {
      * @return 수정된 프로젝트 정보
      */
     @PutMapping(value = "/{projectIdx}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "프로젝트 수정 API", description = "프로젝트를 수정합니다.")
+    @Operation(summary = "프로젝트 수정 API(기업 제외)", description = "프로젝트를 수정합니다.")
     public BaseResponse<UpdateProjectResponse> updateProject(
             @AuthenticationPrincipal User user,
             @PathVariable("projectIdx") Integer projectIdx,

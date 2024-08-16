@@ -38,7 +38,7 @@ public class BannerController {
      * @return 배너 목록
      */
     @GetMapping
-    @Operation(summary = "배너 전체 조회", description = "배너 전체를 조회합니다.")
+    @Operation(summary = "배너 전체 조회 API", description = "배너 전체를 조회합니다.")
     public BaseResponse<List<BannerResponse>> getBanners() {
         return BaseResponse.of(BANNER_SEARCH_OK, bannerService.getBanners());
     }
@@ -52,7 +52,7 @@ public class BannerController {
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('admin:create')")
-    @Operation(summary = "배너 생성(관리자 전용)", description = "배너를 생성합니다.")
+    @Operation(summary = "배너 생성(관리자 전용) API", description = "배너를 생성합니다.")
     public BaseResponse<String> createBanner(
             @AuthenticationPrincipal User user,
             @Validated @ModelAttribute CreateBannerRequest createBannerRequest) {
