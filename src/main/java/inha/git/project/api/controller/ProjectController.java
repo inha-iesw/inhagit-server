@@ -138,6 +138,13 @@ public class ProjectController {
         return BaseResponse.of(PROJECT_UPDATE_OK, projectService.updateProject(user, projectIdx, updateProjectRequest, file));
     }
 
+    /**
+     * 프로젝트 삭제
+     *
+     * @param user       사용자 정보
+     * @param projectIdx 삭제할 프로젝트 ID
+     * @return 삭제된 프로젝트 정보
+     */
     @DeleteMapping("/{projectIdx}")
     @Operation(summary = "프로젝트 삭제 API", description = "프로젝트를 삭제합니다.")
     public BaseResponse<ProjectResponse> deleteProject(

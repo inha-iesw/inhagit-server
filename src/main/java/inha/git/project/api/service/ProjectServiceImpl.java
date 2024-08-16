@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.*;
 
@@ -129,10 +130,24 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
 
-    //댓글, 추천 등도 개발완료 뒤 추가 예정
+    /**
+     * 프로젝트 삭제
+     *
+     * @param user       사용자 정보
+     * @param projectIdx 프로젝트 인덱스
+     * @return 삭제된 프로젝트 정보
+     */
     @Override
     public ProjectResponse deleteProject(User user, Integer projectIdx) {
-        return null;
+        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+        if(!project.getUser().equals(user) && !user.getRole().equals(Role.ADMIN)) {
+            throw new BaseException(PROJECT_DELETE_NOT_AUTHORIZED);
+        }
+        project.setDeletedAt();
+        project.setState(INACTIVE);
+        projectJpaRepository.save(project);
+        return projectMapper.projectToProjectResponse(project);
     }
 
 
