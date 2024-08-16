@@ -1,4 +1,4 @@
-package inha.git.project.api.controller.api.request;
+package inha.git.project.api.controller.api.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
-public record CreateProjectRequest(
+public record UpdateProjectRequest(
         @NotNull(message = "제목을 입력해주세요.")
         @Size(min = 1, max = 32, message = "제목은 1자 이상 32자 이하로 입력해주세요.")
         @Schema(description = "프로젝트 제목", example = "프로젝트 제목")

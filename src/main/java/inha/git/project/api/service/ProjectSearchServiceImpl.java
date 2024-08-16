@@ -5,6 +5,7 @@ import inha.git.mapping.domain.repository.FoundingRecommendJpaRepository;
 import inha.git.mapping.domain.repository.PatentRecommendJpaRepository;
 import inha.git.mapping.domain.repository.ProjectFieldJpaRepository;
 import inha.git.mapping.domain.repository.RegistrationRecommendJpaRepository;
+import inha.git.project.api.controller.api.dto.response.*;
 import inha.git.project.api.controller.api.response.*;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;

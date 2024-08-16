@@ -1,6 +1,6 @@
 package inha.git.project.api.service;
 
-import inha.git.project.api.controller.api.request.RecommendRequest;
+import inha.git.project.api.controller.api.dto.request.RecommendRequest;
 import inha.git.user.domain.User;
 
 public interface ProjectRecommendService {
