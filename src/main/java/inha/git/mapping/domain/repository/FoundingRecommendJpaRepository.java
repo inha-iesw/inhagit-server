@@ -18,4 +18,6 @@ public interface FoundingRecommendJpaRepository extends JpaRepository<FoundingRe
 
 
     boolean existsByUserAndProject(User user, Project project);
+
+    void deleteByUserAndProject(User user, Project project);
 }

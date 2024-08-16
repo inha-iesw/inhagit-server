@@ -46,6 +46,13 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         return recommendRequest.idx() + "번 프로젝트 창업 추천 완료";
     }
 
+    /**
+     * 프로젝트 특허 추천
+     *
+     * @param user 로그인한 사용자 정보
+     * @param recommendRequest 추천할 프로젝트 정보
+     * @return 추천 성공 메시지
+     */
     @Override
     public String createProjectPatentRecommend(User user, RecommendRequest recommendRequest) {
         Project project = getProject(recommendRequest);
@@ -71,6 +78,22 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         return recommendRequest.idx() + "번 프로젝트 등록 추천 완료";
     }
 
+    /**
+     * 프로젝트 창업 추천 취소
+     *
+     * @param user 로그인한 사용자 정보
+     * @param recommendRequest 추천할 프로젝트 정보
+     * @return 추천 취소 성공 메시지
+     */
+    @Override
+    public String cancelProjectFoundingRecommend(User user, RecommendRequest recommendRequest) {
+        Project project = getProject(recommendRequest);
+        validRecommendCancel(project, user, foundingRecommendJpaRepository.existsByUserAndProject(user, project));
+        foundingRecommendJpaRepository.deleteByUserAndProject(user, project);
+        project.setFoundRecommendCount(project.getFoundingRecommendCount() - 1);
+        return recommendRequest.idx() + "번 프로젝트 창업 추천 취소 완료";
+    }
+
 
     /**
      * 추천할 프로젝트가 유효한지 확인
@@ -88,6 +111,21 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         }
     }
 
+    /**
+     * 추천 취소할 프로젝트가 유효한지 확인
+     *
+     * @param project 프로젝트 정보
+     * @param user 로그인한 사용자 정보
+     * @param patentRecommendJpaRepository 특허 추천 레포지토리
+     */
+    private void validRecommendCancel(Project project, User user, boolean patentRecommendJpaRepository) {
+        if (project.getUser().getId().equals(user.getId())) {
+            throw new BaseException(MY_PROJECT_RECOMMEND);
+        }
+        if (!patentRecommendJpaRepository) {
+            throw new BaseException(PROJECT_NOT_RECOMMEND);
+        }
+    }
     /**
      * 추천할 프로젝트 정보 조회
      *
