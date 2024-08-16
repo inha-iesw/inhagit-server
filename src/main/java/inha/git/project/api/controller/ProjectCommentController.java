@@ -2,8 +2,10 @@ package inha.git.project.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.project.api.controller.api.request.CreateCommentRequest;
+import inha.git.project.api.controller.api.request.CreateReplyCommentRequest;
 import inha.git.project.api.controller.api.request.UpdateCommentRequest;
 import inha.git.project.api.controller.api.response.CommentResponse;
+import inha.git.project.api.controller.api.response.ReplyCommentResponse;
 import inha.git.project.api.service.ProjectCommentService;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -77,7 +79,19 @@ public class ProjectCommentController {
         return BaseResponse.of(PROJECT_COMMENT_DELETE_OK, projectCommentService.deleteComment(user, commentIdx));
     }
 
-    //@PostMapping("/reply")
-    //@Operation(summary = "프로젝트 댓글 답글 생성 API", description = "프로젝트 댓글에 답글을 생성합니다.")
+    /**
+     * 프로젝트 댓글 답글 생성 API
+     *
+     * @param user                     사용자 정보
+     * @param createReplyCommentRequest 답글 생성 요청
+     * @return BaseResponse<ReplyCommentResponse>
+     */
+    @PostMapping("/reply")
+    @Operation(summary = "프로젝트 댓글 답글 생성 API", description = "프로젝트 댓글에 답글을 생성합니다.")
+    public BaseResponse<ReplyCommentResponse> createReply(
+            @AuthenticationPrincipal User user,
+            @Validated @RequestBody CreateReplyCommentRequest createReplyCommentRequest) {
+        return BaseResponse.of(PROJECT_COMMENT_REPLY_CREATE_OK, projectCommentService.createReply(user, createReplyCommentRequest));
+    }
 
 }

@@ -2,11 +2,14 @@ package inha.git.project.api.service;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.project.api.controller.api.request.CreateCommentRequest;
+import inha.git.project.api.controller.api.request.CreateReplyCommentRequest;
 import inha.git.project.api.controller.api.request.UpdateCommentRequest;
 import inha.git.project.api.controller.api.response.CommentResponse;
+import inha.git.project.api.controller.api.response.ReplyCommentResponse;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectComment;
+import inha.git.project.domain.ProjectReplyComment;
 import inha.git.project.domain.repository.ProjectCommentJpaRepository;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectReplyCommentJpaRepository;
@@ -24,7 +27,7 @@ import static inha.git.common.code.status.ErrorStatus.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
+@Transactional
 public class ProjectCommentServiceImpl implements ProjectCommentService {
 
     private final ProjectJpaRepository projectJpaRepository;
@@ -40,7 +43,6 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
      * @return CreateCommentResponse
      */
     @Override
-    @Transactional
     public CommentResponse createComment(User user, CreateCommentRequest createCommentRequest) {
         Project project = projectJpaRepository.findByIdAndState(createCommentRequest.projectIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
@@ -58,7 +60,6 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
      * @return UpdateCommentResponse
      */
     @Override
-    @Transactional
     public CommentResponse updateComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest) {
         ProjectComment projectComment = projectCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_COMMENT_NOT_FOUND));
@@ -78,7 +79,6 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
      * @return DeleteCommentResponse
      */
     @Override
-    @Transactional
     public CommentResponse deleteComment(User user, Integer commentIdx) {
         ProjectComment projectComment = projectCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_COMMENT_NOT_FOUND));
@@ -89,5 +89,21 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         projectComment.setState(INACTIVE);
         projectCommentJpaRepository.save(projectComment);
         return projectMapper.toCommentResponse(projectComment);
+    }
+
+    /**
+     * 답글 생성
+     *
+     * @param user                     사용자 정보
+     * @param createReplyCommentRequest 답글 생성 요청
+     * @return CreateReplyCommentResponse
+     */
+    @Override
+    public ReplyCommentResponse createReply(User user, CreateReplyCommentRequest createReplyCommentRequest) {
+        ProjectComment projectComment = projectCommentJpaRepository.findByIdAndState(createReplyCommentRequest.commentIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_COMMENT_NOT_FOUND));
+        ProjectReplyComment projectReplyComment = projectMapper.toProjectReplyComment(createReplyCommentRequest, user, projectComment);
+        projectReplyCommentJpaRepository.save(projectReplyComment);
+        return projectMapper.toReplyCommentResponse(projectReplyComment);
     }
 }

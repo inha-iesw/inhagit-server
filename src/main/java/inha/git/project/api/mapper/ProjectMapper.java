@@ -11,10 +11,12 @@ import inha.git.mapping.domain.id.ProjectFieldId;
 import inha.git.mapping.domain.id.RegistrationRecommendId;
 import inha.git.project.api.controller.api.request.CreateCommentRequest;
 import inha.git.project.api.controller.api.request.CreateProjectRequest;
+import inha.git.project.api.controller.api.request.CreateReplyCommentRequest;
 import inha.git.project.api.controller.api.request.UpdateProjectRequest;
 import inha.git.project.api.controller.api.response.*;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectComment;
+import inha.git.project.domain.ProjectReplyComment;
 import inha.git.project.domain.ProjectUpload;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
@@ -216,4 +218,26 @@ public interface ProjectMapper {
     @Mapping(target = "idx", source = "projectComment.id")
     CommentResponse toCommentResponse(ProjectComment projectComment);
 
+    /**
+     * ProjectReplyComment 엔티티 생성
+     *
+     * @param createReplyCommentRequest 답글 생성 요청
+     * @param user                      사용자 정보
+     * @param projectComment            프로젝트 댓글 정보
+     * @return ProjectReplyComment 엔티티
+     */
+    @Mapping(target = "contents", source = "createReplyCommentRequest.contents")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", source = "user")
+    @Mapping(target = "projectComment", source = "projectComment")
+    ProjectReplyComment toProjectReplyComment(CreateReplyCommentRequest createReplyCommentRequest, User user, ProjectComment projectComment);
+
+    /**
+     * ProjectReplyComment 엔티티를 ReplyCommentResponse로 변환
+     *
+     * @param projectReplyComment 프로젝트 답글 엔티티
+     * @return ReplyCommentResponse
+     */
+    @Mapping(target = "idx", source = "projectReplyComment.id")
+    ReplyCommentResponse toReplyCommentResponse(ProjectReplyComment projectReplyComment);
 }
