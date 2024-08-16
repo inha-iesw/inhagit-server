@@ -90,5 +90,21 @@ public class ProjectRecommendController {
         return BaseResponse.of(FOUNDING_RECOMMEND_CANCEL_SUCCESS, projectRecommendService.cancelProjectFoundingRecommend(user,recommendRequest));
     }
 
+    /**
+     * 프로젝트 특허 추천 취소 API
+     *
+     * <p>특정 프로젝트에 특허 추천을 취소합니다.</p>
+     *
+     * @param user 로그인한 사용자 정보
+     * @param recommendRequest 추천할 프로젝트 정보
+     * @return 추천 취소 성공 메시지를 포함하는 BaseResponse<String>
+     */
+    @DeleteMapping("/recommend/patent")
+    @Operation(summary = "프로젝트 특허 추천 취소 API", description = "특정 프로젝트에 특허 추천을 취소합니다.")
+    public BaseResponse<String> cancelPatentRecommend(@AuthenticationPrincipal User user,
+                                                      @RequestBody @Valid RecommendRequest recommendRequest) {
+        return BaseResponse.of(PATENT_RECOMMEND_CANCEL_SUCCESS, projectRecommendService.cancelProjectPatentRecommend(user,recommendRequest));
+    }
+
 
 }

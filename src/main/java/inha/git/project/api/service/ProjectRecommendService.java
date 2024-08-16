@@ -12,4 +12,6 @@ public interface ProjectRecommendService {
     String createProjectRegistrationRecommend(User user, RecommendRequest recommendRequest);
 
     String cancelProjectFoundingRecommend(User user, RecommendRequest recommendRequest);
+
+    String cancelProjectPatentRecommend(User user, RecommendRequest recommendRequest);
 }

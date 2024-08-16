@@ -94,6 +94,15 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         return recommendRequest.idx() + "번 프로젝트 창업 추천 취소 완료";
     }
 
+    @Override
+    public String cancelProjectPatentRecommend(User user, RecommendRequest recommendRequest) {
+        Project project = getProject(recommendRequest);
+        validRecommendCancel(project, user, patentRecommendJpaRepository.existsByUserAndProject(user, project));
+        patentRecommendJpaRepository.deleteByUserAndProject(user, project);
+        project.setPatentRecommendCount(project.getPatentRecommendCount() - 1);
+        return recommendRequest.idx() + "번 프로젝트 특허 추천 취소 완료";
+    }
+
 
     /**
      * 추천할 프로젝트가 유효한지 확인
