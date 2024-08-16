@@ -106,4 +106,16 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         projectReplyCommentJpaRepository.save(projectReplyComment);
         return projectMapper.toReplyCommentResponse(projectReplyComment);
     }
+
+    @Override
+    public ReplyCommentResponse updateReply(User user, Integer replyCommentIdx, UpdateCommentRequest updateCommentRequest) {
+        ProjectReplyComment projectReplyComment = projectReplyCommentJpaRepository.findByIdAndState(replyCommentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_COMMENT_REPLY_NOT_FOUND));
+        if(!projectReplyComment.getUser().getId().equals(user.getId())) {
+            throw new BaseException(PROJECT_COMMENT_REPLY_UPDATE_NOT_AUTHORIZED);
+        }
+        projectReplyComment.setContents(updateCommentRequest.contents());
+        projectReplyCommentJpaRepository.save(projectReplyComment);
+        return projectMapper.toReplyCommentResponse(projectReplyComment);
+    }
 }

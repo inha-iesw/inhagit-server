@@ -80,6 +80,8 @@ public enum ErrorStatus implements BaseErrorCode {
     PROJECT_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PROJECT4006", "프로젝트 댓글을 찾을 수 없습니다."),
     PROJECT_COMMENT_UPDATE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "PROJECT4007", "댓글을 수정할 권한이 없습니다."),
     PROJECT_COMMENT_DELETE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "PROJECT4008", "댓글을 삭제할 권한이 없습니다."),
+    PROJECT_COMMENT_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "PROJECT4009", "프로젝트 대댓글을 찾을 수 없습니다."),
+    PROJECT_COMMENT_REPLY_UPDATE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "PROJECT4010", "대댓글을 수정할 권한이 없습니다."),
 
 
 

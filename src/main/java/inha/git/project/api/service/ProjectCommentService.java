@@ -14,5 +14,7 @@ public interface ProjectCommentService {
     CommentResponse deleteComment(User user, Integer commentIdx);
 
     ReplyCommentResponse createReply(User user, CreateReplyCommentRequest createReplyCommentRequest);
+
+    ReplyCommentResponse updateReply(User user, Integer replyCommentIdx, UpdateCommentRequest updateCommentRequest);
 }
 

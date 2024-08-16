@@ -94,4 +94,14 @@ public class ProjectCommentController {
         return BaseResponse.of(PROJECT_COMMENT_REPLY_CREATE_OK, projectCommentService.createReply(user, createReplyCommentRequest));
     }
 
+    @PutMapping("/reply/{replyCommentIdx}")
+    @Operation(summary = "프로젝트 댓글 답글 수정 API", description = "프로젝트 댓글에 답글을 수정합니다.")
+    public BaseResponse<ReplyCommentResponse> updateReply(
+            @AuthenticationPrincipal User user,
+            @PathVariable("replyCommentIdx") Integer replyCommentIdx,
+            @Validated @RequestBody UpdateCommentRequest updateCommentRequest
+    ) {
+        return BaseResponse.of(PROJECT_COMMENT_REPLY_UPDATE_OK, projectCommentService.updateReply(user, replyCommentIdx, updateCommentRequest));
+    }
+
 }
