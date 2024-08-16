@@ -5,7 +5,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.repository.FoundingRecommendJpaRepository;
 import inha.git.mapping.domain.repository.PatentRecommendJpaRepository;
 import inha.git.mapping.domain.repository.RegistrationRecommendJpaRepository;
-import inha.git.project.api.controller.api.dto.request.RecommendRequest;
+import inha.git.project.api.controller.dto.request.RecommendRequest;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.repository.ProjectJpaRepository;

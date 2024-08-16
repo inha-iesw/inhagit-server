@@ -1,8 +1,8 @@
 package inha.git.project.api.service;
 
-import inha.git.project.api.controller.api.dto.request.CreateProjectRequest;
-import inha.git.project.api.controller.api.dto.request.UpdateProjectRequest;
-import inha.git.project.api.controller.api.dto.response.ProjectResponse;
+import inha.git.project.api.controller.dto.request.CreateProjectRequest;
+import inha.git.project.api.controller.dto.request.UpdateProjectRequest;
+import inha.git.project.api.controller.dto.response.ProjectResponse;
 import inha.git.user.domain.User;
 import org.springframework.web.multipart.MultipartFile;
 

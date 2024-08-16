@@ -1,18 +1,14 @@
-package inha.git.project.api.controller.api.dto.request;
+package inha.git.project.api.controller.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record CreateReplyCommentRequest(
-
-        @NotNull
-        @Schema(description = "댓글 인덱스", example = "1")
-        Integer commentIdx,
+public record UpdateCommentRequest(
 
         @NotNull
         @Size(min = 1, max = 250, message = "내용은 1자 이상 250자 이하로 입력해주세요.")
-        @Schema(description = "댓글 내용", example = "댓글 내용")
+        @Schema(description = "댓글 내용", example = "댓글 수정")
         String contents
 ) {
 }

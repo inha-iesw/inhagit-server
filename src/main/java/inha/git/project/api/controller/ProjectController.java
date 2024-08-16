@@ -2,12 +2,12 @@ package inha.git.project.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
-import inha.git.project.api.controller.api.dto.request.CreateProjectRequest;
-import inha.git.project.api.controller.api.dto.request.UpdateProjectRequest;
-import inha.git.project.api.controller.api.dto.response.ProjectResponse;
-import inha.git.project.api.controller.api.dto.response.SearchFileResponse;
-import inha.git.project.api.controller.api.dto.response.SearchProjectResponse;
-import inha.git.project.api.controller.api.dto.response.SearchProjectsResponse;
+import inha.git.project.api.controller.dto.request.CreateProjectRequest;
+import inha.git.project.api.controller.dto.request.UpdateProjectRequest;
+import inha.git.project.api.controller.dto.response.ProjectResponse;
+import inha.git.project.api.controller.dto.response.SearchFileResponse;
+import inha.git.project.api.controller.dto.response.SearchProjectResponse;
+import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
 import inha.git.project.api.service.ProjectSearchService;
 import inha.git.project.api.service.ProjectService;
 import inha.git.user.domain.User;

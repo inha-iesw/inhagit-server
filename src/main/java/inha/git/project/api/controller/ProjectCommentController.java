@@ -1,12 +1,12 @@
 package inha.git.project.api.controller;
 
 import inha.git.common.BaseResponse;
-import inha.git.project.api.controller.api.dto.request.CreateCommentRequest;
-import inha.git.project.api.controller.api.dto.request.CreateReplyCommentRequest;
-import inha.git.project.api.controller.api.dto.request.UpdateCommentRequest;
-import inha.git.project.api.controller.api.dto.response.CommentResponse;
-import inha.git.project.api.controller.api.dto.response.CommentWithRepliesResponse;
-import inha.git.project.api.controller.api.dto.response.ReplyCommentResponse;
+import inha.git.project.api.controller.dto.request.CreateCommentRequest;
+import inha.git.project.api.controller.dto.request.CreateReplyCommentRequest;
+import inha.git.project.api.controller.dto.request.UpdateCommentRequest;
+import inha.git.project.api.controller.dto.response.CommentResponse;
+import inha.git.project.api.controller.dto.response.CommentWithRepliesResponse;
+import inha.git.project.api.controller.dto.response.ReplyCommentResponse;
 import inha.git.project.api.service.ProjectCommentService;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
