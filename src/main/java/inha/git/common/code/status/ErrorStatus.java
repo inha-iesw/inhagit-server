@@ -74,6 +74,12 @@ public enum ErrorStatus implements BaseErrorCode {
     COMPANY_CANNOT_CREATE_PROJECT(HttpStatus.BAD_REQUEST, "PROJECT4000", "기업 회원은 프로젝트를 생성할 수 없습니다."),
     PROJECT_NOT_FOUND(HttpStatus.NOT_FOUND, "PROJECT4001", "프로젝트를 찾을 수 없습니다."),
     PROJECT_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "PROJECT4002", "프로젝트를 수정할 권한이 없습니다."),
+    MY_PROJECT_RECOMMEND(HttpStatus.BAD_REQUEST, "PROJECT4003", "자신의 프로젝트에는 추천할 수 없습니다."),
+    PROJECT_ALREADY_RECOMMEND(HttpStatus.BAD_REQUEST, "PROJECT4004", "이미 추천한 프로젝트입니다."),
+
+
+
+
 
     DEPARTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "DEPARTMENT4000", "학과를 찾을 수 없습니다."),
     ALREADY_ADMIN(HttpStatus.BAD_REQUEST, "ADMIN4000", "이미 관리자 권한이 있습니다."),

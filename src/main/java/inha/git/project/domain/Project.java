@@ -62,4 +62,7 @@ public class Project extends BaseEntity {
     @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private ProjectUpload projectUpload;
 
+    public void setRecommendCount(int foundingRecommendCount) {
+        this.foundingRecommendCount = foundingRecommendCount;
+    }
 }

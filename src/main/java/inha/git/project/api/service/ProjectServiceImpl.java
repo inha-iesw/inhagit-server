@@ -129,6 +129,12 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
 
+    //댓글, 추천 등도 개발완료 뒤 추가 예정
+    @Override
+    public DeleteProjectResponse deleteProject(User user, Integer projectIdx) {
+        return null;
+    }
+
 
     /**
      * 파일 저장 및 압축 해제

@@ -1,7 +1,9 @@
 package inha.git.project.api.mapper;
 
 import inha.git.field.domain.Field;
+import inha.git.mapping.domain.FoundingRecommend;
 import inha.git.mapping.domain.ProjectField;
+import inha.git.mapping.domain.id.FoundingRecommendId;
 import inha.git.mapping.domain.id.ProjectFieldId;
 import inha.git.project.api.controller.api.request.CreateProjectRequest;
 import inha.git.project.api.controller.api.request.UpdateProjectRequest;
@@ -123,4 +125,8 @@ public interface ProjectMapper {
     @Mapping(target = "repoName", source = "project.repoName")
     @Mapping(target = "createdAt", source = "project.createdAt")
     SearchProjectResponse projectToSearchProjectResponse(Project project, ProjectUpload projectUpload, List<SearchFieldResponse> fieldList, SearchRecommendCount recommendCount, SearchUserResponse author, SearchRecommendState recommendState);
+
+    default FoundingRecommend createProjectFoundingRecommend(User user, Project project) {
+        return new FoundingRecommend(new FoundingRecommendId(user.getId(), project.getId()), project, user);
+    }
 }
