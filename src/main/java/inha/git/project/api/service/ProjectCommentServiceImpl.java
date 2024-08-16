@@ -4,6 +4,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.project.api.controller.api.request.CreateCommentRequest;
 import inha.git.project.api.controller.api.request.UpdateCommentRequest;
 import inha.git.project.api.controller.api.response.CreateCommentResponse;
+import inha.git.project.api.controller.api.response.DeleteCommentResponse;
 import inha.git.project.api.controller.api.response.UpdateCommentResponse;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
@@ -12,12 +13,14 @@ import inha.git.project.domain.repository.ProjectCommentJpaRepository;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectReplyCommentJpaRepository;
 import inha.git.user.domain.User;
+import inha.git.user.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
@@ -62,10 +65,31 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         ProjectComment projectComment = projectCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_COMMENT_NOT_FOUND));
         if(!projectComment.getUser().getId().equals(user.getId())) {
-            throw new BaseException(PROJECT_COMMENT_NOT_AUTHORIZED);
+            throw new BaseException(PROJECT_COMMENT_UPDATE_NOT_AUTHORIZED);
         }
         projectComment.setContents(updateCommentRequest.contents());
         projectCommentJpaRepository.save(projectComment);
         return projectMapper.toUpdateCommentResponse(projectComment);
+    }
+
+    /**
+     * 댓글 삭제
+     *
+     * @param user       사용자 정보
+     * @param commentIdx 댓글 식별자
+     * @return DeleteCommentResponse
+     */
+    @Override
+    @Transactional
+    public DeleteCommentResponse deleteComment(User user, Integer commentIdx) {
+        ProjectComment projectComment = projectCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_COMMENT_NOT_FOUND));
+        if(!projectComment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new BaseException(PROJECT_COMMENT_DELETE_NOT_AUTHORIZED);
+        }
+        projectComment.setDeletedAt();
+        projectComment.setState(INACTIVE);
+        projectCommentJpaRepository.save(projectComment);
+        return projectMapper.toDeleteCommentResponse(projectComment);
     }
 }
