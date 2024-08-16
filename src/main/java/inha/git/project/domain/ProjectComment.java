@@ -5,6 +5,8 @@ import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 
 /**
  * ProjectComment 엔티티는 애플리케이션의 프로젝트 댓글 정보를 나타냄.
@@ -32,6 +34,9 @@ public class ProjectComment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
+
+    @OneToMany(mappedBy = "projectComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectReplyComment> replies;
 
     public void setContents(String contents) {
         this.contents = contents;

@@ -5,6 +5,7 @@ import inha.git.project.api.controller.api.request.CreateCommentRequest;
 import inha.git.project.api.controller.api.request.CreateReplyCommentRequest;
 import inha.git.project.api.controller.api.request.UpdateCommentRequest;
 import inha.git.project.api.controller.api.response.CommentResponse;
+import inha.git.project.api.controller.api.response.CommentWithRepliesResponse;
 import inha.git.project.api.controller.api.response.ReplyCommentResponse;
 import inha.git.project.api.service.ProjectCommentService;
 import inha.git.user.domain.User;
@@ -15,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static inha.git.common.code.status.SuccessStatus.*;
 
@@ -29,6 +32,14 @@ import static inha.git.common.code.status.SuccessStatus.*;
 public class ProjectCommentController {
 
     private final ProjectCommentService projectCommentService;
+
+    @GetMapping
+    @Operation(summary = "특정 프로젝트 댓글 전체 조회 API", description = "특정 프로젝트의 모든 댓글과 대댓글을 조회합니다.")
+    public BaseResponse<List<CommentWithRepliesResponse>> getAllComments(
+            @RequestParam("projectIdx") Integer projectIdx) {
+        return BaseResponse.of(PROJECT_COMMENT_SEARCH_OK, projectCommentService.getAllCommentsByProjectIdx(projectIdx));
+    }
+
 
     /**
      * 프로젝트 댓글 생성 API

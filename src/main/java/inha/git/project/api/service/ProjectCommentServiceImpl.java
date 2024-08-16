@@ -4,8 +4,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.project.api.controller.api.request.CreateCommentRequest;
 import inha.git.project.api.controller.api.request.CreateReplyCommentRequest;
 import inha.git.project.api.controller.api.request.UpdateCommentRequest;
-import inha.git.project.api.controller.api.response.CommentResponse;
-import inha.git.project.api.controller.api.response.ReplyCommentResponse;
+import inha.git.project.api.controller.api.response.*;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectComment;
@@ -19,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
@@ -34,6 +35,15 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
     private final ProjectCommentJpaRepository projectCommentJpaRepository;
     private final ProjectReplyCommentJpaRepository projectReplyCommentJpaRepository;
     private final ProjectMapper projectMapper;
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<CommentWithRepliesResponse> getAllCommentsByProjectIdx(Integer projectIdx) {
+        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+        List<ProjectComment> comments = projectCommentJpaRepository.findAllByProjectAndStateOrderByIdAsc(project, ACTIVE);
+        return projectMapper.toCommentWithRepliesResponseList(comments);
+    }
 
     /**
      * 댓글 생성

@@ -240,4 +240,47 @@ public interface ProjectMapper {
      */
     @Mapping(target = "idx", source = "projectReplyComment.id")
     ReplyCommentResponse toReplyCommentResponse(ProjectReplyComment projectReplyComment);
+
+    /**
+     * ProjectComment 엔티티를 CommentWithRepliesResponse로 변환
+     *
+     * @param projectComment 프로젝트 댓글 엔티티
+     * @return CommentWithRepliesResponse
+     */
+    @Mapping(target = "idx", source = "projectComment.id")
+    @Mapping(target = "author", source = "projectComment.user")
+    @Mapping(target = "createdAt", source = "projectComment.createdAt")
+    @Mapping(target = "contents", source = "projectComment.contents")
+    @Mapping(target = "replies", source = "projectComment.replies") // replies 필드 매핑
+    CommentWithRepliesResponse toCommentWithRepliesResponse(ProjectComment projectComment);
+
+    /**
+     * ProjectReplyComment 엔티티를 SearchReplyCommentResponse로 변환
+     *
+     * @param projectReplyComment 프로젝트 답글 엔티티
+     * @return SearchReplyCommentResponse
+     */
+    @Mapping(target = "idx", source = "projectReplyComment.id")
+    @Mapping(target = "contents", source = "projectReplyComment.contents")
+    @Mapping(target = "author", source = "projectReplyComment.user")
+    @Mapping(target = "createdAt", source = "projectReplyComment.createdAt")
+    SearchReplyCommentResponse toSearchReplyCommentResponse(ProjectReplyComment projectReplyComment);
+
+    /**
+     * ProjectReplyComment 엔티티 리스트를 SearchReplyCommentResponse 리스트로 변환
+     *
+     * @param replies 프로젝트 답글 엔티티 리스트
+     * @return SearchReplyCommentResponse 리스트
+     */
+    List<SearchReplyCommentResponse> toSearchReplyCommentResponseList(List<ProjectReplyComment> replies);
+
+    /**
+     * ProjectComment 엔티티 리스트를 CommentWithRepliesResponse 리스트로 변환
+     *
+     * @param comments 프로젝트 댓글 엔티티 리스트
+     * @return CommentWithRepliesResponse 리스트
+     */
+    List<CommentWithRepliesResponse> toCommentWithRepliesResponseList(List<ProjectComment> comments);
+
+
 }
