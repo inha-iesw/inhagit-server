@@ -18,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
 
+/**
+ * ProjectRecommendServiceImpl은 프로젝트 추천 관련 비즈니스 로직을 처리.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j

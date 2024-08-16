@@ -9,10 +9,12 @@ import inha.git.mapping.domain.id.FoundingRecommendId;
 import inha.git.mapping.domain.id.PatentRecommedId;
 import inha.git.mapping.domain.id.ProjectFieldId;
 import inha.git.mapping.domain.id.RegistrationRecommendId;
+import inha.git.project.api.controller.api.request.CreateCommentRequest;
 import inha.git.project.api.controller.api.request.CreateProjectRequest;
 import inha.git.project.api.controller.api.request.UpdateProjectRequest;
 import inha.git.project.api.controller.api.response.*;
 import inha.git.project.domain.Project;
+import inha.git.project.domain.ProjectComment;
 import inha.git.project.domain.ProjectUpload;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
@@ -199,4 +201,27 @@ public interface ProjectMapper {
     default RegistrationRecommend createProjectRegistrationRecommend(User user, Project project) {
         return new RegistrationRecommend(new RegistrationRecommendId(user.getId(), project.getId()), project, user);
     }
+
+    /**
+     * ProjectComment 엔티티 생성
+     *
+     * @param createCommentRequest 댓글 생성 요청
+     * @param user                 사용자 정보
+     * @param project              프로젝트 정보
+     * @return ProjectComment 엔티티
+     */
+    @Mapping(target = "contents", source = "createCommentRequest.contents")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", source = "user")
+    @Mapping(target = "project", source = "project")
+    ProjectComment toProjectComment(CreateCommentRequest createCommentRequest, User user, Project project);
+
+    /**
+     * ProjectComment 엔티티를 CreateCommentResponse로 변환
+     *
+     * @param projectComment 프로젝트 댓글 엔티티
+     * @return CreateCommentResponse
+     */
+    @Mapping(target = "idx", source = "projectComment.id")
+    CreateCommentResponse toCreateCommentResponse(ProjectComment projectComment);
 }

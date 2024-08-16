@@ -66,7 +66,14 @@ public enum SuccessStatus implements BaseCode {
     REGISTRATION_RECOMMEND_SUCCESS(HttpStatus.CREATED, "PROJECT2013", "등록 추천 성공"),
     FOUNDING_RECOMMEND_CANCEL_SUCCESS(HttpStatus.CREATED, "PROJECT2014", "창업 추천 취소 성공"),
     PATENT_RECOMMEND_CANCEL_SUCCESS(HttpStatus.CREATED, "PROJECT2015", "특허 추천 취소 성공"),
-    REGISTRATION_RECOMMEND_CANCEL_SUCCESS(HttpStatus.CREATED, "PROJECT2016", "등록 추천 취소 성공");
+    REGISTRATION_RECOMMEND_CANCEL_SUCCESS(HttpStatus.CREATED, "PROJECT2016", "등록 추천 취소 성공"),
+    PROJECT_COMMENT_CREATE_OK(HttpStatus.CREATED, "PROJECT2017", "프로젝트 댓글 생성 성공"),
+    PROJECT_COMMENT_DELETE_OK(HttpStatus.OK, "PROJECT2018", "프로젝트 댓글 삭제 성공"),
+    PROJECT_COMMENT_UPDATE_OK(HttpStatus.OK, "PROJECT2019", "프로젝트 댓글 수정 성공"),
+    PROJECT_COMMENT_SEARCH_OK(HttpStatus.OK, "PROJECT2020", "프로젝트 댓글 전체 조회 성공"),
+    PROJECT_COMMENT_REPLY_CREATE_OK(HttpStatus.CREATED, "PROJECT2021", "프로젝트 대댓글 생성 성공"),
+    PROJECT_COMMENT_REPLY_DELETE_OK(HttpStatus.OK, "PROJECT2022", "프로젝트 대댓글 삭제 성공"),
+    PROJECT_COMMENT_REPLY_UPDATE_OK(HttpStatus.OK, "PROJECT2023", "프로젝트 대댓글 수정 성공");
 
 
     private final HttpStatus httpStatus;
