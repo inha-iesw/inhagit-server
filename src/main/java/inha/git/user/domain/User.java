@@ -145,4 +145,7 @@ public class User extends BaseEntity implements UserDetails {
         }
     }
 
+    public void setGithubToken(String githubToken) {
+        this.githubToken = githubToken;
+    }
 }
