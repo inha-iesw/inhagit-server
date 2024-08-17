@@ -68,4 +68,44 @@ public class ValidFile {
             throw new BaseException(FILE_CONVERT);
         }
     }
+
+
+
+    private static final long MAX_SIZE_BYTES_2 = MAX_SIZE_MB * 1024 * 1024;
+
+    private static final Set<String> ALLOWED_CONTENT_TYPES_2 = new HashSet<>();
+
+    static {
+        ALLOWED_CONTENT_TYPES_2.add("application/pdf");
+        ALLOWED_CONTENT_TYPES_2.add("image/png");
+        ALLOWED_CONTENT_TYPES_2.add("image/jpg");
+        ALLOWED_CONTENT_TYPES_2.add("image/jpeg");
+        ALLOWED_CONTENT_TYPES_2.add("image/gif");
+        ALLOWED_CONTENT_TYPES_2.add("application/zip");
+        ALLOWED_CONTENT_TYPES_2.add("application/octet-stream");
+        ALLOWED_CONTENT_TYPES_2.add("multipart/x-zip");
+        ALLOWED_CONTENT_TYPES_2.add("application/zip-compressed");
+        ALLOWED_CONTENT_TYPES_2.add("application/x-zip-compressed");
+        ALLOWED_CONTENT_TYPES_2.add("application/x-zip");
+    }
+
+    /**
+     * JPG, PNG, PDF, ZIP 파일 유효성 검사
+     *
+     * @param file 업로드할 파일
+     */
+    public static void validateImagePdfZipFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new BaseException(FILE_NOT_FOUND);
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !ALLOWED_CONTENT_TYPES_2.contains(contentType)) {
+            throw new BaseException(FILE_INVALID_TYPE);
+        }
+
+        if (file.getSize() > MAX_SIZE_BYTES_2) {
+            throw new BaseException(FILE_MAX_SIZE);
+        }
+    }
 }

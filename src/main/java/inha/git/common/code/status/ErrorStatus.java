@@ -55,6 +55,7 @@ public enum ErrorStatus implements BaseErrorCode {
     FILE_MAX_SIZE(HttpStatus.BAD_REQUEST, "FILE4005", "압축 파일의 총 크기는 200MB 이하로 제한됩니다."),
     FILE_DELETE_FAIL(HttpStatus.BAD_REQUEST, "FILE4006", "파일 삭제에 실패하였습니다."),
     FILE_COMPRESS_FAIL(HttpStatus.BAD_REQUEST, "FILE4007", "파일 압축에 실패하였습니다."),
+    FILE_INVALID_TYPE(HttpStatus.BAD_REQUEST, "FILE4008", "지원하지 않는 파일 형식입니다."),
 
 
     EMAIL_NOT_FOUND(HttpStatus.BAD_REQUEST, "EMAIL4001", "이메일이 존재하지 않습니다."),
@@ -102,6 +103,9 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_COMPANY(HttpStatus.BAD_REQUEST, "ADMIN4005", "기업 계정이 아닙니다."),
     ALREADY_ACCEPTED_COMPANY(HttpStatus.BAD_REQUEST, "ADMIN4006", "이미 승인된 기업입니다."),
     NOT_ACCEPTED_COMPANY(HttpStatus.BAD_REQUEST, "ADMIN4007", "승인되지 않은 기업입니다."),
+
+    NOT_EXIST_PROBLEM(HttpStatus.BAD_REQUEST, "PROBLEM4000", "해당 문제가 존재하지 않습니다."),
+    NOT_AUTHORIZED_PROBLEM(HttpStatus.BAD_REQUEST, "PROBLEM4001", "문제를 수정할 권한이 없습니다."),
     /**
      * 500 :  Database, Server 오류
      */
