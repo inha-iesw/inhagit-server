@@ -130,6 +130,61 @@ public class ProjectServiceImpl implements ProjectService {
 
         return projectMapper.projectToProjectResponse(savedProject);
     }
+
+    //새로 깃클론 해오고 기존에 존재하던 거 디스크에서 삭제하고 디비 업데이트
+    @Override
+    @Transactional
+    public ProjectResponse updateGithubProject(User user, Integer projectIdx) {
+        // 기존 프로젝트 찾기
+        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+        if (!project.getUser().getId().equals(user.getId())) {
+            throw new BaseException(PROJECT_NOT_AUTHORIZED);
+        }
+        // 기존 프로젝트 업로드 정보 찾기
+        ProjectUpload findProjectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+
+        // 새로 클론할 폴더 이름 및 경로 생성
+        String folderName = FilePath.generateFolderName();
+        Path projectPath = FilePath.generateProjectPath(folderName);
+
+        // GitHub 리포지토리 클론 수행
+        try {
+            Git.cloneRepository()
+                    .setURI(GITHUB + project.getRepoName() + GIT)
+                    .setDirectory(projectPath.toFile())
+                    .call();
+        } catch (GitAPIException e) {
+            throw new BaseException(GITHUB_CLONE_ERROR);
+        }
+        // 새로 클론한 프로젝트 압축
+        String zipFileName = folderName + ZIP;
+        String zipRelativePath = PROJECT_ZIP + '/' + zipFileName;
+        Path zipDestinationPath = Paths.get(BASE_DIR_2, zipRelativePath);
+        FilePath.zipDirectory(projectPath, zipDestinationPath);
+
+        // 트랜잭션 롤백 시 파일 삭제 로직 등록
+        registerRollbackCleanup("/" + zipRelativePath, folderName);
+
+        // 기존 파일 및 디렉토리 삭제
+        String oldDirectoryName = findProjectUpload.getDirectoryName();
+        String oldZipDirectoryName = findProjectUpload.getZipDirectoryName();
+        boolean isFileDeleted = FilePath.deleteFile(BASE_DIR_2 + oldZipDirectoryName);
+        boolean isDirDeleted = FilePath.deleteDirectory(BASE_DIR_2 + oldDirectoryName);
+        if (isFileDeleted && isDirDeleted) {
+            log.info("기존 파일과 디렉토리가 성공적으로 삭제되었습니다.");
+        } else {
+            log.error("기존 파일 또는 디렉토리 삭제에 실패했습니다.");
+        }
+
+        // 프로젝트 업로드 정보 업데이트
+        projectMapper.updateProjectUpload(PROJECT_UPLOAD + folderName, "/" + zipRelativePath, findProjectUpload);
+        projectUploadJpaRepository.save(findProjectUpload);
+
+        return projectMapper.projectToProjectResponse(project);
+    }
+
     /**
      * 프로젝트 업데이트
      *
