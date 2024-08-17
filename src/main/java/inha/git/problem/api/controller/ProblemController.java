@@ -2,6 +2,7 @@ package inha.git.problem.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
+import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
 import inha.git.problem.api.controller.dto.response.ProblemResponse;
 import inha.git.problem.api.service.ProblemService;
 import inha.git.user.domain.User;
@@ -14,13 +15,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import static inha.git.common.code.status.SuccessStatus.PROBLEM_CREATE_OK;
+import static inha.git.common.code.status.SuccessStatus.PROBLEM_UPDATE_OK;
 
 /**
  * ProblemController는 problem 관련 엔드포인트를 처리.
@@ -51,6 +50,20 @@ public class ProblemController {
         ValidFile.validateImagePdfZipFile(file);
         return BaseResponse.of(PROBLEM_CREATE_OK, problemService.createProblem(user, createProblemRequest, file));
     }
+
+    @PutMapping(value = "/{problemIdx}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasAuthority('assistant:update')")
+    @Operation(summary = "문제 수정(조교, 교수, 관리자 전용) API", description = "문제를 수정합니다.")
+    public BaseResponse<ProblemResponse> updateProblem(@AuthenticationPrincipal User user,
+                                                   @PathVariable("problemIdx") Integer problemIdx,
+                                                   @Validated @RequestPart("updateProblemRequest") UpdateProblemRequest updateProblemRequest,
+                                                   @RequestPart(value = "file", required = false) MultipartFile file) {
+        if(!file.isEmpty()) {
+            ValidFile.validateImagePdfZipFile(file);
+        }
+        return BaseResponse.of(PROBLEM_UPDATE_OK, problemService.updateProblem(user, problemIdx, updateProblemRequest, file));
+    }
+
 
 
 }

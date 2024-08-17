@@ -1,11 +1,13 @@
 package inha.git.problem.api.mapper;
 
 import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
+import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
 import inha.git.problem.api.controller.dto.response.ProblemResponse;
 import inha.git.problem.domain.Problem;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 /**
@@ -21,4 +23,17 @@ public interface ProblemMapper {
 
     @Mapping(target = "idx", source = "problem.id")
     ProblemResponse problemToProblemResponse(Problem problem);
+
+    // 파일 경로가 없는 경우
+    @Mapping(target = "title", source = "updateProblemRequest.title")
+    @Mapping(target = "duration", source = "updateProblemRequest.duration")
+    @Mapping(target = "contents", source = "updateProblemRequest.contents")
+    void updateProblemRequestToProblem(UpdateProblemRequest updateProblemRequest, @MappingTarget Problem problem);
+
+    // 파일 경로가 있는 경우
+    @Mapping(target = "title", source = "updateProblemRequest.title")
+    @Mapping(target = "duration", source = "updateProblemRequest.duration")
+    @Mapping(target = "contents", source = "updateProblemRequest.contents")
+    @Mapping(target = "filePath", source = "filePath") // 새로운 파일 경로를 매핑
+    void updateProblemRequestToProblem(UpdateProblemRequest updateProblemRequest, String filePath, @MappingTarget Problem problem);
 }

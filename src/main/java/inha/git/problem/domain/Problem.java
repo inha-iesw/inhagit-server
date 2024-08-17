@@ -25,15 +25,19 @@ public class Problem extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Setter
     @Column(nullable = false, length = 50)
     private String title;
 
+    @Setter
     @Column(nullable = false, length = 255)
     private String contents;
 
+    @Setter
     @Column(nullable = false)
     private LocalDateTime duration;
 
+    @Setter
     @Column(nullable = false, length = 255, name = "file_path")
     private String filePath;
 
