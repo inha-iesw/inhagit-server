@@ -34,8 +34,8 @@ public class Problem extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime duration;
 
-    @Column(nullable = false, length = 255, name = "file_fath")
-    private String fileFath;
+    @Column(nullable = false, length = 255, name = "file_path")
+    private String filePath;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

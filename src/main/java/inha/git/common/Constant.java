@@ -33,6 +33,7 @@ public class Constant {
     public final static String EVIDENCE = "evidence";
     public final static String BANNER = "banner";
     public final static String PROJECT_UPLOAD = "/project/";
+    public final static String PROBLEM_FILE = "problem-file";
 
     public final static String GIT = ".git";
     public final static String GITHUB = "https://github.com/";

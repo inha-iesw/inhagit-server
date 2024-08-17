@@ -55,6 +55,7 @@ public enum ErrorStatus implements BaseErrorCode {
     FILE_MAX_SIZE(HttpStatus.BAD_REQUEST, "FILE4005", "압축 파일의 총 크기는 200MB 이하로 제한됩니다."),
     FILE_DELETE_FAIL(HttpStatus.BAD_REQUEST, "FILE4006", "파일 삭제에 실패하였습니다."),
     FILE_COMPRESS_FAIL(HttpStatus.BAD_REQUEST, "FILE4007", "파일 압축에 실패하였습니다."),
+    FILE_INVALID_TYPE(HttpStatus.BAD_REQUEST, "FILE4008", "지원하지 않는 파일 형식입니다."),
 
 
     EMAIL_NOT_FOUND(HttpStatus.BAD_REQUEST, "EMAIL4001", "이메일이 존재하지 않습니다."),
