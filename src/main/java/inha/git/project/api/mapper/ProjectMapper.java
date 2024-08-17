@@ -9,10 +9,7 @@ import inha.git.mapping.domain.id.FoundingRecommendId;
 import inha.git.mapping.domain.id.PatentRecommedId;
 import inha.git.mapping.domain.id.ProjectFieldId;
 import inha.git.mapping.domain.id.RegistrationRecommendId;
-import inha.git.project.api.controller.dto.request.CreateCommentRequest;
-import inha.git.project.api.controller.dto.request.CreateProjectRequest;
-import inha.git.project.api.controller.dto.request.CreateReplyCommentRequest;
-import inha.git.project.api.controller.dto.request.UpdateProjectRequest;
+import inha.git.project.api.controller.dto.request.*;
 import inha.git.project.api.controller.dto.response.*;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectComment;
@@ -282,5 +279,18 @@ public interface ProjectMapper {
      */
     List<CommentWithRepliesResponse> toCommentWithRepliesResponseList(List<ProjectComment> comments);
 
-
+    /**
+     * CreateGithubProjectRequest를 Project 엔티티로 변환
+     *
+     * @param createGithubProjectRequest 깃허브 프로젝트 생성 요청
+     * @param user                       사용자 정보
+     * @return Project 엔티티
+     */
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "patentRecommendCount", constant = "0")
+    @Mapping(target = "foundingRecommendCount", constant = "0")
+    @Mapping(target = "registrationRecommendCount", constant = "0")
+    @Mapping(target = "subjectName", source = "createGithubProjectRequest.subject")
+    @Mapping(target = "user", source = "user")
+    Project createGithubProjectRequestToProject(CreateGithubProjectRequest createGithubProjectRequest, User user);
 }

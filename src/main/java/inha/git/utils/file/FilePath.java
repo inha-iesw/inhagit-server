@@ -5,13 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
-import static inha.git.common.Constant.BASE_DIR;
+import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 /**
@@ -96,6 +99,49 @@ public class FilePath {
         }
 
         return isDirDeleted;
+    }
+
+    /**
+     * 프로젝트 경로 생성
+     *
+     * @param folderName 폴더명
+     * @return 프로젝트 경로
+     */
+    public static Path generateProjectPath(String folderName) {
+        String projectRelativePath = PROJECT + '/' + folderName;
+        return Paths.get(BASE_DIR_2, projectRelativePath);
+    }
+
+    /**
+     * 폴더명 생성
+     *
+     * @return 폴더명
+     */
+    public static String generateFolderName() {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String uniqueSuffix = UUID.randomUUID().toString().substring(0, 6);
+        return timestamp + "-" + uniqueSuffix;
+    }
+
+    public static void zipDirectory(Path sourceDirPath, Path zipFilePath) {
+        try (FileOutputStream fos = new FileOutputStream(zipFilePath.toFile());
+             ZipOutputStream zos = new ZipOutputStream(fos)) {
+
+            Files.walk(sourceDirPath)
+                    .filter(path -> !Files.isDirectory(path))
+                    .forEach(path -> {
+                        ZipEntry zipEntry = new ZipEntry(sourceDirPath.relativize(path).toString());
+                        try {
+                            zos.putNextEntry(zipEntry);
+                            Files.copy(path, zos);
+                            zos.closeEntry();
+                        } catch (IOException e) {
+                            throw new BaseException(FILE_COMPRESS_FAIL);
+                        }
+                    });
+        } catch (IOException e) {
+            throw new BaseException(FILE_COMPRESS_FAIL);
+        }
     }
     /**
      * 파일 확장자 반환

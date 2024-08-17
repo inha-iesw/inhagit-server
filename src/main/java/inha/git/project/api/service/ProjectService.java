@@ -1,5 +1,6 @@
 package inha.git.project.api.service;
 
+import inha.git.project.api.controller.dto.request.CreateGithubProjectRequest;
 import inha.git.project.api.controller.dto.request.CreateProjectRequest;
 import inha.git.project.api.controller.dto.request.UpdateProjectRequest;
 import inha.git.project.api.controller.dto.response.ProjectResponse;
@@ -12,5 +13,5 @@ public interface ProjectService {
     ProjectResponse updateProject(User user, Integer projectIdx, UpdateProjectRequest updateProjectRequest, MultipartFile file);
     ProjectResponse deleteProject(User user, Integer projectIdx);
 
-
+    ProjectResponse cloneAndZipProject(User user, CreateGithubProjectRequest createGithubProjectRequest);
 }

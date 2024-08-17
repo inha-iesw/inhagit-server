@@ -54,6 +54,7 @@ public enum ErrorStatus implements BaseErrorCode {
     FILE_MAX_FILES(HttpStatus.BAD_REQUEST, "FILE4004", "압축 파일 내의 파일 수는 100개 이하로 제한됩니다."),
     FILE_MAX_SIZE(HttpStatus.BAD_REQUEST, "FILE4005", "압축 파일의 총 크기는 200MB 이하로 제한됩니다."),
     FILE_DELETE_FAIL(HttpStatus.BAD_REQUEST, "FILE4006", "파일 삭제에 실패하였습니다."),
+    FILE_COMPRESS_FAIL(HttpStatus.BAD_REQUEST, "FILE4007", "파일 압축에 실패하였습니다."),
 
 
     EMAIL_NOT_FOUND(HttpStatus.BAD_REQUEST, "EMAIL4001", "이메일이 존재하지 않습니다."),
@@ -86,6 +87,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     GITHUB_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "GITHUB4000", "깃허브 토큰이 등록되지 않았습니다. 깃허브 토큰을 먼저 등록해주세요."),
     FAILED_TO_GET_GITHUB_REPOSITORIES(HttpStatus.BAD_REQUEST, "GITHUB4001", "깃허브 레포지토리 목록을 가져오는데 실패했습니다."),
+    GITHUB_CLONE_ERROR(HttpStatus.BAD_REQUEST, "GITHUB4002", "깃허브 레포지토리 클론에 실패했습니다."),
 
 
 
