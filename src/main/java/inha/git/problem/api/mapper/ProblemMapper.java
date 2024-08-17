@@ -16,21 +16,42 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ProblemMapper {
 
+    /**
+     * CreateProblemRequest를 Problem 엔티티로 변환
+     * @param createProblemRequest
+     * @param filePath
+     * @param user
+     * @return
+     */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", source = "user")
     @Mapping(target = "filePath", source = "filePath")
     Problem createProblemRequestToProblem(CreateProblemRequest createProblemRequest,String filePath, User user);
 
+    /**
+     * Problem 엔티티를 ProblemResponse로 변환
+     * @param problem
+     * @return
+     */
     @Mapping(target = "idx", source = "problem.id")
     ProblemResponse problemToProblemResponse(Problem problem);
 
-    // 파일 경로가 없는 경우
+    /**
+     * 파일 경로가 없는 경우
+     * @param updateProblemRequest
+     * @param problem
+     */
     @Mapping(target = "title", source = "updateProblemRequest.title")
     @Mapping(target = "duration", source = "updateProblemRequest.duration")
     @Mapping(target = "contents", source = "updateProblemRequest.contents")
     void updateProblemRequestToProblem(UpdateProblemRequest updateProblemRequest, @MappingTarget Problem problem);
 
-    // 파일 경로가 있는 경우
+    /**
+     * 파일 경로가 있는 경우
+     * @param updateProblemRequest
+     * @param filePath
+     * @param problem
+     */
     @Mapping(target = "title", source = "updateProblemRequest.title")
     @Mapping(target = "duration", source = "updateProblemRequest.duration")
     @Mapping(target = "contents", source = "updateProblemRequest.contents")

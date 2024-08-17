@@ -22,15 +22,15 @@ public record SearchNoticesResponse(
         @Schema(description = "작성일", example = "2021-08-01T00:00:00")
         LocalDateTime createdAt,
         @NotNull
-        SearchNoticeUserResponse searchNoticeUserResponse
+        SearchNoticeUserResponse author
 ) {
         @QueryProjection
-        public SearchNoticesResponse(Notice notice, SearchNoticeUserResponse searchNoticeUserResponse) {
+        public SearchNoticesResponse(Notice notice, SearchNoticeUserResponse author) {
                 this(
                         notice.getId(),
                         notice.getTitle(),
                         notice.getCreatedAt(),
-                        searchNoticeUserResponse
+                        author
                 );
         }
 }

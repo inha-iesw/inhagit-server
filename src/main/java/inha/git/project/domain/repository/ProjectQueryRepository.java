@@ -17,6 +17,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+/**
+ * 프로젝트 조회 관련 레포지토리
+ */
 @Repository
 @RequiredArgsConstructor
 public class ProjectQueryRepository {
