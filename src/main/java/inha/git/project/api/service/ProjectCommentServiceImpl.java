@@ -1,10 +1,12 @@
 package inha.git.project.api.service;
 
 import inha.git.common.exceptions.BaseException;
-import inha.git.project.api.controller.api.request.CreateCommentRequest;
-import inha.git.project.api.controller.api.request.CreateReplyCommentRequest;
-import inha.git.project.api.controller.api.request.UpdateCommentRequest;
-import inha.git.project.api.controller.api.response.*;
+import inha.git.project.api.controller.dto.request.CreateCommentRequest;
+import inha.git.project.api.controller.dto.request.CreateReplyCommentRequest;
+import inha.git.project.api.controller.dto.request.UpdateCommentRequest;
+import inha.git.project.api.controller.dto.response.CommentResponse;
+import inha.git.project.api.controller.dto.response.CommentWithRepliesResponse;
+import inha.git.project.api.controller.dto.response.ReplyCommentResponse;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectComment;

@@ -5,9 +5,10 @@ import inha.git.field.domain.Field;
 import inha.git.field.domain.repository.FieldJpaRepository;
 import inha.git.mapping.domain.ProjectField;
 import inha.git.mapping.domain.repository.ProjectFieldJpaRepository;
-import inha.git.project.api.controller.api.request.CreateProjectRequest;
-import inha.git.project.api.controller.api.request.UpdateProjectRequest;
-import inha.git.project.api.controller.api.response.*;
+import inha.git.project.api.controller.dto.request.CreateGithubProjectRequest;
+import inha.git.project.api.controller.dto.request.CreateProjectRequest;
+import inha.git.project.api.controller.dto.request.UpdateProjectRequest;
+import inha.git.project.api.controller.dto.response.ProjectResponse;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectUpload;
@@ -19,6 +20,10 @@ import inha.git.utils.file.FilePath;
 import inha.git.utils.file.UnZip;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.kohsuke.github.GHRepository;
+import org.kohsuke.github.GitHub;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
@@ -26,7 +31,11 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.multipart.MultipartFile;
 
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
@@ -75,6 +84,105 @@ public class ProjectServiceImpl implements ProjectService {
         projectFieldJpaRepository.saveAll(projectFields);
 
         return projectMapper.projectToProjectResponse(savedProject);
+    }
+
+    /**
+     * GitHub 프로젝트 클론 및 압축
+     *
+     * @param user                     사용자 정보
+     * @param createGithubProjectRequest GitHub 프로젝트 생성 요청
+     * @return 생성된 프로젝트 정보
+     */
+    @Override
+    @Transactional
+    public ProjectResponse cloneAndZipProject(User user, CreateGithubProjectRequest createGithubProjectRequest) {
+        String folderName = FilePath.generateFolderName();
+        Path projectPath = FilePath.generateProjectPath(folderName);
+        // GitHub 리포지토리 클론 수행
+        try {
+            Git.cloneRepository()
+                    .setURI(GITHUB + createGithubProjectRequest.repoName() + GIT)
+                    .setDirectory(projectPath.toFile())
+                    .call();
+        } catch (GitAPIException e) {
+            throw new BaseException(GITHUB_CLONE_ERROR);
+        }
+
+        // 클론된 프로젝트 압축
+        String zipFileName = folderName + ZIP;
+        String zipRelativePath = PROJECT_ZIP + '/' + zipFileName;
+        Path zipDestinationPath = Paths.get(BASE_DIR_2, zipRelativePath);
+
+        FilePath.zipDirectory(projectPath, zipDestinationPath);
+
+        // 트랜잭션 롤백 시 파일 삭제 로직 등록
+        registerRollbackCleanup("/" + zipRelativePath, folderName);
+
+        // 프로젝트 엔티티 생성 및 저장
+        Project project = projectMapper.createGithubProjectRequestToProject(createGithubProjectRequest, user);
+        Project savedProject = projectJpaRepository.saveAndFlush(project);
+
+        ProjectUpload projectUpload = projectMapper.createProjectUpload(PROJECT_UPLOAD + folderName, "/" + zipRelativePath, savedProject);
+        projectUploadJpaRepository.save(projectUpload);
+
+        List<ProjectField> projectFields = createAndSaveProjectFields(createGithubProjectRequest.fieldIdxList(), savedProject);
+        projectFieldJpaRepository.saveAll(projectFields);
+
+        return projectMapper.projectToProjectResponse(savedProject);
+    }
+
+    //새로 깃클론 해오고 기존에 존재하던 거 디스크에서 삭제하고 디비 업데이트
+    @Override
+    @Transactional
+    public ProjectResponse updateGithubProject(User user, Integer projectIdx) {
+        // 기존 프로젝트 찾기
+        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+        if (!project.getUser().getId().equals(user.getId())) {
+            throw new BaseException(PROJECT_NOT_AUTHORIZED);
+        }
+        // 기존 프로젝트 업로드 정보 찾기
+        ProjectUpload findProjectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+
+        // 새로 클론할 폴더 이름 및 경로 생성
+        String folderName = FilePath.generateFolderName();
+        Path projectPath = FilePath.generateProjectPath(folderName);
+
+        // GitHub 리포지토리 클론 수행
+        try {
+            Git.cloneRepository()
+                    .setURI(GITHUB + project.getRepoName() + GIT)
+                    .setDirectory(projectPath.toFile())
+                    .call();
+        } catch (GitAPIException e) {
+            throw new BaseException(GITHUB_CLONE_ERROR);
+        }
+        // 새로 클론한 프로젝트 압축
+        String zipFileName = folderName + ZIP;
+        String zipRelativePath = PROJECT_ZIP + '/' + zipFileName;
+        Path zipDestinationPath = Paths.get(BASE_DIR_2, zipRelativePath);
+        FilePath.zipDirectory(projectPath, zipDestinationPath);
+
+        // 트랜잭션 롤백 시 파일 삭제 로직 등록
+        registerRollbackCleanup("/" + zipRelativePath, folderName);
+
+        // 기존 파일 및 디렉토리 삭제
+        String oldDirectoryName = findProjectUpload.getDirectoryName();
+        String oldZipDirectoryName = findProjectUpload.getZipDirectoryName();
+        boolean isFileDeleted = FilePath.deleteFile(BASE_DIR_2 + oldZipDirectoryName);
+        boolean isDirDeleted = FilePath.deleteDirectory(BASE_DIR_2 + oldDirectoryName);
+        if (isFileDeleted && isDirDeleted) {
+            log.info("기존 파일과 디렉토리가 성공적으로 삭제되었습니다.");
+        } else {
+            log.error("기존 파일 또는 디렉토리 삭제에 실패했습니다.");
+        }
+
+        // 프로젝트 업로드 정보 업데이트
+        projectMapper.updateProjectUpload(PROJECT_UPLOAD + folderName, "/" + zipRelativePath, findProjectUpload);
+        projectUploadJpaRepository.save(findProjectUpload);
+
+        return projectMapper.projectToProjectResponse(project);
     }
 
     /**
@@ -149,6 +257,8 @@ public class ProjectServiceImpl implements ProjectService {
         projectJpaRepository.save(project);
         return projectMapper.projectToProjectResponse(project);
     }
+
+
 
 
     /**

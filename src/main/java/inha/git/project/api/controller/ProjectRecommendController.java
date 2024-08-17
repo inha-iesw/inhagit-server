@@ -1,7 +1,7 @@
 package inha.git.project.api.controller;
 
 import inha.git.common.BaseResponse;
-import inha.git.project.api.controller.api.request.RecommendRequest;
+import inha.git.project.api.controller.dto.request.RecommendRequest;
 import inha.git.project.api.service.ProjectRecommendService;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;

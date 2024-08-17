@@ -29,11 +29,13 @@ public class Constant {
     public final static String BASE_DIR_2 = System.getProperty("user.dir") + "/source";
     public final static String PROJECT_ZIP = "project-zip";
     public final static String PROJECT = "project";
+    public final static String ZIP = ".zip";
     public final static String EVIDENCE = "evidence";
     public final static String BANNER = "banner";
     public final static String PROJECT_UPLOAD = "/project/";
 
     public final static String GIT = ".git";
+    public final static String GITHUB = "https://github.com/";
     public final static String DS_STORE = ".DS_Store";
     public final static String DIRECTORY = "directory";
     public final static String FILE = "file";

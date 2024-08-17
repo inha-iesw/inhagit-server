@@ -1,8 +1,8 @@
 package inha.git.project.api.service;
 
-import inha.git.project.api.controller.api.response.SearchFileResponse;
-import inha.git.project.api.controller.api.response.SearchProjectResponse;
-import inha.git.project.api.controller.api.response.SearchProjectsResponse;
+import inha.git.project.api.controller.dto.response.SearchFileResponse;
+import inha.git.project.api.controller.dto.response.SearchProjectResponse;
+import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
 import inha.git.user.domain.User;
 import org.springframework.data.domain.Page;
 

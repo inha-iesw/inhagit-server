@@ -2,9 +2,13 @@ package inha.git.project.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
-import inha.git.project.api.controller.api.request.CreateProjectRequest;
-import inha.git.project.api.controller.api.request.UpdateProjectRequest;
-import inha.git.project.api.controller.api.response.*;
+import inha.git.project.api.controller.dto.request.CreateGithubProjectRequest;
+import inha.git.project.api.controller.dto.request.CreateProjectRequest;
+import inha.git.project.api.controller.dto.request.UpdateProjectRequest;
+import inha.git.project.api.controller.dto.response.ProjectResponse;
+import inha.git.project.api.controller.dto.response.SearchFileResponse;
+import inha.git.project.api.controller.dto.response.SearchProjectResponse;
+import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
 import inha.git.project.api.service.ProjectSearchService;
 import inha.git.project.api.service.ProjectService;
 import inha.git.user.domain.User;
@@ -110,6 +114,33 @@ public class ProjectController {
         }
         ValidFile.validateZipFile(file);
         return BaseResponse.of(PROJECT_CREATE_OK, projectService.createProject(user, createProjectRequest, file));
+    }
+
+    /**
+     * GitHub 프로젝트 클론 및 압축 생성 API
+     *
+     * @param user                     사용자 정보
+     * @param createGithubProjectRequest GitHub 프로젝트 생성 요청
+     * @return 생성된 프로젝트 정보
+     */
+    @PostMapping("/github")
+    @Operation(summary = "GitHub 프로젝트 클론 및 압축 생성 API", description = "GitHub 레포지토리를 클론하고 압축하여 프로젝트를 생성합니다.")
+    public BaseResponse<ProjectResponse> createGithubProject(@AuthenticationPrincipal User user,
+                                                        @Validated @RequestBody CreateGithubProjectRequest createGithubProjectRequest) {
+        if (user.getRole() == Role.COMPANY) {
+            throw new BaseException(COMPANY_CANNOT_CREATE_PROJECT);
+        }
+        return BaseResponse.of(PROJECT_CREATE_OK, projectService.cloneAndZipProject(user, createGithubProjectRequest));
+    }
+
+    @PutMapping("/github/{projectIdx}")
+    @Operation(summary = "GitHub 프로젝트 수정 API", description = "GitHub 프로젝트를 수정합니다.")
+    public BaseResponse<ProjectResponse> updateGithubProject(@AuthenticationPrincipal User user,
+                                                            @PathVariable("projectIdx") Integer projectIdx) {
+        if (user.getRole() == Role.COMPANY) {
+            throw new BaseException(COMPANY_CANNOT_CREATE_PROJECT);
+        }
+        return BaseResponse.of(PROJECT_UPDATE_OK, projectService.updateGithubProject(user, projectIdx));
     }
 
     /**
