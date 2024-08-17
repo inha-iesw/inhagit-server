@@ -5,6 +5,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
 import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
 import inha.git.problem.api.controller.dto.response.ProblemResponse;
+import inha.git.problem.api.controller.dto.response.SearchProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
 import inha.git.problem.api.service.ProblemService;
 import inha.git.user.domain.User;
@@ -43,6 +44,18 @@ public class ProblemController {
             throw new BaseException(INVALID_PAGE);
         }
         return BaseResponse.of(PROBLEM_SEARCH_OK, problemService.getProblems(page - 1));
+    }
+
+    /**
+     * 문제 상세 조회 API
+     *
+     * @param problemIdx 문제 인덱스
+     * @return 문제 상세 정보
+     */
+    @GetMapping("/{problemIdx}")
+    @Operation(summary = "문제 상세 조회 API", description = "문제를 상세 조회합니다.")
+    public BaseResponse<SearchProblemResponse> getProblem(@PathVariable("problemIdx") Integer problemIdx) {
+        return BaseResponse.of(PROBLEM_DETAIL_OK, problemService.getProblem(problemIdx));
     }
     /**
      * 문제 생성 API

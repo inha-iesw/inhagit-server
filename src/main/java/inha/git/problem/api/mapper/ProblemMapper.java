@@ -3,7 +3,9 @@ package inha.git.problem.api.mapper;
 import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
 import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
 import inha.git.problem.api.controller.dto.response.ProblemResponse;
+import inha.git.problem.api.controller.dto.response.SearchProblemResponse;
 import inha.git.problem.domain.Problem;
+import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -57,4 +59,24 @@ public interface ProblemMapper {
     @Mapping(target = "contents", source = "updateProblemRequest.contents")
     @Mapping(target = "filePath", source = "filePath") // 새로운 파일 경로를 매핑
     void updateProblemRequestToProblem(UpdateProblemRequest updateProblemRequest, String filePath, @MappingTarget Problem problem);
+
+    /**
+     * Problem 엔티티를 SearchProblemResponse로 변환
+     * @param problem
+     * @param author
+     * @return
+     */
+    @Mapping(target = "idx", source = "problem.id")
+    @Mapping(target = "author", source = "author")
+    @Mapping(target = "createdAt", source = "problem.createdAt")
+    SearchProblemResponse problemToSearchProblemResponse(Problem problem, User author);
+
+    /**
+     * User 엔티티를 SearchUserResponse로 변환
+     * @param user
+     * @return
+     */
+    @Mapping(target = "idx", source = "user.id")
+    @Mapping(target = "name", source = "user.name")
+    SearchUserResponse userToSearchUserResponse(User user);
 }

@@ -4,6 +4,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
 import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
 import inha.git.problem.api.controller.dto.response.ProblemResponse;
+import inha.git.problem.api.controller.dto.response.SearchProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
 import inha.git.problem.api.mapper.ProblemMapper;
 import inha.git.problem.domain.Problem;
@@ -30,17 +31,36 @@ import static inha.git.common.code.status.ErrorStatus.NOT_EXIST_PROBLEM;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
+@Transactional(readOnly = true)
 public class ProblemServiceImpl implements ProblemService {
 
     private final ProblemJpaRepository problemJpaRepository;
     private final ProblemMapper problemMapper;
     private final ProblemQueryRepository problemQueryRepository;
 
+    /**
+     * 문제 목록 조회
+     *
+     * @param page 페이지 번호
+     * @return 검색된 문제 정보 페이지
+     */
     @Override
     public Page<SearchProblemsResponse> getProblems(Integer page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return problemQueryRepository.getProblems(pageable);
+    }
+
+    /**
+     * 문제 상세 조회
+     *
+     * @param problemIdx 문제 인덱스
+     * @return 문제 상세 정보
+     */
+    @Override
+    public SearchProblemResponse getProblem(Integer problemIdx) {
+        Problem problem = problemJpaRepository.findById(problemIdx)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
+        return problemMapper.problemToSearchProblemResponse(problem, problem.getUser());
     }
 
     /**
@@ -52,6 +72,7 @@ public class ProblemServiceImpl implements ProblemService {
      * @return 생성된 문제 정보
      */
     @Override
+    @Transactional
     public ProblemResponse createProblem(User user, CreateProblemRequest createProblemRequest, MultipartFile file) {
         Problem problem = problemMapper.createProblemRequestToProblem(createProblemRequest, FilePath.storeFile(file, PROBLEM_FILE), user);
         problemJpaRepository.save(problem);
@@ -68,6 +89,7 @@ public class ProblemServiceImpl implements ProblemService {
      * @return 수정된 문제 정보
      */
     @Override
+    @Transactional
     public ProblemResponse updateProblem(User user, Integer problemIdx, UpdateProblemRequest updateProblemRequest, MultipartFile file) {
         Problem problem = problemJpaRepository.findById(problemIdx)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
@@ -96,6 +118,7 @@ public class ProblemServiceImpl implements ProblemService {
      * @return 삭제된 문제 정보
      */
     @Override
+    @Transactional
     public ProblemResponse deleteProblem(User user, Integer problemIdx) {
         Problem problem = problemJpaRepository.findById(problemIdx)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
@@ -106,4 +129,6 @@ public class ProblemServiceImpl implements ProblemService {
         problem.setState(INACTIVE);
         return problemMapper.problemToProblemResponse(problem);
     }
+
+
 }
