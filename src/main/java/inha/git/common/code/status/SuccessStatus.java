@@ -75,7 +75,8 @@ public enum SuccessStatus implements BaseCode {
     PROJECT_COMMENT_REPLY_DELETE_OK(HttpStatus.OK, "PROJECT2022", "프로젝트 대댓글 삭제 성공"),
     PROJECT_COMMENT_REPLY_UPDATE_OK(HttpStatus.OK, "PROJECT2023", "프로젝트 대댓글 수정 성공"),
 
-    GITHUB_TOKEN_REFRESH_OK(HttpStatus.OK, "GITHUB2000", "깃허브 토큰 갱신 성공");
+    GITHUB_TOKEN_REFRESH_OK(HttpStatus.OK, "GITHUB2000", "깃허브 토큰 갱신 성공"),
+    GITHUB_REPOSITORIES_OK(HttpStatus.OK, "GITHUB2001", "깃허브 레포지토리 조회 성공");
 
 
     private final HttpStatus httpStatus;
