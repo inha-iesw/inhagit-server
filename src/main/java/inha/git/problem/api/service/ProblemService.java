@@ -10,4 +10,6 @@ public interface ProblemService {
     ProblemResponse createProblem(User user, CreateProblemRequest createProblemRequest, MultipartFile file);
 
     ProblemResponse updateProblem(User user, Integer problemIdx, UpdateProblemRequest updateProblemRequest, MultipartFile file);
+
+    ProblemResponse deleteProblem(User user, Integer problemIdx);
 }

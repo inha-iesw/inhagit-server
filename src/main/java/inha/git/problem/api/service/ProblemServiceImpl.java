@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.Constant.BASE_DIR_2;
 import static inha.git.common.Constant.PROBLEM_FILE;
 import static inha.git.common.code.status.ErrorStatus.NOT_AUTHORIZED_PROBLEM;
@@ -63,6 +64,18 @@ public class ProblemServiceImpl implements ProblemService {
             String newFilePath = FilePath.storeFile(file, PROBLEM_FILE);
             problemMapper.updateProblemRequestToProblem(updateProblemRequest, newFilePath, problem);
         }
+        return problemMapper.problemToProblemResponse(problem);
+    }
+
+    @Override
+    public ProblemResponse deleteProblem(User user, Integer problemIdx) {
+        Problem problem = problemJpaRepository.findById(problemIdx)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
+        if (!problem.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new BaseException(NOT_AUTHORIZED_PROBLEM);
+        }
+        problem.setDeletedAt();
+        problem.setState(INACTIVE);
         return problemMapper.problemToProblemResponse(problem);
     }
 }

@@ -18,8 +18,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import static inha.git.common.code.status.SuccessStatus.PROBLEM_CREATE_OK;
-import static inha.git.common.code.status.SuccessStatus.PROBLEM_UPDATE_OK;
+import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
  * ProblemController는 problem 관련 엔드포인트를 처리.
@@ -64,6 +63,12 @@ public class ProblemController {
         return BaseResponse.of(PROBLEM_UPDATE_OK, problemService.updateProblem(user, problemIdx, updateProblemRequest, file));
     }
 
-
+    @DeleteMapping("/{problemIdx}")
+    @PreAuthorize("hasAuthority('assistant:delete')")
+    @Operation(summary = "문제 삭제(조교, 교수, 관리자 전용) API", description = "문제를 삭제합니다.")
+    public BaseResponse<ProblemResponse> deleteProblem(@AuthenticationPrincipal User user,
+                                                       @PathVariable("problemIdx") Integer problemIdx) {
+        return BaseResponse.of(PROBLEM_DELETE_OK, problemService.deleteProblem(user, problemIdx));
+    }
 
 }
