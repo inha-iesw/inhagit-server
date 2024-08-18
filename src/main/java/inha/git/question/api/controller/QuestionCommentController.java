@@ -2,6 +2,7 @@ package inha.git.question.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.question.api.controller.dto.request.CreateCommentRequest;
+import inha.git.question.api.controller.dto.request.UpdateCommentRequest;
 import inha.git.question.api.controller.dto.response.CommentResponse;
 import inha.git.question.api.service.QuestionCommentService;
 import inha.git.user.domain.User;
@@ -11,12 +12,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static inha.git.common.code.status.SuccessStatus.QUESTION_COMMENT_CREATE_OK;
+import static inha.git.common.code.status.SuccessStatus.QUESTION_COMMENT_UPDATE_OK;
 
 @Slf4j
 @Tag(name = "question comment controller", description = "question comment 관련 API")
@@ -41,5 +40,14 @@ public class QuestionCommentController {
             @Validated @RequestBody CreateCommentRequest createCommentRequest
     ) {
         return BaseResponse.of(QUESTION_COMMENT_CREATE_OK, questionCommentService.createComment(user, createCommentRequest));
+    }
+
+    @PutMapping("/{commentIdx}")
+    @Operation(summary = "질문 댓글 수정 API", description = "질문 댓글을 수정합니다.")
+    public BaseResponse<CommentResponse> updateComment(
+            @AuthenticationPrincipal User user,
+            @PathVariable("commentIdx") Integer commentIdx,
+            @Validated @RequestBody UpdateCommentRequest updateCommentRequest) {
+        return BaseResponse.of(QUESTION_COMMENT_UPDATE_OK, questionCommentService.updateComment(user, commentIdx, updateCommentRequest));
     }
 }

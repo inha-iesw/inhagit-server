@@ -111,6 +111,13 @@ public enum ErrorStatus implements BaseErrorCode {
     QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "QUESTION4001", "질문을 찾을 수 없습니다."),
     QUESTION_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "QUESTION4002", "질문을 수정할 권한이 없습니다."),
     QUESTION_DELETE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "QUESTION4003", "질문을 삭제할 권한이 없습니다."),
+    QUESTION_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "QUESTION4004", "질문 댓글을 찾을 수 없습니다."),
+    QUESTION_COMMENT_UPDATE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "QUESTION4005", "댓글을 수정할 권한이 없습니다."),
+    QUESTION_COMMENT_DELETE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "QUESTION4006", "댓글을 삭제할 권한이 없습니다."),
+    QUESTION_COMMENT_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "QUESTION4007", "질문 대댓글을 찾을 수 없습니다."),
+    QUESTION_COMMENT_REPLY_UPDATE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "QUESTION4008", "대댓글을 수정할 권한이 없습니다."),
+    QUESTION_COMMENT_REPLY_DELETE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "QUESTION4009", "대댓글을 삭제할 권한이 없습니다."),
+
     /**
      * 500 :  Database, Server 오류
      */

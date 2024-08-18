@@ -2,6 +2,7 @@ package inha.git.question.api.service;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.question.api.controller.dto.request.CreateCommentRequest;
+import inha.git.question.api.controller.dto.request.UpdateCommentRequest;
 import inha.git.question.api.controller.dto.response.CommentResponse;
 import inha.git.question.api.mapper.QuestionMapper;
 import inha.git.question.domain.Question;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
-import static inha.git.common.code.status.ErrorStatus.QUESTION_NOT_FOUND;
+import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -40,6 +41,19 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         Question question = questionJpaRepository.findByIdAndState(createCommentRequest.questionIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
         QuestionComment questionComment = questionMapper.toQuestionComment(createCommentRequest, user, question);
+        questionCommentJpaRepository.save(questionComment);
+        return questionMapper.toCommentResponse(questionComment);
+    }
+
+    @Override
+    @Transactional
+    public CommentResponse updateComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest) {
+        QuestionComment questionComment = questionCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(QUESTION_COMMENT_NOT_FOUND));
+        if(!questionComment.getUser().getId().equals(user.getId())) {
+            throw new BaseException(QUESTION_COMMENT_UPDATE_NOT_AUTHORIZED);
+        }
+        questionComment.setContents(updateCommentRequest.contents());
         questionCommentJpaRepository.save(questionComment);
         return questionMapper.toCommentResponse(questionComment);
     }
