@@ -2,8 +2,10 @@ package inha.git.team.api.service;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.repository.TeamUserJpaRepository;
+import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
+import inha.git.team.api.controller.dto.response.SearchTeamResponse;
 import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
 import inha.git.team.api.controller.dto.response.TeamResponse;
 import inha.git.team.api.mapper.TeamMapper;
@@ -32,9 +34,23 @@ public class TeamServiceImpl implements TeamService {
     private final TeamUserJpaRepository teamUserJpaRepository;
     private final TeamMapper teamMapper;
 
+    /**
+     * 내가 생성한 팀 목록 가져오기
+     *
+     * @param user User
+     * @return List<SearchTeamsResponse>
+     */
     @Override
     public List<SearchTeamsResponse> getMyTeams(User user) {
         return teamMapper.teamsToSearchTeamsResponse(teamJpaRepository.findByUserAndStateOrderByCreatedAtDesc(user, ACTIVE));
+    }
+
+    @Override
+    public SearchTeamResponse getTeam(Integer teamIdx) {
+        Team team = teamJpaRepository.findByIdAndState(teamIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(TEAM_NOT_FOUND));
+        SearchUserResponse searchUserResponse = teamMapper.userToSearchUserResponse(team.getUser());
+        return teamMapper.teamToSearchTeamResponse(team, searchUserResponse);
     }
 
     /**

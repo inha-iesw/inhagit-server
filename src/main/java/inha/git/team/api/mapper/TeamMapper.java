@@ -2,8 +2,10 @@ package inha.git.team.api.mapper;
 
 import inha.git.mapping.domain.TeamUser;
 import inha.git.mapping.domain.id.TeamUserId;
+import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
+import inha.git.team.api.controller.dto.response.SearchTeamResponse;
 import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
 import inha.git.team.api.controller.dto.response.TeamResponse;
 import inha.git.team.domain.Team;
@@ -64,4 +66,15 @@ public interface TeamMapper {
         return new TeamUser(new TeamUserId(user.getId(), team.getId()), team, user, LocalDateTime.now());
     }
 
+    @Mapping(target = "idx", source = "user.id")
+    @Mapping(target = "name", source = "user.name")
+    SearchUserResponse userToSearchUserResponse(User user);
+
+    @Mapping(target = "idx", source = "team.id")
+    @Mapping(target = "name", source = "team.name")
+    @Mapping(target = "leader", source = "leader")
+    @Mapping(target = "maxMember", source = "team.maxMemberNumber")
+    @Mapping(target = "currentMember", source = "team.currtentMemberNumber")
+    @Mapping(target = "createdAt", source = "team.createdAt")
+    SearchTeamResponse teamToSearchTeamResponse(Team team, SearchUserResponse leader);
 }

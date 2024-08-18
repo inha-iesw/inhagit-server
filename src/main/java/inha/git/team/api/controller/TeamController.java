@@ -4,6 +4,7 @@ import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
+import inha.git.team.api.controller.dto.response.SearchTeamResponse;
 import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
 import inha.git.team.api.controller.dto.response.TeamResponse;
 import inha.git.team.api.service.TeamService;
@@ -33,10 +34,22 @@ import static inha.git.common.code.status.SuccessStatus.*;
 public class TeamController {
     private final TeamService teamService;
 
+    /**
+     * 내가 생성한 팀 목록 가져오기 API
+     *
+     * @param user User
+     * @return BaseResponse<List<SearchTeamsResponse>>
+     */
     @GetMapping("/my")
     @Operation(summary = "내가 생성한 팀 목록 가져오기 API", description = "내가 생성한 팀 목록을 가져옵니다.")
     public BaseResponse<List<SearchTeamsResponse>> getMyTeams(@AuthenticationPrincipal User user) {
         return BaseResponse.of(TEAM_GET_MY_TEAMS_OK, teamService.getMyTeams(user));
+    }
+
+    @GetMapping("/{teamIdx}")
+    @Operation(summary = "팀 상세 조회 API", description = "팀 상세 정보를 조회합니다.")
+    public BaseResponse<SearchTeamResponse> getTeam(@PathVariable("teamIdx") Integer teamIdx) {
+        return BaseResponse.of(TEAM_DETAIL_OK, teamService.getTeam(teamIdx));
     }
 
     /**
