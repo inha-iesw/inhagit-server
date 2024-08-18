@@ -17,8 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import static inha.git.common.code.status.ErrorStatus.COMPANY_CANNOT_CREATE_TEAM;
-import static inha.git.common.code.status.SuccessStatus.TEAM_CREATE_OK;
-import static inha.git.common.code.status.SuccessStatus.TEAM_UPDATE_OK;
+import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
  * TeamController는 Team 관련 엔드포인트를 처리.
@@ -64,6 +63,21 @@ public class TeamController {
             @PathVariable("teamIdx") Integer teamIdx,
             @Validated @RequestBody UpdateTeamRequest updateTeamRequest) {
         return BaseResponse.of(TEAM_UPDATE_OK, teamService.updateTeam(user, teamIdx, updateTeamRequest));
+    }
+
+    /**
+     * 팀 삭제 API
+     *
+     * @param user User
+     * @param teamIdx Integer
+     * @return BaseResponse<TeamResponse>
+     */
+    @DeleteMapping("/{teamIdx}")
+    @Operation(summary = "팀 삭제 API", description = "팀을 삭제합니다.")
+    public BaseResponse<TeamResponse> deleteTeam(
+            @AuthenticationPrincipal User user,
+            @PathVariable("teamIdx") Integer teamIdx) {
+        return BaseResponse.of(TEAM_DELETE_OK, teamService.deleteTeam(user, teamIdx));
     }
 
 }

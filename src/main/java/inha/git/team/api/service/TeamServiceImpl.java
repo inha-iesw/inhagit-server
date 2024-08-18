@@ -9,12 +9,14 @@ import inha.git.team.api.mapper.TeamMapper;
 import inha.git.team.domain.Team;
 import inha.git.team.domain.repository.TeamJpaRepository;
 import inha.git.user.domain.User;
+import inha.git.user.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
@@ -60,6 +62,26 @@ public class TeamServiceImpl implements TeamService {
             throw new BaseException(TEAM_MAX_MEMBER);
         }
         teamMapper.updateTeamRequestToTeam(updateTeamRequest, team);
+        return teamMapper.teamToTeamResponse(team);
+    }
+
+    /**
+     * 팀 삭제
+     *
+     * @param user User
+     * @param teamIdx Integer
+     * @return TeamResponse
+     */
+    @Override
+    public TeamResponse deleteTeam(User user, Integer teamIdx) {
+        Team team = teamJpaRepository.findByIdAndState(teamIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(TEAM_NOT_FOUND));
+        if(!team.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new BaseException(TEAM_DELETE_NOT_AUTHORIZED);
+        }
+        team.setState(INACTIVE);
+        team.setDeletedAt();
+        teamJpaRepository.save(team);
         return teamMapper.teamToTeamResponse(team);
     }
 }
