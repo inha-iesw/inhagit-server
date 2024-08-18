@@ -78,12 +78,21 @@ public enum SuccessStatus implements BaseCode {
     GITHUB_TOKEN_REFRESH_OK(HttpStatus.OK, "GITHUB2000", "깃허브 토큰 갱신 성공"),
     GITHUB_REPOSITORIES_OK(HttpStatus.OK, "GITHUB2001", "깃허브 레포지토리 조회 성공"),
 
-    //문제 관련
     PROBLEM_CREATE_OK(HttpStatus.CREATED, "PROBLEM2010", "문제 생성 성공"),
     PROBLEM_SEARCH_OK(HttpStatus.OK, "PROBLEM2000", "문제 전체 조회 성공"),
     PROBLEM_UPDATE_OK(HttpStatus.OK, "PROBLEM2001", "문제 수정 성공"),
     PROBLEM_DELETE_OK(HttpStatus.OK, "PROBLEM2002", "문제 삭제 성공"),
-    PROBLEM_DETAIL_OK(HttpStatus.OK, "PROBLEM2003", "문제 상세 조회 성공");
+    PROBLEM_DETAIL_OK(HttpStatus.OK, "PROBLEM2003", "문제 상세 조회 성공"),
+
+    QUESTION_CREATE_OK(HttpStatus.CREATED, "QUESTION2010", "질문 생성 성공"),
+    QUESTION_SEARCH_OK(HttpStatus.OK, "QUESTION2000", "질문 전체 조회 성공"),
+    QUESTION_UPDATE_OK(HttpStatus.OK, "QUESTION2001", "질문 수정 성공"),
+    QUESTION_DELETE_OK(HttpStatus.OK, "QUESTION2002", "질문 삭제 성공"),
+    QUESTION_DETAIL_OK(HttpStatus.OK, "QUESTION2003", "질문 상세 조회 성공"),
+    QUESTION_COMMENT_CREATE_OK(HttpStatus.CREATED, "QUESTION2011", "질문 댓글 생성 성공"),
+    QUESTION_COMMENT_DELETE_OK(HttpStatus.OK, "QUESTION2012", "질문 댓글 삭제 성공"),
+    QUESTION_COMMENT_UPDATE_OK(HttpStatus.OK, "QUESTION2013", "질문 댓글 수정 성공"),
+    QUESTION_COMMENT_SEARCH_OK(HttpStatus.OK, "QUESTION2014", "질문 댓글 전체 조회 성공");
 
 
     private final HttpStatus httpStatus;
