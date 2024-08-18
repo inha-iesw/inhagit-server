@@ -3,13 +3,9 @@ package inha.git.question.api.mapper;
 import inha.git.field.domain.Field;
 import inha.git.mapping.domain.QuestionField;
 import inha.git.mapping.domain.id.QuestionFieldId;
-import inha.git.project.api.controller.dto.response.*;
-import inha.git.project.domain.ProjectComment;
-import inha.git.project.domain.ProjectReplyComment;
-import inha.git.question.api.controller.dto.request.CreateCommentRequest;
-import inha.git.question.api.controller.dto.request.CreateQuestionRequest;
-import inha.git.question.api.controller.dto.request.CreateReplyCommentRequest;
-import inha.git.question.api.controller.dto.request.UpdateQuestionRequest;
+import inha.git.project.api.controller.dto.response.SearchFieldResponse;
+import inha.git.project.api.controller.dto.response.SearchUserResponse;
+import inha.git.question.api.controller.dto.request.*;
 import inha.git.question.api.controller.dto.response.CommentResponse;
 import inha.git.question.api.controller.dto.response.QuestionResponse;
 import inha.git.question.api.controller.dto.response.ReplyCommentResponse;
@@ -154,4 +150,44 @@ public interface QuestionMapper {
     @Mapping(target = "idx", source = "questionReplyComment.id")
     ReplyCommentResponse toReplyCommentResponse(QuestionReplyComment questionReplyComment);
 
-}
+    /**
+     * QuestionComment를 CommentWithRepliesResponse로 변환합니다.
+     *
+     * @param questionComment QuestionComment
+     * @return CommentWithRepliesResponse
+     */
+    @Mapping(target = "idx", source = "questionComment.id")
+    @Mapping(target = "author", source = "questionComment.user")
+    @Mapping(target = "createdAt", source = "questionComment.createdAt")
+    @Mapping(target = "contents", source = "questionComment.contents")
+    @Mapping(target = "replies", source = "questionComment.replies") // replies 필드 매핑
+    CommentWithRepliesResponse toCommentWithRepliesResponse(QuestionComment questionComment);
+
+    /**
+     * QuestionReplyComment를 SearchReplyCommentResponse로 변환합니다.
+     *
+     * @param questionReplyComment QuestionReplyComment
+     * @return SearchReplyCommentResponse
+     */
+    @Mapping(target = "idx", source = "questionReplyComment.id")
+    @Mapping(target = "author", source = "questionReplyComment.user")
+    @Mapping(target = "createdAt", source = "questionReplyComment.createdAt")
+    @Mapping(target = "contents", source = "questionReplyComment.contents")
+    inha.git.question.api.controller.dto.request.SearchReplyCommentResponse toSearchReplyCommentResponse(QuestionReplyComment questionReplyComment);
+
+    /**
+     * QuestionReplyComment 목록을 SearchReplyCommentResponse 목록으로 변환합니다.
+     *
+     * @param replies List<QuestionReplyComment>
+     * @return List<SearchReplyCommentResponse>
+     */
+    List<SearchReplyCommentResponse> toSearchReplyCommentResponseList(List<QuestionReplyComment> replies);
+
+    /**
+     * QuestionComment 목록을 CommentWithRepliesResponse 목록으로 변환합니다.
+     *
+     * @param comments List<QuestionComment>
+     * @return List<CommentWithRepliesResponse>
+     */
+    List<CommentWithRepliesResponse> toCommentWithRepliesResponseList(List<QuestionComment> comments);
+   }

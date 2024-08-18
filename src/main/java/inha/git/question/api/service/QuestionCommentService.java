@@ -1,5 +1,6 @@
 package inha.git.question.api.service;
 
+import inha.git.question.api.controller.dto.request.CommentWithRepliesResponse;
 import inha.git.question.api.controller.dto.request.CreateCommentRequest;
 import inha.git.question.api.controller.dto.request.CreateReplyCommentRequest;
 import inha.git.question.api.controller.dto.request.UpdateCommentRequest;
@@ -7,7 +8,10 @@ import inha.git.question.api.controller.dto.response.CommentResponse;
 import inha.git.question.api.controller.dto.response.ReplyCommentResponse;
 import inha.git.user.domain.User;
 
+import java.util.List;
+
 public interface QuestionCommentService {
+    List<CommentWithRepliesResponse> getAllCommentsByQuestionIdx(Integer questionIdx);
     CommentResponse createComment(User user, CreateCommentRequest createCommentRequest);
 
     CommentResponse updateComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest);
@@ -16,4 +20,5 @@ public interface QuestionCommentService {
     ReplyCommentResponse createReplyComment(User user, CreateReplyCommentRequest createReplyCommentRequest);
     ReplyCommentResponse updateReplyComment(User user, Integer replyCommentIdx, UpdateCommentRequest updateCommentRequest);
     ReplyCommentResponse deleteReplyComment(User user, Integer replyCommentIdx);
+
 }

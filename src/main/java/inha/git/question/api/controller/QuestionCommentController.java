@@ -1,6 +1,7 @@
 package inha.git.question.api.controller;
 
 import inha.git.common.BaseResponse;
+import inha.git.question.api.controller.dto.request.CommentWithRepliesResponse;
 import inha.git.question.api.controller.dto.request.CreateCommentRequest;
 import inha.git.question.api.controller.dto.request.CreateReplyCommentRequest;
 import inha.git.question.api.controller.dto.request.UpdateCommentRequest;
@@ -16,6 +17,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static inha.git.common.code.status.SuccessStatus.*;
 
 @Slf4j
@@ -27,6 +30,18 @@ public class QuestionCommentController {
 
     private final QuestionCommentService questionCommentService;
 
+    /**
+     * 특정 질문 댓글 전체 조회 API
+     *
+     * @param questionIdx 질문 idx
+     * @return BaseResponse<List<CommentWithRepliesResponse>>
+     */
+    @GetMapping
+    @Operation(summary = "특정 질문 댓글 전체 조회 API", description = "특정 질문의 모든 댓글과 대댓글을 조회합니다.")
+    public BaseResponse<List<CommentWithRepliesResponse>> getAllComments(
+            @RequestParam("questionIdx") Integer questionIdx) {
+        return BaseResponse.of(QUESTION_COMMENT_SEARCH_OK, questionCommentService.getAllCommentsByQuestionIdx(questionIdx));
+    }
     /**
      * 질문 댓글 생성 API
      *

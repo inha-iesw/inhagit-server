@@ -6,6 +6,8 @@ import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 
 /**
  * QuestionComment 엔티티는 애플리케이션의 질문 댓글 정보를 나타냄.
@@ -37,4 +39,7 @@ public class QuestionComment extends BaseEntity {
     public void setContents(String contents) {
         this.contents = contents;
     }
+
+    @OneToMany(mappedBy = "questionComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuestionReplyComment> replies;
 }

@@ -1,6 +1,9 @@
 package inha.git.question.api.service;
 
 import inha.git.common.exceptions.BaseException;
+import inha.git.project.domain.Project;
+import inha.git.project.domain.ProjectComment;
+import inha.git.question.api.controller.dto.request.CommentWithRepliesResponse;
 import inha.git.question.api.controller.dto.request.CreateCommentRequest;
 import inha.git.question.api.controller.dto.request.CreateReplyCommentRequest;
 import inha.git.question.api.controller.dto.request.UpdateCommentRequest;
@@ -20,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
@@ -35,6 +40,19 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
     private final QuestionReplyCommentJpaRepository questionReplyCommentJpaRepository;
     private final QuestionMapper questionMapper;
 
+    /**
+     * 특정 질문 댓글 전체 조회
+     *
+     * @param questionIdx 질문 식별자
+     * @return List<CommentWithRepliesResponse>
+     */
+    @Override
+    public List<CommentWithRepliesResponse> getAllCommentsByQuestionIdx(Integer questionIdx) {
+        Question question = questionJpaRepository.findByIdAndState(questionIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
+        List<QuestionComment> comments = questionCommentJpaRepository.findAllByQuestionAndStateOrderByIdAsc(question, ACTIVE);
+        return questionMapper.toCommentWithRepliesResponseList(comments);
+    }
     /**
      * 댓글 생성
      *
@@ -147,4 +165,6 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         questionReplyCommentJpaRepository.save(questionReplyComment);
         return questionMapper.toReplyCommentResponse(questionReplyComment);
     }
+
+
 }
