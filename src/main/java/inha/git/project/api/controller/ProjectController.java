@@ -159,10 +159,6 @@ public class ProjectController {
             @PathVariable("projectIdx") Integer projectIdx,
             @Validated @RequestPart("updateProjectRequest") UpdateProjectRequest updateProjectRequest,
             @RequestPart(value = "file", required = false) MultipartFile file) {
-
-        if (user.getRole() == Role.COMPANY) {
-            throw new BaseException(COMPANY_CANNOT_CREATE_PROJECT);
-        }
         if (file != null) {
             ValidFile.validateZipFile(file);
         }

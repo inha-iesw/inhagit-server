@@ -1,9 +1,12 @@
 package inha.git.question.domain;
 
 import inha.git.common.BaseEntity;
+import inha.git.mapping.domain.QuestionField;
 import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 
 /**
@@ -23,17 +26,23 @@ public class Question extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Setter
     @Column(nullable = false, length = 50)
     private String title;
 
+    @Setter
     @Column(nullable = false, length = 255)
     private String contents;
 
+    @Setter
     @Column(nullable = false, length = 50, name = "subject_name")
     private String subjectName;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuestionField> questionFields;
+
 }

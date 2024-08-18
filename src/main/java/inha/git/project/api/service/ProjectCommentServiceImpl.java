@@ -38,6 +38,12 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
     private final ProjectReplyCommentJpaRepository projectReplyCommentJpaRepository;
     private final ProjectMapper projectMapper;
 
+    /**
+     * 특정 프로젝트 댓글 전체 조회
+     *
+     * @param projectIdx 프로젝트 식별자
+     * @return List<CommentWithRepliesResponse>
+     */
     @Override
     @Transactional(readOnly = true)
     public List<CommentWithRepliesResponse> getAllCommentsByProjectIdx(Integer projectIdx) {
