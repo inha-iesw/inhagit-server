@@ -68,8 +68,26 @@ public interface TeamMapper {
     SearchTeamsResponse teamToSearchTeamsResponse(Team team);
     List<SearchTeamsResponse> teamsToSearchTeamsResponse(List<Team> teams);
 
+    /**
+     * 팀 사용자를 생성.
+     *
+     * @param user User
+     * @param team Team
+     * @return TeamUser
+     */
     default TeamUser createTeamUser(User user, Team team) {
-        return new TeamUser(new TeamUserId(user.getId(), team.getId()), team, user, LocalDateTime.now());
+        return new TeamUser(new TeamUserId(user.getId(), team.getId()), team, user, LocalDateTime.now(), LocalDateTime.now());
+    }
+
+    /**
+     * 요청된 팀 사용자를 생성.
+     *
+     * @param user User
+     * @param team Team
+     * @return TeamUser
+     */
+    default TeamUser createRequestTeamUser(User user, Team team) {
+        return new TeamUser(new TeamUserId(user.getId(), team.getId()), team, user, LocalDateTime.now(), null);
     }
 
     /**

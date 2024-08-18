@@ -1,6 +1,7 @@
 package inha.git.team.api.service;
 
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
+import inha.git.team.api.controller.dto.request.RequestTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
 import inha.git.team.api.controller.dto.response.SearchTeamResponse;
 import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
@@ -16,5 +17,6 @@ public interface TeamService {
     TeamResponse updateTeam(User user, Integer teamIdx, UpdateTeamRequest updateTeamRequest);
     TeamResponse deleteTeam(User user, Integer teamIdx);
 
+    TeamResponse requestTeam(User user, RequestTeamRequest requestTeamRequest);
 
 }

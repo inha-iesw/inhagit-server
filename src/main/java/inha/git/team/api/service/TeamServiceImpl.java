@@ -1,9 +1,11 @@
 package inha.git.team.api.service;
 
 import inha.git.common.exceptions.BaseException;
+import inha.git.mapping.domain.TeamUser;
 import inha.git.mapping.domain.repository.TeamUserJpaRepository;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
+import inha.git.team.api.controller.dto.request.RequestTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
 import inha.git.team.api.controller.dto.response.SearchTeamResponse;
 import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
@@ -113,6 +115,33 @@ public class TeamServiceImpl implements TeamService {
         team.setState(INACTIVE);
         team.setDeletedAt();
         teamJpaRepository.save(team);
+        return teamMapper.teamToTeamResponse(team);
+    }
+
+    /**
+     * 팀 가입 요청
+     *
+     * @param user User
+     * @param requestTeamRequest RequestTeamRequest
+     * @return TeamResponse
+     */
+    @Override
+    public TeamResponse requestTeam(User user, RequestTeamRequest requestTeamRequest) {
+        Team team = teamJpaRepository.findByIdAndState(requestTeamRequest.teamIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(TEAM_NOT_FOUND));
+        if (team.getCurrtentMemberNumber() >= team.getMaxMemberNumber()) {
+            throw new BaseException(TEAM_RECRUITMENT_CLOSED);
+        }
+        teamUserJpaRepository.findByUserAndTeam(user, team)
+                .ifPresent(teamUser -> {
+                    if (teamUser.getAcceptedAt() != null) {
+                        throw new BaseException(TEAM_ALREADY_JOINED);
+                    } else {
+                        throw new BaseException(TEAM_ALREADY_JOINED_REQUEST);
+                    }
+                });
+        TeamUser teamUser = teamMapper.createRequestTeamUser(user, team);
+        teamUserJpaRepository.save(teamUser);
         return teamMapper.teamToTeamResponse(team);
     }
 }

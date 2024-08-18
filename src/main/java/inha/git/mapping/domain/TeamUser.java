@@ -37,4 +37,7 @@ public class TeamUser {
 
     @Column(nullable = false, name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "accepted_at")
+    private LocalDateTime acceptedAt;
 }

@@ -123,6 +123,11 @@ public enum ErrorStatus implements BaseErrorCode {
     TEAM_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TEAM4002", "팀을 수정할 권한이 없습니다."),
     TEAM_MAX_MEMBER(HttpStatus.BAD_REQUEST, "TEAM4003", "최대 가입 인원 수는 현재 팀에 가입된 팀원 수 보다 적을 수 없습니다."),
     TEAM_DELETE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TEAM4004", "팀을 삭제할 권한이 없습니다."),
+    COMPANY_CANNOT_JOIN_TEAM(HttpStatus.BAD_REQUEST, "TEAM4005", "기업 회원은 팀에 가입할 수 없습니다."),
+    TEAM_RECRUITMENT_CLOSED(HttpStatus.BAD_REQUEST, "TEAM4006", "팀원 모집이 마감되었습니다."),
+    TEAM_ALREADY_JOINED_REQUEST(HttpStatus.BAD_REQUEST, "TEAM4007", "이미 가입을 요청 중인 팀입니다."),
+    TEAM_ALREADY_JOINED(HttpStatus.BAD_REQUEST, "TEAM4008", "이미 가입한 팀입니다."),
+
 
     /**
      * 500 :  Database, Server 오류

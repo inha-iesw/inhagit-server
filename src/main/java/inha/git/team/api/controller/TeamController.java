@@ -3,6 +3,7 @@ package inha.git.team.api.controller;
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
+import inha.git.team.api.controller.dto.request.RequestTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
 import inha.git.team.api.controller.dto.response.SearchTeamResponse;
 import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static inha.git.common.code.status.ErrorStatus.COMPANY_CANNOT_CREATE_TEAM;
+import static inha.git.common.code.status.ErrorStatus.COMPANY_CANNOT_JOIN_TEAM;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
@@ -107,4 +109,22 @@ public class TeamController {
         return BaseResponse.of(TEAM_DELETE_OK, teamService.deleteTeam(user, teamIdx));
     }
 
+
+    /**
+     * 팀 가입 요청 API
+     *
+     * @param user User
+     * @param requestTeamRequest RequestTeamRequest
+     * @return BaseResponse<TeamResponse>
+     */
+    @PostMapping("/request")
+    @Operation(summary = "팀 가입 요청 API", description = "팀 가입 요청을 합니다.")
+    public BaseResponse<TeamResponse> requestTeam(
+            @AuthenticationPrincipal User user,
+            @Validated @RequestBody RequestTeamRequest requestTeamRequest) {
+        if(user.getRole().equals(Role.COMPANY)) {
+            throw new BaseException(COMPANY_CANNOT_JOIN_TEAM);
+        }
+        return BaseResponse.of(TEAM_JOIN_OK, teamService.requestTeam(user, requestTeamRequest));
+    }
 }
