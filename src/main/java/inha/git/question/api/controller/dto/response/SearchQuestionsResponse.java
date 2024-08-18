@@ -1,4 +1,4 @@
-package inha.git.question.api.controller.dto.request;
+package inha.git.question.api.controller.dto.response;
 
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;

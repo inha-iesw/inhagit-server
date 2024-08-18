@@ -6,6 +6,8 @@ import inha.git.mapping.domain.id.QuestionFieldId;
 import inha.git.question.domain.Question;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 
 /**
  * ProjectFieldJpaRepository는 ProjectField엔티티에 대한 데이터 액세스 기능을 제공.
@@ -14,4 +16,6 @@ public interface QuestionFieldJpaRepository extends JpaRepository<QuestionField,
 
 
     void deleteByQuestion(Question question);
+
+    List<QuestionField> findByQuestion(Question question);
 }

@@ -5,7 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.mapping.domain.QQuestionField;
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
-import inha.git.question.api.controller.dto.request.SearchQuestionsResponse;
+import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
 import inha.git.question.domain.QQuestion;
 import inha.git.question.domain.Question;
 import inha.git.user.domain.QUser;

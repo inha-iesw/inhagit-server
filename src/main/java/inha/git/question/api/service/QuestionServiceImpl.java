@@ -5,8 +5,11 @@ import inha.git.field.domain.Field;
 import inha.git.field.domain.repository.FieldJpaRepository;
 import inha.git.mapping.domain.QuestionField;
 import inha.git.mapping.domain.repository.QuestionFieldJpaRepository;
+import inha.git.project.api.controller.dto.response.SearchFieldResponse;
+import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.question.api.controller.dto.request.CreateQuestionRequest;
-import inha.git.question.api.controller.dto.request.SearchQuestionsResponse;
+import inha.git.question.api.controller.dto.response.SearchQuestionResponse;
+import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
 import inha.git.question.api.controller.dto.request.UpdateQuestionRequest;
 import inha.git.question.api.controller.dto.response.QuestionResponse;
 import inha.git.question.api.mapper.QuestionMapper;
@@ -54,6 +57,26 @@ public class QuestionServiceImpl implements QuestionService {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return questionQueryRepository.getQuestions(pageable);
     }
+
+    /**
+     * 질문 상세 조회
+     *
+     * @param questionIdx Integer
+     * @return SearchQuestionResponse
+     */
+    @Override
+    public SearchQuestionResponse getQuestion(Integer questionIdx) {
+        Question question = questionJpaRepository.findByIdAndState(questionIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
+
+        SearchUserResponse searchUserResponse = questionMapper.userToSearchUserResponse(question.getUser());
+        List<SearchFieldResponse> searchFieldResponses = questionFieldJpaRepository.findByQuestion(question)
+                .stream()
+                .map(questionField -> questionMapper.projectFieldToSearchFieldResponse(questionField.getField()))
+                .toList();
+        return questionMapper.questionToSearchQuestionResponse(question, searchFieldResponses, searchUserResponse);
+    }
+
 
     /**
      * 질문 생성

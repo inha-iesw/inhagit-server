@@ -3,7 +3,8 @@ package inha.git.question.api.controller;
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.question.api.controller.dto.request.CreateQuestionRequest;
-import inha.git.question.api.controller.dto.request.SearchQuestionsResponse;
+import inha.git.question.api.controller.dto.response.SearchQuestionResponse;
+import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
 import inha.git.question.api.controller.dto.request.UpdateQuestionRequest;
 import inha.git.question.api.controller.dto.response.QuestionResponse;
 import inha.git.question.api.service.QuestionService;
@@ -51,6 +52,19 @@ public class QuestionController {
         return BaseResponse.of(QUESTION_SEARCH_OK, questionService.getQuestions(page - 1));
     }
 
+    /**
+     * 질문 상세 조회 API
+     *
+     * <p>질문 상세를 조회합니다.</p>
+     *
+     * @param questionIdx Integer
+     * @return 검색된 질문 정보를 포함하는 BaseResponse<SearchQuestionResponse>
+     */
+    @GetMapping("/{questionIdx}")
+    @Operation(summary = "질문 상세 조회 API", description = "질문 상세를 조회합니다.")
+    public BaseResponse<SearchQuestionResponse> getQuestion(@PathVariable("questionIdx") Integer questionIdx) {
+        return BaseResponse.of(QUESTION_DETAIL_OK, questionService.getQuestion(questionIdx));
+    }
     /**
      * 질문 생성(기업제외) API
      *

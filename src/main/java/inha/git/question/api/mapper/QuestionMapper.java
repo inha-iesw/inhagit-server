@@ -3,17 +3,19 @@ package inha.git.question.api.mapper;
 import inha.git.field.domain.Field;
 import inha.git.mapping.domain.QuestionField;
 import inha.git.mapping.domain.id.QuestionFieldId;
-import inha.git.project.api.controller.dto.request.UpdateProjectRequest;
-import inha.git.project.domain.Project;
+import inha.git.project.api.controller.dto.response.*;
 import inha.git.question.api.controller.dto.request.CreateQuestionRequest;
 import inha.git.question.api.controller.dto.request.UpdateQuestionRequest;
 import inha.git.question.api.controller.dto.response.QuestionResponse;
+import inha.git.question.api.controller.dto.response.SearchQuestionResponse;
 import inha.git.question.domain.Question;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+
+import java.util.List;
 
 /**
  * QuestionMapper는 Question 엔티티와 관련된 데이터 변환 기능을 제공.
@@ -65,4 +67,36 @@ public interface QuestionMapper {
     @Mapping(target = "contents", source = "updateQuestionRequest.contents")
     void updateQuestionRequestToQuestion(UpdateQuestionRequest updateQuestionRequest, @MappingTarget Question question);
 
+    /**
+     * Field를 SearchFieldResponse로 변환합니다.
+     *
+     * @param field Field
+     * @return SearchFieldResponse
+     */
+    @Mapping(target = "idx", source = "field.id")
+    @Mapping(target = "name", source = "field.name")
+    SearchFieldResponse projectFieldToSearchFieldResponse(Field field);
+
+    /**
+     * Question을 SearchQuestionResponse로 변환합니다.
+     *
+     * @param question  Question
+     * @param fieldList List<SearchFieldResponse>
+     * @param author    SearchUserResponse
+     * @return SearchQuestionResponse
+     */
+    @Mapping(target = "idx", source = "question.id")
+    @Mapping(target = "subject", source = "question.subjectName")
+    @Mapping(target = "createdAt", source = "question.createdAt")
+    SearchQuestionResponse questionToSearchQuestionResponse(Question question, List<SearchFieldResponse> fieldList, SearchUserResponse author);
+
+    /**
+     * User를 SearchUserResponse로 변환합니다.
+     *
+     * @param user User
+     * @return SearchUserResponse
+     */
+    @Mapping(target = "idx", source = "user.id")
+    @Mapping(target = "name", source = "user.name")
+    SearchUserResponse userToSearchUserResponse(User user);
 }
