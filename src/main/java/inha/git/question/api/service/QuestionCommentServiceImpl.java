@@ -10,12 +10,14 @@ import inha.git.question.domain.QuestionComment;
 import inha.git.question.domain.repository.QuestionCommentJpaRepository;
 import inha.git.question.domain.repository.QuestionJpaRepository;
 import inha.git.user.domain.User;
+import inha.git.user.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
@@ -45,6 +47,15 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         return questionMapper.toCommentResponse(questionComment);
     }
 
+    /**
+     * 댓글 수정
+     *
+     * @param user                사용자 정보
+     * @param commentIdx           댓글 식별자
+     * @param updateCommentRequest 댓글 수정 요청
+     * @return UpdateCommentResponse
+     */
+
     @Override
     @Transactional
     public CommentResponse updateComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest) {
@@ -54,6 +65,27 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
             throw new BaseException(QUESTION_COMMENT_UPDATE_NOT_AUTHORIZED);
         }
         questionComment.setContents(updateCommentRequest.contents());
+        questionCommentJpaRepository.save(questionComment);
+        return questionMapper.toCommentResponse(questionComment);
+    }
+
+    /**
+     * 댓글 삭제
+     *
+     * @param user        사용자 정보
+     * @param commentIdx  댓글 식별자
+     * @return DeleteCommentResponse
+     */
+    @Override
+    @Transactional
+    public CommentResponse deleteComment(User user, Integer commentIdx) {
+        QuestionComment questionComment = questionCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(QUESTION_COMMENT_NOT_FOUND));
+        if(!questionComment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new BaseException(QUESTION_COMMENT_DELETE_NOT_AUTHORIZED);
+        }
+        questionComment.setState(INACTIVE);
+        questionComment.setDeletedAt();
         questionCommentJpaRepository.save(questionComment);
         return questionMapper.toCommentResponse(questionComment);
     }

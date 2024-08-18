@@ -14,8 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import static inha.git.common.code.status.SuccessStatus.QUESTION_COMMENT_CREATE_OK;
-import static inha.git.common.code.status.SuccessStatus.QUESTION_COMMENT_UPDATE_OK;
+import static inha.git.common.code.status.SuccessStatus.*;
 
 @Slf4j
 @Tag(name = "question comment controller", description = "question comment 관련 API")
@@ -42,6 +41,14 @@ public class QuestionCommentController {
         return BaseResponse.of(QUESTION_COMMENT_CREATE_OK, questionCommentService.createComment(user, createCommentRequest));
     }
 
+    /**
+     * 질문 댓글 수정 API
+     *
+     * @param user                사용자 정보
+     * @param commentIdx           댓글 idx
+     * @param updateCommentRequest 댓글 수정 요청
+     * @return BaseResponse<CommentResponse>
+     */
     @PutMapping("/{commentIdx}")
     @Operation(summary = "질문 댓글 수정 API", description = "질문 댓글을 수정합니다.")
     public BaseResponse<CommentResponse> updateComment(
@@ -49,5 +56,13 @@ public class QuestionCommentController {
             @PathVariable("commentIdx") Integer commentIdx,
             @Validated @RequestBody UpdateCommentRequest updateCommentRequest) {
         return BaseResponse.of(QUESTION_COMMENT_UPDATE_OK, questionCommentService.updateComment(user, commentIdx, updateCommentRequest));
+    }
+
+    @DeleteMapping("/{commentIdx}")
+    @Operation(summary = "질문 댓글 삭제 API", description = "질문 댓글을 삭제합니다.")
+    public BaseResponse<CommentResponse> deleteComment(
+            @AuthenticationPrincipal User user,
+            @PathVariable("commentIdx") Integer commentIdx) {
+        return BaseResponse.of(QUESTION_COMMENT_DELETE_OK, questionCommentService.deleteComment(user, commentIdx));
     }
 }

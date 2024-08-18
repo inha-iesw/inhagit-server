@@ -9,4 +9,6 @@ public interface QuestionCommentService {
     CommentResponse createComment(User user, CreateCommentRequest createCommentRequest);
 
     CommentResponse updateComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest);
+
+    CommentResponse deleteComment(User user, Integer commentIdx);
 }
