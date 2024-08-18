@@ -15,7 +15,7 @@ public record SearchProjectsResponse(
         String title,
 
         @NotNull
-        @Schema(description = "프로젝 생성 날짜", example = "2021-08-01T00:00:00")
+        @Schema(description = "프로젝트 생성 날짜", example = "2021-08-01T00:00:00")
         LocalDateTime createdAt,
 
         @NotNull

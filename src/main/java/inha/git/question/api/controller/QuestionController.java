@@ -3,6 +3,7 @@ package inha.git.question.api.controller;
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.question.api.controller.dto.request.CreateQuestionRequest;
+import inha.git.question.api.controller.dto.request.SearchQuestionsResponse;
 import inha.git.question.api.controller.dto.request.UpdateQuestionRequest;
 import inha.git.question.api.controller.dto.response.QuestionResponse;
 import inha.git.question.api.service.QuestionService;
@@ -12,11 +13,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import static inha.git.common.code.status.ErrorStatus.COMPANY_CANNOT_CREATE_QUESTION;
+import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
@@ -30,6 +33,23 @@ import static inha.git.common.code.status.SuccessStatus.*;
 public class QuestionController {
 
     private final QuestionService questionService;
+
+    /**
+     * 질문 전체 조회 API
+     *
+     * <p>질문 전체를 조회합니다.</p>
+     *
+     * @param page Integer
+     * @return 검색된 질문 정보를 포함하는 BaseResponse<Page<SearchQuestionsResponse>>
+     */
+    @GetMapping
+    @Operation(summary = "질문 전체 조회 API", description = "질문 전체를 조회합니다.")
+    public BaseResponse<Page<SearchQuestionsResponse>> getQuestions(@RequestParam("page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(QUESTION_SEARCH_OK, questionService.getQuestions(page - 1));
+    }
 
     /**
      * 질문 생성(기업제외) API

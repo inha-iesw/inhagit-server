@@ -6,15 +6,21 @@ import inha.git.field.domain.repository.FieldJpaRepository;
 import inha.git.mapping.domain.QuestionField;
 import inha.git.mapping.domain.repository.QuestionFieldJpaRepository;
 import inha.git.question.api.controller.dto.request.CreateQuestionRequest;
+import inha.git.question.api.controller.dto.request.SearchQuestionsResponse;
 import inha.git.question.api.controller.dto.request.UpdateQuestionRequest;
 import inha.git.question.api.controller.dto.response.QuestionResponse;
 import inha.git.question.api.mapper.QuestionMapper;
 import inha.git.question.domain.Question;
 import inha.git.question.domain.repository.QuestionJpaRepository;
+import inha.git.question.domain.repository.QuestionQueryRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +28,7 @@ import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
+import static inha.git.common.Constant.CREATE_AT;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
@@ -34,6 +41,19 @@ public class QuestionServiceImpl implements QuestionService {
     private final QuestionMapper questionMapper;
     private final QuestionFieldJpaRepository questionFieldJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
+    private final QuestionQueryRepository questionQueryRepository;
+
+    /**
+     * 질문 전체 조회
+     *
+     * @param page Integer
+     * @return Page<SearchQuestionsResponse>
+     */
+    @Override
+    public Page<SearchQuestionsResponse> getQuestions(Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return questionQueryRepository.getQuestions(pageable);
+    }
 
     /**
      * 질문 생성
