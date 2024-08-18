@@ -4,11 +4,14 @@ import inha.git.field.domain.Field;
 import inha.git.mapping.domain.QuestionField;
 import inha.git.mapping.domain.id.QuestionFieldId;
 import inha.git.project.api.controller.dto.response.*;
+import inha.git.question.api.controller.dto.request.CreateCommentRequest;
 import inha.git.question.api.controller.dto.request.CreateQuestionRequest;
 import inha.git.question.api.controller.dto.request.UpdateQuestionRequest;
+import inha.git.question.api.controller.dto.response.CommentResponse;
 import inha.git.question.api.controller.dto.response.QuestionResponse;
 import inha.git.question.api.controller.dto.response.SearchQuestionResponse;
 import inha.git.question.domain.Question;
+import inha.git.question.domain.QuestionComment;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -99,4 +102,27 @@ public interface QuestionMapper {
     @Mapping(target = "idx", source = "user.id")
     @Mapping(target = "name", source = "user.name")
     SearchUserResponse userToSearchUserResponse(User user);
+
+    /**
+     * CreateCommentRequest를 QuestionComment로 변환합니다.
+     *
+     * @param createCommentRequest CreateCommentRequest
+     * @param user                 User
+     * @param question             Question
+     * @return QuestionComment
+     */
+    @Mapping(target = "contents", source = "createCommentRequest.contents")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", source = "user")
+    @Mapping(target = "question", source = "question")
+    QuestionComment toQuestionComment(CreateCommentRequest createCommentRequest, User user, Question question);
+
+    /**
+     * QuestionComment를 CommentResponse로 변환합니다.
+     *
+     * @param questionComment QuestionComment
+     * @return CommentResponse
+     */
+    @Mapping(target = "idx", source = "questionComment.id")
+    CommentResponse toCommentResponse(QuestionComment questionComment);
 }
