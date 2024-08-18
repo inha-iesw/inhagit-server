@@ -34,4 +34,8 @@ public class QuestionReplyComment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public void setContents(String contents) {
+        this.contents = contents;
+    }
 }

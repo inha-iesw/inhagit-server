@@ -89,4 +89,21 @@ public class QuestionCommentController {
             @Validated @RequestBody CreateReplyCommentRequest createReplyCommentRequest) {
         return BaseResponse.of(QUESTION_COMMENT_REPLY_CREATE_OK, questionCommentService.createReplyComment(user, createReplyCommentRequest));
     }
+
+    /**
+     * 질문 댓글 답글 수정 API
+     *
+     * @param user                사용자 정보
+     * @param commentIdx           댓글 idx
+     * @param updateCommentRequest 댓글 수정 요청
+     * @return BaseResponse<CommentResponse>
+     */
+    @PutMapping("/reply/{commentIdx}")
+    @Operation(summary = "질문 댓글 답글 수정 API", description = "질문 댓글에 답글을 수정합니다.")
+    public BaseResponse<ReplyCommentResponse> updateReplyComment(
+            @AuthenticationPrincipal User user,
+            @PathVariable("commentIdx") Integer commentIdx,
+            @Validated @RequestBody UpdateCommentRequest updateCommentRequest) {
+        return BaseResponse.of(QUESTION_COMMENT_REPLY_UPDATE_OK, questionCommentService.updateReplyComment(user, commentIdx, updateCommentRequest));
+    }
 }

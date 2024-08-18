@@ -107,4 +107,24 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         questionReplyCommentJpaRepository.save(questionReplyComment);
         return questionMapper.toReplyCommentResponse(questionReplyComment);
     }
+
+    /**
+     * 답글 수정
+     *
+     * @param user                사용자 정보
+     * @param commentIdx          댓글 식별자
+     * @param updateCommentRequest 댓글 수정 요청
+     * @return ReplyCommentResponse
+     */
+    @Override
+    public ReplyCommentResponse updateReplyComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest) {
+        QuestionReplyComment questionReplyComment = questionReplyCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(QUESTION_COMMENT_REPLY_NOT_FOUND));
+        if(!questionReplyComment.getUser().getId().equals(user.getId())) {
+            throw new BaseException(QUESTION_COMMENT_REPLY_UPDATE_NOT_AUTHORIZED);
+        }
+        questionReplyComment.setContents(updateCommentRequest.contents());
+        questionReplyCommentJpaRepository.save(questionReplyComment);
+        return questionMapper.toReplyCommentResponse(questionReplyComment);
+    }
 }
