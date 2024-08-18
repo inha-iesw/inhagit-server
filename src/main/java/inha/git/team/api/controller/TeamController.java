@@ -4,6 +4,7 @@ import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
+import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
 import inha.git.team.api.controller.dto.response.TeamResponse;
 import inha.git.team.api.service.TeamService;
 import inha.git.user.domain.User;
@@ -15,6 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static inha.git.common.code.status.ErrorStatus.COMPANY_CANNOT_CREATE_TEAM;
 import static inha.git.common.code.status.SuccessStatus.*;
@@ -29,6 +32,12 @@ import static inha.git.common.code.status.SuccessStatus.*;
 @RequestMapping("/api/v1/teams")
 public class TeamController {
     private final TeamService teamService;
+
+    @GetMapping("/my")
+    @Operation(summary = "내가 생성한 팀 목록 가져오기 API", description = "내가 생성한 팀 목록을 가져옵니다.")
+    public BaseResponse<List<SearchTeamsResponse>> getMyTeams(@AuthenticationPrincipal User user) {
+        return BaseResponse.of(TEAM_GET_MY_TEAMS_OK, teamService.getMyTeams(user));
+    }
 
     /**
      * 팀 생성 API

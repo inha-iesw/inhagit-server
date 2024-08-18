@@ -4,6 +4,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.repository.TeamUserJpaRepository;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
+import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
 import inha.git.team.api.controller.dto.response.TeamResponse;
 import inha.git.team.api.mapper.TeamMapper;
 import inha.git.team.domain.Team;
@@ -14,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
@@ -29,6 +32,11 @@ public class TeamServiceImpl implements TeamService {
     private final TeamUserJpaRepository teamUserJpaRepository;
     private final TeamMapper teamMapper;
 
+    @Override
+    public List<SearchTeamsResponse> getMyTeams(User user) {
+        return teamMapper.teamsToSearchTeamsResponse(teamJpaRepository.findByUserAndStateOrderByCreatedAtDesc(user, ACTIVE));
+    }
+
     /**
      * 팀 생성
      *
@@ -40,6 +48,7 @@ public class TeamServiceImpl implements TeamService {
     public TeamResponse createTeam(User user, CreateTeamRequest createTeamRequest) {
         Team team = teamMapper.createTeamRequestToTeam(createTeamRequest, user);
         teamJpaRepository.save(team);
+        teamUserJpaRepository.save(teamMapper.createTeamUser(user, team));
         return teamMapper.teamToTeamResponse(team);
     }
 
