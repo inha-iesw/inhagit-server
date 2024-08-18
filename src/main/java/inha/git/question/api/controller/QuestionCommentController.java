@@ -94,16 +94,31 @@ public class QuestionCommentController {
      * 질문 댓글 답글 수정 API
      *
      * @param user                사용자 정보
-     * @param commentIdx           댓글 idx
+     * @param replyCommentIdx           댓글 idx
      * @param updateCommentRequest 댓글 수정 요청
      * @return BaseResponse<CommentResponse>
      */
-    @PutMapping("/reply/{commentIdx}")
+    @PutMapping("/reply/{replyCommentIdx}")
     @Operation(summary = "질문 댓글 답글 수정 API", description = "질문 댓글에 답글을 수정합니다.")
     public BaseResponse<ReplyCommentResponse> updateReplyComment(
             @AuthenticationPrincipal User user,
-            @PathVariable("commentIdx") Integer commentIdx,
+            @PathVariable("replyCommentIdx") Integer replyCommentIdx,
             @Validated @RequestBody UpdateCommentRequest updateCommentRequest) {
-        return BaseResponse.of(QUESTION_COMMENT_REPLY_UPDATE_OK, questionCommentService.updateReplyComment(user, commentIdx, updateCommentRequest));
+        return BaseResponse.of(QUESTION_COMMENT_REPLY_UPDATE_OK, questionCommentService.updateReplyComment(user, replyCommentIdx, updateCommentRequest));
+    }
+
+    /**
+     * 질문 댓글 답글 삭제 API
+     *
+     * @param user      사용자 정보
+     * @param replyCommentIdx 댓글 idx
+     * @return BaseResponse<CommentResponse>
+     */
+    @DeleteMapping("/reply/{replyCommentIdx}")
+    @Operation(summary = "질문 댓글 답글 삭제 API", description = "질문 댓글에 답글을 삭제합니다.")
+    public BaseResponse<ReplyCommentResponse> deleteReplyComment(
+            @AuthenticationPrincipal User user,
+            @PathVariable("replyCommentIdx") Integer replyCommentIdx) {
+        return BaseResponse.of(QUESTION_COMMENT_REPLY_DELETE_OK, questionCommentService.deleteReplyComment(user, replyCommentIdx));
     }
 }

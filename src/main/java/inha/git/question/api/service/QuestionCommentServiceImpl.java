@@ -112,18 +112,38 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      * 답글 수정
      *
      * @param user                사용자 정보
-     * @param commentIdx          댓글 식별자
+     * @param replyCommentIdx          댓글 식별자
      * @param updateCommentRequest 댓글 수정 요청
      * @return ReplyCommentResponse
      */
     @Override
-    public ReplyCommentResponse updateReplyComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest) {
-        QuestionReplyComment questionReplyComment = questionReplyCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
+    public ReplyCommentResponse updateReplyComment(User user, Integer replyCommentIdx, UpdateCommentRequest updateCommentRequest) {
+        QuestionReplyComment questionReplyComment = questionReplyCommentJpaRepository.findByIdAndState(replyCommentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_COMMENT_REPLY_NOT_FOUND));
         if(!questionReplyComment.getUser().getId().equals(user.getId())) {
             throw new BaseException(QUESTION_COMMENT_REPLY_UPDATE_NOT_AUTHORIZED);
         }
         questionReplyComment.setContents(updateCommentRequest.contents());
+        questionReplyCommentJpaRepository.save(questionReplyComment);
+        return questionMapper.toReplyCommentResponse(questionReplyComment);
+    }
+
+    /**
+     * 답글 삭제
+     *
+     * @param user                사용자 정보
+     * @param replyCommentIdx          댓글 식별자
+     * @return ReplyCommentResponse
+     */
+    @Override
+    public ReplyCommentResponse deleteReplyComment(User user, Integer replyCommentIdx) {
+        QuestionReplyComment questionReplyComment = questionReplyCommentJpaRepository.findByIdAndState(replyCommentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(QUESTION_COMMENT_REPLY_NOT_FOUND));
+        if(!questionReplyComment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new BaseException(QUESTION_COMMENT_REPLY_DELETE_NOT_AUTHORIZED);
+        }
+        questionReplyComment.setState(INACTIVE);
+        questionReplyComment.setDeletedAt();
         questionReplyCommentJpaRepository.save(questionReplyComment);
         return questionMapper.toReplyCommentResponse(questionReplyComment);
     }
