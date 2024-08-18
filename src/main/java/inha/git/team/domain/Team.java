@@ -31,6 +31,9 @@ public class Team extends BaseEntity {
     @Column(nullable = false, name = "max_member_number")
     private Integer maxMemberNumber;
 
+    @Column(nullable = false, name = "current_member_number")
+    private Integer currtentMemberNumber;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;

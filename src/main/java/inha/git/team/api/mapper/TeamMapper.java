@@ -26,6 +26,7 @@ public interface TeamMapper {
     @Mapping(target = "user", source = "user")
     @Mapping(target = "name", source = "createTeamRequest.name")
     @Mapping(target = "maxMemberNumber", source = "createTeamRequest.maxMember")
+    @Mapping(target = "currtentMemberNumber", constant = "1")
     Team createTeamRequestToTeam(CreateTeamRequest createTeamRequest, User user);
 
     /**

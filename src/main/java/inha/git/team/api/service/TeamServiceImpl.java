@@ -15,8 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
-import static inha.git.common.code.status.ErrorStatus.TEAM_NOT_AUTHORIZED;
-import static inha.git.common.code.status.ErrorStatus.TEAM_NOT_FOUND;
+import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -56,6 +55,9 @@ public class TeamServiceImpl implements TeamService {
                 .orElseThrow(() -> new BaseException(TEAM_NOT_FOUND));
         if(!team.getUser().getId().equals(user.getId())) {
             throw new BaseException(TEAM_NOT_AUTHORIZED);
+        }
+        if(team.getCurrtentMemberNumber() > updateTeamRequest.maxMember()) {
+            throw new BaseException(TEAM_MAX_MEMBER);
         }
         teamMapper.updateTeamRequestToTeam(updateTeamRequest, team);
         return teamMapper.teamToTeamResponse(team);
