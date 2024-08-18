@@ -95,8 +95,14 @@ public enum SuccessStatus implements BaseCode {
     QUESTION_COMMENT_SEARCH_OK(HttpStatus.OK, "QUESTION2014", "질문 댓글 전체 조회 성공"),
     QUESTION_COMMENT_REPLY_CREATE_OK(HttpStatus.CREATED, "QUESTION2015", "질문 대댓글 생성 성공"),
     QUESTION_COMMENT_REPLY_DELETE_OK(HttpStatus.OK, "QUESTION2016", "질문 대댓글 삭제 성공"),
-    QUESTION_COMMENT_REPLY_UPDATE_OK(HttpStatus.OK, "QUESTION2017", "질문 대댓글 수정 성공");
+    QUESTION_COMMENT_REPLY_UPDATE_OK(HttpStatus.OK, "QUESTION2017", "질문 대댓글 수정 성공"),
 
+    //팀
+    TEAM_CREATE_OK(HttpStatus.CREATED, "TEAM2010", "팀 생성 성공"),
+    TEAM_SEARCH_OK(HttpStatus.OK, "TEAM2000", "팀 전체 조회 성공"),
+    TEAM_UPDATE_OK(HttpStatus.OK, "TEAM2001", "팀 수정 성공"),
+    TEAM_DELETE_OK(HttpStatus.OK, "TEAM2002", "팀 삭제 성공"),
+    TEAM_DETAIL_OK(HttpStatus.OK, "TEAM2003", "팀 상세 조회 성공");
 
     private final HttpStatus httpStatus;
     private final String code;
