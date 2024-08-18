@@ -2,8 +2,10 @@ package inha.git.question.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.question.api.controller.dto.request.CreateCommentRequest;
+import inha.git.question.api.controller.dto.request.CreateReplyCommentRequest;
 import inha.git.question.api.controller.dto.request.UpdateCommentRequest;
 import inha.git.question.api.controller.dto.response.CommentResponse;
+import inha.git.question.api.controller.dto.response.ReplyCommentResponse;
 import inha.git.question.api.service.QuestionCommentService;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,11 +60,33 @@ public class QuestionCommentController {
         return BaseResponse.of(QUESTION_COMMENT_UPDATE_OK, questionCommentService.updateComment(user, commentIdx, updateCommentRequest));
     }
 
+    /**
+     * 질문 댓글 삭제 API
+     *
+     * @param user      사용자 정보
+     * @param commentIdx 댓글 idx
+     * @return BaseResponse<CommentResponse>
+     */
     @DeleteMapping("/{commentIdx}")
     @Operation(summary = "질문 댓글 삭제 API", description = "질문 댓글을 삭제합니다.")
     public BaseResponse<CommentResponse> deleteComment(
             @AuthenticationPrincipal User user,
             @PathVariable("commentIdx") Integer commentIdx) {
         return BaseResponse.of(QUESTION_COMMENT_DELETE_OK, questionCommentService.deleteComment(user, commentIdx));
+    }
+
+    /**
+     * 질문 댓글 답글 생성 API
+     *
+     * @param user                사용자 정보
+     * @param createReplyCommentRequest 댓글 생성 요청
+     * @return BaseResponse<ReplyCommentResponse>
+     */
+    @PostMapping("/reply")
+    @Operation(summary = "질문 댓글 답글 생성 API", description = "질문 댓글에 답글을 생성합니다.")
+    public BaseResponse<ReplyCommentResponse> createReplyComment(
+            @AuthenticationPrincipal User user,
+            @Validated @RequestBody CreateReplyCommentRequest createReplyCommentRequest) {
+        return BaseResponse.of(QUESTION_COMMENT_REPLY_CREATE_OK, questionCommentService.createReplyComment(user, createReplyCommentRequest));
     }
 }

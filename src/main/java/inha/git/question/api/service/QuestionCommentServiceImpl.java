@@ -2,13 +2,17 @@ package inha.git.question.api.service;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.question.api.controller.dto.request.CreateCommentRequest;
+import inha.git.question.api.controller.dto.request.CreateReplyCommentRequest;
 import inha.git.question.api.controller.dto.request.UpdateCommentRequest;
 import inha.git.question.api.controller.dto.response.CommentResponse;
+import inha.git.question.api.controller.dto.response.ReplyCommentResponse;
 import inha.git.question.api.mapper.QuestionMapper;
 import inha.git.question.domain.Question;
 import inha.git.question.domain.QuestionComment;
+import inha.git.question.domain.QuestionReplyComment;
 import inha.git.question.domain.repository.QuestionCommentJpaRepository;
 import inha.git.question.domain.repository.QuestionJpaRepository;
+import inha.git.question.domain.repository.QuestionReplyCommentJpaRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +27,12 @@ import static inha.git.common.code.status.ErrorStatus.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
+@Transactional
 public class QuestionCommentServiceImpl implements QuestionCommentService {
 
     private final QuestionJpaRepository questionJpaRepository;
     private final QuestionCommentJpaRepository questionCommentJpaRepository;
+    private final QuestionReplyCommentJpaRepository questionReplyCommentJpaRepository;
     private final QuestionMapper questionMapper;
 
     /**
@@ -38,7 +43,6 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      * @return CreateCommentResponse
      */
     @Override
-    @Transactional
     public CommentResponse createComment(User user, CreateCommentRequest createCommentRequest) {
         Question question = questionJpaRepository.findByIdAndState(createCommentRequest.questionIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
@@ -57,7 +61,6 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      */
 
     @Override
-    @Transactional
     public CommentResponse updateComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest) {
         QuestionComment questionComment = questionCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_COMMENT_NOT_FOUND));
@@ -77,7 +80,6 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      * @return DeleteCommentResponse
      */
     @Override
-    @Transactional
     public CommentResponse deleteComment(User user, Integer commentIdx) {
         QuestionComment questionComment = questionCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_COMMENT_NOT_FOUND));
@@ -88,5 +90,21 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         questionComment.setDeletedAt();
         questionCommentJpaRepository.save(questionComment);
         return questionMapper.toCommentResponse(questionComment);
+    }
+
+    /**
+     * 답글 생성
+     *
+     * @param user                        사용자 정보
+     * @param createReplyCommentRequest 댓글 생성 요청
+     * @return ReplyCommentResponse
+     */
+    @Override
+    public ReplyCommentResponse createReplyComment(User user, CreateReplyCommentRequest createReplyCommentRequest) {
+        QuestionComment questionComment = questionCommentJpaRepository.findByIdAndState(createReplyCommentRequest.commentIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(QUESTION_COMMENT_NOT_FOUND));
+        QuestionReplyComment questionReplyComment = questionMapper.toQuestionReplyComment(createReplyCommentRequest, user, questionComment);
+        questionReplyCommentJpaRepository.save(questionReplyComment);
+        return questionMapper.toReplyCommentResponse(questionReplyComment);
     }
 }

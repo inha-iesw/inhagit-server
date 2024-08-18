@@ -1,8 +1,10 @@
 package inha.git.question.api.service;
 
 import inha.git.question.api.controller.dto.request.CreateCommentRequest;
+import inha.git.question.api.controller.dto.request.CreateReplyCommentRequest;
 import inha.git.question.api.controller.dto.request.UpdateCommentRequest;
 import inha.git.question.api.controller.dto.response.CommentResponse;
+import inha.git.question.api.controller.dto.response.ReplyCommentResponse;
 import inha.git.user.domain.User;
 
 public interface QuestionCommentService {
@@ -11,4 +13,5 @@ public interface QuestionCommentService {
     CommentResponse updateComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest);
 
     CommentResponse deleteComment(User user, Integer commentIdx);
+    ReplyCommentResponse createReplyComment(User user, CreateReplyCommentRequest createReplyCommentRequest);
 }

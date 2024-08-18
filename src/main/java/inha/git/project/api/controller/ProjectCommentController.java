@@ -40,7 +40,6 @@ public class ProjectCommentController {
         return BaseResponse.of(PROJECT_COMMENT_SEARCH_OK, projectCommentService.getAllCommentsByProjectIdx(projectIdx));
     }
 
-
     /**
      * 프로젝트 댓글 생성 API
      *
