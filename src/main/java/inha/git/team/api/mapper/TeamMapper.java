@@ -57,6 +57,12 @@ public interface TeamMapper {
     void updateTeamRequestToTeam(UpdateTeamRequest updateTeamRequest, @MappingTarget Team team);
 
 
+    /**
+     * 팀을 SearchTeamsResponse 응답으로 변환.
+     *
+     * @param team Team
+     * @return SearchTeamsResponse
+     */
     @Mapping(target = "idx", source = "team.id")
     @Mapping(target = "name", source = "team.name")
     SearchTeamsResponse teamToSearchTeamsResponse(Team team);
@@ -66,10 +72,23 @@ public interface TeamMapper {
         return new TeamUser(new TeamUserId(user.getId(), team.getId()), team, user, LocalDateTime.now());
     }
 
+    /**
+     * 사용자를 SearchUserResponse으로 변환.
+     *
+     * @param user User
+     * @return SearchUserResponse
+     */
     @Mapping(target = "idx", source = "user.id")
     @Mapping(target = "name", source = "user.name")
     SearchUserResponse userToSearchUserResponse(User user);
 
+    /**
+     * 팀을 SearchTeamResponse 으로 변환.
+     *
+     * @param team Team
+     * @param leader SearchUserResponse
+     * @return SearchTeamResponse
+     */
     @Mapping(target = "idx", source = "team.id")
     @Mapping(target = "name", source = "team.name")
     @Mapping(target = "leader", source = "leader")

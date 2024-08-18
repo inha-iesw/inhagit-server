@@ -45,6 +45,12 @@ public class TeamServiceImpl implements TeamService {
         return teamMapper.teamsToSearchTeamsResponse(teamJpaRepository.findByUserAndStateOrderByCreatedAtDesc(user, ACTIVE));
     }
 
+    /**
+     * 팀 가져오기
+     *
+     * @param teamIdx Integer
+     * @return SearchTeamResponse
+     */
     @Override
     public SearchTeamResponse getTeam(Integer teamIdx) {
         Team team = teamJpaRepository.findByIdAndState(teamIdx, ACTIVE)

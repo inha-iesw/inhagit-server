@@ -46,6 +46,11 @@ public class TeamController {
         return BaseResponse.of(TEAM_GET_MY_TEAMS_OK, teamService.getMyTeams(user));
     }
 
+    /**
+     * 팀 목록 가져오기 API
+     *
+     * @return BaseResponse<List<SearchTeamsResponse>>
+     */
     @GetMapping("/{teamIdx}")
     @Operation(summary = "팀 상세 조회 API", description = "팀 상세 정보를 조회합니다.")
     public BaseResponse<SearchTeamResponse> getTeam(@PathVariable("teamIdx") Integer teamIdx) {
