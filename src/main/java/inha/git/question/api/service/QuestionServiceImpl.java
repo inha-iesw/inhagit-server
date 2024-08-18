@@ -6,11 +6,13 @@ import inha.git.field.domain.repository.FieldJpaRepository;
 import inha.git.mapping.domain.QuestionField;
 import inha.git.mapping.domain.repository.QuestionFieldJpaRepository;
 import inha.git.question.api.controller.dto.request.CreateQuestionRequest;
+import inha.git.question.api.controller.dto.request.UpdateQuestionRequest;
 import inha.git.question.api.controller.dto.response.QuestionResponse;
 import inha.git.question.api.mapper.QuestionMapper;
 import inha.git.question.domain.Question;
 import inha.git.question.domain.repository.QuestionJpaRepository;
 import inha.git.user.domain.User;
+import inha.git.user.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
-import static inha.git.common.code.status.ErrorStatus.FIELD_NOT_FOUND;
+import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -45,10 +47,36 @@ public class QuestionServiceImpl implements QuestionService {
         Question question = questionMapper.createQuestionRequestToQuestion(createQuestionRequest, user);
         Question saveQuestion = questionJpaRepository.save(question);
 
-        List<QuestionField> questionFields = createAndSaveProjectFields(createQuestionRequest.fieldIdxList(), saveQuestion);
+        List<QuestionField> questionFields = createAndSaveQuestionFields(createQuestionRequest.fieldIdxList(), saveQuestion);
         questionFieldJpaRepository.saveAll(questionFields);
         return questionMapper.questionToQuestionResponse(saveQuestion);
     }
+
+    /**
+     * 질문 수정
+     *
+     * @param user                User
+     * @param questionIdx         Integer
+     * @param updateQuestionRequest UpdateQuestionRequest
+     * @return QuestionResponse
+     */
+    @Override
+    @Transactional
+    public QuestionResponse updateQuestion(User user, Integer questionIdx, UpdateQuestionRequest updateQuestionRequest) {
+        Question question = questionJpaRepository.findByIdAndState(questionIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
+        if (!question.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new BaseException(QUESTION_NOT_AUTHORIZED);
+        }
+        questionMapper.updateQuestionRequestToQuestion(updateQuestionRequest, question);
+        Question savedQuestion = questionJpaRepository.save(question);
+        questionFieldJpaRepository.deleteByQuestion(savedQuestion);
+
+        List<QuestionField> questionFields = createAndSaveQuestionFields(updateQuestionRequest.fieldIdxList(), savedQuestion);
+        questionFieldJpaRepository.saveAll(questionFields);
+        return questionMapper.questionToQuestionResponse(savedQuestion);
+    }
+
 
 
     /**
@@ -58,7 +86,7 @@ public class QuestionServiceImpl implements QuestionService {
      * @param question     Question
      * @return List<QuestionField>
      */
-    private List<QuestionField> createAndSaveProjectFields(List<Integer> fieldIdxList, Question question) {
+    private List<QuestionField> createAndSaveQuestionFields(List<Integer> fieldIdxList, Question question) {
         return fieldIdxList.stream()
                 .map(fieldIdx -> {
                     Field field = fieldJpaRepository.findByIdAndState(fieldIdx, ACTIVE)

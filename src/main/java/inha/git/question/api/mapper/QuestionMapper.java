@@ -3,12 +3,16 @@ package inha.git.question.api.mapper;
 import inha.git.field.domain.Field;
 import inha.git.mapping.domain.QuestionField;
 import inha.git.mapping.domain.id.QuestionFieldId;
+import inha.git.project.api.controller.dto.request.UpdateProjectRequest;
+import inha.git.project.domain.Project;
 import inha.git.question.api.controller.dto.request.CreateQuestionRequest;
+import inha.git.question.api.controller.dto.request.UpdateQuestionRequest;
 import inha.git.question.api.controller.dto.response.QuestionResponse;
 import inha.git.question.domain.Question;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 /**
@@ -49,4 +53,16 @@ public interface QuestionMapper {
     default QuestionField createQuestionField(Question question, Field field) {
         return new QuestionField(new QuestionFieldId(question.getId(), field.getId()), question, field);
     }
+
+    /**
+     * CreateQuestionRequest를 Question으로 업데이트합니다.
+     *
+     * @param updateQuestionRequest UpdateQuestionRequest
+     * @param question              Question
+     */
+    @Mapping(target = "subjectName", source = "updateQuestionRequest.subject")
+    @Mapping(target = "title", source = "updateQuestionRequest.title")
+    @Mapping(target = "contents", source = "updateQuestionRequest.contents")
+    void updateQuestionRequestToQuestion(UpdateQuestionRequest updateQuestionRequest, @MappingTarget Question question);
+
 }

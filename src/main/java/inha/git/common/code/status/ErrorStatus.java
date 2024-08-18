@@ -108,6 +108,8 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_AUTHORIZED_PROBLEM(HttpStatus.BAD_REQUEST, "PROBLEM4001", "문제를 수정할 권한이 없습니다."),
 
     COMPANY_CANNOT_CREATE_QUESTION(HttpStatus.BAD_REQUEST, "QUESTION4000", "기업 회원은 질문을 생성할 수 없습니다."),
+    QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "QUESTION4001", "질문을 찾을 수 없습니다."),
+    QUESTION_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "QUESTION4002", "질문을 수정할 권한이 없습니다."),
     /**
      * 500 :  Database, Server 오류
      */

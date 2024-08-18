@@ -3,6 +3,7 @@ package inha.git.mapping.domain.repository;
 
 import inha.git.mapping.domain.QuestionField;
 import inha.git.mapping.domain.id.QuestionFieldId;
+import inha.git.question.domain.Question;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 
@@ -12,4 +13,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface QuestionFieldJpaRepository extends JpaRepository<QuestionField, QuestionFieldId> {
 
 
+    void deleteByQuestion(Question question);
 }
