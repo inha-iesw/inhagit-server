@@ -9,4 +9,6 @@ public interface QuestionService {
     QuestionResponse createQuestion(User user, CreateQuestionRequest createQuestionRequest);
 
     QuestionResponse updateQuestion(User user, Integer questionIdx, UpdateQuestionRequest updateQuestionRequest);
+
+    QuestionResponse deleteQuestion(User user, Integer questionIdx);
 }

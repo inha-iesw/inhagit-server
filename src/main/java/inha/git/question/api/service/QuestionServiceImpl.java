@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
@@ -77,6 +78,26 @@ public class QuestionServiceImpl implements QuestionService {
         return questionMapper.questionToQuestionResponse(savedQuestion);
     }
 
+    /**
+     * 질문 삭제
+     *
+     * @param user        User
+     * @param questionIdx Integer
+     * @return QuestionResponse
+     */
+    @Override
+    @Transactional
+    public QuestionResponse deleteQuestion(User user, Integer questionIdx) {
+        Question question = questionJpaRepository.findByIdAndState(questionIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
+        if (!question.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new BaseException(QUESTION_DELETE_NOT_AUTHORIZED);
+        }
+        question.setDeletedAt();
+        question.setState(INACTIVE);
+        questionJpaRepository.save(question);
+        return questionMapper.questionToQuestionResponse(question);
+    }
 
 
     /**

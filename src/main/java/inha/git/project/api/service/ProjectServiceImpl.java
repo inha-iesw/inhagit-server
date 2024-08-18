@@ -242,7 +242,8 @@ public class ProjectServiceImpl implements ProjectService {
      * @return 삭제된 프로젝트 정보
      */
     @Override
-    public ProjectResponse deleteProject(User user, Integer projectIdx) {
+    public ProjectResponse
+    deleteProject(User user, Integer projectIdx) {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         if(!project.getUser().equals(user) && !user.getRole().equals(Role.ADMIN)) {

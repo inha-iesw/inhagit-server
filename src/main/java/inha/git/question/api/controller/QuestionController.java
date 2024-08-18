@@ -17,8 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import static inha.git.common.code.status.ErrorStatus.COMPANY_CANNOT_CREATE_QUESTION;
-import static inha.git.common.code.status.SuccessStatus.QUESTION_CREATE_OK;
-import static inha.git.common.code.status.SuccessStatus.QUESTION_UPDATE_OK;
+import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
  * QuestionController는 question 관련 엔드포인트를 처리.
@@ -68,10 +67,24 @@ public class QuestionController {
             @AuthenticationPrincipal User user,
             @PathVariable("questionIdx") Integer questionIdx,
             @Validated @RequestBody UpdateQuestionRequest updateQuestionRequest) {
-        if (user.getRole() == Role.COMPANY) {
-            throw new BaseException(COMPANY_CANNOT_CREATE_QUESTION);
-        }
-        return BaseResponse.of(QUESTION_UPDATE_OK, questionService.updateQuestion(user, questionIdx, updateQuestionRequest));
+        return BaseResponse.of(QUESTION_DELETE_OK, questionService.updateQuestion(user, questionIdx, updateQuestionRequest));
+    }
+
+    /**
+     * 질문 삭제 API
+     *
+     * <p>질문을 삭제합니다.</p>
+     *
+     * @param user        User
+     * @param questionIdx Integer
+     * @return 삭제된 질문 정보를 포함하는 BaseResponse<QuestionResponse>
+     */
+    @DeleteMapping("/{questionIdx}")
+    @Operation(summary = "질문 삭제 API", description = "질문을 삭제합니다.")
+    public BaseResponse<QuestionResponse> deleteQuestion(
+            @AuthenticationPrincipal User user,
+            @PathVariable("questionIdx") Integer questionIdx) {
+        return BaseResponse.of(QUESTION_UPDATE_OK, questionService.deleteQuestion(user, questionIdx));
     }
 
 }

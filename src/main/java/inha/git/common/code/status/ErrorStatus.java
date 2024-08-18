@@ -110,6 +110,7 @@ public enum ErrorStatus implements BaseErrorCode {
     COMPANY_CANNOT_CREATE_QUESTION(HttpStatus.BAD_REQUEST, "QUESTION4000", "기업 회원은 질문을 생성할 수 없습니다."),
     QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "QUESTION4001", "질문을 찾을 수 없습니다."),
     QUESTION_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "QUESTION4002", "질문을 수정할 권한이 없습니다."),
+    QUESTION_DELETE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "QUESTION4003", "질문을 삭제할 권한이 없습니다."),
     /**
      * 500 :  Database, Server 오류
      */
@@ -119,8 +120,7 @@ public enum ErrorStatus implements BaseErrorCode {
     PASSWORD_ENCRYPTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON5003", "비밀번호 암호화에 실패하였습니다."),
     PASSWORD_DECRYPTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON5004", "비밀번호 복호화에 실패하였습니다"),
     UNEXPECTED_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON5005", "예상치 못한 에러가 발생했습니다."),
-    FAILED_TO_RECEIVE_FRAME(HttpStatus.INTERNAL_SERVER_ERROR, "FRAME4000", "프레임을 받는데 실패하였습니다."),
-    FAILED_TO_CONNECT_FASTAPI_SERVER(HttpStatus.INTERNAL_SERVER_ERROR, "FASTAPI4000", "FastAPI 서버와의 연결에 실패하였습니다.");
+    FAILED_TO_RECEIVE_FRAME(HttpStatus.INTERNAL_SERVER_ERROR, "FRAME4000", "프레임을 받는데 실패하였습니다.");
 
 
 
