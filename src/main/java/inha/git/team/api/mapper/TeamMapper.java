@@ -1,11 +1,13 @@
 package inha.git.team.api.mapper;
 
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
+import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
 import inha.git.team.api.controller.dto.response.TeamResponse;
 import inha.git.team.domain.Team;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 /**
@@ -34,4 +36,16 @@ public interface TeamMapper {
      */
     @Mapping(target = "idx", source = "team.id")
     TeamResponse teamToTeamResponse(Team team);
+
+    /**
+     * UpdateTeamRequest를 Team 엔티티로 변환.
+     *
+     * @param updateTeamRequest UpdateTeamRequest
+     * @param team Team
+     */
+    @Mapping(target = "name", source = "updateTeamRequest.name")
+    @Mapping(target = "maxMemberNumber", source = "updateTeamRequest.maxMember")
+    void updateTeamRequestToTeam(UpdateTeamRequest updateTeamRequest, @MappingTarget Team team);
+
+
 }

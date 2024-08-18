@@ -3,6 +3,7 @@ package inha.git.team.api.controller;
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
+import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
 import inha.git.team.api.controller.dto.response.TeamResponse;
 import inha.git.team.api.service.TeamService;
 import inha.git.user.domain.User;
@@ -13,13 +14,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static inha.git.common.code.status.ErrorStatus.COMPANY_CANNOT_CREATE_TEAM;
 import static inha.git.common.code.status.SuccessStatus.TEAM_CREATE_OK;
+import static inha.git.common.code.status.SuccessStatus.TEAM_UPDATE_OK;
 
 /**
  * TeamController는 Team 관련 엔드포인트를 처리.
@@ -48,6 +47,23 @@ public class TeamController {
             throw new BaseException(COMPANY_CANNOT_CREATE_TEAM);
         }
         return BaseResponse.of(TEAM_CREATE_OK, teamService.createTeam(user, createTeamRequest));
+    }
+
+    /**
+     * 팀 수정 API
+     *
+     * @param user User
+     * @param teamIdx Integer
+     * @param updateTeamRequest UpdateTeamRequest
+     * @return BaseResponse<TeamResponse>
+     */
+    @PutMapping("/{teamIdx}")
+    @Operation(summary = "팀 수정 API", description = "팀을 수정합니다.")
+    public BaseResponse<TeamResponse> updateTeam(
+            @AuthenticationPrincipal User user,
+            @PathVariable("teamIdx") Integer teamIdx,
+            @Validated @RequestBody UpdateTeamRequest updateTeamRequest) {
+        return BaseResponse.of(TEAM_UPDATE_OK, teamService.updateTeam(user, teamIdx, updateTeamRequest));
     }
 
 }

@@ -119,6 +119,8 @@ public enum ErrorStatus implements BaseErrorCode {
     QUESTION_COMMENT_REPLY_DELETE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "QUESTION4009", "대댓글을 삭제할 권한이 없습니다."),
 
     COMPANY_CANNOT_CREATE_TEAM(HttpStatus.BAD_REQUEST, "TEAM4000", "기업 회원은 팀을 생성할 수 없습니다."),
+    TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM4001", "팀을 찾을 수 없습니다."),
+    TEAM_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TEAM4002", "팀을 수정할 권한이 없습니다."),
 
     /**
      * 500 :  Database, Server 오류
