@@ -4,6 +4,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.TeamUser;
 import inha.git.mapping.domain.repository.TeamUserJpaRepository;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
+import inha.git.team.api.controller.dto.request.ApproveRequestTeamRequest;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
 import inha.git.team.api.controller.dto.request.RequestTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
@@ -15,6 +16,7 @@ import inha.git.team.domain.Team;
 import inha.git.team.domain.repository.TeamJpaRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
+import inha.git.user.domain.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,7 @@ public class TeamServiceImpl implements TeamService {
     private final TeamJpaRepository teamJpaRepository;
     private final TeamUserJpaRepository teamUserJpaRepository;
     private final TeamMapper teamMapper;
+    private final UserJpaRepository userJpaRepository;
 
     /**
      * 내가 생성한 팀 목록 가져오기
@@ -43,6 +46,7 @@ public class TeamServiceImpl implements TeamService {
      * @return List<SearchTeamsResponse>
      */
     @Override
+    @Transactional(readOnly = true)
     public List<SearchTeamsResponse> getMyTeams(User user) {
         return teamMapper.teamsToSearchTeamsResponse(teamJpaRepository.findByUserAndStateOrderByCreatedAtDesc(user, ACTIVE));
     }
@@ -54,6 +58,7 @@ public class TeamServiceImpl implements TeamService {
      * @return SearchTeamResponse
      */
     @Override
+    @Transactional(readOnly = true)
     public SearchTeamResponse getTeam(Integer teamIdx) {
         Team team = teamJpaRepository.findByIdAndState(teamIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(TEAM_NOT_FOUND));
@@ -142,6 +147,36 @@ public class TeamServiceImpl implements TeamService {
                 });
         TeamUser teamUser = teamMapper.createRequestTeamUser(user, team);
         teamUserJpaRepository.save(teamUser);
+        return teamMapper.teamToTeamResponse(team);
+    }
+
+    /**
+     * 팀 가입 요청 승인
+     *
+     * @param user User
+     * @param approveRequestTeamRequest ApproveRequestTeamRequest
+     * @return TeamResponse
+     */
+    @Override
+    public TeamResponse approveRequestTeam(User user, ApproveRequestTeamRequest approveRequestTeamRequest) {
+        Team team = teamJpaRepository.findByIdAndState(approveRequestTeamRequest.teamIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(TEAM_NOT_FOUND));
+        if (!team.getUser().getId().equals(user.getId())) {
+            throw new BaseException(TEAM_NOT_LEADER);
+        }
+        User requestUser = userJpaRepository.findByIdAndState(approveRequestTeamRequest.userIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        TeamUser teamUser = teamUserJpaRepository.findByUserAndTeam(requestUser, team)
+                .orElseThrow(() -> new BaseException(TEAM_NOT_REQUESTED));
+        if (teamUser.getAcceptedAt() != null) {
+            throw new BaseException(TEAM_ALREADY_JOINED);
+        }
+        if(team.getCurrtentMemberNumber() >= team.getMaxMemberNumber()) {
+            throw new BaseException(TEAM_MAX_MEMBER);
+        }
+        teamUser.setAcceptedAt();
+        teamUserJpaRepository.save(teamUser);
+        team.increaseCurrentMemberNumber();
         return teamMapper.teamToTeamResponse(team);
     }
 }

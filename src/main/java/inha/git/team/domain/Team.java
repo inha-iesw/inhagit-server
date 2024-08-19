@@ -37,4 +37,8 @@ public class Team extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public void increaseCurrentMemberNumber() {
+        this.currtentMemberNumber++;
+    }
 }

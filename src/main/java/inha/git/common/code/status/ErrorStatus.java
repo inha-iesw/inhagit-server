@@ -127,6 +127,8 @@ public enum ErrorStatus implements BaseErrorCode {
     TEAM_RECRUITMENT_CLOSED(HttpStatus.BAD_REQUEST, "TEAM4006", "팀원 모집이 마감되었습니다."),
     TEAM_ALREADY_JOINED_REQUEST(HttpStatus.BAD_REQUEST, "TEAM4007", "이미 가입을 요청 중인 팀입니다."),
     TEAM_ALREADY_JOINED(HttpStatus.BAD_REQUEST, "TEAM4008", "이미 가입한 팀입니다."),
+    TEAM_NOT_LEADER(HttpStatus.BAD_REQUEST, "TEAM4009", "팀 리더만 승인할 수 있습니다."),
+    TEAM_NOT_REQUESTED(HttpStatus.BAD_REQUEST, "TEAM4010", "팀 가입을 신청한 사용자가 아닙니다."),
 
 
     /**

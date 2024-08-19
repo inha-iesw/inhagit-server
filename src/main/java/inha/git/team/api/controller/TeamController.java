@@ -2,6 +2,7 @@ package inha.git.team.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
+import inha.git.team.api.controller.dto.request.ApproveRequestTeamRequest;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
 import inha.git.team.api.controller.dto.request.RequestTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
@@ -126,5 +127,20 @@ public class TeamController {
             throw new BaseException(COMPANY_CANNOT_JOIN_TEAM);
         }
         return BaseResponse.of(TEAM_JOIN_OK, teamService.requestTeam(user, requestTeamRequest));
+    }
+
+    /**
+     * 팀 가입 요청 승인 API
+     *
+     * @param user User
+     * @param approveRequestTeamRequest ApproveRequestTeamRequest
+     * @return BaseResponse<TeamResponse>
+     */
+    @PostMapping("/request/approve")
+    @Operation(summary = "팀 가입 요청 승인 API", description = "팀 가입 요청을 승인합니다.")
+    public BaseResponse<TeamResponse> approveRequestTeam(
+            @AuthenticationPrincipal User user,
+            @Validated @RequestBody ApproveRequestTeamRequest approveRequestTeamRequest) {
+        return BaseResponse.of(TEAM_JOIN_ACCEPT_OK, teamService.approveRequestTeam(user, approveRequestTeamRequest));
     }
 }

@@ -40,4 +40,8 @@ public class TeamUser {
 
     @Column(name = "accepted_at")
     private LocalDateTime acceptedAt;
+
+    public void setAcceptedAt() {
+        this.acceptedAt = LocalDateTime.now();
+    }
 }
