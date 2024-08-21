@@ -217,4 +217,7 @@ public interface TeamMapper {
     @Mapping(target = "idx", source = "teamReplyComment.id")
     TeamReplyCommentResponse toTeamReplyCommentResponse(TeamReplyComment teamReplyComment);
 
+
+    @Mapping(target = "contents", source = "updateCommentRequest.contents")
+    void updateTeamReplyCommentRequestToTeamReplyComment(UpdateCommentRequest updateCommentRequest, @MappingTarget TeamReplyComment teamReplyComment);
 }

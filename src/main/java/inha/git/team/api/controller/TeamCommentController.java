@@ -81,4 +81,21 @@ public class TeamCommentController {
             @Validated @RequestBody CreateReplyCommentRequest createReplyCommentRequest) {
         return BaseResponse.of(TEAM_COMMENT_REPLY_CREATE_OK, teamCommentService.createReplyComment(user, createReplyCommentRequest));
     }
+
+    /**
+     * 팀 게시글 대댓글 수정 API
+     *
+     * @param user 사용자 정보
+     * @param replyCommentIdx 대댓글 식별자
+     * @param updateCommentRequest 대댓글 수정 요청
+     * @return BaseResponse<TeamReplyCommentResponse>
+     */
+    @PutMapping("/reply/{replyCommentIdx}")
+    @Operation(summary = "팀 게시글 대댓글 수정 API", description = "팀 게시글 대댓글을 수정합니다.")
+    public BaseResponse<TeamReplyCommentResponse> updateReplyComment(
+            @AuthenticationPrincipal User user,
+            @PathVariable("replyCommentIdx") Integer replyCommentIdx,
+            @Validated @RequestBody UpdateCommentRequest updateCommentRequest) {
+        return BaseResponse.of(TEAM_COMMENT_REPLY_UPDATE_OK, teamCommentService.updateReplyComment(user, replyCommentIdx, updateCommentRequest));
+    }
 }

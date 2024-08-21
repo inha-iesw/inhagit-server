@@ -106,4 +106,24 @@ public class TeamCommentServiceImpl implements TeamCommentService{
         teamReplyCommentJpaRepository.save(teamReplyComment);
         return teamMapper.toTeamReplyCommentResponse(teamReplyComment);
     }
+
+    /**
+     * 팀 게시글 대댓글 수정
+     *
+     * @param user 사용자 정보
+     * @param replyCommentIdx 대댓글 식별자
+     * @param updateCommentRequest 대댓글 수정 요청
+     * @return TeamReplyCommentResponse
+     */
+    @Override
+    public TeamReplyCommentResponse updateReplyComment(User user, Integer replyCommentIdx, UpdateCommentRequest updateCommentRequest) {
+        TeamReplyComment teamReplyComment = teamReplyCommentJpaRepository.findByIdAndState(replyCommentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(TEAM_REPLY_COMMENT_NOT_FOUND));
+        if (!teamReplyComment.getUser().getId().equals(user.getId())) {
+            throw new BaseException(TEAM_REPLY_COMMENT_UPDATE_NOT_ALLOWED);
+        }
+        teamMapper.updateTeamReplyCommentRequestToTeamReplyComment(updateCommentRequest, teamReplyComment);
+        teamReplyCommentJpaRepository.save(teamReplyComment);
+        return teamMapper.toTeamReplyCommentResponse(teamReplyComment);
+    }
 }

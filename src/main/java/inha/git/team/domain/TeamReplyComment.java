@@ -22,6 +22,7 @@ public class TeamReplyComment extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Setter
     @Column(nullable = false, length = 255)
     private String contents;
 

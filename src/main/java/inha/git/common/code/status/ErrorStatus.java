@@ -138,6 +138,10 @@ public enum ErrorStatus implements BaseErrorCode {
     TEAM_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM4017", "팀 댓글을 찾을 수 없습니다."),
     TEAM_COMMENT_UPDATE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "TEAM4018", "댓글을 수정할 권한이 없습니다."),
     TEAM_COMMENT_DELETE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "TEAM4019", "댓글을 삭제할 권한이 없습니다."),
+    TEAM_REPLY_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM4020", "팀 대댓글을 찾을 수 없습니다."),
+    TEAM_REPLY_COMMENT_UPDATE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "TEAM4021", "대댓글을 수정할 권한이 없습니다."),
+    TEAM_REPLY_COMMENT_DELETE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "TEAM4022", "대댓글을 삭제할 권한이 없습니다."),
+
 
 
 
