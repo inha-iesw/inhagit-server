@@ -10,12 +10,14 @@ import inha.git.team.domain.TeamPost;
 import inha.git.team.domain.repository.TeamJpaRepository;
 import inha.git.team.domain.repository.TeamPostJpaRepository;
 import inha.git.user.domain.User;
+import inha.git.user.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
@@ -63,6 +65,26 @@ public class TeamPostServiceImpl implements TeamPostService{
             throw new BaseException(TEAM_POST_UPDATE_NOT_AUTHORIZED);
         }
         teamMapper.updateTeamPostRequestToTeamPost(updateTeamPostRequest, teamPost);
+        return teamMapper.teamPostToTeamPostResponse(teamPost);
+    }
+
+    /**
+     * 팀 게시글을 삭제
+     *
+     * @param user User
+     * @param postIdx Integer
+     * @return TeamPostResponse
+     */
+    @Override
+    public TeamPostResponse deleteTeamPost(User user, Integer postIdx) {
+        TeamPost teamPost = teamPostJpaRepository.findByIdAndState(postIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(TEAM_POST_NOT_FOUND));
+        if(!teamPost.getTeam().getUser().getId().equals(user.getId()) && !user.getRole().equals(Role.ADMIN)) {
+            throw new BaseException(TEAM_POST_DELETE_NOT_AUTHORIZED);
+        }
+        teamPost.setState(INACTIVE);
+        teamPost.setDeletedAt();
+        teamPostJpaRepository.save(teamPost);
         return teamMapper.teamPostToTeamPostResponse(teamPost);
     }
 }

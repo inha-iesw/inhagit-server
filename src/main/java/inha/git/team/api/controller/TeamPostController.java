@@ -58,5 +58,19 @@ public class TeamPostController {
         return BaseResponse.of(TEAM_POST_UPDATE_OK, teamPostService.updateTeamPost(user, postIdx, updateTeamPostRequest));
     }
 
+    /**
+     * 팀 게시글 삭제 API
+     *
+     * @param user User
+     * @param postIdx Integer
+     * @return BaseResponse<TeamPostResponse>
+     */
+    @DeleteMapping("/{postIdx}")
+    @Operation(summary = "팀 게시글 삭제 API", description = "팀 게시글을 삭제한다.")
+    public BaseResponse<TeamPostResponse> deleteTeamPost(@AuthenticationPrincipal User user,
+                                                         @PathVariable("postIdx") Integer postIdx) {
+        return BaseResponse.of(TEAM_POST_DELETE_OK, teamPostService.deleteTeamPost(user, postIdx));
+    }
+
 
 }

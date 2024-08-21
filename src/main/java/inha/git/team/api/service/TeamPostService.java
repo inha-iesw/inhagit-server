@@ -8,4 +8,5 @@ import inha.git.user.domain.User;
 public interface TeamPostService {
     TeamPostResponse createTeamPost(User user, CreateTeamPostRequest createTeamPostRequest);
     TeamPostResponse updateTeamPost(User user, Integer postIdx, UpdateTeamPostRequest updateTeamPostRequest);
+    TeamPostResponse deleteTeamPost(User user, Integer postIdx);
 }
