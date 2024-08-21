@@ -3,6 +3,7 @@ package inha.git.team.api.controller;
 import inha.git.common.BaseResponse;
 import inha.git.team.api.controller.dto.request.CreateTeamPostRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamPostRequest;
+import inha.git.team.api.controller.dto.response.SearchTeamPostsResponse;
 import inha.git.team.api.controller.dto.response.TeamPostResponse;
 import inha.git.team.api.service.TeamPostService;
 import inha.git.user.domain.User;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +30,19 @@ public class TeamPostController {
 
     private final TeamPostService teamPostService;
 
+    /**
+     * 팀 게시글 전체 조회 API
+     *
+     * <p>팀 게시글 전체를 조회한다.</p>
+     *
+     * @param page Integer
+     * @return 검색된 팀 게시글 정보를 포함하는 BaseResponse<Page<SearchTeamPostsResponse>>
+     */
+    @GetMapping
+    @Operation(summary = "팀 게시글 전체 조회 API", description = "팀 게시글 전체를 조회한다.")
+    public BaseResponse<Page<SearchTeamPostsResponse>> getTeamPosts(@RequestParam("page") Integer page) {
+        return BaseResponse.of(TEAM_POST_SEARCH_OK, teamPostService.getTeamPosts(page - 1));
+    }
     /**
      * 팀 게시글 생성 API
      *
