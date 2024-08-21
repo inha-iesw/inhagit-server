@@ -2,6 +2,7 @@ package inha.git.team.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.team.api.controller.dto.request.CreateCommentRequest;
+import inha.git.team.api.controller.dto.request.UpdateCommentRequest;
 import inha.git.team.api.controller.dto.response.TeamCommentResponse;
 import inha.git.team.api.service.TeamCommentService;
 import inha.git.user.domain.User;
@@ -13,8 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import static inha.git.common.code.status.SuccessStatus.TEAM_COMMENT_CREATE_OK;
-import static inha.git.common.code.status.SuccessStatus.TEAM_COMMENT_UPDATE_OK;
+import static inha.git.common.code.status.SuccessStatus.*;
 
 @Slf4j
 @Tag(name = "team comment controller", description = "team comment 관련 API")
@@ -45,7 +45,7 @@ public class TeamCommentController {
      *
      * @param user 사용자 정보
      * @param commentIdx 댓글 식별자
-     * @param createCommentRequest 댓글 수정 요청
+     * @param updateCommentRequest 댓글 수정 요청
      * @return BaseResponse<CommentResponse>
      */
     @PutMapping("/{commentIdx}")
@@ -53,8 +53,22 @@ public class TeamCommentController {
     public BaseResponse<TeamCommentResponse> updateComment(
             @AuthenticationPrincipal User user,
             @PathVariable("commentIdx") Integer commentIdx,
-            @Validated @RequestBody CreateCommentRequest createCommentRequest) {
-        return BaseResponse.of(TEAM_COMMENT_UPDATE_OK, teamCommentService.updateComment(user, commentIdx, createCommentRequest));
+            @Validated @RequestBody UpdateCommentRequest updateCommentRequest) {
+        return BaseResponse.of(TEAM_COMMENT_UPDATE_OK, teamCommentService.updateComment(user, commentIdx, updateCommentRequest));
     }
 
+    /**
+     * 팀 게시글 댓글 삭제 API
+     *
+     * @param user 사용자 정보
+     * @param commentIdx 댓글 식별자
+     * @return BaseResponse<TeamCommentResponse>
+     */
+    @DeleteMapping("/{commentIdx}")
+    @Operation(summary = "팀 게시글 댓글 삭제 API", description = "팀 게시글 댓글을 삭제합니다.")
+    public BaseResponse<TeamCommentResponse> deleteComment(
+            @AuthenticationPrincipal User user,
+            @PathVariable("commentIdx") Integer commentIdx) {
+        return BaseResponse.of(TEAM_COMMENT_DELETE_OK, teamCommentService.deleteComment(user, commentIdx));
+    }
 }

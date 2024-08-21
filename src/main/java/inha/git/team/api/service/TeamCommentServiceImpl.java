@@ -2,6 +2,7 @@ package inha.git.team.api.service;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.team.api.controller.dto.request.CreateCommentRequest;
+import inha.git.team.api.controller.dto.request.UpdateCommentRequest;
 import inha.git.team.api.controller.dto.response.TeamCommentResponse;
 import inha.git.team.api.mapper.TeamMapper;
 import inha.git.team.domain.TeamComment;
@@ -9,12 +10,14 @@ import inha.git.team.domain.TeamPost;
 import inha.git.team.domain.repository.TeamCommentJpaRepository;
 import inha.git.team.domain.repository.TeamPostJpaRepository;
 import inha.git.user.domain.User;
+import inha.git.user.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
@@ -33,7 +36,7 @@ public class TeamCommentServiceImpl implements TeamCommentService{
      *
      * @param user 사용자 정보
      * @param createCommentRequest 댓글 생성 요청
-     * @return CommentResponse
+     * @return TeamCommentResponse
      */
     @Override
     public TeamCommentResponse createComment(User user, CreateCommentRequest createCommentRequest) {
@@ -49,17 +52,38 @@ public class TeamCommentServiceImpl implements TeamCommentService{
      *
      * @param user 사용자 정보
      * @param commentIdx 댓글 식별자
-     * @param createCommentRequest 댓글 수정 요청
-     * @return CommentResponse
+     * @param updateCommentRequest 댓글 수정 요청
+     * @return TeamCommentResponse
      */
     @Override
-    public TeamCommentResponse updateComment(User user, Integer commentIdx, CreateCommentRequest createCommentRequest) {
+    public TeamCommentResponse updateComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest) {
         TeamComment teamComment = teamCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(TEAM_COMMENT_NOT_FOUND));
         if (!teamComment.getUser().getId().equals(user.getId())) {
             throw new BaseException(TEAM_COMMENT_UPDATE_NOT_ALLOWED);
         }
-        teamMapper.updateTeamCommentRequestToTeamComment(createCommentRequest, teamComment);
+        teamMapper.updateTeamCommentRequestToTeamComment(updateCommentRequest, teamComment);
+        return teamMapper.toTeamCommentResponse(teamComment);
+    }
+
+    /**
+     * 팀 게시글 댓글 삭제
+     *
+     * @param user 사용자 정보
+     * @param commentIdx 댓글 식별자
+     * @return TeamCommentResponse
+     */
+    @Override
+    public TeamCommentResponse deleteComment(User user, Integer commentIdx) {
+        TeamComment teamComment = teamCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(TEAM_COMMENT_NOT_FOUND));
+        log.info(teamComment.getUser().getId() + "!!!!!! ::::   " + user.getId() + " !!!!!!");
+        if(!teamComment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new BaseException(TEAM_COMMENT_DELETE_NOT_ALLOWED);
+        }
+        teamComment.setDeletedAt();
+        teamComment.setState(INACTIVE);
+        teamCommentJpaRepository.save(teamComment);
         return teamMapper.toTeamCommentResponse(teamComment);
     }
 }

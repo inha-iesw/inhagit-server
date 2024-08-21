@@ -186,11 +186,11 @@ public interface TeamMapper {
     TeamCommentResponse toTeamCommentResponse(TeamComment teamComment);
 
     /**
-     * CreateCommentRequest를 TeamComment로 업데이트.
+     * updateCommentRequest를 TeamComment로 업데이트.
      *
-     * @param createCommentRequest CreateCommentRequest
+     * @param updateCommentRequest UpdateCommentRequest
      * @param teamComment TeamComment
      */
-    @Mapping(target = "contents", source = "createCommentRequest.contents")
-    void updateTeamCommentRequestToTeamComment(CreateCommentRequest createCommentRequest, @MappingTarget TeamComment teamComment);
+    @Mapping(target = "contents", source = "updateCommentRequest.contents")
+    void updateTeamCommentRequestToTeamComment(UpdateCommentRequest updateCommentRequest, @MappingTarget TeamComment teamComment);
 }
