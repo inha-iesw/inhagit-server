@@ -5,6 +5,8 @@ import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 
 /**
  * TeamComment 엔티티는 애플리케이션의 팀 댓글 정보를 나타냄.
@@ -22,6 +24,7 @@ public class TeamComment extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Setter
     @Column(nullable = false, length = 255)
     private String contents;
 
@@ -32,4 +35,7 @@ public class TeamComment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_post_id")
     private TeamPost teamPost;
+
+    @OneToMany(mappedBy = "teamComment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TeamReplyComment> replies;
 }

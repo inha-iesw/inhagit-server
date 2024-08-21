@@ -173,7 +173,7 @@ public interface QuestionMapper {
     @Mapping(target = "author", source = "questionReplyComment.user")
     @Mapping(target = "createdAt", source = "questionReplyComment.createdAt")
     @Mapping(target = "contents", source = "questionReplyComment.contents")
-    inha.git.question.api.controller.dto.request.SearchReplyCommentResponse toSearchReplyCommentResponse(QuestionReplyComment questionReplyComment);
+    SearchReplyCommentResponse toSearchReplyCommentResponse(QuestionReplyComment questionReplyComment);
 
     /**
      * QuestionReplyComment 목록을 SearchReplyCommentResponse 목록으로 변환합니다.

@@ -23,13 +23,26 @@ public class Team extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Setter
     @Column(nullable = false, length = 12)
     private String name;
 
+    @Setter
     @Column(nullable = false, name = "max_member_number")
     private Integer maxMemberNumber;
+
+    @Column(nullable = false, name = "current_member_number")
+    private Integer currtentMemberNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public void increaseCurrentMemberNumber() {
+        this.currtentMemberNumber++;
+    }
+
+    public void decreaseCurrentMemberNumber() {
+        this.currtentMemberNumber--;
+    }
 }

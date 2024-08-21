@@ -118,6 +118,34 @@ public enum ErrorStatus implements BaseErrorCode {
     QUESTION_COMMENT_REPLY_UPDATE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "QUESTION4008", "대댓글을 수정할 권한이 없습니다."),
     QUESTION_COMMENT_REPLY_DELETE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "QUESTION4009", "대댓글을 삭제할 권한이 없습니다."),
 
+    COMPANY_CANNOT_CREATE_TEAM(HttpStatus.BAD_REQUEST, "TEAM4000", "기업 회원은 팀을 생성할 수 없습니다."),
+    TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM4001", "팀을 찾을 수 없습니다."),
+    TEAM_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TEAM4002", "팀을 수정할 권한이 없습니다."),
+    TEAM_MAX_MEMBER(HttpStatus.BAD_REQUEST, "TEAM4003", "최대 가입 인원 수는 현재 팀에 가입된 팀원 수 보다 적을 수 없습니다."),
+    TEAM_DELETE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TEAM4004", "팀을 삭제할 권한이 없습니다."),
+    COMPANY_CANNOT_JOIN_TEAM(HttpStatus.BAD_REQUEST, "TEAM4005", "기업 회원은 팀에 가입할 수 없습니다."),
+    TEAM_RECRUITMENT_CLOSED(HttpStatus.BAD_REQUEST, "TEAM4006", "팀원 모집이 마감되었습니다."),
+    TEAM_ALREADY_JOINED_REQUEST(HttpStatus.BAD_REQUEST, "TEAM4007", "이미 가입을 요청 중인 팀입니다."),
+    TEAM_ALREADY_JOINED(HttpStatus.BAD_REQUEST, "TEAM4008", "이미 가입한 팀입니다."),
+    TEAM_NOT_LEADER(HttpStatus.BAD_REQUEST, "TEAM4009", "팀 리더만 승인할 수 있습니다."),
+    TEAM_NOT_REQUESTED(HttpStatus.BAD_REQUEST, "TEAM4010", "팀 가입을 신청한 사용자가 아닙니다."),
+    TEAM_LEADER_CANNOT_EXIT(HttpStatus.BAD_REQUEST, "TEAM4011", "팀 리더는 팀을 탈퇴할 수 없습니다."),
+    TEAM_NOT_JOINED(HttpStatus.BAD_REQUEST, "TEAM4012", "가입하지 않은 팀입니다."),
+    TEAM_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM4013", "팀 게시글을 찾을 수 없습니다."),
+    TEAM_POST_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TEAM4014", "팀 게시글을 생성할 권한이 없습니다."),
+    TEAM_POST_UPDATE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TEAM4015", "팀 게시글을 수정할 권한이 없습니다."),
+    TEAM_POST_DELETE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TEAM4016", "팀 게시글을 삭제할 권한이 없습니다."),
+    TEAM_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM4017", "팀 댓글을 찾을 수 없습니다."),
+    TEAM_COMMENT_UPDATE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "TEAM4018", "댓글을 수정할 권한이 없습니다."),
+    TEAM_COMMENT_DELETE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "TEAM4019", "댓글을 삭제할 권한이 없습니다."),
+    TEAM_REPLY_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM4020", "팀 대댓글을 찾을 수 없습니다."),
+    TEAM_REPLY_COMMENT_UPDATE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "TEAM4021", "대댓글을 수정할 권한이 없습니다."),
+    TEAM_REPLY_COMMENT_DELETE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "TEAM4022", "대댓글을 삭제할 권한이 없습니다."),
+
+
+
+
+
     /**
      * 500 :  Database, Server 오류
      */

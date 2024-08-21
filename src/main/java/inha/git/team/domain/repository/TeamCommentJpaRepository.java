@@ -1,8 +1,13 @@
 package inha.git.team.domain.repository;
 
 
+import inha.git.common.BaseEntity.State;
 import inha.git.team.domain.TeamComment;
+import inha.git.team.domain.TeamPost;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -10,5 +15,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface TeamCommentJpaRepository extends JpaRepository<TeamComment, Integer> {
 
+    Optional<TeamComment> findByIdAndState(Integer commentIdx, State state);
 
+    List<TeamComment> findAllByTeamPostAndStateOrderByIdAsc(TeamPost teamPost, State state);
 }

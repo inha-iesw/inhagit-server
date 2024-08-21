@@ -1,8 +1,6 @@
 package inha.git.question.api.service;
 
 import inha.git.common.exceptions.BaseException;
-import inha.git.project.domain.Project;
-import inha.git.project.domain.ProjectComment;
 import inha.git.question.api.controller.dto.request.CommentWithRepliesResponse;
 import inha.git.question.api.controller.dto.request.CreateCommentRequest;
 import inha.git.question.api.controller.dto.request.CreateReplyCommentRequest;
