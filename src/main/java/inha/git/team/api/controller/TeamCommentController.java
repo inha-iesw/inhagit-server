@@ -4,6 +4,7 @@ import inha.git.common.BaseResponse;
 import inha.git.team.api.controller.dto.request.CreateCommentRequest;
 import inha.git.team.api.controller.dto.request.CreateReplyCommentRequest;
 import inha.git.team.api.controller.dto.request.UpdateCommentRequest;
+import inha.git.team.api.controller.dto.response.CommentWithRepliesResponse;
 import inha.git.team.api.controller.dto.response.TeamCommentResponse;
 import inha.git.team.api.controller.dto.response.TeamReplyCommentResponse;
 import inha.git.team.api.service.TeamCommentService;
@@ -16,6 +17,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static inha.git.common.code.status.SuccessStatus.*;
 
 @Slf4j
@@ -26,6 +29,19 @@ import static inha.git.common.code.status.SuccessStatus.*;
 public class TeamCommentController {
 
     private final TeamCommentService teamCommentService;
+
+    /**
+     * 특정 팀 게시글 댓글 전체 조회 API
+     *
+     * @param postIdx 게시글 식별자
+     * @return BaseResponse<List<CommentWithRepliesResponse>>
+     */
+    @GetMapping
+    @Operation(summary = "특정 팀 게시글 댓글 전체 조회 API", description = "특정 팀 게시글 댓글 전체를 조회합니다.")
+    public BaseResponse<List<CommentWithRepliesResponse>> getAllCommentsByTeamPostIdx(
+            @RequestParam("postIdx") Integer postIdx) {
+        return BaseResponse.of(TEAM_COMMENT_SEARCH_OK, teamCommentService.getAllCommentsByTeamPostIdx(postIdx));
+    }
 
     /**
      * 팀 게시글 댓글 생성 API

@@ -4,6 +4,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.team.api.controller.dto.request.CreateCommentRequest;
 import inha.git.team.api.controller.dto.request.CreateReplyCommentRequest;
 import inha.git.team.api.controller.dto.request.UpdateCommentRequest;
+import inha.git.team.api.controller.dto.response.CommentWithRepliesResponse;
 import inha.git.team.api.controller.dto.response.TeamCommentResponse;
 import inha.git.team.api.controller.dto.response.TeamReplyCommentResponse;
 import inha.git.team.api.mapper.TeamMapper;
@@ -19,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
@@ -38,6 +41,20 @@ public class TeamCommentServiceImpl implements TeamCommentService{
     private final TeamCommentJpaRepository teamCommentJpaRepository;
     private final TeamReplyCommentJpaRepository teamReplyCommentJpaRepository;
 
+
+    /**
+     * 팀 게시글 댓글 전체 조회
+     *
+     * @param postIdx 게시글 식별자
+     * @return List<CommentWithRepliesResponse>
+     */
+    @Override
+    public List<CommentWithRepliesResponse> getAllCommentsByTeamPostIdx(Integer postIdx) {
+        TeamPost teamPost = teamPostJpaRepository.findByIdAndState(postIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(TEAM_POST_NOT_FOUND));
+        List<TeamComment> teamComments = teamCommentJpaRepository.findAllByTeamPostAndStateOrderByIdAsc(teamPost, ACTIVE);
+        return teamMapper.toCommentWithRepliesResponseList(teamComments);
+    }
 
     /**
      * 팀 게시글 댓글 생성

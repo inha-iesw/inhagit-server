@@ -3,6 +3,9 @@ package inha.git.team.api.mapper;
 import inha.git.mapping.domain.TeamUser;
 import inha.git.mapping.domain.id.TeamUserId;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
+import inha.git.question.api.controller.dto.request.SearchReplyCommentResponse;
+import inha.git.question.domain.QuestionComment;
+import inha.git.question.domain.QuestionReplyComment;
 import inha.git.team.api.controller.dto.request.*;
 import inha.git.team.api.controller.dto.response.*;
 import inha.git.team.domain.Team;
@@ -218,6 +221,54 @@ public interface TeamMapper {
     TeamReplyCommentResponse toTeamReplyCommentResponse(TeamReplyComment teamReplyComment);
 
 
+    /**
+     * updateCommentRequest를 TeamReplyComment로 업데이트.
+     *
+     * @param updateCommentRequest UpdateCommentRequest
+     * @param teamReplyComment TeamReplyComment
+     */
     @Mapping(target = "contents", source = "updateCommentRequest.contents")
     void updateTeamReplyCommentRequestToTeamReplyComment(UpdateCommentRequest updateCommentRequest, @MappingTarget TeamReplyComment teamReplyComment);
+
+    /**
+     * TeamComment를 CommentWithRepliesResponse로 변환합니다.
+     *
+     * @param teamComment TeamComment
+     * @return CommentWithRepliesResponse
+     */
+    @Mapping(target = "idx", source = "teamComment.id")
+    @Mapping(target = "author", source = "teamComment.user")
+    @Mapping(target = "createdAt", source = "teamComment.createdAt")
+    @Mapping(target = "contents", source = "teamComment.contents")
+    @Mapping(target = "replies", source = "teamComment.replies") // replies 필드 매핑
+    CommentWithRepliesResponse toCommentWithRepliesResponse(TeamComment teamComment);
+
+
+    /**
+     * TeamReplyComment를 SearchReplyCommentResponse로 변환합니다.
+     *
+     * @param teamReplyComment TeamReplyComment
+     * @return SearchReplyCommentResponse
+     */
+    @Mapping(target = "idx", source = "teamReplyComment.id")
+    @Mapping(target = "author", source = "teamReplyComment.user")
+    @Mapping(target = "createdAt", source = "teamReplyComment.createdAt")
+    @Mapping(target = "contents", source = "teamReplyComment.contents")
+    SearchReplyCommentResponse toSearchReplyCommentResponse(TeamReplyComment teamReplyComment);
+
+    /**
+     * TeamComment 목록을 CommentResponse 목록으로 변환.
+     *
+     * @param replies List<TeamComment>
+     * @return List<CommentResponse>
+     */
+    List<SearchReplyCommentResponse> toSearchReplyCommentResponseList(List<TeamComment> replies);
+
+    /**
+     * TeamComment 목록을 CommentWithRepliesResponse 목록으로 변환합니다.
+     *
+     * @param comments List<TeamComment>
+     * @return List<CommentWithRepliesResponse>
+     */
+    List<CommentWithRepliesResponse> toCommentWithRepliesResponseList(List<TeamComment> comments);
 }
