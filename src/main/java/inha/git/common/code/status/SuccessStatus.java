@@ -111,7 +111,11 @@ public enum SuccessStatus implements BaseCode {
     TEAM_POST_UPDATE_OK(HttpStatus.OK, "TEAM2015", "팀 게시글 수정 성공"),
     TEAM_POST_DELETE_OK(HttpStatus.OK, "TEAM2016", "팀 게시글 삭제 성공"),
     TEAM_POST_SEARCH_OK(HttpStatus.OK, "TEAM2017", "팀 게시글 전체 조회 성공"),
-    TEAM_POST_DETAIL_OK(HttpStatus.OK, "TEAM2018", "팀 게시글 상세 조회 성공");
+    TEAM_POST_DETAIL_OK(HttpStatus.OK, "TEAM2018", "팀 게시글 상세 조회 성공"),
+    TEAM_COMMENT_CREATE_OK(HttpStatus.CREATED, "TEAM2019", "팀 게시글 댓글 생성 성공"),
+    TEAM_COMMENT_DELETE_OK(HttpStatus.OK, "TEAM2020", "팀 게시글 댓글 삭제 성공"),
+    TEAM_COMMENT_UPDATE_OK(HttpStatus.OK, "TEAM2021", "팀 게시글 댓글 수정 성공"),
+    TEAM_COMMENT_SEARCH_OK(HttpStatus.OK, "TEAM2022", "팀 게시글 댓글 전체 조회 성공");
 
 
     private final HttpStatus httpStatus;

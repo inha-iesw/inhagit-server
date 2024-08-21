@@ -3,12 +3,11 @@ package inha.git.team.api.mapper;
 import inha.git.mapping.domain.TeamUser;
 import inha.git.mapping.domain.id.TeamUserId;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
-import inha.git.team.api.controller.dto.request.CreateTeamPostRequest;
-import inha.git.team.api.controller.dto.request.CreateTeamRequest;
-import inha.git.team.api.controller.dto.request.UpdateTeamPostRequest;
-import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
+import inha.git.question.api.controller.dto.response.CommentResponse;
+import inha.git.team.api.controller.dto.request.*;
 import inha.git.team.api.controller.dto.response.*;
 import inha.git.team.domain.Team;
+import inha.git.team.domain.TeamComment;
 import inha.git.team.domain.TeamPost;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
@@ -161,4 +160,29 @@ public interface TeamMapper {
     @Mapping(target = "contents", source = "teamPost.contents")
     @Mapping(target = "createdAt", source = "teamPost.createdAt")
     @Mapping(target = "team", expression = "java(teamToSearchTeamResponse(team, userToSearchUserResponse(user)))")
-    SearchTeamPostResponse teamPostToSearchTeamPostResponse(TeamPost teamPost, Team team, User user);}
+    SearchTeamPostResponse teamPostToSearchTeamPostResponse(TeamPost teamPost, Team team, User user);
+
+    /**
+     * CreateCommentRequest를 TeamComment로 변환.
+     *
+     * @param createCommentRequest CreateCommentRequest
+     * @param user User
+     * @param teamPost TeamPost
+     * @return TeamComment
+     */
+    @Mapping(target = "contents", source = "createCommentRequest.contents")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", source = "user")
+    @Mapping(target = "teamPost", source = "teamPost")
+    TeamComment toTeamComment(CreateCommentRequest createCommentRequest, User user, TeamPost teamPost);
+
+    /**
+     * 팀 댓글을 CommentResponse로 변환.
+     *
+     * @param teamComment TeamComment
+     * @return CommentResponse
+     */
+    @Mapping(target = "idx", source = "teamComment.id")
+    CommentResponse toCommentResponse(TeamComment teamComment);
+
+}
