@@ -143,4 +143,19 @@ public class TeamController {
             @Validated @RequestBody ApproveRequestTeamRequest approveRequestTeamRequest) {
         return BaseResponse.of(TEAM_JOIN_ACCEPT_OK, teamService.approveRequestTeam(user, approveRequestTeamRequest));
     }
+
+    /**
+     * 팀 탈퇴 API
+     *
+     * @param user User
+     * @param teamIdx Integer
+     * @return BaseResponse<TeamResponse>
+     */
+    @DeleteMapping("/{teamIdx}/exit")
+    @Operation(summary = "팀 탈퇴 API", description = "팀을 탈퇴합니다.")
+    public BaseResponse<TeamResponse> exitTeam(
+            @AuthenticationPrincipal User user,
+            @PathVariable("teamIdx") Integer teamIdx) {
+        return BaseResponse.of(TEAM_EXIT_OK, teamService.exitTeam(user, teamIdx));
+    }
 }

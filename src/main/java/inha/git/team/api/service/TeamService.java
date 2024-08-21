@@ -20,4 +20,5 @@ public interface TeamService {
 
     TeamResponse requestTeam(User user, RequestTeamRequest requestTeamRequest);
     TeamResponse approveRequestTeam(User user, ApproveRequestTeamRequest approveRequestTeamRequest);
+    TeamResponse exitTeam(User user, Integer teamIdx);
 }

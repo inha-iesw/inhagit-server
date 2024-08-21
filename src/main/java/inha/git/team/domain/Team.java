@@ -41,4 +41,8 @@ public class Team extends BaseEntity {
     public void increaseCurrentMemberNumber() {
         this.currtentMemberNumber++;
     }
+
+    public void decreaseCurrentMemberNumber() {
+        this.currtentMemberNumber--;
+    }
 }

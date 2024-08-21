@@ -179,4 +179,28 @@ public class TeamServiceImpl implements TeamService {
         team.increaseCurrentMemberNumber();
         return teamMapper.teamToTeamResponse(team);
     }
+
+    /**
+     * 팀 탈퇴
+     *
+     * @param user User
+     * @param teamIdx Integer
+     * @return TeamResponse
+     */
+    @Override
+    public TeamResponse exitTeam(User user, Integer teamIdx) {
+        Team team = teamJpaRepository.findByIdAndState(teamIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(TEAM_NOT_FOUND));
+        if(user.getId().equals(team.getUser().getId())) {
+            throw new BaseException(TEAM_LEADER_CANNOT_EXIT);
+        }
+        TeamUser teamUser = teamUserJpaRepository.findByUserAndTeam(user, team)
+                .orElseThrow(() -> new BaseException(TEAM_NOT_JOINED));
+        if(teamUser.getAcceptedAt() == null) {
+            throw new BaseException(TEAM_NOT_JOINED);
+        }
+        teamUserJpaRepository.delete(teamUser);
+        team.decreaseCurrentMemberNumber();
+        return teamMapper.teamToTeamResponse(team);
+    }
 }
