@@ -5,6 +5,7 @@ import inha.git.mapping.domain.id.TeamUserId;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.team.api.controller.dto.request.CreateTeamPostRequest;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
+import inha.git.team.api.controller.dto.request.UpdateTeamPostRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
 import inha.git.team.api.controller.dto.response.SearchTeamResponse;
 import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
@@ -139,4 +140,14 @@ public interface TeamMapper {
      */
     @Mapping(target = "idx", source = "teamPost.id")
     TeamPostResponse teamPostToTeamPostResponse(TeamPost teamPost);
+
+    /**
+     * UpdateTeamPostRequest를 TeamPost로 변환.
+     *
+     * @param updateTeamPostRequest UpdateTeamPostRequest
+     * @param teamPost TeamPost
+     */
+    @Mapping(target = "title", source = "updateTeamPostRequest.title")
+    @Mapping(target = "contents", source = "updateTeamPostRequest.contents")
+    void updateTeamPostRequestToTeamPost(UpdateTeamPostRequest updateTeamPostRequest, @MappingTarget TeamPost teamPost);
 }
