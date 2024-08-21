@@ -2,8 +2,10 @@ package inha.git.team.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.team.api.controller.dto.request.CreateCommentRequest;
+import inha.git.team.api.controller.dto.request.CreateReplyCommentRequest;
 import inha.git.team.api.controller.dto.request.UpdateCommentRequest;
 import inha.git.team.api.controller.dto.response.TeamCommentResponse;
+import inha.git.team.api.controller.dto.response.TeamReplyCommentResponse;
 import inha.git.team.api.service.TeamCommentService;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -70,5 +72,13 @@ public class TeamCommentController {
             @AuthenticationPrincipal User user,
             @PathVariable("commentIdx") Integer commentIdx) {
         return BaseResponse.of(TEAM_COMMENT_DELETE_OK, teamCommentService.deleteComment(user, commentIdx));
+    }
+
+    @PostMapping("/reply")
+    @Operation(summary = "팀 게시글 대댓글 생성 API", description = "팀 게시글 대댓글을 생성합니다.")
+    public BaseResponse<TeamReplyCommentResponse> createReplyComment(
+            @AuthenticationPrincipal User user,
+            @Validated @RequestBody CreateReplyCommentRequest createReplyCommentRequest) {
+        return BaseResponse.of(TEAM_COMMENT_REPLY_CREATE_OK, teamCommentService.createReplyComment(user, createReplyCommentRequest));
     }
 }

@@ -2,13 +2,17 @@ package inha.git.team.api.service;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.team.api.controller.dto.request.CreateCommentRequest;
+import inha.git.team.api.controller.dto.request.CreateReplyCommentRequest;
 import inha.git.team.api.controller.dto.request.UpdateCommentRequest;
 import inha.git.team.api.controller.dto.response.TeamCommentResponse;
+import inha.git.team.api.controller.dto.response.TeamReplyCommentResponse;
 import inha.git.team.api.mapper.TeamMapper;
 import inha.git.team.domain.TeamComment;
 import inha.git.team.domain.TeamPost;
+import inha.git.team.domain.TeamReplyComment;
 import inha.git.team.domain.repository.TeamCommentJpaRepository;
 import inha.git.team.domain.repository.TeamPostJpaRepository;
+import inha.git.team.domain.repository.TeamReplyCommentJpaRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +33,7 @@ public class TeamCommentServiceImpl implements TeamCommentService{
     private final TeamMapper teamMapper;
     private final TeamPostJpaRepository teamPostJpaRepository;
     private final TeamCommentJpaRepository teamCommentJpaRepository;
+    private final TeamReplyCommentJpaRepository teamReplyCommentJpaRepository;
 
 
     /**
@@ -77,7 +82,6 @@ public class TeamCommentServiceImpl implements TeamCommentService{
     public TeamCommentResponse deleteComment(User user, Integer commentIdx) {
         TeamComment teamComment = teamCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(TEAM_COMMENT_NOT_FOUND));
-        log.info(teamComment.getUser().getId() + "!!!!!! ::::   " + user.getId() + " !!!!!!");
         if(!teamComment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
             throw new BaseException(TEAM_COMMENT_DELETE_NOT_ALLOWED);
         }
@@ -85,5 +89,21 @@ public class TeamCommentServiceImpl implements TeamCommentService{
         teamComment.setState(INACTIVE);
         teamCommentJpaRepository.save(teamComment);
         return teamMapper.toTeamCommentResponse(teamComment);
+    }
+
+    /**
+     * 팀 게시글 대댓글 생성
+     *
+     * @param user 사용자 정보
+     * @param createReplyCommentRequest 대댓글 생성 요청
+     * @return TeamReplyCommentResponse
+     */
+    @Override
+    public TeamReplyCommentResponse createReplyComment(User user, CreateReplyCommentRequest createReplyCommentRequest) {
+        TeamComment teamComment = teamCommentJpaRepository.findByIdAndState(createReplyCommentRequest.commentIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(TEAM_COMMENT_NOT_FOUND));
+        TeamReplyComment teamReplyComment = teamMapper.toTeamReplyComment(createReplyCommentRequest, user, teamComment);
+        teamReplyCommentJpaRepository.save(teamReplyComment);
+        return teamMapper.toTeamReplyCommentResponse(teamReplyComment);
     }
 }

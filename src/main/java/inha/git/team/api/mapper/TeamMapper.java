@@ -3,12 +3,12 @@ package inha.git.team.api.mapper;
 import inha.git.mapping.domain.TeamUser;
 import inha.git.mapping.domain.id.TeamUserId;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
-import inha.git.question.api.controller.dto.response.CommentResponse;
 import inha.git.team.api.controller.dto.request.*;
 import inha.git.team.api.controller.dto.response.*;
 import inha.git.team.domain.Team;
 import inha.git.team.domain.TeamComment;
 import inha.git.team.domain.TeamPost;
+import inha.git.team.domain.TeamReplyComment;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -193,4 +193,28 @@ public interface TeamMapper {
      */
     @Mapping(target = "contents", source = "updateCommentRequest.contents")
     void updateTeamCommentRequestToTeamComment(UpdateCommentRequest updateCommentRequest, @MappingTarget TeamComment teamComment);
+
+    /**
+     * CreateReplyCommentRequest를 TeamReplyComment로 변환.
+     *
+     * @param createReplyCommentRequest CreateReplyCommentRequest
+     * @param user User
+     * @param teamComment TeamComment
+     * @return TeamReplyComment
+     */
+    @Mapping(target = "contents", source = "createReplyCommentRequest.contents")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", source = "user")
+    @Mapping(target = "teamComment", source = "teamComment")
+    TeamReplyComment toTeamReplyComment(CreateReplyCommentRequest createReplyCommentRequest, User user, TeamComment teamComment);
+
+    /**
+     * 팀 대댓글을 TeamReplyCommentResponse로 변환.
+     *
+     * @param teamReplyComment TeamReplyComment
+     * @return TeamReplyCommentResponse
+     */
+    @Mapping(target = "idx", source = "teamReplyComment.id")
+    TeamReplyCommentResponse toTeamReplyCommentResponse(TeamReplyComment teamReplyComment);
+
 }
