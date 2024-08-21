@@ -3,12 +3,15 @@ package inha.git.team.api.mapper;
 import inha.git.mapping.domain.TeamUser;
 import inha.git.mapping.domain.id.TeamUserId;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
+import inha.git.team.api.controller.dto.request.CreateTeamPostRequest;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
 import inha.git.team.api.controller.dto.response.SearchTeamResponse;
 import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
+import inha.git.team.api.controller.dto.response.TeamPostResponse;
 import inha.git.team.api.controller.dto.response.TeamResponse;
 import inha.git.team.domain.Team;
+import inha.git.team.domain.TeamPost;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -114,4 +117,26 @@ public interface TeamMapper {
     @Mapping(target = "currentMember", source = "team.currtentMemberNumber")
     @Mapping(target = "createdAt", source = "team.createdAt")
     SearchTeamResponse teamToSearchTeamResponse(Team team, SearchUserResponse leader);
+
+    /**
+     * 팀 게시글을 생성.
+     *
+     * @param team Team
+     * @param createTeamPostRequest CreateTeamPostRequest
+     * @return TeamPost
+     */
+    @Mapping(target = "team", source = "team")
+    @Mapping(target = "contents", source = "createTeamPostRequest.contents")
+    @Mapping(target = "title", source = "createTeamPostRequest.title")
+    @Mapping(target = "id", ignore = true)
+    TeamPost createTeamPost(Team team, CreateTeamPostRequest createTeamPostRequest);
+
+    /**
+     * 팀 게시글을 TeamPostResponse로 변환.
+     *
+     * @param teamPost TeamPost
+     * @return TeamPostResponse
+     */
+    @Mapping(target = "idx", source = "teamPost.id")
+    TeamPostResponse teamPostToTeamPostResponse(TeamPost teamPost);
 }

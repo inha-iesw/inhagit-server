@@ -106,7 +106,13 @@ public enum SuccessStatus implements BaseCode {
     TEAM_GET_MY_TEAMS_OK(HttpStatus.OK, "TEAM2004", "내가 생성한 팀 목록 가져오기 성공"),
     TEAM_JOIN_OK(HttpStatus.CREATED, "TEAM2011", "팀 가입 성공"),
     TEAM_JOIN_ACCEPT_OK(HttpStatus.CREATED, "TEAM2012", "팀 가입 승인 성공"),
-    TEAM_EXIT_OK(HttpStatus.OK, "TEAM2013", "팀 탈퇴 성공");
+    TEAM_EXIT_OK(HttpStatus.OK, "TEAM2013", "팀 탈퇴 성공"),
+    TEAM_POST_CREATE_OK(HttpStatus.CREATED, "TEAM2014", "팀 게시글 생성 성공"),
+    TEAM_POST_UPDATE_OK(HttpStatus.OK, "TEAM2015", "팀 게시글 수정 성공"),
+    TEAM_POST_DELETE_OK(HttpStatus.OK, "TEAM2016", "팀 게시글 삭제 성공"),
+    TEAM_POST_SEARCH_OK(HttpStatus.OK, "TEAM2017", "팀 게시글 전체 조회 성공"),
+    TEAM_POST_DETAIL_OK(HttpStatus.OK, "TEAM2018", "팀 게시글 상세 조회 성공");
+
 
     private final HttpStatus httpStatus;
     private final String code;

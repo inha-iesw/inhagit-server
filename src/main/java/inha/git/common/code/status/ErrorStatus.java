@@ -131,6 +131,12 @@ public enum ErrorStatus implements BaseErrorCode {
     TEAM_NOT_REQUESTED(HttpStatus.BAD_REQUEST, "TEAM4010", "팀 가입을 신청한 사용자가 아닙니다."),
     TEAM_LEADER_CANNOT_EXIT(HttpStatus.BAD_REQUEST, "TEAM4011", "팀 리더는 팀을 탈퇴할 수 없습니다."),
     TEAM_NOT_JOINED(HttpStatus.BAD_REQUEST, "TEAM4012", "가입하지 않은 팀입니다."),
+    TEAM_POST_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM4013", "팀 게시글을 찾을 수 없습니다."),
+    TEAM_POST_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TEAM4014", "팀 게시글을 생성할 권한이 없습니다."),
+    TEAM_POST_UPDATE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TEAM4015", "팀 게시글을 수정할 권한이 없습니다."),
+    TEAM_POST_DELETE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TEAM4016", "팀 게시글을 삭제할 권한이 없습니다."),
+
+
 
 
     /**
