@@ -177,12 +177,20 @@ public interface TeamMapper {
     TeamComment toTeamComment(CreateCommentRequest createCommentRequest, User user, TeamPost teamPost);
 
     /**
-     * 팀 댓글을 CommentResponse로 변환.
+     * 팀 댓글을 TeamCommentResponse로 변환.
      *
      * @param teamComment TeamComment
-     * @return CommentResponse
+     * @return TeamCommentResponse
      */
     @Mapping(target = "idx", source = "teamComment.id")
-    CommentResponse toCommentResponse(TeamComment teamComment);
+    TeamCommentResponse toTeamCommentResponse(TeamComment teamComment);
 
+    /**
+     * CreateCommentRequest를 TeamComment로 업데이트.
+     *
+     * @param createCommentRequest CreateCommentRequest
+     * @param teamComment TeamComment
+     */
+    @Mapping(target = "contents", source = "createCommentRequest.contents")
+    void updateTeamCommentRequestToTeamComment(CreateCommentRequest createCommentRequest, @MappingTarget TeamComment teamComment);
 }

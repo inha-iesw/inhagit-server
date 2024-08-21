@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record CreateCommentRequest(
+public record UpdateCommentRequest(
         @NotNull
         @Schema(description = "팀 게시글 인덱스", example = "1")
         Integer postIdx,

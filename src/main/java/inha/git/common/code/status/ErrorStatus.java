@@ -135,6 +135,8 @@ public enum ErrorStatus implements BaseErrorCode {
     TEAM_POST_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TEAM4014", "팀 게시글을 생성할 권한이 없습니다."),
     TEAM_POST_UPDATE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TEAM4015", "팀 게시글을 수정할 권한이 없습니다."),
     TEAM_POST_DELETE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "TEAM4016", "팀 게시글을 삭제할 권한이 없습니다."),
+    TEAM_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM4017", "팀 댓글을 찾을 수 없습니다."),
+    TEAM_COMMENT_UPDATE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "TEAM4018", "댓글을 수정할 권한이 없습니다."),
 
 
 
