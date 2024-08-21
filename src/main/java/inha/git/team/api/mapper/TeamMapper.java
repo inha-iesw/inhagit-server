@@ -7,10 +7,7 @@ import inha.git.team.api.controller.dto.request.CreateTeamPostRequest;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamPostRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
-import inha.git.team.api.controller.dto.response.SearchTeamResponse;
-import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
-import inha.git.team.api.controller.dto.response.TeamPostResponse;
-import inha.git.team.api.controller.dto.response.TeamResponse;
+import inha.git.team.api.controller.dto.response.*;
 import inha.git.team.domain.Team;
 import inha.git.team.domain.TeamPost;
 import inha.git.user.domain.User;
@@ -150,4 +147,18 @@ public interface TeamMapper {
     @Mapping(target = "title", source = "updateTeamPostRequest.title")
     @Mapping(target = "contents", source = "updateTeamPostRequest.contents")
     void updateTeamPostRequestToTeamPost(UpdateTeamPostRequest updateTeamPostRequest, @MappingTarget TeamPost teamPost);
-}
+
+    /**
+     * 팀 게시글을 SearchTeamPostResponse로 변환.
+     *
+     * @param teamPost TeamPost
+     * @param team Team
+     * @param user User
+     * @return SearchTeamPostResponse
+     */
+    @Mapping(target = "idx", source = "teamPost.id")
+    @Mapping(target = "title", source = "teamPost.title")
+    @Mapping(target = "contents", source = "teamPost.contents")
+    @Mapping(target = "createdAt", source = "teamPost.createdAt")
+    @Mapping(target = "team", expression = "java(teamToSearchTeamResponse(team, userToSearchUserResponse(user)))")
+    SearchTeamPostResponse teamPostToSearchTeamPostResponse(TeamPost teamPost, Team team, User user);}

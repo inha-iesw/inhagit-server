@@ -3,6 +3,7 @@ package inha.git.team.api.service;
 import inha.git.common.exceptions.BaseException;
 import inha.git.team.api.controller.dto.request.CreateTeamPostRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamPostRequest;
+import inha.git.team.api.controller.dto.response.SearchTeamPostResponse;
 import inha.git.team.api.controller.dto.response.SearchTeamPostsResponse;
 import inha.git.team.api.controller.dto.response.TeamPostResponse;
 import inha.git.team.api.mapper.TeamMapper;
@@ -45,9 +46,24 @@ public class TeamPostServiceImpl implements TeamPostService{
      * @return Page<SearchTeamPostsResponse>
      */
     @Override
+    @Transactional(readOnly = true)
     public Page<SearchTeamPostsResponse> getTeamPosts(Integer page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return teamPostQueryRepository.getTeamPosts(pageable);
+    }
+
+    /**
+     * 팀 게시글 상세 조회
+     *
+     * @param postIdx Integer
+     * @return SearchTeamPostResponse
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public SearchTeamPostResponse getTeamPost(Integer postIdx) {
+        TeamPost teamPost = teamPostJpaRepository.findByIdAndState(postIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(TEAM_POST_NOT_FOUND));
+        return teamMapper.teamPostToSearchTeamPostResponse(teamPost, teamPost.getTeam(), teamPost.getTeam().getUser());
     }
 
     /**

@@ -3,6 +3,7 @@ package inha.git.team.api.controller;
 import inha.git.common.BaseResponse;
 import inha.git.team.api.controller.dto.request.CreateTeamPostRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamPostRequest;
+import inha.git.team.api.controller.dto.response.SearchTeamPostResponse;
 import inha.git.team.api.controller.dto.response.SearchTeamPostsResponse;
 import inha.git.team.api.controller.dto.response.TeamPostResponse;
 import inha.git.team.api.service.TeamPostService;
@@ -42,6 +43,20 @@ public class TeamPostController {
     @Operation(summary = "팀 게시글 전체 조회 API", description = "팀 게시글 전체를 조회한다.")
     public BaseResponse<Page<SearchTeamPostsResponse>> getTeamPosts(@RequestParam("page") Integer page) {
         return BaseResponse.of(TEAM_POST_SEARCH_OK, teamPostService.getTeamPosts(page - 1));
+    }
+
+    /**
+     * 팀 게시글 상세 조회 API
+     *
+     * <p>팀 게시글 상세를 조회한다.</p>
+     *
+     * @param postIdx Integer
+     * @return 검색된 팀 게시글 정보를 포함하는 BaseResponse<SearchTeamPostResponse>
+     */
+    @GetMapping("/{postIdx}")
+    @Operation(summary = "팀 게시글 상세 조회 API", description = "팀 게시글 상세를 조회한다.")
+    public BaseResponse<SearchTeamPostResponse> getTeamPost(@PathVariable("postIdx") Integer postIdx) {
+        return BaseResponse.of(TEAM_POST_DETAIL_OK, teamPostService.getTeamPost(postIdx));
     }
     /**
      * 팀 게시글 생성 API
