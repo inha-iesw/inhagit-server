@@ -24,6 +24,9 @@ import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
 
+/**
+ * TeamCommentServiceImpl은 TeamCommentService 인터페이스를 구현하는 클래스.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -123,6 +126,26 @@ public class TeamCommentServiceImpl implements TeamCommentService{
             throw new BaseException(TEAM_REPLY_COMMENT_UPDATE_NOT_ALLOWED);
         }
         teamMapper.updateTeamReplyCommentRequestToTeamReplyComment(updateCommentRequest, teamReplyComment);
+        teamReplyCommentJpaRepository.save(teamReplyComment);
+        return teamMapper.toTeamReplyCommentResponse(teamReplyComment);
+    }
+
+    /**
+     * 팀 게시글 대댓글 삭제
+     *
+     * @param user 사용자 정보
+     * @param replyCommentIdx 대댓글 식별자
+     * @return TeamReplyCommentResponse
+     */
+    @Override
+    public TeamReplyCommentResponse deleteReplyComment(User user, Integer replyCommentIdx) {
+        TeamReplyComment teamReplyComment = teamReplyCommentJpaRepository.findByIdAndState(replyCommentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(TEAM_REPLY_COMMENT_NOT_FOUND));
+        if (!teamReplyComment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new BaseException(TEAM_REPLY_COMMENT_DELETE_NOT_ALLOWED);
+        }
+        teamReplyComment.setDeletedAt();
+        teamReplyComment.setState(INACTIVE);
         teamReplyCommentJpaRepository.save(teamReplyComment);
         return teamMapper.toTeamReplyCommentResponse(teamReplyComment);
     }

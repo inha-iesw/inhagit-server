@@ -98,4 +98,19 @@ public class TeamCommentController {
             @Validated @RequestBody UpdateCommentRequest updateCommentRequest) {
         return BaseResponse.of(TEAM_COMMENT_REPLY_UPDATE_OK, teamCommentService.updateReplyComment(user, replyCommentIdx, updateCommentRequest));
     }
+
+    /**
+     * 팀 게시글 대댓글 삭제 API
+     *
+     * @param user 사용자 정보
+     * @param replyCommentIdx 대댓글 식별자
+     * @return BaseResponse<TeamReplyCommentResponse>
+     */
+    @DeleteMapping("/reply/{replyCommentIdx}")
+    @Operation(summary = "팀 게시글 대댓글 삭제 API", description = "팀 게시글 대댓글을 삭제합니다.")
+    public BaseResponse<TeamReplyCommentResponse> deleteReplyComment(
+            @AuthenticationPrincipal User user,
+            @PathVariable("replyCommentIdx") Integer replyCommentIdx) {
+        return BaseResponse.of(TEAM_COMMENT_REPLY_DELETE_OK, teamCommentService.deleteReplyComment(user, replyCommentIdx));
+    }
 }
