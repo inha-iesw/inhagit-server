@@ -1,10 +1,7 @@
 package inha.git.problem.api.service;
 
 import inha.git.common.exceptions.BaseException;
-import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
-import inha.git.problem.api.controller.dto.request.CreateRequestProblemRequest;
-import inha.git.problem.api.controller.dto.request.CreateTeamRequestProblemRequest;
-import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
+import inha.git.problem.api.controller.dto.request.*;
 import inha.git.problem.api.controller.dto.response.ProblemResponse;
 import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchProblemResponse;
@@ -216,6 +213,28 @@ public class ProblemServiceImpl implements ProblemService {
         problemRequestJpaRepository.save(problemRequest);
         ProblemTeamRequest problemTeamRequest = problemMapper.createTeamRequestProblemRequestToProblemTeamRequest(team, problemRequest);
         problemTeamRequestJpaRepository.save(problemTeamRequest);
+        return problemMapper.problemRequestToRequestProblemResponse(problemRequest);
+    }
+
+    /**
+     * 문제 참여 승인
+     *
+     * @param user 유저 정보
+     * @param createProblemApproveRequest 문제 참여 승인 요청 정보
+     * @return 승인된 문제 정보
+     */
+    @Override
+    @Transactional
+    public RequestProblemResponse approveRequest(User user, CreateProblemApproveRequest createProblemApproveRequest) {
+        ProblemRequest problemRequest = problemRequestJpaRepository.findByIdAndState(createProblemApproveRequest.requestIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_REQUEST_PROBLEM));
+        if(!problemRequest.getProblem().getUser().getId().equals(user.getId())){
+            throw new BaseException(NOT_ALLOWED_APPROVE);
+        }
+        if(problemRequest.getAcceptAt() != null){
+            throw new BaseException(ALREADY_APPROVED_REQUEST);
+        }
+        problemRequest.setAcceptAt();
         return problemMapper.problemRequestToRequestProblemResponse(problemRequest);
     }
 

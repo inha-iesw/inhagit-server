@@ -2,10 +2,7 @@ package inha.git.problem.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
-import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
-import inha.git.problem.api.controller.dto.request.CreateRequestProblemRequest;
-import inha.git.problem.api.controller.dto.request.CreateTeamRequestProblemRequest;
-import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
+import inha.git.problem.api.controller.dto.request.*;
 import inha.git.problem.api.controller.dto.response.ProblemResponse;
 import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchProblemResponse;
@@ -148,5 +145,19 @@ public class ProblemController {
             throw new BaseException(COMPANY_PROFESSOR_CANNOT_PARTICIPATE);
         }
         return BaseResponse.of(PROBLEM_REQUEST_TEAM_OK, problemService.requestTeam(user, createTeamRequestProblemRequest));
+    }
+
+    /**
+     * 문제 참여 승인 API
+     *
+     * @param user 유저 정보
+     * @param createProblemApproveRequest 문제 참여 승인 요청 정보
+     * @return 승인된 문제 정보
+     */
+    @PutMapping("/request/approve")
+    @Operation(summary = "문제 참여 승인 API", description = "문제 참여를 승인합니다.")
+    public BaseResponse<RequestProblemResponse> approveRequest(@AuthenticationPrincipal User user,
+                                                               @Validated @RequestBody CreateProblemApproveRequest createProblemApproveRequest) {
+        return BaseResponse.of(PROBLEM_APPROVE_OK, problemService.approveRequest(user, createProblemApproveRequest));
     }
 }

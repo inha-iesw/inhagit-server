@@ -1,9 +1,6 @@
 package inha.git.problem.api.service;
 
-import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
-import inha.git.problem.api.controller.dto.request.CreateRequestProblemRequest;
-import inha.git.problem.api.controller.dto.request.CreateTeamRequestProblemRequest;
-import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
+import inha.git.problem.api.controller.dto.request.*;
 import inha.git.problem.api.controller.dto.response.ProblemResponse;
 import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchProblemResponse;
@@ -20,5 +17,6 @@ public interface ProblemService {
     ProblemResponse deleteProblem(User user, Integer problemIdx);
     RequestProblemResponse requestUser(User user, CreateRequestProblemRequest createRequestProblemRequest);
     RequestProblemResponse requestTeam(User user, CreateTeamRequestProblemRequest createTeamRequestProblemRequest);
+    RequestProblemResponse approveRequest(User user, CreateProblemApproveRequest createProblemApproveRequest);
 
 }
