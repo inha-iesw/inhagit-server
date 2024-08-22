@@ -3,6 +3,8 @@ package inha.git.problem.api.controller;
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
+import inha.git.problem.api.controller.dto.request.CreateRequestProblemRequest;
+import inha.git.problem.api.controller.dto.request.CreateTeamRequestProblemRequest;
 import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
 import inha.git.problem.api.controller.dto.response.ProblemResponse;
 import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
@@ -118,16 +120,33 @@ public class ProblemController {
      * 문제 개인 참여 API
      *
      * @param user 유저 정보
-     * @param problemIdx 문제 인덱스
-     * @return 문제 개인 참여 정보
+     * @param createRequestProblemRequest 문제 참여 요청 정보
+     * @return 참여된 문제 정보
      */
     @PostMapping("/request/user")
     @Operation(summary = "문제 개인 참여 API", description = "문제를 개인 참여합니다.")
     public BaseResponse<RequestProblemResponse> requestUser(@AuthenticationPrincipal User user,
-                                                            @RequestParam("problemIdx") Integer problemIdx) {
+                                                            @Validated @RequestBody CreateRequestProblemRequest createRequestProblemRequest) {
         if(user.getRole().equals(Role.COMPANY) || user.getRole().equals(Role.PROFESSOR)) {
             throw new BaseException(COMPANY_PROFESSOR_CANNOT_PARTICIPATE);
         }
-        return BaseResponse.of(PROBLEM_REQUEST_USER_OK, problemService.requestUser(user, problemIdx));
+        return BaseResponse.of(PROBLEM_REQUEST_USER_OK, problemService.requestUser(user, createRequestProblemRequest));
+    }
+
+    /**
+     * 문제 팀 참여 API
+     *
+     * @param user 유저 정보
+     * @param createTeamRequestProblemRequest 문제 팀 참여 요청 정보
+     * @return 참여된 문제 정보
+     */
+    @PostMapping("/request/team")
+    @Operation(summary = "문제 팀 참여 API", description = "문제를 팀 참여합니다.")
+    public BaseResponse<RequestProblemResponse> requestTeam(@AuthenticationPrincipal User user,
+                                                            @Validated @RequestBody CreateTeamRequestProblemRequest createTeamRequestProblemRequest) {
+        if(user.getRole().equals(Role.COMPANY) || user.getRole().equals(Role.PROFESSOR)) {
+            throw new BaseException(COMPANY_PROFESSOR_CANNOT_PARTICIPATE);
+        }
+        return BaseResponse.of(PROBLEM_REQUEST_TEAM_OK, problemService.requestTeam(user, createTeamRequestProblemRequest));
     }
 }

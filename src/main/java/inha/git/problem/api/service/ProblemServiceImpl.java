@@ -2,6 +2,8 @@ package inha.git.problem.api.service;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
+import inha.git.problem.api.controller.dto.request.CreateRequestProblemRequest;
+import inha.git.problem.api.controller.dto.request.CreateTeamRequestProblemRequest;
 import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
 import inha.git.problem.api.controller.dto.response.ProblemResponse;
 import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
@@ -9,10 +11,12 @@ import inha.git.problem.api.controller.dto.response.SearchProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
 import inha.git.problem.api.mapper.ProblemMapper;
 import inha.git.problem.domain.Problem;
-import inha.git.problem.domain.ProblemReuqest;
-import inha.git.problem.domain.repository.ProblemJpaRepository;
-import inha.git.problem.domain.repository.ProblemQueryRepository;
-import inha.git.problem.domain.repository.ProblemRequestJpaRepository;
+import inha.git.problem.domain.ProblemPersonalRequest;
+import inha.git.problem.domain.ProblemRequest;
+import inha.git.problem.domain.ProblemTeamRequest;
+import inha.git.problem.domain.repository.*;
+import inha.git.team.domain.Team;
+import inha.git.team.domain.repository.TeamJpaRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.utils.file.FilePath;
@@ -43,12 +47,18 @@ public class ProblemServiceImpl implements ProblemService {
     private final ProblemMapper problemMapper;
     private final ProblemQueryRepository problemQueryRepository;
     private final ProblemRequestJpaRepository problemRequestJpaRepository;
+    private final ProblemPersonalRequestJpaRepository problemPersonalRequestJpaRepository;
+    private final ProblemTeamRequestJpaRepository problemTeamRequestJpaRepository;
+    private final TeamJpaRepository teamJpaRepository;
+
+
+
 
     /**
      * 문제 목록 조회
      *
-     * @param page 페이지 번호
-     * @return 검색된 문제 정보 페이지
+     * @param page 페이지
+     * @return 문제 목록
      */
     @Override
     public Page<SearchProblemsResponse> getProblems(Integer page) {
@@ -140,13 +150,13 @@ public class ProblemServiceImpl implements ProblemService {
      * 문제 개인 참여
      *
      * @param user 유저 정보
-     * @param problemIdx 문제 인덱스
-     * @return 참여 요청된 문제 정보
+     * @param createRequestProblemRequest 문제 참여 요청 정보
+     * @return 참여된 문제 정보
      */
     @Override
     @Transactional
-    public RequestProblemResponse requestUser(User user, Integer problemIdx) {
-        Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
+    public RequestProblemResponse requestUser(User user, CreateRequestProblemRequest createRequestProblemRequest) {
+        Problem problem = problemJpaRepository.findByIdAndState(createRequestProblemRequest.problemIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
         if(problem.getUser().getId().equals(user.getId())){
             throw new BaseException(NOT_ALLOWED_PARTICIPATE);
@@ -154,19 +164,59 @@ public class ProblemServiceImpl implements ProblemService {
         if (problem.getDuration().isBefore(LocalDateTime.now())) {
             throw new BaseException(PROBLEM_DEADLINE_PASSED);
         }
-        problemRequestJpaRepository.findByProblemAndUser(problem, user)
-                .ifPresent(problemRequest -> {
-                    if(problemRequest.getAcceptAt() != null){
+        problemPersonalRequestJpaRepository.findByProblemAndUser(problem, user)
+                .ifPresent(problemPersonalRequest -> {
+                    if(problemPersonalRequest.getProblemRequest().getAcceptAt() != null){
                         throw new BaseException(ALREADY_PARTICIPATED_PROBLEM);
                     }
                     else {
                         throw new BaseException(ALREADY_REQUESTED_PROBLEM);
                     }
                 });
-        ProblemReuqest problemRequest = problemMapper.createProblemRequestToProblemRequest(user, problem, 1);
+        ProblemRequest problemRequest = problemMapper.createProblemRequestToProblemRequest(problem, 1);
         problemRequestJpaRepository.save(problemRequest);
+        ProblemPersonalRequest problemPersonalRequest = problemMapper.createRequestProblemRequestToProblemPersonalRequest(user, problemRequest);
+        problemPersonalRequestJpaRepository.save(problemPersonalRequest);
         return problemMapper.problemRequestToRequestProblemResponse(problemRequest);
 
+    }
+
+    /**
+     * 문제 팀 참여
+     *
+     * @param user 유저 정보
+     * @param createTeamRequestProblemRequest 팀 참여 요청 정보
+     * @return 참여된 문제 정보
+     */
+    @Override
+    @Transactional
+    public RequestProblemResponse requestTeam(User user, CreateTeamRequestProblemRequest createTeamRequestProblemRequest) {
+        Problem problem = problemJpaRepository.findByIdAndState(createTeamRequestProblemRequest.problemIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
+        Team team = teamJpaRepository.findByIdAndState(createTeamRequestProblemRequest.teamIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(TEAM_NOT_FOUND));
+        if(!team.getUser().getId().equals(user.getId())){
+            throw new BaseException(ONLY_LEADER_CAN_APPLY);
+        }
+        if(problem.getUser().getId().equals(user.getId())){
+            throw new BaseException(NOT_ALLOWED_PARTICIPATE);
+        }
+        if (problem.getDuration().isBefore(LocalDateTime.now())) {
+            throw new BaseException(PROBLEM_DEADLINE_PASSED);
+        }
+        problemTeamRequestJpaRepository.findByProblemAndTeam(problem, team)
+                .ifPresent(problemTeamRequest -> {
+                    if(problemTeamRequest.getProblemRequest().getAcceptAt() != null){
+                        throw new BaseException(ALREADY_PARTICIPATED_PROBLEM);
+                    } else {
+                        throw new BaseException(ALREADY_REQUESTED_PROBLEM);
+                    }
+                });
+        ProblemRequest problemRequest = problemMapper.createProblemRequestToProblemRequest(problem, 2); // 2는 팀 신청임을 나타냄
+        problemRequestJpaRepository.save(problemRequest);
+        ProblemTeamRequest problemTeamRequest = problemMapper.createTeamRequestProblemRequestToProblemTeamRequest(team, problemRequest);
+        problemTeamRequestJpaRepository.save(problemTeamRequest);
+        return problemMapper.problemRequestToRequestProblemResponse(problemRequest);
     }
 
 

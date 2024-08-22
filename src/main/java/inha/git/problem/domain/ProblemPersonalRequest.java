@@ -25,4 +25,12 @@ public class ProblemPersonalRequest {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "problem_id")
+    private Problem problem;
+
+    @OneToOne
+    @JoinColumn(name = "problem_request_id", nullable = false)
+    private ProblemRequest problemRequest;
 }

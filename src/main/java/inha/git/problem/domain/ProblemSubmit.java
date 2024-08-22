@@ -1,7 +1,6 @@
 package inha.git.problem.domain;
 
 import inha.git.common.BaseEntity;
-import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -47,5 +46,5 @@ public class ProblemSubmit extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_request_id")
-    private ProblemReuqest problemRequest;
+    private ProblemRequest problemRequest;
 }

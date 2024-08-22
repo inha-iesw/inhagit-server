@@ -1,7 +1,6 @@
 package inha.git.problem.domain;
 
 import inha.git.common.BaseEntity;
-import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,7 +17,7 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(name = "problem_request_tb")
-public class ProblemReuqest extends BaseEntity {
+public class ProblemRequest extends BaseEntity {
 
     @Id
     @Column(name = "problem_request_id", nullable = false, updatable = false)
@@ -35,7 +34,11 @@ public class ProblemReuqest extends BaseEntity {
     @JoinColumn(name = "problem_id")
     private Problem problem;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
+    // 개인 신청의 경우 연관관계 설정
+    @OneToOne(mappedBy = "problemRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private ProblemPersonalRequest personalRequest;
+
+    // 팀 신청의 경우 연관관계 설정
+    @OneToOne(mappedBy = "problemRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private ProblemTeamRequest teamRequest;
 }
