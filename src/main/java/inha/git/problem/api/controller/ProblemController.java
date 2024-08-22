@@ -3,10 +3,7 @@ package inha.git.problem.api.controller;
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.problem.api.controller.dto.request.*;
-import inha.git.problem.api.controller.dto.response.ProblemResponse;
-import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
-import inha.git.problem.api.controller.dto.response.SearchProblemResponse;
-import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
+import inha.git.problem.api.controller.dto.response.*;
 import inha.git.problem.api.service.ProblemService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
@@ -113,6 +110,15 @@ public class ProblemController {
         return BaseResponse.of(PROBLEM_DELETE_OK, problemService.deleteProblem(user, problemIdx));
     }
 
+    @GetMapping("/requests")
+    @Operation(summary = "문제 신청 목록 조회 API", description = "문제 신청 목록을 조회합니다.")
+    public BaseResponse<Page<SearchRequestProblemResponse>> getRequestProblems(@RequestParam("page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(PROBLEM_REQUEST_SEARCH_OK, problemService.getRequestProblems(page - 1));
+    }
+
     /**
      * 문제 개인 참여 API
      *
@@ -120,7 +126,7 @@ public class ProblemController {
      * @param createRequestProblemRequest 문제 참여 요청 정보
      * @return 참여된 문제 정보
      */
-    @PostMapping("/request/user")
+    @PostMapping("/requests/user")
     @Operation(summary = "문제 개인 참여 API", description = "문제를 개인 참여합니다.")
     public BaseResponse<RequestProblemResponse> requestUser(@AuthenticationPrincipal User user,
                                                             @Validated @RequestBody CreateRequestProblemRequest createRequestProblemRequest) {
@@ -137,7 +143,7 @@ public class ProblemController {
      * @param createTeamRequestProblemRequest 문제 팀 참여 요청 정보
      * @return 참여된 문제 정보
      */
-    @PostMapping("/request/team")
+    @PostMapping("/requests/team")
     @Operation(summary = "문제 팀 참여 API", description = "문제를 팀 참여합니다.")
     public BaseResponse<RequestProblemResponse> requestTeam(@AuthenticationPrincipal User user,
                                                             @Validated @RequestBody CreateTeamRequestProblemRequest createTeamRequestProblemRequest) {
@@ -154,7 +160,7 @@ public class ProblemController {
      * @param createProblemApproveRequest 문제 참여 승인 요청 정보
      * @return 승인된 문제 정보
      */
-    @PutMapping("/request/approve")
+    @PutMapping("/requests/approve")
     @Operation(summary = "문제 참여 승인 API", description = "문제 참여를 승인합니다.")
     public BaseResponse<RequestProblemResponse> approveRequest(@AuthenticationPrincipal User user,
                                                                @Validated @RequestBody CreateProblemApproveRequest createProblemApproveRequest) {

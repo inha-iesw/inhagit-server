@@ -2,10 +2,7 @@ package inha.git.problem.api.service;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.problem.api.controller.dto.request.*;
-import inha.git.problem.api.controller.dto.response.ProblemResponse;
-import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
-import inha.git.problem.api.controller.dto.response.SearchProblemResponse;
-import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
+import inha.git.problem.api.controller.dto.response.*;
 import inha.git.problem.api.mapper.ProblemMapper;
 import inha.git.problem.domain.Problem;
 import inha.git.problem.domain.ProblemPersonalRequest;
@@ -141,6 +138,12 @@ public class ProblemServiceImpl implements ProblemService {
         problem.setDeletedAt();
         problem.setState(INACTIVE);
         return problemMapper.problemToProblemResponse(problem);
+    }
+
+    @Override
+    public Page<SearchRequestProblemResponse> getRequestProblems(Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return problemQueryRepository.getRequestProblems(pageable);
     }
 
     /**
