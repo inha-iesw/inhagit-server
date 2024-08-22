@@ -2,13 +2,11 @@ package inha.git.problem.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
-import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
-import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
-import inha.git.problem.api.controller.dto.response.ProblemResponse;
-import inha.git.problem.api.controller.dto.response.SearchProblemResponse;
-import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
+import inha.git.problem.api.controller.dto.request.*;
+import inha.git.problem.api.controller.dto.response.*;
 import inha.git.problem.api.service.ProblemService;
 import inha.git.user.domain.User;
+import inha.git.user.domain.enums.Role;
 import inha.git.utils.file.ValidFile;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,7 +20,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
+import static inha.git.common.code.status.ErrorStatus.*;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
@@ -112,4 +110,60 @@ public class ProblemController {
         return BaseResponse.of(PROBLEM_DELETE_OK, problemService.deleteProblem(user, problemIdx));
     }
 
+    @GetMapping("/requests")
+    @Operation(summary = "문제 신청 목록 조회 API", description = "문제 신청 목록을 조회합니다.")
+    public BaseResponse<Page<SearchRequestProblemResponse>> getRequestProblems(@RequestParam("page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(PROBLEM_REQUEST_SEARCH_OK, problemService.getRequestProblems(page - 1));
+    }
+
+    /**
+     * 문제 개인 참여 API
+     *
+     * @param user 유저 정보
+     * @param createRequestProblemRequest 문제 참여 요청 정보
+     * @return 참여된 문제 정보
+     */
+    @PostMapping("/requests/user")
+    @Operation(summary = "문제 개인 참여 API", description = "문제를 개인 참여합니다.")
+    public BaseResponse<RequestProblemResponse> requestUser(@AuthenticationPrincipal User user,
+                                                            @Validated @RequestBody CreateRequestProblemRequest createRequestProblemRequest) {
+        if(user.getRole().equals(Role.COMPANY) || user.getRole().equals(Role.PROFESSOR)) {
+            throw new BaseException(COMPANY_PROFESSOR_CANNOT_PARTICIPATE);
+        }
+        return BaseResponse.of(PROBLEM_REQUEST_USER_OK, problemService.requestUser(user, createRequestProblemRequest));
+    }
+
+    /**
+     * 문제 팀 참여 API
+     *
+     * @param user 유저 정보
+     * @param createTeamRequestProblemRequest 문제 팀 참여 요청 정보
+     * @return 참여된 문제 정보
+     */
+    @PostMapping("/requests/team")
+    @Operation(summary = "문제 팀 참여 API", description = "문제를 팀 참여합니다.")
+    public BaseResponse<RequestProblemResponse> requestTeam(@AuthenticationPrincipal User user,
+                                                            @Validated @RequestBody CreateTeamRequestProblemRequest createTeamRequestProblemRequest) {
+        if(user.getRole().equals(Role.COMPANY) || user.getRole().equals(Role.PROFESSOR)) {
+            throw new BaseException(COMPANY_PROFESSOR_CANNOT_PARTICIPATE);
+        }
+        return BaseResponse.of(PROBLEM_REQUEST_TEAM_OK, problemService.requestTeam(user, createTeamRequestProblemRequest));
+    }
+
+    /**
+     * 문제 참여 승인 API
+     *
+     * @param user 유저 정보
+     * @param createProblemApproveRequest 문제 참여 승인 요청 정보
+     * @return 승인된 문제 정보
+     */
+    @PutMapping("/requests/approve")
+    @Operation(summary = "문제 참여 승인 API", description = "문제 참여를 승인합니다.")
+    public BaseResponse<RequestProblemResponse> approveRequest(@AuthenticationPrincipal User user,
+                                                               @Validated @RequestBody CreateProblemApproveRequest createProblemApproveRequest) {
+        return BaseResponse.of(PROBLEM_APPROVE_OK, problemService.approveRequest(user, createProblemApproveRequest));
+    }
 }

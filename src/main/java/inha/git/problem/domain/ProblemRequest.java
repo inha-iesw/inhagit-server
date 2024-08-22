@@ -17,24 +17,32 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(name = "problem_request_tb")
-public class ProblemReuqest extends BaseEntity {
+public class ProblemRequest extends BaseEntity {
 
     @Id
     @Column(name = "problem_request_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 50)
-    private String title;
-
     @Column(nullable = false)
     private Integer type;
 
-    @Column(nullable = false, name = "accept_at")
+    @Column(name = "accept_at")
     private LocalDateTime acceptAt;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_id")
     private Problem problem;
+
+    // 개인 신청의 경우 연관관계 설정
+    @OneToOne(mappedBy = "problemRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private ProblemPersonalRequest personalRequest;
+
+    // 팀 신청의 경우 연관관계 설정
+    @OneToOne(mappedBy = "problemRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private ProblemTeamRequest teamRequest;
+
+    public void setAcceptAt() {
+        this.acceptAt = LocalDateTime.now();
+    }
 }

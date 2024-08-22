@@ -15,14 +15,23 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "problem_team_request_tb")
-public class ProblemTeamlRequest {
+public class ProblemTeamRequest {
 
     @Id
-    @Column(name = "problem_personal_request_id", nullable = false, updatable = false)
+    @Column(name = "problem_team_request_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
     private Team team;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "problem_id")
+    private Problem problem;
+
+    @OneToOne
+    @JoinColumn(name = "problem_request_id", nullable = false)
+    private ProblemRequest problemRequest;
+
 }

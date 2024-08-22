@@ -1,9 +1,13 @@
 package inha.git.team.domain;
 
 import inha.git.common.BaseEntity;
+import inha.git.mapping.domain.TeamUser;
 import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -37,6 +41,9 @@ public class Team extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<TeamUser> teamUsers = new ArrayList<>();
 
     public void increaseCurrentMemberNumber() {
         this.currtentMemberNumber++;
