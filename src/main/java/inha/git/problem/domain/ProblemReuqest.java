@@ -1,6 +1,7 @@
 package inha.git.problem.domain;
 
 import inha.git.common.BaseEntity;
+import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,17 +25,17 @@ public class ProblemReuqest extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 50)
-    private String title;
-
     @Column(nullable = false)
     private Integer type;
 
-    @Column(nullable = false, name = "accept_at")
+    @Column(name = "accept_at")
     private LocalDateTime acceptAt;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_id")
     private Problem problem;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }

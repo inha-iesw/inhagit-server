@@ -3,8 +3,10 @@ package inha.git.problem.api.mapper;
 import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
 import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
 import inha.git.problem.api.controller.dto.response.ProblemResponse;
+import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchProblemResponse;
 import inha.git.problem.domain.Problem;
+import inha.git.problem.domain.ProblemReuqest;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
@@ -79,4 +81,26 @@ public interface ProblemMapper {
     @Mapping(target = "idx", source = "user.id")
     @Mapping(target = "name", source = "user.name")
     SearchUserResponse userToSearchUserResponse(User user);
+
+    /**
+     * User와 Problem을 ProblemRequest로 변환
+     * @param user
+     * @param problem
+     * @param type
+     * @return
+     */
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", source = "user")
+    @Mapping(target = "problem", source = "problem")
+    @Mapping(target = "type", source = "type")
+    ProblemReuqest createProblemRequestToProblemRequest(User user, Problem problem, Integer type);
+
+    /**
+     * ProblemReuqest를 RequestProblemResponse로 변환
+     * @param problemRequest
+     * @return
+     */
+    @Mapping(target = "idx", source = "problemRequest.id")
+    RequestProblemResponse problemRequestToRequestProblemResponse(ProblemReuqest problemRequest);
+
 }

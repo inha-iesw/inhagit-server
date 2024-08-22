@@ -4,12 +4,15 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
 import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
 import inha.git.problem.api.controller.dto.response.ProblemResponse;
+import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
 import inha.git.problem.api.mapper.ProblemMapper;
 import inha.git.problem.domain.Problem;
+import inha.git.problem.domain.ProblemReuqest;
 import inha.git.problem.domain.repository.ProblemJpaRepository;
 import inha.git.problem.domain.repository.ProblemQueryRepository;
+import inha.git.problem.domain.repository.ProblemRequestJpaRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.utils.file.FilePath;
@@ -23,10 +26,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+
+import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.Constant.*;
-import static inha.git.common.code.status.ErrorStatus.NOT_AUTHORIZED_PROBLEM;
-import static inha.git.common.code.status.ErrorStatus.NOT_EXIST_PROBLEM;
+import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +42,7 @@ public class ProblemServiceImpl implements ProblemService {
     private final ProblemJpaRepository problemJpaRepository;
     private final ProblemMapper problemMapper;
     private final ProblemQueryRepository problemQueryRepository;
+    private final ProblemRequestJpaRepository problemRequestJpaRepository;
 
     /**
      * 문제 목록 조회
@@ -58,7 +64,7 @@ public class ProblemServiceImpl implements ProblemService {
      */
     @Override
     public SearchProblemResponse getProblem(Integer problemIdx) {
-        Problem problem = problemJpaRepository.findById(problemIdx)
+        Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
         return problemMapper.problemToSearchProblemResponse(problem, problem.getUser());
     }
@@ -91,7 +97,7 @@ public class ProblemServiceImpl implements ProblemService {
     @Override
     @Transactional
     public ProblemResponse updateProblem(User user, Integer problemIdx, UpdateProblemRequest updateProblemRequest, MultipartFile file) {
-        Problem problem = problemJpaRepository.findById(problemIdx)
+        Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
         if (!problem.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
             throw new BaseException(NOT_AUTHORIZED_PROBLEM);
@@ -120,7 +126,7 @@ public class ProblemServiceImpl implements ProblemService {
     @Override
     @Transactional
     public ProblemResponse deleteProblem(User user, Integer problemIdx) {
-        Problem problem = problemJpaRepository.findById(problemIdx)
+        Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
         if (!problem.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
             throw new BaseException(NOT_AUTHORIZED_PROBLEM);
@@ -128,6 +134,39 @@ public class ProblemServiceImpl implements ProblemService {
         problem.setDeletedAt();
         problem.setState(INACTIVE);
         return problemMapper.problemToProblemResponse(problem);
+    }
+
+    /**
+     * 문제 개인 참여
+     *
+     * @param user 유저 정보
+     * @param problemIdx 문제 인덱스
+     * @return 참여 요청된 문제 정보
+     */
+    @Override
+    @Transactional
+    public RequestProblemResponse requestUser(User user, Integer problemIdx) {
+        Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
+        if(problem.getUser().getId().equals(user.getId())){
+            throw new BaseException(NOT_ALLOWED_PARTICIPATE);
+        }
+        if (problem.getDuration().isBefore(LocalDateTime.now())) {
+            throw new BaseException(PROBLEM_DEADLINE_PASSED);
+        }
+        problemRequestJpaRepository.findByProblemAndUser(problem, user)
+                .ifPresent(problemRequest -> {
+                    if(problemRequest.getAcceptAt() != null){
+                        throw new BaseException(ALREADY_PARTICIPATED_PROBLEM);
+                    }
+                    else {
+                        throw new BaseException(ALREADY_REQUESTED_PROBLEM);
+                    }
+                });
+        ProblemReuqest problemRequest = problemMapper.createProblemRequestToProblemRequest(user, problem, 1);
+        problemRequestJpaRepository.save(problemRequest);
+        return problemMapper.problemRequestToRequestProblemResponse(problemRequest);
+
     }
 
 
