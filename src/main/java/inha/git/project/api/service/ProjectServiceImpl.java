@@ -5,7 +5,6 @@ import inha.git.field.domain.Field;
 import inha.git.field.domain.repository.FieldJpaRepository;
 import inha.git.mapping.domain.ProjectField;
 import inha.git.mapping.domain.repository.ProjectFieldJpaRepository;
-import inha.git.mapping.domain.repository.UserDepartmentJpaRepository;
 import inha.git.project.api.controller.dto.request.CreateGithubProjectRequest;
 import inha.git.project.api.controller.dto.request.CreateProjectRequest;
 import inha.git.project.api.controller.dto.request.UpdateProjectRequest;
@@ -15,8 +14,7 @@ import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectUpload;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectUploadJpaRepository;
-import inha.git.statistics.domain.repository.DepartmentStatisticsJpaRepository;
-import inha.git.statistics.domain.repository.UserStatisticsJpaRepository;
+import inha.git.statistics.api.service.StatisticsService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.utils.file.FilePath;
@@ -54,9 +52,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectFieldJpaRepository projectFieldJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
     private final ProjectMapper projectMapper;
-    private final UserDepartmentJpaRepository userDepartmentJpaRepository;
-    private final UserStatisticsJpaRepository userStatisticsJpaRepository;
-    private final DepartmentStatisticsJpaRepository departmentStatisticsJpaRepository;
+    private final StatisticsService statisticsService;
 
     /**
      * 프로젝트 생성
@@ -84,13 +80,7 @@ public class ProjectServiceImpl implements ProjectService {
         List<ProjectField> projectFields = createAndSaveProjectFields(createProjectRequest.fieldIdxList(), savedProject);
         projectFieldJpaRepository.saveAll(projectFields);
 
-        userStatisticsJpaRepository.findById(user.getId())
-                .orElseThrow(() -> new BaseException(USER_STATISTICS_NOT_FOUND)).increaseProjectCount();
-        userDepartmentJpaRepository.findByUserId(user.getId()).orElseThrow(() -> new BaseException(USER_DEPARTMENT_NOT_FOUND))
-                .forEach(userDepartment -> {
-                    departmentStatisticsJpaRepository.findById(userDepartment.getDepartment().getId())
-                            .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseProjectCount();
-                });
+        statisticsService.increaseCount(user, 1);
         return projectMapper.projectToProjectResponse(savedProject);
     }
 
@@ -136,13 +126,7 @@ public class ProjectServiceImpl implements ProjectService {
         List<ProjectField> projectFields = createAndSaveProjectFields(createGithubProjectRequest.fieldIdxList(), savedProject);
         projectFieldJpaRepository.saveAll(projectFields);
 
-        userStatisticsJpaRepository.findById(user.getId())
-                .orElseThrow(() -> new BaseException(USER_STATISTICS_NOT_FOUND)).increaseProjectCount();
-        userDepartmentJpaRepository.findByUserId(user.getId()).orElseThrow(() -> new BaseException(USER_DEPARTMENT_NOT_FOUND))
-                .forEach(userDepartment -> {
-                    departmentStatisticsJpaRepository.findById(userDepartment.getDepartment().getId())
-                            .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseProjectCount();
-                });
+        statisticsService.increaseCount(user, 1);
         return projectMapper.projectToProjectResponse(savedProject);
     }
 
@@ -272,13 +256,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setState(INACTIVE);
         projectJpaRepository.save(project);
 
-        userStatisticsJpaRepository.findById(user.getId())
-                .orElseThrow(() -> new BaseException(USER_STATISTICS_NOT_FOUND)).decreaseProjectCount();
-        userDepartmentJpaRepository.findByUserId(user.getId()).orElseThrow(() -> new BaseException(USER_DEPARTMENT_NOT_FOUND))
-                .forEach(userDepartment -> {
-                    departmentStatisticsJpaRepository.findById(userDepartment.getDepartment().getId())
-                            .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseProjectCount();
-                });
+        statisticsService.decreaseCount(user, 1);
         return projectMapper.projectToProjectResponse(project);
 
 

@@ -38,7 +38,31 @@ public class DepartmentStatistics {
         projectCount++;
     }
 
+    public void increaseQuestionCount() {
+        questionCount++;
+    }
+
     public void decreaseProjectCount() {
         projectCount--;
+    }
+
+    public void decreaseQuestionCount() {
+        questionCount--;
+    }
+
+    public void increaseTeamCount() {
+        teamCount++;
+    }
+
+    public void decreaseTeamCount() {
+        teamCount--;
+    }
+
+    public void increasePatentCount() {
+        patentCount++;
+    }
+
+    public void decreasePatentCount() {
+        patentCount--;
     }
 }
