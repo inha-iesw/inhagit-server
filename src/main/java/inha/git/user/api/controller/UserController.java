@@ -14,7 +14,6 @@ import inha.git.user.api.service.StudentService;
 import inha.git.user.api.service.UserService;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +41,15 @@ public class UserController {
     private final ProfessorService professorService;
     private final CompanyService companyService;
 
+    /**
+     * 특정 유저 조회 API
+     *
+     * <p>특정 유저를 조회.</p>
+     *
+     * @param user 인증된 유저 정보
+     *
+     * @return 특정 유저 조회 결과를 포함하는 BaseResponse<SearchUserResponse>
+     */
     @GetMapping
     @Operation(summary = "특정 유저 조회 API", description = "특정 유저를 조회합니다.")
     public BaseResponse<SearchUserResponse> getUser(@AuthenticationPrincipal User user) {
