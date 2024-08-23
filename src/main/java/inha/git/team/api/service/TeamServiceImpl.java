@@ -4,6 +4,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.TeamUser;
 import inha.git.mapping.domain.repository.TeamUserJpaRepository;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
+import inha.git.statistics.api.service.StatisticsService;
 import inha.git.team.api.controller.dto.request.ApproveRequestTeamRequest;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
 import inha.git.team.api.controller.dto.request.RequestTeamRequest;
@@ -38,6 +39,7 @@ public class TeamServiceImpl implements TeamService {
     private final TeamUserJpaRepository teamUserJpaRepository;
     private final TeamMapper teamMapper;
     private final UserJpaRepository userJpaRepository;
+    private final StatisticsService statisticsService;
 
     /**
      * 내가 생성한 팀 목록 가져오기
@@ -78,6 +80,7 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamMapper.createTeamRequestToTeam(createTeamRequest, user);
         teamJpaRepository.save(team);
         teamUserJpaRepository.save(teamMapper.createTeamUser(user, team));
+        statisticsService.increaseCount(user, 3);
         return teamMapper.teamToTeamResponse(team);
     }
 
@@ -120,6 +123,8 @@ public class TeamServiceImpl implements TeamService {
         team.setState(INACTIVE);
         team.setDeletedAt();
         teamJpaRepository.save(team);
+        teamUserJpaRepository.findByTeam(team)
+                .forEach(teamUser -> statisticsService.decreaseCount(teamUser.getUser(), 3));
         return teamMapper.teamToTeamResponse(team);
     }
 
@@ -177,6 +182,7 @@ public class TeamServiceImpl implements TeamService {
         teamUser.setAcceptedAt();
         teamUserJpaRepository.save(teamUser);
         team.increaseCurrentMemberNumber();
+        statisticsService.increaseCount(requestUser, 3);
         return teamMapper.teamToTeamResponse(team);
     }
 
@@ -201,6 +207,7 @@ public class TeamServiceImpl implements TeamService {
         }
         teamUserJpaRepository.delete(teamUser);
         team.decreaseCurrentMemberNumber();
+        statisticsService.decreaseCount(user, 3);
         return teamMapper.teamToTeamResponse(team);
     }
 }

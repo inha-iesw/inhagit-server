@@ -7,6 +7,7 @@ import inha.git.team.domain.Team;
 import inha.git.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -18,4 +19,6 @@ public interface TeamUserJpaRepository extends JpaRepository<TeamUser, TeamUserI
     boolean existsByTeamAndUser(Team team, User user);
 
     Optional<TeamUser> findByUserAndTeam(User user, Team team);
+
+    List<TeamUser> findByTeam(Team team);
 }
