@@ -12,27 +12,31 @@ import inha.git.statistics.domain.UserStatistics;
 import inha.git.statistics.domain.repository.UserStatisticsJpaRepository;
 import inha.git.team.api.controller.dto.response.SearchMyTeamsResponse;
 import inha.git.team.domain.repository.TeamQueryRepository;
+import inha.git.user.api.controller.dto.request.UpdatePwRequest;
 import inha.git.user.api.controller.dto.response.SearchUserResponse;
+import inha.git.user.api.controller.dto.response.UserResponse;
 import inha.git.user.api.mapper.UserMapper;
 import inha.git.user.domain.Company;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.user.domain.repository.CompanyJpaRepository;
+import inha.git.user.domain.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.Constant.CREATE_AT;
 import static inha.git.common.Constant.mapRoleToPosition;
-import static inha.git.common.code.status.ErrorStatus.NOT_COMPANY;
-import static inha.git.common.code.status.ErrorStatus.USER_STATISTICS_NOT_FOUND;
+import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -41,9 +45,11 @@ import static inha.git.common.code.status.ErrorStatus.USER_STATISTICS_NOT_FOUND;
 public class UserServiceImpl implements UserService {
 
     private final CompanyJpaRepository companyJpaRepository;
+    private final UserJpaRepository userJpaRepository;
     private final UserMapper userMapper;
     private final UserStatisticsJpaRepository userStatisticsJpaRepository;
     private final UserDepartmentJpaRepository userDepartmentJpaRepository;
+    private final PasswordEncoder passwordEncoder;
     private final ProjectQueryRepository projectQueryRepository;
     private final QuestionQueryRepository questionQueryRepository;
     private final TeamQueryRepository teamQueryRepository;
@@ -110,5 +116,14 @@ public class UserServiceImpl implements UserService {
     public Page<SearchMyTeamsResponse> getUserTeams(User user, Integer page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return teamQueryRepository.getUserTeams(user.getId(), pageable);
+    }
+
+    @Override
+    @Transactional
+    public UserResponse changePassword(Integer id, UpdatePwRequest updatePwRequest) {
+        User user = userJpaRepository.findByIdAndState(id, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        user.setPassword(passwordEncoder.encode(updatePwRequest.pw()));
+        return userMapper.toUserResponse(user);
     }
 }

@@ -94,7 +94,7 @@ public interface UserMapper {
      * @param user User 엔티티
      * @return StudentSignupResponse
      */
-    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "user.id", target = "idx")
     StudentSignupResponse userToStudentSignupResponse(User user);
 
     /**
@@ -103,7 +103,7 @@ public interface UserMapper {
      * @param user User 엔티티
      * @return ProfessorSignupResponse
      */
-    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "user.id", target = "idx")
     ProfessorSignupResponse userToProfessorSignupResponse(User user);
 
     /**
@@ -112,7 +112,7 @@ public interface UserMapper {
      * @param user User 엔티티
      * @return CompanySignupResponse
      */
-    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "user.id", target = "idx")
     CompanySignupResponse userToCompanySignupResponse(User user);
 
 
@@ -174,4 +174,14 @@ public interface UserMapper {
      */
     @Mapping(source = "user.id", target = "idx")
     SearchCompanyUserResponse toSearchCompanyUserResponse(User user, Integer position, Company company);
+
+    /**
+     * User 엔티티를 UserResponse로 변환하는 메서드 정의
+     *
+     * @param user User 엔티티
+     * @return UserResponse
+     */
+    @Mapping(source = "user.id", target = "idx")
+    UserResponse toUserResponse(User user);
+
 }

@@ -8,10 +8,8 @@ import inha.git.team.api.controller.dto.response.SearchMyTeamsResponse;
 import inha.git.user.api.controller.dto.request.CompanySignupRequest;
 import inha.git.user.api.controller.dto.request.ProfessorSignupRequest;
 import inha.git.user.api.controller.dto.request.StudentSignupRequest;
-import inha.git.user.api.controller.dto.response.CompanySignupResponse;
-import inha.git.user.api.controller.dto.response.ProfessorSignupResponse;
-import inha.git.user.api.controller.dto.response.SearchUserResponse;
-import inha.git.user.api.controller.dto.response.StudentSignupResponse;
+import inha.git.user.api.controller.dto.request.UpdatePwRequest;
+import inha.git.user.api.controller.dto.response.*;
 import inha.git.user.api.service.CompanyService;
 import inha.git.user.api.service.ProfessorService;
 import inha.git.user.api.service.StudentService;
@@ -167,4 +165,9 @@ public class UserController {
         return BaseResponse.of(COMPANY_SIGN_UP_OK, companyService.companySignup(companySignupRequest, evidence));
     }
 
+    @PutMapping("/pw")
+    @Operation(summary = "비밀번호 변경 API", description = "비밀번호를 변경합니다.")
+    public BaseResponse<UserResponse> changePassword(@AuthenticationPrincipal User user, @Validated @RequestBody UpdatePwRequest updatePwRequest) {
+        return BaseResponse.of(PW_CHANGE_OK, userService.changePassword(user.getId(), updatePwRequest));
+    }
 }
