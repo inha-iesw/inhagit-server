@@ -1,6 +1,8 @@
 package inha.git.user.api.controller;
 
 import inha.git.common.BaseResponse;
+import inha.git.common.exceptions.BaseException;
+import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
 import inha.git.user.api.controller.dto.request.CompanySignupRequest;
 import inha.git.user.api.controller.dto.request.ProfessorSignupRequest;
 import inha.git.user.api.controller.dto.request.StudentSignupRequest;
@@ -18,12 +20,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
@@ -54,6 +58,25 @@ public class UserController {
     @Operation(summary = "특정 유저 조회 API", description = "특정 유저를 조회합니다.")
     public BaseResponse<SearchUserResponse> getUser(@AuthenticationPrincipal User user) {
         return BaseResponse.of(MY_PAGE_USER_SEARCH_OK, userService.getUser(user));
+    }
+
+    /**
+     * 특정 유저의 프로젝트 조회 API
+     *
+     * <p>특정 유저의 프로젝트를 조회.</p>
+     *
+     * @param user 인증된 유저 정보
+     * @param page 페이지 번호
+     *
+     * @return 특정 유저의 프로젝트 조회 결과를 포함하는 BaseResponse<Page<SearchProjectsResponse>>
+     */
+    @GetMapping("projects")
+    @Operation(summary = "특정 유저의 프로젝트 조회 API", description = "특정 유저의 프로젝트를 조회합니다.")
+    public BaseResponse<Page<SearchProjectsResponse>> getUserProjects(@AuthenticationPrincipal User user, @RequestParam("page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(MY_PAGE_PROJECT_SEARCH_OK, userService.getUserProjects(user, page - 1));
     }
 
     /**
