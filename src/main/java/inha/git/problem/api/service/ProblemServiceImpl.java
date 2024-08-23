@@ -140,6 +140,12 @@ public class ProblemServiceImpl implements ProblemService {
         return problemMapper.problemToProblemResponse(problem);
     }
 
+    /**
+     * 문제 신청 목록 조회
+     *
+     * @param page 페이지
+     * @return 문제 신청 목록
+     */
     @Override
     public Page<SearchRequestProblemResponse> getRequestProblems(Integer page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));

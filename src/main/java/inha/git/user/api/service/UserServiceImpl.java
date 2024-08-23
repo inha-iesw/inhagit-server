@@ -1,7 +1,9 @@
 package inha.git.user.api.service;
 
 import inha.git.department.domain.repository.DepartmentJpaRepository;
+import inha.git.user.api.controller.dto.response.SearchUserResponse;
 import inha.git.user.api.mapper.UserMapper;
+import inha.git.user.domain.User;
 import inha.git.user.domain.repository.CompanyJpaRepository;
 import inha.git.user.domain.repository.UserJpaRepository;
 import inha.git.utils.RedisProvider;
@@ -25,10 +27,8 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
 
-
-
-
-
-
-
+    @Override
+    public SearchUserResponse getUser(User user) {
+        return null;
+    }
 }

@@ -4,6 +4,7 @@ package inha.git.user.api.mapper;
 import inha.git.common.exceptions.BaseException;
 import inha.git.department.domain.Department;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
+import inha.git.statistics.domain.UserStatistics;
 import inha.git.user.api.controller.dto.request.CompanySignupRequest;
 import inha.git.user.api.controller.dto.request.ProfessorSignupRequest;
 import inha.git.user.api.controller.dto.request.StudentSignupRequest;
@@ -58,5 +59,11 @@ public interface UserMapper {
     CompanySignupResponse userToCompanySignupResponse(User user);
 
 
+    @Mapping(source = "id", target = "userId")
+    @Mapping(target = "projectCount", constant = "0")
+    @Mapping(target = "questionCount", constant = "0")
+    @Mapping(target = "teamCount", constant = "0")
+    @Mapping(target = "patentCount", constant = "0")
+    UserStatistics toUserStatistics(Integer id);
 
 }

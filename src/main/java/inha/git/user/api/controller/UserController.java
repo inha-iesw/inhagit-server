@@ -6,11 +6,13 @@ import inha.git.user.api.controller.dto.request.ProfessorSignupRequest;
 import inha.git.user.api.controller.dto.request.StudentSignupRequest;
 import inha.git.user.api.controller.dto.response.CompanySignupResponse;
 import inha.git.user.api.controller.dto.response.ProfessorSignupResponse;
+import inha.git.user.api.controller.dto.response.SearchUserResponse;
 import inha.git.user.api.controller.dto.response.StudentSignupResponse;
 import inha.git.user.api.service.CompanyService;
 import inha.git.user.api.service.ProfessorService;
 import inha.git.user.api.service.StudentService;
 import inha.git.user.api.service.UserService;
+import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +20,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,7 +34,7 @@ import static inha.git.common.code.status.SuccessStatus.*;
 @Tag(name = "user controller", description = "유저 관련 API")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;
@@ -39,10 +42,16 @@ public class UserController {
     private final ProfessorService professorService;
     private final CompanyService companyService;
 
+    @GetMapping
+    @Operation(summary = "특정 유저 조회 API", description = "특정 유저를 조회합니다.")
+    public BaseResponse<SearchUserResponse> getUser(@AuthenticationPrincipal User user) {
+        return BaseResponse.of(MY_PAGE_USER_SEARCH_OK, userService.getUser(user));
+    }
+
     /**
      * 학생 회원가입 API
      *
-     * <p>학생 회원가입을 처리ㄷ.</p>
+     * <p>학생 회원가입을 처리.</p>
      *
      * @param studentSignupRequest 학생 회원가입 요청 정보
      *
