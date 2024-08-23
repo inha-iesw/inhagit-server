@@ -160,6 +160,22 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         return assistantPromotionRequest.userIdx() + ": 조교 승격 완료";
     }
 
+    /**
+     * 조교 승격 취소
+     *
+     * @param assistantDemotionRequest 학생 승인 취소 요청
+     * @return 성공 메시지
+     */
+    @Override
+    public String demotionStudent(AssistantDemotionRequest assistantDemotionRequest) {
+        User user = getUser(assistantDemotionRequest.userIdx());
+        if(user.getRole() != Role.ASSISTANT) {
+            throw new BaseException(NOT_ASSISTANT);
+        }
+        user.setRole(Role.USER);
+        return assistantDemotionRequest.userIdx() + ": 조교 승격 취소 완료";
+    }
+
 
     /**
      * 유저 조회
