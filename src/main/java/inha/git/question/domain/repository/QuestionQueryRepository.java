@@ -70,4 +70,50 @@ public class QuestionQueryRepository {
                 .toList();
         return new PageImpl<>(content, pageable, total);
     }
+
+    /**
+     * 사용자의 질문 목록 조회
+     *
+     * @param id       사용자 번호
+     * @param pageable 페이지 정보
+     * @return 질문 페이지
+     */
+    public Page<SearchQuestionsResponse> getUserQuestions(Integer id, Pageable pageable) {
+        QQuestion question = QQuestion.question;
+        QUser user = QUser.user;
+        QQuestionField questionField = QQuestionField.questionField;
+
+        JPAQuery<Question> query = queryFactory
+                .select(question)
+                .from(question)
+                .leftJoin(question.user, user)
+                .leftJoin(question.questionFields, questionField)
+                .where(question.state.eq(Question.State.ACTIVE).and(question.user.id.eq(id)))
+                .orderBy(question.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        List<Question> questions = query.fetch();
+        long total = query.fetchCount();
+
+        List<SearchQuestionsResponse> content = questions.stream()
+                .map(q -> new SearchQuestionsResponse(
+                        q.getId(),
+                        q.getTitle(),
+                        q.getCreatedAt(),
+                        q.getSubjectName(),
+                        q.getQuestionFields().stream()
+                                .map(f -> new SearchFieldResponse(
+                                        f.getField().getId(),
+                                        f.getField().getName()
+                                ))
+                                .toList(),
+                        new SearchUserResponse(
+                                q.getUser().getId(),
+                                q.getUser().getName()
+                        )
+                ))
+                .toList();
+        return new PageImpl<>(content, pageable, total);
+    }
 }

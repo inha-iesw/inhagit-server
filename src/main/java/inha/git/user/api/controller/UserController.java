@@ -3,6 +3,7 @@ package inha.git.user.api.controller;
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
+import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
 import inha.git.user.api.controller.dto.request.CompanySignupRequest;
 import inha.git.user.api.controller.dto.request.ProfessorSignupRequest;
 import inha.git.user.api.controller.dto.request.StudentSignupRequest;
@@ -70,13 +71,32 @@ public class UserController {
      *
      * @return 특정 유저의 프로젝트 조회 결과를 포함하는 BaseResponse<Page<SearchProjectsResponse>>
      */
-    @GetMapping("projects")
+    @GetMapping("/projects")
     @Operation(summary = "특정 유저의 프로젝트 조회 API", description = "특정 유저의 프로젝트를 조회합니다.")
     public BaseResponse<Page<SearchProjectsResponse>> getUserProjects(@AuthenticationPrincipal User user, @RequestParam("page") Integer page) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
         return BaseResponse.of(MY_PAGE_PROJECT_SEARCH_OK, userService.getUserProjects(user, page - 1));
+    }
+
+    /**
+     * 특정 유저의 질문 조회 API
+     *
+     * <p>특정 유저의 질문을 조회.</p>
+     *
+     * @param user 인증된 유저 정보
+     * @param page 페이지 번호
+     *
+     * @return 특정 유저의 질문 조회 결과를 포함하는 BaseResponse<Page<SearchQuestionsResponse>>
+     */
+    @GetMapping("/questions")
+    @Operation(summary = "특정 유저의 질문 조회 API", description = "특정 유저의 질문을 조회합니다.")
+    public BaseResponse<Page<SearchQuestionsResponse>> getUserQuestions(@AuthenticationPrincipal User user, @RequestParam("page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(MY_PAGE_QUESTION_SEARCH_OK, userService.getUserQuestions(user, page - 1));
     }
 
     /**
