@@ -10,6 +10,8 @@ import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
 import inha.git.question.domain.repository.QuestionQueryRepository;
 import inha.git.statistics.domain.UserStatistics;
 import inha.git.statistics.domain.repository.UserStatisticsJpaRepository;
+import inha.git.team.api.controller.dto.response.SearchMyTeamsResponse;
+import inha.git.team.domain.repository.TeamQueryRepository;
 import inha.git.user.api.controller.dto.response.SearchUserResponse;
 import inha.git.user.api.mapper.UserMapper;
 import inha.git.user.domain.Company;
@@ -44,6 +46,7 @@ public class UserServiceImpl implements UserService {
     private final UserDepartmentJpaRepository userDepartmentJpaRepository;
     private final ProjectQueryRepository projectQueryRepository;
     private final QuestionQueryRepository questionQueryRepository;
+    private final TeamQueryRepository teamQueryRepository;
 
     /**
      * 사용자 정보 조회
@@ -94,5 +97,18 @@ public class UserServiceImpl implements UserService {
     public Page<SearchQuestionsResponse> getUserQuestions(User user, Integer page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return questionQueryRepository.getUserQuestions(user.getId(), pageable);
+    }
+
+    /**
+     * 사용자 팀 조회
+     *
+     * @param user 사용자 정보
+     * @param page 페이지 번호
+     * @return 사용자 팀 조회 결과
+     */
+    @Override
+    public Page<SearchMyTeamsResponse> getUserTeams(User user, Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return teamQueryRepository.getUserTeams(user.getId(), pageable);
     }
 }
