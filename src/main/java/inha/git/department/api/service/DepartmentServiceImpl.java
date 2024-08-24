@@ -7,6 +7,8 @@ import inha.git.department.api.controller.dto.request.UpdateDepartmentRequest;
 import inha.git.department.api.mapper.DepartmentMapper;
 import inha.git.department.domain.Department;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
+import inha.git.statistics.domain.DepartmentStatistics;
+import inha.git.statistics.domain.repository.DepartmentStatisticsJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ import static inha.git.common.code.status.ErrorStatus.DEPARTMENT_NOT_FOUND;
 public class DepartmentServiceImpl implements DepartmentService{
     private final DepartmentJpaRepository departmentJpaRepository;
     private final DepartmentMapper departmentMapper;
+    private final DepartmentStatisticsJpaRepository departmentStatisticsJpaRepository;
 
     /**
      * 학과 전체 조회
@@ -49,7 +52,10 @@ public class DepartmentServiceImpl implements DepartmentService{
     @Transactional
     public String createDepartment(CreateDepartmentRequest createDepartmentRequest) {
         Department department = departmentMapper.createDepartmentRequestToDepartment(createDepartmentRequest);
-        return departmentJpaRepository.save(department).getName() + " 학과가 생성되었습니다.";
+        Department savedDepartment = departmentJpaRepository.save(department);
+        DepartmentStatistics departmentStatistics = departmentMapper.toDepartmentStatistics(savedDepartment.getId());
+        departmentStatisticsJpaRepository.save(departmentStatistics);
+        return savedDepartment.getName() + " 학과가 생성되었습니다.";
     }
 
     /**

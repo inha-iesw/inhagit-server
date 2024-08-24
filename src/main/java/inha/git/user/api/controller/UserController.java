@@ -1,27 +1,33 @@
 package inha.git.user.api.controller;
 
 import inha.git.common.BaseResponse;
+import inha.git.common.exceptions.BaseException;
+import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
+import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
+import inha.git.team.api.controller.dto.response.SearchMyTeamsResponse;
 import inha.git.user.api.controller.dto.request.CompanySignupRequest;
 import inha.git.user.api.controller.dto.request.ProfessorSignupRequest;
 import inha.git.user.api.controller.dto.request.StudentSignupRequest;
-import inha.git.user.api.controller.dto.response.CompanySignupResponse;
-import inha.git.user.api.controller.dto.response.ProfessorSignupResponse;
-import inha.git.user.api.controller.dto.response.StudentSignupResponse;
+import inha.git.user.api.controller.dto.request.UpdatePwRequest;
+import inha.git.user.api.controller.dto.response.*;
 import inha.git.user.api.service.CompanyService;
 import inha.git.user.api.service.ProfessorService;
 import inha.git.user.api.service.StudentService;
 import inha.git.user.api.service.UserService;
+import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
@@ -31,7 +37,7 @@ import static inha.git.common.code.status.SuccessStatus.*;
 @Tag(name = "user controller", description = "유저 관련 API")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/users")
 public class UserController {
 
     private final UserService userService;
@@ -40,9 +46,81 @@ public class UserController {
     private final CompanyService companyService;
 
     /**
+     * 특정 유저 조회 API
+     *
+     * <p>특정 유저를 조회.</p>
+     *
+     * @param user 인증된 유저 정보
+     *
+     * @return 특정 유저 조회 결과를 포함하는 BaseResponse<SearchUserResponse>
+     */
+    @GetMapping
+    @Operation(summary = "특정 유저 조회 API", description = "특정 유저를 조회합니다.")
+    public BaseResponse<SearchUserResponse> getUser(@AuthenticationPrincipal User user) {
+        return BaseResponse.of(MY_PAGE_USER_SEARCH_OK, userService.getUser(user));
+    }
+
+    /**
+     * 특정 유저의 프로젝트 조회 API
+     *
+     * <p>특정 유저의 프로젝트를 조회.</p>
+     *
+     * @param user 인증된 유저 정보
+     * @param page 페이지 번호
+     *
+     * @return 특정 유저의 프로젝트 조회 결과를 포함하는 BaseResponse<Page<SearchProjectsResponse>>
+     */
+    @GetMapping("/projects")
+    @Operation(summary = "특정 유저의 프로젝트 조회 API", description = "특정 유저의 프로젝트를 조회합니다.")
+    public BaseResponse<Page<SearchProjectsResponse>> getUserProjects(@AuthenticationPrincipal User user, @RequestParam("page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(MY_PAGE_PROJECT_SEARCH_OK, userService.getUserProjects(user, page - 1));
+    }
+
+    /**
+     * 특정 유저의 질문 조회 API
+     *
+     * <p>특정 유저의 질문을 조회.</p>
+     *
+     * @param user 인증된 유저 정보
+     * @param page 페이지 번호
+     *
+     * @return 특정 유저의 질문 조회 결과를 포함하는 BaseResponse<Page<SearchQuestionsResponse>>
+     */
+    @GetMapping("/questions")
+    @Operation(summary = "특정 유저의 질문 조회 API", description = "특정 유저의 질문을 조회합니다.")
+    public BaseResponse<Page<SearchQuestionsResponse>> getUserQuestions(@AuthenticationPrincipal User user, @RequestParam("page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(MY_PAGE_QUESTION_SEARCH_OK, userService.getUserQuestions(user, page - 1));
+    }
+
+    /**
+     * 특정 유저의 팀 조회 API
+     *
+     * <p>특정 유저의 팀을 조회.</p>
+     *
+     * @param user 인증된 유저 정보
+     * @param page 페이지 번호
+     *
+     * @return 특정 유저의 팀 조회 결과를 포함하는 BaseResponse<Page<SearchMyTeamsResponse>>
+     */
+    @GetMapping("/teams")
+    @Operation(summary = "특정 유저의 팀 조회 API", description = "특정 유저의 팀을 조회합니다.")
+    public BaseResponse<Page<SearchMyTeamsResponse>> getUserTeams(@AuthenticationPrincipal User user, @RequestParam("page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(MY_PAGE_TEAM_SEARCH_OK, userService.getUserTeams(user, page - 1));
+    }
+
+    /**
      * 학생 회원가입 API
      *
-     * <p>학생 회원가입을 처리ㄷ.</p>
+     * <p>학생 회원가입을 처리.</p>
      *
      * @param studentSignupRequest 학생 회원가입 요청 정보
      *
@@ -87,4 +165,9 @@ public class UserController {
         return BaseResponse.of(COMPANY_SIGN_UP_OK, companyService.companySignup(companySignupRequest, evidence));
     }
 
+    @PutMapping("/pw")
+    @Operation(summary = "비밀번호 변경 API", description = "비밀번호를 변경합니다.")
+    public BaseResponse<UserResponse> changePassword(@AuthenticationPrincipal User user, @Validated @RequestBody UpdatePwRequest updatePwRequest) {
+        return BaseResponse.of(PW_CHANGE_OK, userService.changePassword(user.getId(), updatePwRequest));
+    }
 }

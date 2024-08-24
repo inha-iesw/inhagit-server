@@ -14,6 +14,7 @@ import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectUpload;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectUploadJpaRepository;
+import inha.git.statistics.api.service.StatisticsService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.utils.file.FilePath;
@@ -27,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
-
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,6 +52,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectFieldJpaRepository projectFieldJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
     private final ProjectMapper projectMapper;
+    private final StatisticsService statisticsService;
 
     /**
      * 프로젝트 생성
@@ -79,6 +80,7 @@ public class ProjectServiceImpl implements ProjectService {
         List<ProjectField> projectFields = createAndSaveProjectFields(createProjectRequest.fieldIdxList(), savedProject);
         projectFieldJpaRepository.saveAll(projectFields);
 
+        statisticsService.increaseCount(user, 1);
         return projectMapper.projectToProjectResponse(savedProject);
     }
 
@@ -124,6 +126,7 @@ public class ProjectServiceImpl implements ProjectService {
         List<ProjectField> projectFields = createAndSaveProjectFields(createGithubProjectRequest.fieldIdxList(), savedProject);
         projectFieldJpaRepository.saveAll(projectFields);
 
+        statisticsService.increaseCount(user, 1);
         return projectMapper.projectToProjectResponse(savedProject);
     }
 
@@ -195,7 +198,7 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectResponse updateProject(User user, Integer projectIdx, UpdateProjectRequest updateProjectRequest, MultipartFile file) {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-        if(!project.getUser().equals(user) && !user.getRole().equals(Role.ADMIN)) {
+        if(!project.getUser().getId().equals(user.getId()) && !user.getRole().equals(Role.ADMIN)) {
             throw new BaseException(PROJECT_NOT_AUTHORIZED);
         }
         ProjectUpload findProjectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
@@ -246,13 +249,17 @@ public class ProjectServiceImpl implements ProjectService {
     deleteProject(User user, Integer projectIdx) {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-        if(!project.getUser().equals(user) && !user.getRole().equals(Role.ADMIN)) {
+        if(!project.getUser().getId().equals(user.getId()) && !user.getRole().equals(Role.ADMIN)) {
             throw new BaseException(PROJECT_DELETE_NOT_AUTHORIZED);
         }
         project.setDeletedAt();
         project.setState(INACTIVE);
         projectJpaRepository.save(project);
+
+        statisticsService.decreaseCount(user, 1);
         return projectMapper.projectToProjectResponse(project);
+
+
     }
 
 

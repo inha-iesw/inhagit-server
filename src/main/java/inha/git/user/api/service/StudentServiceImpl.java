@@ -2,6 +2,8 @@ package inha.git.user.api.service;
 
 import inha.git.auth.api.service.MailService;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
+import inha.git.statistics.domain.UserStatistics;
+import inha.git.statistics.domain.repository.UserStatisticsJpaRepository;
 import inha.git.user.api.controller.dto.request.StudentSignupRequest;
 import inha.git.user.api.controller.dto.response.StudentSignupResponse;
 import inha.git.user.api.mapper.UserMapper;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static inha.git.common.Constant.SIGN_UP_TYPE;
 
+
 /**
  * StudentServiceImpl은 학생 관련 비즈니스 로직을 처리하는 서비스 클래스.
  */
@@ -27,6 +30,7 @@ public class StudentServiceImpl implements StudentService{
     private final UserJpaRepository userJpaRepository;
     private final PasswordEncoder passwordEncoder;
     private final DepartmentJpaRepository departmentRepository;
+    private final UserStatisticsJpaRepository userStatisticsJpaRepository;
     private final UserMapper userMapper;
     private final MailService mailService;
 
@@ -44,6 +48,9 @@ public class StudentServiceImpl implements StudentService{
         User user = userMapper.studentSignupRequestToUser(studentSignupRequest);
         userMapper.mapDepartmentsToUser(user, studentSignupRequest.departmentIdList(), departmentRepository);
         user.setPassword(passwordEncoder.encode(studentSignupRequest.pw()));
-        return userMapper.userToStudentSignupResponse(userJpaRepository.save(user));
+        User savedUser = userJpaRepository.save(user);
+        UserStatistics userStatistics = userMapper.toUserStatistics(savedUser.getId());
+        userStatisticsJpaRepository.save(userStatistics);
+        return userMapper.userToStudentSignupResponse(savedUser);
     }
 }

@@ -110,6 +110,12 @@ public class ProblemController {
         return BaseResponse.of(PROBLEM_DELETE_OK, problemService.deleteProblem(user, problemIdx));
     }
 
+    /**
+     * 문제 신청 목록 조회 API
+     *
+     * @param page 페이지
+     * @return 문제 신청 목록
+     */
     @GetMapping("/requests")
     @Operation(summary = "문제 신청 목록 조회 API", description = "문제 신청 목록을 조회합니다.")
     public BaseResponse<Page<SearchRequestProblemResponse>> getRequestProblems(@RequestParam("page") Integer page) {

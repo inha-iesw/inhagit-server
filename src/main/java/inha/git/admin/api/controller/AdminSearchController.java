@@ -12,14 +12,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
 import static inha.git.common.code.status.SuccessStatus.*;
-import static inha.git.common.code.status.SuccessStatus.COMPANY_SEARCH_OK;
 
 /**
  * AdminApproveController는 관리자 전용 계정 승인 관련 엔드포인트를 처리.
@@ -110,5 +106,21 @@ public class AdminSearchController {
             throw new BaseException(INVALID_PAGE);
         }
         return BaseResponse.of(COMPANY_SEARCH_OK, adminSearchService.getAdminCompanies(search, page - 1));
+    }
+
+    /**
+     * 특정 유저 조회 API
+     *
+     * <p>특정 유저를 조회.</p>
+     *
+     * @param userIdx 유저 인덱스
+     *
+     * @return 특정 유저 조회 결과를 포함하는 BaseResponse<SearchUserResponse>
+     */
+    @GetMapping("/users/{userIdx}")
+    @Operation(summary = "특정 유저 조회(관리자 전용) API", description = "특정 유저를 조회합니다.")
+    public BaseResponse<inha.git.user.api.controller.dto.response.SearchUserResponse> getAdminUser(
+            @PathVariable("userIdx") Integer userIdx) {
+        return BaseResponse.of(USER_DETAIL_OK, adminSearchService.getAdminUser(userIdx));
     }
 }

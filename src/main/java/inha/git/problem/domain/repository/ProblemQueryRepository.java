@@ -55,6 +55,12 @@ public class ProblemQueryRepository {
         return new PageImpl<>(content, pageable, total);
     }
 
+    /**
+     * 문제 신청 목록 조회
+     *
+     * @param pageable 페이징 정보
+     * @return 문제 신청 목록
+     */
     public Page<SearchRequestProblemResponse> getRequestProblems(Pageable pageable) {
         QProblemRequest problemRequest = QProblemRequest.problemRequest;
         QProblemPersonalRequest personalRequest = QProblemPersonalRequest.problemPersonalRequest;

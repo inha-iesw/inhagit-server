@@ -8,14 +8,15 @@ import inha.git.mapping.domain.repository.QuestionFieldJpaRepository;
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.question.api.controller.dto.request.CreateQuestionRequest;
-import inha.git.question.api.controller.dto.response.SearchQuestionResponse;
-import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
 import inha.git.question.api.controller.dto.request.UpdateQuestionRequest;
 import inha.git.question.api.controller.dto.response.QuestionResponse;
+import inha.git.question.api.controller.dto.response.SearchQuestionResponse;
+import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
 import inha.git.question.api.mapper.QuestionMapper;
 import inha.git.question.domain.Question;
 import inha.git.question.domain.repository.QuestionJpaRepository;
 import inha.git.question.domain.repository.QuestionQueryRepository;
+import inha.git.statistics.api.service.StatisticsService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,7 @@ public class QuestionServiceImpl implements QuestionService {
     private final QuestionFieldJpaRepository questionFieldJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
     private final QuestionQueryRepository questionQueryRepository;
+    private final StatisticsService statisticsService;
 
     /**
      * 질문 전체 조회
@@ -93,6 +95,7 @@ public class QuestionServiceImpl implements QuestionService {
 
         List<QuestionField> questionFields = createAndSaveQuestionFields(createQuestionRequest.fieldIdxList(), saveQuestion);
         questionFieldJpaRepository.saveAll(questionFields);
+        statisticsService.increaseCount(user, 2);
         return questionMapper.questionToQuestionResponse(saveQuestion);
     }
 
@@ -139,6 +142,7 @@ public class QuestionServiceImpl implements QuestionService {
         question.setDeletedAt();
         question.setState(INACTIVE);
         questionJpaRepository.save(question);
+        statisticsService.decreaseCount(user, 2);
         return questionMapper.questionToQuestionResponse(question);
     }
 

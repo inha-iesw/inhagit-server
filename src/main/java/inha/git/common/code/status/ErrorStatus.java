@@ -103,6 +103,8 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_COMPANY(HttpStatus.BAD_REQUEST, "ADMIN4005", "기업 계정이 아닙니다."),
     ALREADY_ACCEPTED_COMPANY(HttpStatus.BAD_REQUEST, "ADMIN4006", "이미 승인된 기업입니다."),
     NOT_ACCEPTED_COMPANY(HttpStatus.BAD_REQUEST, "ADMIN4007", "승인되지 않은 기업입니다."),
+    NOT_STUDENT(HttpStatus.BAD_REQUEST, "ADMIN4008", "학생 계정이 아닙니다."),
+    NOT_ASSISTANT(HttpStatus.BAD_REQUEST, "ADMIN4009", "조교 계정이 아닙니다."),
 
     NOT_EXIST_PROBLEM(HttpStatus.BAD_REQUEST, "PROBLEM4000", "해당 문제가 존재하지 않습니다."),
     NOT_AUTHORIZED_PROBLEM(HttpStatus.BAD_REQUEST, "PROBLEM4001", "문제를 수정할 권한이 없습니다."),
@@ -150,6 +152,11 @@ public enum ErrorStatus implements BaseErrorCode {
     TEAM_REPLY_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM4020", "팀 대댓글을 찾을 수 없습니다."),
     TEAM_REPLY_COMMENT_UPDATE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "TEAM4021", "대댓글을 수정할 권한이 없습니다."),
     TEAM_REPLY_COMMENT_DELETE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "TEAM4022", "대댓글을 삭제할 권한이 없습니다."),
+
+    USER_STATISTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTICS4000", "사용자 통계를 찾을 수 없습니다."),
+    DEPARTMENT_STATISTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTICS4001", "학과 통계를 찾을 수 없습니다."),
+    USER_DEPARTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTICS4002", "사용자의 학과를 찾을 수 없습니다."),
+
 
 
 

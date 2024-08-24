@@ -1,15 +1,42 @@
 package inha.git.user.api.service;
 
-import inha.git.department.domain.repository.DepartmentJpaRepository;
+import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
+import inha.git.common.exceptions.BaseException;
+import inha.git.mapping.domain.UserDepartment;
+import inha.git.mapping.domain.repository.UserDepartmentJpaRepository;
+import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
+import inha.git.project.domain.repository.ProjectQueryRepository;
+import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
+import inha.git.question.domain.repository.QuestionQueryRepository;
+import inha.git.statistics.domain.UserStatistics;
+import inha.git.statistics.domain.repository.UserStatisticsJpaRepository;
+import inha.git.team.api.controller.dto.response.SearchMyTeamsResponse;
+import inha.git.team.domain.repository.TeamQueryRepository;
+import inha.git.user.api.controller.dto.request.UpdatePwRequest;
+import inha.git.user.api.controller.dto.response.SearchUserResponse;
+import inha.git.user.api.controller.dto.response.UserResponse;
 import inha.git.user.api.mapper.UserMapper;
+import inha.git.user.domain.Company;
+import inha.git.user.domain.User;
+import inha.git.user.domain.enums.Role;
 import inha.git.user.domain.repository.CompanyJpaRepository;
 import inha.git.user.domain.repository.UserJpaRepository;
-import inha.git.utils.RedisProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.Constant.CREATE_AT;
+import static inha.git.common.Constant.mapRoleToPosition;
+import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -17,18 +44,93 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
-    private final UserJpaRepository userJpaRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final DepartmentJpaRepository departmentRepository;
     private final CompanyJpaRepository companyJpaRepository;
-    private final RedisProvider redisProvider;
+    private final UserJpaRepository userJpaRepository;
     private final UserMapper userMapper;
+    private final UserStatisticsJpaRepository userStatisticsJpaRepository;
+    private final UserDepartmentJpaRepository userDepartmentJpaRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final ProjectQueryRepository projectQueryRepository;
+    private final QuestionQueryRepository questionQueryRepository;
+    private final TeamQueryRepository teamQueryRepository;
 
+    /**
+     * 사용자 정보 조회
+     *
+     * @param user 사용자 정보
+     * @return 사용자 정보 조회 결과
+     */
+    @Override
+    public SearchUserResponse getUser(User user) {
+        Integer position = mapRoleToPosition(user.getRole());
+        if (user.getRole().equals(Role.COMPANY)) {
+            Company company = companyJpaRepository.findByUserId(user.getId())
+                    .orElseThrow(() -> new BaseException(NOT_COMPANY));
+            return userMapper.toSearchCompanyUserResponse(user, position, company);
+        } else {
+            UserStatistics userStatistics = userStatisticsJpaRepository.findById(user.getId())
+                    .orElseThrow(() -> new BaseException(USER_STATISTICS_NOT_FOUND));
+            List<SearchDepartmentResponse> searchDepartmentResponses = userMapper.departmentsToSearchDepartmentResponses(userDepartmentJpaRepository.findByUserId(user.getId())
+                    .orElseThrow(() -> new BaseException(USER_STATISTICS_NOT_FOUND))
+                    .stream()
+                    .map(UserDepartment::getDepartment)
+                    .toList());
+            return userMapper.toSearchNonCompanyUserResponse(user, userStatistics, searchDepartmentResponses, position, user.getGithubToken() != null);
+        }
+    }
 
+    /**
+     * 사용자 프로젝트 조회
+     *
+     * @param user 사용자 정보
+     * @param page 페이지 번호
+     * @return 사용자 프로젝트 조회 결과
+     */
+    @Override
+    public Page<SearchProjectsResponse> getUserProjects(User user, Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return projectQueryRepository.getUserProjects(user.getId(), pageable);
+    }
 
+    /**
+     * 사용자 질문 조회
+     *
+     * @param user 사용자 정보
+     * @param page 페이지 번호
+     * @return 사용자 질문 조회 결과
+     */
+    @Override
+    public Page<SearchQuestionsResponse> getUserQuestions(User user, Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return questionQueryRepository.getUserQuestions(user.getId(), pageable);
+    }
 
+    /**
+     * 사용자 팀 조회
+     *
+     * @param user 사용자 정보
+     * @param page 페이지 번호
+     * @return 사용자 팀 조회 결과
+     */
+    @Override
+    public Page<SearchMyTeamsResponse> getUserTeams(User user, Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return teamQueryRepository.getUserTeams(user.getId(), pageable);
+    }
 
-
-
-
+    /**
+     * 비밀번호 변경
+     *
+     * @param id                사용자 인덱스
+     * @param updatePwRequest 비밀번호 변경 요청
+     * @return 사용자 정보 응답
+     */
+    @Override
+    @Transactional
+    public UserResponse changePassword(Integer id, UpdatePwRequest updatePwRequest) {
+        User user = userJpaRepository.findByIdAndState(id, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        user.setPassword(passwordEncoder.encode(updatePwRequest.pw()));
+        return userMapper.toUserResponse(user);
+    }
 }

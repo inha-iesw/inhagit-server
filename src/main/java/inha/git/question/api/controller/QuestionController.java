@@ -118,7 +118,7 @@ public class QuestionController {
     public BaseResponse<QuestionResponse> deleteQuestion(
             @AuthenticationPrincipal User user,
             @PathVariable("questionIdx") Integer questionIdx) {
-        return BaseResponse.of(QUESTION_UPDATE_OK, questionService.deleteQuestion(user, questionIdx));
+        return BaseResponse.of(QUESTION_DELETE_OK, questionService.deleteQuestion(user, questionIdx));
     }
 
 }

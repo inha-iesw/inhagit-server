@@ -144,7 +144,45 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         return companyCancelRequest.userIdx() + ": 기업 승인 취소 완료";
     }
 
+    /**
+     * 학생 승인
+     *
+     * @param assistantPromotionRequest 학생 승인 요청
+     * @return 성공 메시지
+     */
+    @Override
+    public String promotionStudent(AssistantPromotionRequest assistantPromotionRequest) {
+        User user = getUser(assistantPromotionRequest.userIdx());
+        if(user.getRole() != Role.USER) {
+            throw new BaseException(NOT_STUDENT);
+        }
+        user.setRole(Role.ASSISTANT);
+        return assistantPromotionRequest.userIdx() + ": 조교 승격 완료";
+    }
 
+    /**
+     * 조교 승격 취소
+     *
+     * @param assistantDemotionRequest 학생 승인 취소 요청
+     * @return 성공 메시지
+     */
+    @Override
+    public String demotionStudent(AssistantDemotionRequest assistantDemotionRequest) {
+        User user = getUser(assistantDemotionRequest.userIdx());
+        if(user.getRole() != Role.ASSISTANT) {
+            throw new BaseException(NOT_ASSISTANT);
+        }
+        user.setRole(Role.USER);
+        return assistantDemotionRequest.userIdx() + ": 조교 승격 취소 완료";
+    }
+
+
+    /**
+     * 유저 조회
+     *
+     * @param userIdx 유저 인덱스
+     * @return 유저
+     */
     private User getUser(Integer userIdx) {
         return userJpaRepository.findByIdAndState(userIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_FIND_USER));

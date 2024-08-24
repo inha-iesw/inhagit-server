@@ -12,4 +12,5 @@ public interface AdminSearchService {
     Page<SearchStudentResponse> getAdminStudents(String search, Integer page);
     Page<SearchProfessorResponse> getAdminProfessors(String search, Integer page);
     Page<SearchCompanyResponse> getAdminCompanies(String search, Integer page);
+    inha.git.user.api.controller.dto.response.SearchUserResponse getAdminUser(Integer userIdx);
 }
