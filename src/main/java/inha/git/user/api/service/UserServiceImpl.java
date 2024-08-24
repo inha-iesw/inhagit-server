@@ -118,6 +118,13 @@ public class UserServiceImpl implements UserService {
         return teamQueryRepository.getUserTeams(user.getId(), pageable);
     }
 
+    /**
+     * 비밀번호 변경
+     *
+     * @param id                사용자 인덱스
+     * @param updatePwRequest 비밀번호 변경 요청
+     * @return 사용자 정보 응답
+     */
     @Override
     @Transactional
     public UserResponse changePassword(Integer id, UpdatePwRequest updatePwRequest) {
