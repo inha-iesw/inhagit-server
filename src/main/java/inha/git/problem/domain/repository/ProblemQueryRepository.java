@@ -61,7 +61,7 @@ public class ProblemQueryRepository {
      * @param pageable 페이징 정보
      * @return 문제 신청 목록
      */
-    public Page<SearchRequestProblemResponse> getRequestProblems(Pageable pageable) {
+    public Page<SearchRequestProblemResponse> getRequestProblems(Integer problemIdx, Pageable pageable) {
         QProblemRequest problemRequest = QProblemRequest.problemRequest;
         QProblemPersonalRequest personalRequest = QProblemPersonalRequest.problemPersonalRequest;
         QProblemTeamRequest teamRequest = QProblemTeamRequest.problemTeamRequest;
@@ -78,7 +78,7 @@ public class ProblemQueryRepository {
                 .leftJoin(problemRequest.teamRequest, teamRequest)
                 .leftJoin(teamRequest.team, team)
                 .leftJoin(team.user, teamLeaderUser)
-                .where(problemRequest.state.eq(BaseEntity.State.ACTIVE))
+                .where(problemRequest.state.eq(BaseEntity.State.ACTIVE), problemRequest.problem.id.eq(problemIdx))
                 .orderBy(problemRequest.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());

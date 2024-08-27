@@ -118,11 +118,13 @@ public class ProblemController {
      */
     @GetMapping("/requests")
     @Operation(summary = "문제 신청 목록 조회 API", description = "문제 신청 목록을 조회합니다.")
-    public BaseResponse<Page<SearchRequestProblemResponse>> getRequestProblems(@RequestParam("page") Integer page) {
+    public BaseResponse<Page<SearchRequestProblemResponse>> getRequestProblems(
+            @RequestParam("problemIdx") Integer problemIdx,
+            @RequestParam("page") Integer page) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(PROBLEM_REQUEST_SEARCH_OK, problemService.getRequestProblems(page - 1));
+        return BaseResponse.of(PROBLEM_REQUEST_SEARCH_OK, problemService.getRequestProblems(problemIdx, page - 1));
     }
 
     /**

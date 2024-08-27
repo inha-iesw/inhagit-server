@@ -12,7 +12,7 @@ public interface ProblemService {
     ProblemResponse createProblem(User user, CreateProblemRequest createProblemRequest, MultipartFile file);
     ProblemResponse updateProblem(User user, Integer problemIdx, UpdateProblemRequest updateProblemRequest, MultipartFile file);
     ProblemResponse deleteProblem(User user, Integer problemIdx);
-    Page<SearchRequestProblemResponse> getRequestProblems(Integer page);
+    Page<SearchRequestProblemResponse> getRequestProblems(Integer problemIdx, Integer page);
     RequestProblemResponse requestUser(User user, CreateRequestProblemRequest createRequestProblemRequest);
     RequestProblemResponse requestTeam(User user, CreateTeamRequestProblemRequest createTeamRequestProblemRequest);
     RequestProblemResponse approveRequest(User user, CreateProblemApproveRequest createProblemApproveRequest);
