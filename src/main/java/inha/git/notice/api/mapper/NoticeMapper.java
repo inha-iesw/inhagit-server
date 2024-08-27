@@ -25,8 +25,9 @@ public interface NoticeMapper {
     @Mapping(target = "user", source = "user")
     Notice createNoticeRequestToNotice(User user, CreateNoticeRequest createNoticeRequest);
 
-    @Mapping(target = "searchNoticeUserResponse", source = "searchNoticeUserResponse")
-    SearchNoticeResponse noticeToSearchNoticeResponse(Notice notice, SearchNoticeUserResponse searchNoticeUserResponse);
+    @Mapping(target = "idx", source = "notice.id")
+
+    SearchNoticeResponse noticeToSearchNoticeResponse(Notice notice, SearchNoticeUserResponse author);
 
     @Mapping(target = "idx", source = "id")
     @Mapping(target = "name", source = "name")

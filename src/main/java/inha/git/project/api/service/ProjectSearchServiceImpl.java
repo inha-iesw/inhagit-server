@@ -118,7 +118,10 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
             if (Files.isDirectory(filePath)) {
                 try (Stream<Path> paths = Files.list(filePath)) {
                     return paths
-                            .filter(f -> !f.getFileName().toString().equals(GIT) && !f.getFileName().toString().equals(DS_STORE))
+                            .filter(f -> !f.getFileName().toString().equals(GIT) &&
+                                    !f.getFileName().toString().equals(DS_STORE) &&
+                                    !f.getFileName().toString().startsWith(UNDERBAR) &&
+                                    !f.getFileName().toString().startsWith(MACOSX))
                             .map(this::mapToFileResponse)
                             .toList();
                 }
@@ -129,7 +132,6 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
             throw new BaseException(FILE_CONVERT);
         }
     }
-
     /**
      * 파일 정보를 SearchFileResponse로 변환
      *

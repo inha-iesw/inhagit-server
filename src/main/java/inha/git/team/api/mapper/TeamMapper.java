@@ -1,11 +1,10 @@
 package inha.git.team.api.mapper;
 
+import inha.git.common.BaseEntity;
 import inha.git.mapping.domain.TeamUser;
 import inha.git.mapping.domain.id.TeamUserId;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.question.api.controller.dto.request.SearchReplyCommentResponse;
-import inha.git.question.domain.QuestionComment;
-import inha.git.question.domain.QuestionReplyComment;
 import inha.git.team.api.controller.dto.request.*;
 import inha.git.team.api.controller.dto.response.*;
 import inha.git.team.domain.Team;
@@ -240,7 +239,7 @@ public interface TeamMapper {
     @Mapping(target = "author", source = "teamComment.user")
     @Mapping(target = "createdAt", source = "teamComment.createdAt")
     @Mapping(target = "contents", source = "teamComment.contents")
-    @Mapping(target = "replies", source = "teamComment.replies") // replies 필드 매핑
+    @Mapping(target = "replies", expression = "java(filterActiveReplies(teamComment.getReplies()))")
     CommentWithRepliesResponse toCommentWithRepliesResponse(TeamComment teamComment);
 
 
@@ -262,6 +261,20 @@ public interface TeamMapper {
      * @param replies List<TeamComment>
      * @return List<CommentResponse>
      */
+    default List<SearchReplyCommentResponse> filterActiveReplies(List<TeamReplyComment> replies) {
+        return replies.stream()
+                .filter(reply -> reply.getState() == BaseEntity.State.ACTIVE)  // 상태가 ACTIVE인 대댓글만 필터링
+                .map(this::toSearchReplyCommentResponse)  // SearchReplyCommentResponse로 매핑
+                .toList();
+    }
+
+
+    /**
+     * TeamComment 목록을 CommentResponse 목록으로 변환.
+     *
+     * @param replies List<TeamComment>
+     * @return List<CommentResponse>
+     */
     List<SearchReplyCommentResponse> toSearchReplyCommentResponseList(List<TeamComment> replies);
 
     /**
@@ -271,4 +284,6 @@ public interface TeamMapper {
      * @return List<CommentWithRepliesResponse>
      */
     List<CommentWithRepliesResponse> toCommentWithRepliesResponseList(List<TeamComment> comments);
+
+
 }

@@ -1,5 +1,6 @@
 package inha.git.project.api.mapper;
 
+import inha.git.common.BaseEntity;
 import inha.git.field.domain.Field;
 import inha.git.mapping.domain.FoundingRecommend;
 import inha.git.mapping.domain.PatentRecommend;
@@ -248,9 +249,21 @@ public interface ProjectMapper {
     @Mapping(target = "author", source = "projectComment.user")
     @Mapping(target = "createdAt", source = "projectComment.createdAt")
     @Mapping(target = "contents", source = "projectComment.contents")
-    @Mapping(target = "replies", source = "projectComment.replies") // replies 필드 매핑
+    @Mapping(target = "replies", expression = "java(filterActiveReplies(projectComment.getReplies()))")
     CommentWithRepliesResponse toCommentWithRepliesResponse(ProjectComment projectComment);
 
+    /**
+     * ProjectReplyComment 엔티티 리스트를 SearchReplyCommentResponse 리스트로 변환
+     *
+     * @param replies 프로젝트 답글 엔티티 리스트
+     * @return SearchReplyCommentResponse 리스트
+     */
+    default List<SearchReplyCommentResponse> filterActiveReplies(List<ProjectReplyComment> replies) {
+        return replies.stream()
+                .filter(reply -> reply.getState() == BaseEntity.State.ACTIVE)  // 상태가 ACTIVE인 대댓글만 필터링
+                .map(this::toSearchReplyCommentResponse)  // SearchReplyCommentResponse로 매핑
+                .toList();
+    }
     /**
      * ProjectReplyComment 엔티티를 SearchReplyCommentResponse로 변환
      *
@@ -263,13 +276,6 @@ public interface ProjectMapper {
     @Mapping(target = "createdAt", source = "projectReplyComment.createdAt")
     SearchReplyCommentResponse toSearchReplyCommentResponse(ProjectReplyComment projectReplyComment);
 
-    /**
-     * ProjectReplyComment 엔티티 리스트를 SearchReplyCommentResponse 리스트로 변환
-     *
-     * @param replies 프로젝트 답글 엔티티 리스트
-     * @return SearchReplyCommentResponse 리스트
-     */
-    List<SearchReplyCommentResponse> toSearchReplyCommentResponseList(List<ProjectReplyComment> replies);
 
     /**
      * ProjectComment 엔티티 리스트를 CommentWithRepliesResponse 리스트로 변환

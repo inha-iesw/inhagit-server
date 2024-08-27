@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.Constant.TOKEN_PREFIX;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 
@@ -65,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
                 throw new BaseException(NOT_APPROVED_USER);
         }
         String accessToken = jwtProvider.generateToken(findUser);
-        return authMapper.userToLoginResponse(findUser, accessToken);
+        return authMapper.userToLoginResponse(findUser, TOKEN_PREFIX + accessToken);
     }
 }
 

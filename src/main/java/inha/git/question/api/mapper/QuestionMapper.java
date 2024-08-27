@@ -1,5 +1,7 @@
 package inha.git.question.api.mapper;
 
+import inha.git.common.BaseEntity;
+import inha.git.common.BaseEntity.State;
 import inha.git.field.domain.Field;
 import inha.git.mapping.domain.QuestionField;
 import inha.git.mapping.domain.id.QuestionFieldId;
@@ -160,9 +162,21 @@ public interface QuestionMapper {
     @Mapping(target = "author", source = "questionComment.user")
     @Mapping(target = "createdAt", source = "questionComment.createdAt")
     @Mapping(target = "contents", source = "questionComment.contents")
-    @Mapping(target = "replies", source = "questionComment.replies") // replies 필드 매핑
+    @Mapping(target = "replies", expression = "java(filterActiveReplies(questionComment.getReplies()))")
     CommentWithRepliesResponse toCommentWithRepliesResponse(QuestionComment questionComment);
 
+    /**
+     * QuestionReplyComment 목록을 SearchReplyCommentResponse 목록으로 변환합니다.
+     *
+     * @param replies List<QuestionReplyComment>
+     * @return List<SearchReplyCommentResponse>
+     */
+    default List<SearchReplyCommentResponse> filterActiveReplies(List<QuestionReplyComment> replies) {
+        return replies.stream()
+                .filter(reply -> reply.getState() == State.ACTIVE)  // 상태가 ACTIVE인 대댓글만 필터링
+                .map(this::toSearchReplyCommentResponse)  // SearchReplyCommentResponse로 매핑
+                .toList();
+    }
     /**
      * QuestionReplyComment를 SearchReplyCommentResponse로 변환합니다.
      *
@@ -175,13 +189,6 @@ public interface QuestionMapper {
     @Mapping(target = "contents", source = "questionReplyComment.contents")
     SearchReplyCommentResponse toSearchReplyCommentResponse(QuestionReplyComment questionReplyComment);
 
-    /**
-     * QuestionReplyComment 목록을 SearchReplyCommentResponse 목록으로 변환합니다.
-     *
-     * @param replies List<QuestionReplyComment>
-     * @return List<SearchReplyCommentResponse>
-     */
-    List<SearchReplyCommentResponse> toSearchReplyCommentResponseList(List<QuestionReplyComment> replies);
 
     /**
      * QuestionComment 목록을 CommentWithRepliesResponse 목록으로 변환합니다.

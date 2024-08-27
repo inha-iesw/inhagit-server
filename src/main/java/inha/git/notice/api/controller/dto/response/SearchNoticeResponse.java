@@ -24,5 +24,5 @@ public record SearchNoticeResponse(
         @Schema(description = "작성일", example = "2021-08-01T00:00:00")
         LocalDateTime createdAt,
         @NotNull
-        SearchNoticeUserResponse searchNoticeUserResponse
+        SearchNoticeUserResponse author
 ) { }

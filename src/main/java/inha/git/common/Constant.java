@@ -21,8 +21,7 @@ public class Constant {
     public final static Integer ASSISTANT_TYPE = 2;
     public final static Integer PROFESSOR_TYPE = 3;
     public final static Integer COMPANY_TYPE = 4;
-
-    public final static Integer ADMIN_TYPE = 1;
+    public final static Integer ADMIN_TYPE = 5;
     public final static String CREATE_AT = "createAt";
 
     public final static String BASE_DIR = System.getProperty("user.dir") + "/source/";
@@ -40,6 +39,8 @@ public class Constant {
     public final static String DS_STORE = ".DS_Store";
     public final static String DIRECTORY = "directory";
     public final static String FILE = "file";
+    public final static String UNDERBAR = "._";
+    public final static String MACOSX = "__MACOSX";
 
     public static Integer mapRoleToPosition(Role role) {
         if(role == Role.USER) {
@@ -55,7 +56,7 @@ public class Constant {
             return COMPANY_TYPE;  // 기업이 4인 경우
         }
         else if(role == Role.ADMIN) {
-            return ADMIN_TYPE;  // 관리자가 1인 경우
+            return ADMIN_TYPE;  // 관리자가 5인 경우
         }
         else {
             return null;
