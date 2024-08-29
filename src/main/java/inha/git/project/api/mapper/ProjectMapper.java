@@ -12,10 +12,7 @@ import inha.git.mapping.domain.id.ProjectFieldId;
 import inha.git.mapping.domain.id.RegistrationRecommendId;
 import inha.git.project.api.controller.dto.request.*;
 import inha.git.project.api.controller.dto.response.*;
-import inha.git.project.domain.Project;
-import inha.git.project.domain.ProjectComment;
-import inha.git.project.domain.ProjectReplyComment;
-import inha.git.project.domain.ProjectUpload;
+import inha.git.project.domain.*;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -299,4 +296,8 @@ public interface ProjectMapper {
     @Mapping(target = "subjectName", source = "createGithubProjectRequest.subject")
     @Mapping(target = "user", source = "user")
     Project createGithubProjectRequestToProject(CreateGithubProjectRequest createGithubProjectRequest, User user);
+
+    @Mapping(target = "id", ignore = true)
+    ProjectPatent createProjectPatent(Project project);
+
 }
