@@ -174,4 +174,6 @@ public class ProblemController {
                                                                @Validated @RequestBody CreateProblemApproveRequest createProblemApproveRequest) {
         return BaseResponse.of(PROBLEM_APPROVE_OK, problemService.approveRequest(user, createProblemApproveRequest));
     }
+    //problemIdx/participant/all'
+
 }
