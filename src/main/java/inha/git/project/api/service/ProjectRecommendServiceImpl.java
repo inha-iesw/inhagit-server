@@ -129,6 +129,11 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         return recommendRequest.idx() + "번 프로젝트 등록 추천 취소 완료";
     }
 
+    @Override
+    public Object getPatent(User user, String number) {
+        return null;
+    }
+
 
     /**
      * 추천할 프로젝트가 유효한지 확인
