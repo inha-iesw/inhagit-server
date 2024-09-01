@@ -182,7 +182,7 @@ public class TeamServiceImpl implements TeamService {
         teamUser.setAcceptedAt();
         teamUserJpaRepository.save(teamUser);
         team.increaseCurrentMemberNumber();
-        statisticsService.increaseCount(requestUser, 3);
+        statisticsService.increaseCount(requestUser, 4);
         return teamMapper.teamToTeamResponse(team);
     }
 

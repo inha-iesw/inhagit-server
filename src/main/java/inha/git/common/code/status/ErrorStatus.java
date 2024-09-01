@@ -156,7 +156,7 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_STATISTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTICS4000", "사용자 통계를 찾을 수 없습니다."),
     DEPARTMENT_STATISTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTICS4001", "학과 통계를 찾을 수 없습니다."),
     USER_DEPARTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTICS4002", "사용자의 학과를 찾을 수 없습니다."),
-
+    USER_COUNT_STATISTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTICS4003", "사용자 수 통계를 찾을 수 없습니다."),
 
 
 
