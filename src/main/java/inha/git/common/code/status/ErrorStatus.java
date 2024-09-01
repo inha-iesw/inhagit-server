@@ -158,7 +158,14 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_DEPARTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTICS4002", "사용자의 학과를 찾을 수 없습니다."),
     USER_COUNT_STATISTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTICS4003", "사용자 수 통계를 찾을 수 없습니다."),
 
+    INVALID_APPLICATION_NUMBER(HttpStatus.BAD_REQUEST, "APPLICATION4000", "유효하지 않은 신청 번호입니다."),
+    NOT_EXIST_PATENT(HttpStatus.BAD_REQUEST, "PATENT4000", "존재하지 않는 특허입니다."),
 
+    PATENT_API_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PATENT5000", "특허 API와의 연결에 실패하였습니다."),
+    PATENT_API_URL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PATENT5001", "특허 API URL이 잘못되었습니다."),
+    PATENT_API_IO_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PATENT5002", "특허 API와의 통신 중 IO 에러가 발생하였습니다."),
+    PATENT_API_PARSER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PATENT5003", "특허 API와의 통신 중 파싱 에러가 발생하였습니다."),
+    PATENT_API_SAX_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PATENT5004", "특허 API와의 통신 중 SAX 에러가 발생하였습니다."),
 
 
 

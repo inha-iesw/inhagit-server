@@ -29,7 +29,7 @@ public class ProjectPatent extends BaseEntity {
     private String applicationNumber; // 출원번호
 
     @Column(name = "application_date", nullable = false)
-    private LocalDateTime applicationDate; // 출원일자
+    private String applicationDate; // 출원일자
 
     @Column(name = "registration_date")
     private String inventionTitle; // 특허 한글명
@@ -43,12 +43,11 @@ public class ProjectPatent extends BaseEntity {
     @Column(name = "applicant_english_name")
     private String applicantEnglishName; // 출원인 영문 이름
 
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
 
     @OneToMany(mappedBy = "projectPatent", fetch = FetchType.LAZY)
-    private List<ProjectPatentinventor> projectPatentinventors = new ArrayList<>();
+    private List<ProjectPatentInventor> projectPatentInventors = new ArrayList<>();
 
 }

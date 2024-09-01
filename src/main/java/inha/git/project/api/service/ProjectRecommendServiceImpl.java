@@ -33,6 +33,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     private final FoundingRecommendJpaRepository foundingRecommendJpaRepository;
     private final RegistrationRecommendJpaRepository registrationRecommendJpaRepository;
 
+
     /**
      * 프로젝트 창업 추천
      *
@@ -129,10 +130,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         return recommendRequest.idx() + "번 프로젝트 등록 추천 취소 완료";
     }
 
-    @Override
-    public Object getPatent(User user, String number) {
-        return null;
-    }
+
 
 
     /**
@@ -176,4 +174,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         return projectJpaRepository.findByIdAndState(recommendRequest.idx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
     }
+
+
+
 }

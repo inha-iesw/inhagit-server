@@ -122,9 +122,4 @@ public class ProjectRecommendController {
         return BaseResponse.of(REGISTRATION_RECOMMEND_CANCEL_SUCCESS, projectRecommendService.cancelProjectRegistrationRecommend(user,recommendRequest));
     }
 
-    @GetMapping("/patent")
-    @Operation(summary = "특허 추천한 프로젝트 조회 API", description = "특허 추천한 프로젝트를 조회합니다.")
-    public BaseResponse<?> getPatentRecommendProjects(@AuthenticationPrincipal User user, @RequestParam String number) {
-        return BaseResponse.of(OK, projectRecommendService.getPatent(user, number));
-    }
 }

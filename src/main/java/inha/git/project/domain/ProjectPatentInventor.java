@@ -3,6 +3,9 @@ package inha.git.project.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * ProjectPatentinventor 엔티티는 애플리케이션의 프로젝트 특허 발명자 정보를 나타냄.
+ */
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
@@ -10,7 +13,7 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "project_patent_inventor_tb")
-public class ProjectPatentinventor {
+public class ProjectPatentInventor {
 
     @Id
     @Column(name = "project_patent_inventor_id", nullable = false, updatable = false)

@@ -19,6 +19,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
+import org.w3c.dom.Element;
 import java.util.List;
 
 /**
@@ -299,5 +300,8 @@ public interface ProjectMapper {
 
     @Mapping(target = "id", ignore = true)
     ProjectPatent createProjectPatent(Project project);
+
+
+
 
 }
