@@ -5,6 +5,7 @@ import inha.git.department.domain.repository.DepartmentJpaRepository;
 import inha.git.mapping.domain.UserDepartment;
 import inha.git.mapping.domain.repository.UserDepartmentJpaRepository;
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
+import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
 import inha.git.statistics.api.mapper.StatisticsMapper;
 import inha.git.statistics.domain.DepartmentStatistics;
 import inha.git.statistics.domain.UserCountStatistics;
@@ -206,5 +207,27 @@ public class StatisticsServiceImpl implements StatisticsService {
         UserCountStatistics userCountStatistics = userCountStatisticsJpaRepository.findById(1)
                 .orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
         return statisticsMapper.toProjectStatisticsResponse(userCountStatistics.getTotalProjectCount(), userCountStatistics.getUserProjectCount());
+    }
+
+    /**
+     * 질문 통계 정보를 조회한다.
+     *
+     * @param idx Integer
+     * @return QuestionStatisticsResponse
+     */
+    @Override
+    public QuestionStatisticsResponse getQuestionStatistics(Integer idx) {
+        if (idx != null) {
+            return departmentJpaRepository.findByIdAndState(idx, ACTIVE)
+                    .map(department -> {
+                        DepartmentStatistics departmentStatistics = departmentStatisticsJpaRepository.findById(department.getId())
+                                .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND));
+                        return statisticsMapper.toQuestionStatisticsResponse(departmentStatistics.getQuestionCount(), departmentStatistics.getQuestionUserCount());
+                    })
+                    .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
+        }
+        UserCountStatistics userCountStatistics = userCountStatisticsJpaRepository.findById(1)
+                .orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
+        return statisticsMapper.toQuestionStatisticsResponse(userCountStatistics.getTotalQuestionCount(), userCountStatistics.getUserQuestionCount());
     }
 }
