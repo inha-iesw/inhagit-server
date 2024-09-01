@@ -1,5 +1,6 @@
 package inha.git.statistics.api.service;
 
+import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
 import inha.git.user.domain.User;
 
 public interface StatisticsService {
@@ -7,4 +8,6 @@ public interface StatisticsService {
     void increaseCount(User user, Integer type);
 
     void decreaseCount(User user, Integer type);
+
+    ProjectStatisticsResponse getProjectStatistics(Integer idx);
 }
