@@ -6,6 +6,7 @@ import inha.git.mapping.domain.UserDepartment;
 import inha.git.mapping.domain.repository.UserDepartmentJpaRepository;
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
+import inha.git.statistics.api.controller.dto.response.TeamStatisticsResponse;
 import inha.git.statistics.api.mapper.StatisticsMapper;
 import inha.git.statistics.domain.DepartmentStatistics;
 import inha.git.statistics.domain.UserCountStatistics;
@@ -229,5 +230,21 @@ public class StatisticsServiceImpl implements StatisticsService {
         UserCountStatistics userCountStatistics = userCountStatisticsJpaRepository.findById(1)
                 .orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
         return statisticsMapper.toQuestionStatisticsResponse(userCountStatistics.getTotalQuestionCount(), userCountStatistics.getUserQuestionCount());
+    }
+
+    @Override
+    public TeamStatisticsResponse getTeamStatistics(Integer idx) {
+        if (idx != null) {
+            return departmentJpaRepository.findByIdAndState(idx, ACTIVE)
+                    .map(department -> {
+                        DepartmentStatistics departmentStatistics = departmentStatisticsJpaRepository.findById(department.getId())
+                                .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND));
+                        return statisticsMapper.toTeamStatisticsResponse(departmentStatistics.getTeamCount(), departmentStatistics.getTeamUserCount());
+                    })
+                    .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
+        }
+        UserCountStatistics userCountStatistics = userCountStatisticsJpaRepository.findById(1)
+                .orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
+        return statisticsMapper.toTeamStatisticsResponse(userCountStatistics.getTotalTeamCount(), userCountStatistics.getUserTeamCount());
     }
 }

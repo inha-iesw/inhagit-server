@@ -2,6 +2,7 @@ package inha.git.statistics.api.mapper;
 
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
+import inha.git.statistics.api.controller.dto.response.TeamStatisticsResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
@@ -14,4 +15,5 @@ public interface StatisticsMapper {
     ProjectStatisticsResponse toProjectStatisticsResponse(Integer projectCount, Integer userCount);
 
     QuestionStatisticsResponse toQuestionStatisticsResponse(Integer questionCount, Integer userCount);
+    TeamStatisticsResponse toTeamStatisticsResponse(Integer teamCount, Integer userCount);
 }
