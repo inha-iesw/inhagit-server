@@ -109,7 +109,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
     public List<SearchFileResponse> getProjectFileByIdx(Integer projectIdx, String path) {
         ProjectUpload projectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-        String absoluteFilePath = BASE_DIR + projectUpload.getDirectoryName() + path;
+        String absoluteFilePath = BASE_DIR_SOURCE + projectUpload.getDirectoryName() + path;
         Path filePath = Paths.get(absoluteFilePath);
         if (!Files.exists(filePath)) {
             throw new BaseException(FILE_NOT_FOUND);

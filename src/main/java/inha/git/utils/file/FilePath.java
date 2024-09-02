@@ -40,7 +40,7 @@ public class FilePath {
             String fileName = System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 6) +
                     getFileExtension(file.getOriginalFilename());
             // 파일 저장 경로 설정
-            Path filePath = Paths.get(BASE_DIR + uploadDir, fileName);
+            Path filePath = Paths.get(BASE_DIR_SOURCE + uploadDir, fileName);
             // 디렉토리가 존재하지 않으면 생성
             Files.createDirectories(filePath.getParent());
             // 파일 저장
@@ -109,7 +109,7 @@ public class FilePath {
      */
     public static Path generateProjectPath(String folderName) {
         String projectRelativePath = PROJECT + '/' + folderName;
-        return Paths.get(BASE_DIR_2, projectRelativePath);
+        return Paths.get(BASE_DIR_SOURCE_2, projectRelativePath);
     }
 
     /**
