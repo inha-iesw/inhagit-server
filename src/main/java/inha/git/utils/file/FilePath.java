@@ -16,6 +16,7 @@ import java.util.zip.ZipOutputStream;
 
 import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.*;
+import static org.eclipse.jdt.internal.compiler.env.AccessRestriction.PROJECT;
 
 /**
  * FilePath는 파일을 저장하고 저장된 파일의 경로를 반환하는 클래스.

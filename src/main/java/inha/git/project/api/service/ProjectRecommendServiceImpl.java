@@ -33,6 +33,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     private final FoundingRecommendJpaRepository foundingRecommendJpaRepository;
     private final RegistrationRecommendJpaRepository registrationRecommendJpaRepository;
 
+
     /**
      * 프로젝트 창업 추천
      *
@@ -130,6 +131,8 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     }
 
 
+
+
     /**
      * 추천할 프로젝트가 유효한지 확인
      *
@@ -171,4 +174,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         return projectJpaRepository.findByIdAndState(recommendRequest.idx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
     }
+
+
+
 }

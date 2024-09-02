@@ -21,7 +21,7 @@ import static inha.git.common.code.status.SuccessStatus.*;
 @Tag(name = "project recommend controller", description = "project recommend 관련 API")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/projects")
+@RequestMapping("/api/v1/projects/recommend")
 public class ProjectRecommendController {
 
     private final ProjectRecommendService projectRecommendService;
@@ -35,7 +35,7 @@ public class ProjectRecommendController {
      * @param recommendRequest 추천할 프로젝트 정보
      * @return 추천 성공 메시지를 포함하는 BaseResponse<String>
      */
-    @PostMapping("/recommend/founding")
+    @PostMapping("/founding")
     @Operation(summary = "프로젝트 창업 추천 API", description = "특정 프로젝트에 창업 추천을 합니다.")
     public BaseResponse<String> recommendFounding(@AuthenticationPrincipal User user,
                                                   @RequestBody @Valid RecommendRequest recommendRequest) {
@@ -51,7 +51,7 @@ public class ProjectRecommendController {
      * @param recommendRequest 추천할 프로젝트 정보
      * @return 추천 성공 메시지를 포함하는 BaseResponse<String>
      */
-    @PostMapping("/recommend/patent")
+    @PostMapping("/patent")
     @Operation(summary = "프로젝트 특허 추천 API", description = "특정 프로젝트에 특허 추천을 합니다.")
     public BaseResponse<String> recommendPatent(@AuthenticationPrincipal User user,
                                                 @RequestBody @Valid RecommendRequest recommendRequest) {
@@ -67,7 +67,7 @@ public class ProjectRecommendController {
      * @param recommendRequest 추천할 프로젝트 정보
      * @return 추천 성공 메시지를 포함하는 BaseResponse<String>
      */
-    @PostMapping("/recommend/registration")
+    @PostMapping("/registration")
     @Operation(summary = "프로젝트 등록 추천 API", description = "특정 프로젝트에 등록 추천을 합니다.")
     public BaseResponse<String> recommendRegistration(@AuthenticationPrincipal User user,
                                                       @RequestBody @Valid RecommendRequest recommendRequest) {
@@ -83,7 +83,7 @@ public class ProjectRecommendController {
      * @param recommendRequest 추천할 프로젝트 정보
      * @return 추천 취소 성공 메시지를 포함하는 BaseResponse<String>
      */
-    @DeleteMapping("/recommend/founding")
+    @DeleteMapping("/founding")
     @Operation(summary = "프로젝트 창업 추천 취소 API", description = "특정 프로젝트에 창업 추천을 취소합니다.")
     public BaseResponse<String> cancelFoundingRecommend(@AuthenticationPrincipal User user,
                                                         @RequestBody @Valid RecommendRequest recommendRequest) {
@@ -99,7 +99,7 @@ public class ProjectRecommendController {
      * @param recommendRequest 추천할 프로젝트 정보
      * @return 추천 취소 성공 메시지를 포함하는 BaseResponse<String>
      */
-    @DeleteMapping("/recommend/patent")
+    @DeleteMapping("/patent")
     @Operation(summary = "프로젝트 특허 추천 취소 API", description = "특정 프로젝트에 특허 추천을 취소합니다.")
     public BaseResponse<String> cancelPatentRecommend(@AuthenticationPrincipal User user,
                                                       @RequestBody @Valid RecommendRequest recommendRequest) {
@@ -115,7 +115,7 @@ public class ProjectRecommendController {
      * @param recommendRequest 추천할 프로젝트 정보
      * @return 추천 취소 성공 메시지를 포함하는 BaseResponse<String>
      */
-    @DeleteMapping("/recommend/registration")
+    @DeleteMapping("/registration")
     @Operation(summary = "프로젝트 등록 추천 취소 API", description = "특정 프로젝트에 등록 추천을 취소합니다.")
     public BaseResponse<String> cancelRegistrationRecommend(@AuthenticationPrincipal User user,
                                                             @RequestBody @Valid RecommendRequest recommendRequest) {

@@ -51,6 +51,16 @@ public class Constant {
     public final static String UNDERBAR = "._";
     public final static String MACOSX = "__MACOSX";
 
+    public final static String ACCESS_KEY = "&accessKey=";
+
+    public final static String SERVICE_KEY = "&ServiceKey=";
+
+    public final static String SEARCH_PATENT = "?applicationNumber=";
+
+
+
+
+
     @PostConstruct
     public void init() {
         basedir = basedirValue;
