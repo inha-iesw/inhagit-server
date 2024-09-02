@@ -299,8 +299,6 @@ public interface ProjectMapper {
     @Mapping(target = "user", source = "user")
     Project createGithubProjectRequestToProject(CreateGithubProjectRequest createGithubProjectRequest, User user);
 
-    @Mapping(target = "id", ignore = true)
-    ProjectPatent createProjectPatent(Project project);
 
     SearchPatentResponse toSearchPatentResponse(String applicationNumber, String applicationDate, String inventionTitle,
                                                 String inventionTitleEnglish, String applicantName, String applicantEnglishName,

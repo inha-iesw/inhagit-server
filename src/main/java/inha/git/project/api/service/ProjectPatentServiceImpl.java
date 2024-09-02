@@ -62,7 +62,7 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
      * @return 특허 정보
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public SearchPatentResponse getPatent(User user, String applicationNumber) {
         validApplicationNumber(applicationNumber);
         inventorUrlString += SEARCH_PATENT + applicationNumber + ACCESS_KEY + key;

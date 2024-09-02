@@ -13,7 +13,6 @@ import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectUpload;
 import inha.git.project.domain.repository.ProjectJpaRepository;
-import inha.git.project.domain.repository.ProjectPatentJpaRepository;
 import inha.git.project.domain.repository.ProjectUploadJpaRepository;
 import inha.git.statistics.api.service.StatisticsService;
 import inha.git.user.domain.User;
@@ -52,7 +51,6 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectUploadJpaRepository projectUploadJpaRepository;
     private final ProjectFieldJpaRepository projectFieldJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
-    private final ProjectPatentJpaRepository projectPatentJpaRepository;
     private final ProjectMapper projectMapper;
     private final StatisticsService statisticsService;
 
@@ -82,7 +80,6 @@ public class ProjectServiceImpl implements ProjectService {
         List<ProjectField> projectFields = createAndSaveProjectFields(createProjectRequest.fieldIdxList(), savedProject);
         projectFieldJpaRepository.saveAll(projectFields);
 
-        projectPatentJpaRepository.save(projectMapper.createProjectPatent(savedProject));
         statisticsService.increaseCount(user, 1);
         return projectMapper.projectToProjectResponse(savedProject);
     }
@@ -129,7 +126,6 @@ public class ProjectServiceImpl implements ProjectService {
         List<ProjectField> projectFields = createAndSaveProjectFields(createGithubProjectRequest.fieldIdxList(), savedProject);
         projectFieldJpaRepository.saveAll(projectFields);
 
-        projectPatentJpaRepository.save(projectMapper.createProjectPatent(savedProject));
         statisticsService.increaseCount(user, 1);
         return projectMapper.projectToProjectResponse(savedProject);
     }

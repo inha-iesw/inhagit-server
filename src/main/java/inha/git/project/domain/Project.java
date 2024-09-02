@@ -51,6 +51,9 @@ public class Project extends BaseEntity {
     @Column(nullable = false, name = "registration_recommend_count")
     private Integer registrationRecommendCount = 0;
 
+    @Column(name = "project_patent_id")
+    private Integer projectPatentId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -62,8 +65,7 @@ public class Project extends BaseEntity {
     @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private ProjectUpload projectUpload;
 
-    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    private ProjectPatent projectPatent;
+
 
     public void setFoundRecommendCount(int foundingRecommendCount) {
         this.foundingRecommendCount = foundingRecommendCount;
