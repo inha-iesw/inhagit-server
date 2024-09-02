@@ -85,6 +85,7 @@ public enum ErrorStatus implements BaseErrorCode {
     PROJECT_COMMENT_REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "PROJECT4009", "프로젝트 대댓글을 찾을 수 없습니다."),
     PROJECT_COMMENT_REPLY_UPDATE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "PROJECT4010", "대댓글을 수정할 권한이 없습니다."),
     PROJECT_DELETE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "PROJECT4011", "프로젝트를 삭제할 권한이 없습니다."),
+    PATENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PROJECT4012", "특허를 찾을 수 없습니다."),
 
     GITHUB_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "GITHUB4000", "깃허브 토큰이 등록되지 않았습니다. 깃허브 토큰을 먼저 등록해주세요."),
     FAILED_TO_GET_GITHUB_REPOSITORIES(HttpStatus.BAD_REQUEST, "GITHUB4001", "깃허브 레포지토리 목록을 가져오는데 실패했습니다."),

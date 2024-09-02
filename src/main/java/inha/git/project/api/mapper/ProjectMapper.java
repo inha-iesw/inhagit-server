@@ -20,6 +20,8 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import org.w3c.dom.Element;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -311,4 +313,29 @@ public interface ProjectMapper {
     @Mapping(target = "applicantName", source = "applicantName")
     @Mapping(target = "applicantEnglishName", source = "applicantEnglishName")
     SearchPatentResponse toSearchPatentResponse(String applicantName, String applicantEnglishName);
+
+
+    default List<ProjectPatentInventor> toPatentInventor(List<SearchInventorResponse> inventors, ProjectPatent projectPatent) {
+        List<ProjectPatentInventor> result = new ArrayList<>();
+        for (SearchInventorResponse inventor : inventors) {
+            result.add(toPatentInventor(inventor, projectPatent));
+        }
+        return result;
+    }
+
+    @Mapping(target ="id", ignore = true)
+    ProjectPatentInventor toPatentInventor(SearchInventorResponse inventor, ProjectPatent projectPatent);
+
+    @Mapping(target = "applicationNumber", source = "projectPatent.applicationNumber")
+    @Mapping(target = "applicationDate", source = "projectPatent.applicationDate")
+    @Mapping(target = "inventionTitle", source = "projectPatent.inventionTitle")
+    @Mapping(target = "inventionTitleEnglish", source = "projectPatent.inventionTitleEnglish")
+    @Mapping(target = "applicantName", source = "projectPatent.applicantName")
+    @Mapping(target = "applicantEnglishName", source = "projectPatent.applicantEnglishName")
+    @Mapping(target = "inventors", source = "patentInventors")
+    SearchPatentResponse toSearchPatentResponse(ProjectPatent projectPatent, List<ProjectPatentInventor> patentInventors);
+
+    @Mapping(target = "id", ignore = true)
+    ProjectPatent toProjectPatent(String applicationNumber, String applicationDate, String inventionTitle, String inventionTitleEnglish, String applicantName, String applicantEnglishName);
+
 }

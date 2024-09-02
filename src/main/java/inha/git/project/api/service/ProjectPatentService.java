@@ -6,6 +6,6 @@ import inha.git.user.domain.User;
 
 public interface ProjectPatentService {
 
-    SearchPatentResponse getPatent(User user, String applicationNumber);
+    SearchPatentResponse getPatent(User user, String applicationNumber, Integer projectIdx);
     PatentResponse registerPatent(User user, String applicationNumber);
 }

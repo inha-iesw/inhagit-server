@@ -78,4 +78,8 @@ public class Project extends BaseEntity {
     public void setRegistrationRecommendCount(int registrationRecommendCount) {
         this.registrationRecommendCount = registrationRecommendCount;
     }
+
+    public void setProjectPatentId(Integer id) {
+        this.projectPatentId = id;
+    }
 }

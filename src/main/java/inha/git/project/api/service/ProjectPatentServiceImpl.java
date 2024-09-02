@@ -5,6 +5,10 @@ import inha.git.project.api.controller.dto.response.PatentResponse;
 import inha.git.project.api.controller.dto.response.SearchInventorResponse;
 import inha.git.project.api.controller.dto.response.SearchPatentResponse;
 import inha.git.project.api.mapper.ProjectMapper;
+import inha.git.project.domain.Project;
+import inha.git.project.domain.ProjectPatent;
+import inha.git.project.domain.ProjectPatentInventor;
+import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentInventorJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentJpaRepository;
 import inha.git.user.domain.User;
@@ -28,7 +32,9 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.*;
 
@@ -40,6 +46,7 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
 
     private final ProjectPatentJpaRepository projectPatentJpaRepository;
     private final ProjectPatentInventorJpaRepository projectPatentInventorJpaRepository;
+    private final ProjectJpaRepository projectJpaRepository;
     private final ProjectMapper projectMapper;
 
     @Value("${kipris.access-key}")
@@ -55,25 +62,47 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
     private String basicInfoUrlString;
 
     /**
-     * 특허 검색
+     * 특허 검색 메서드
+     *
+     * <p>이 메서드는 주어진 특허 출원번호(applicationNumber)를 기반으로 특허 정보를 검색하고 반환한다.
+     * 사용자가 요청한 특허가 이미 데이터베이스에 존재하는 경우, 해당 특허 정보를 조회하여 반환한다.
+     * 만약 데이터베이스에 특허 정보가 존재하지 않는다면, 외부 API를 통해 특허 정보를 조회하고,
+     * 조회된 정보를 데이터베이스에 저장한 후 반환한다.</p>
      *
      * @param user 로그인한 사용자 정보
      * @param applicationNumber 특허 출원번호
-     * @return 특허 정보
+     * @param projectIdx 프로젝트의 식별자
+     * @return SearchPatentResponse 특허 정보
      */
     @Override
-    @Transactional
-    public SearchPatentResponse getPatent(User user, String applicationNumber) {
+    public SearchPatentResponse getPatent(User user, String applicationNumber, Integer projectIdx) {
         validApplicationNumber(applicationNumber);
-        inventorUrlString += SEARCH_PATENT + applicationNumber + ACCESS_KEY + key;
-        applicantUrlString += SEARCH_PATENT + applicationNumber + ACCESS_KEY + key;
-        basicInfoUrlString += SEARCH_PATENT + applicationNumber + SERVICE_KEY + key;
-        List<SearchInventorResponse> inventors = fetchInventorInfo(inventorUrlString);
-        SearchPatentResponse applicantInfo = fetchApplicantInfo(applicantUrlString);
-        SearchPatentResponse basicInfo = fetchBasicInfo(basicInfoUrlString);
-        return projectMapper.toSearchPatentResponse(applicationNumber, basicInfo.applicationDate(), basicInfo.inventionTitle(), basicInfo.inventionTitleEnglish(), applicantInfo.applicantName(), applicantInfo.applicantEnglishName(), inventors);
-    }
 
+        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+
+        Optional<ProjectPatent> patentOptional = projectPatentJpaRepository.findByApplicationNumberAndState(applicationNumber, ACTIVE);
+        if (patentOptional.isPresent()) {
+            ProjectPatent existingPatent = patentOptional.get();
+            List<SearchInventorResponse> inventors = projectPatentInventorJpaRepository.findByProjectPatentId(existingPatent.getId());
+            List<ProjectPatentInventor> patentInventors = projectMapper.toPatentInventor(inventors, existingPatent);
+            return projectMapper.toSearchPatentResponse(existingPatent, patentInventors);
+        } else {
+            inventorUrlString += SEARCH_PATENT + applicationNumber + ACCESS_KEY + key;
+            applicantUrlString += SEARCH_PATENT + applicationNumber + ACCESS_KEY + key;
+            basicInfoUrlString += SEARCH_PATENT + applicationNumber + SERVICE_KEY + key;
+            List<SearchInventorResponse> inventors = fetchInventorInfo(inventorUrlString);
+            SearchPatentResponse applicantInfo = fetchApplicantInfo(applicantUrlString);
+            SearchPatentResponse basicInfo = fetchBasicInfo(basicInfoUrlString);
+
+            ProjectPatent projectPatent = projectMapper.toProjectPatent(applicationNumber, basicInfo.applicationDate(), basicInfo.inventionTitle(), basicInfo.inventionTitleEnglish(), applicantInfo.applicantName(), applicantInfo.applicantEnglishName());
+            ProjectPatent savePatent = projectPatentJpaRepository.save(projectPatent);
+
+            projectMapper.toPatentInventor(inventors, savePatent).forEach(projectPatentInventorJpaRepository::save);
+            projectJpaRepository.save(project);
+            return projectMapper.toSearchPatentResponse(applicationNumber, basicInfo.applicationDate(), basicInfo.inventionTitle(), basicInfo.inventionTitleEnglish(), applicantInfo.applicantName(), applicantInfo.applicantEnglishName(), inventors);
+        }
+    }
     @Override
     public PatentResponse registerPatent(User user, String applicationNumber) {
         validApplicationNumber(applicationNumber);

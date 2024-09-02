@@ -28,11 +28,12 @@ public class ProjectPatentController {
     private final ProjectPatentService projectPatentService;
 
 
-    @PostMapping("/search")
+    @PostMapping("/{projectIdx}/search")
     @Operation(summary = "특허 검색 API", description = "특허 검색을 합니다.")
     public BaseResponse<SearchPatentResponse> getPatentRecommendProjects(@AuthenticationPrincipal User user,
-                                                                         @RequestParam("applicationNumber") String applicationNumber) {
-        return BaseResponse.of(PATENT_SEARCH_OK, projectPatentService.getPatent(user, applicationNumber));
+                                                                         @RequestParam("applicationNumber") String applicationNumber,
+                                                                         @PathVariable("projectIdx") Integer projectIdx) {
+        return BaseResponse.of(PATENT_SEARCH_OK, projectPatentService.getPatent(user, applicationNumber, projectIdx));
     }
 
     // 조회한 특허 등록

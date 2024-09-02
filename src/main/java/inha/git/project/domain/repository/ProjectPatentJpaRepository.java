@@ -1,8 +1,13 @@
 package inha.git.project.domain.repository;
 
 
+import inha.git.common.BaseEntity;
 import inha.git.project.domain.ProjectPatent;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+import static inha.git.common.BaseEntity.State;
 
 
 /**
@@ -10,5 +15,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface ProjectPatentJpaRepository extends JpaRepository<ProjectPatent, Integer> {
 
+    Optional<ProjectPatent> findByIdAndState(Integer projectPatentId, State state);
 
+    Optional<ProjectPatent> findByApplicationNumberAndState(String applicationNumber, State state);
 }
