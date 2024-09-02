@@ -12,8 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import static inha.git.common.code.status.SuccessStatus.PATENT_REGISTER_SUCCESS;
-import static inha.git.common.code.status.SuccessStatus.PATENT_SEARCH_OK;
+import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
  * ProjectPatentController는 project 특허 관련 엔드포인트를 처리.
@@ -27,6 +26,21 @@ public class ProjectPatentController {
 
     private final ProjectPatentService projectPatentService;
 
+    /**
+     * 특허 조회 API
+     *
+     * <p>특허를 조회합니다.</p>
+     *
+     * @param user 사용자 정보
+     * @param projectIdx 프로젝트 인덱스
+     * @return 조회된 특허 정보를 포함하는 BaseResponse<SearchPatentResponse>
+     */
+    @GetMapping("/{projectIdx}")
+    @Operation(summary = "특허 조회 API", description = "특허를 조회합니다.")
+    public BaseResponse<SearchPatentResponse> getProjectPatent(@AuthenticationPrincipal User user,
+                                                               @PathVariable("projectIdx") Integer projectIdx) {
+        return BaseResponse.of(PATENT_SEARCH_OK, projectPatentService.getProjectPatent(user, projectIdx));
+    }
 
     /**
      * 특허 검색 API
@@ -40,12 +54,22 @@ public class ProjectPatentController {
      */
     @PostMapping("/{projectIdx}/search")
     @Operation(summary = "특허 검색 API", description = "특허 검색을 합니다.")
-    public BaseResponse<SearchPatentResponse> getPatentRecommendProjects(@AuthenticationPrincipal User user,
+    public BaseResponse<SearchPatentResponse> searchProjectPatent(@AuthenticationPrincipal User user,
                                                                          @RequestParam("applicationNumber") String applicationNumber,
                                                                          @PathVariable("projectIdx") Integer projectIdx) {
-        return BaseResponse.of(PATENT_SEARCH_OK, projectPatentService.getPatent(user, applicationNumber, projectIdx));
+        return BaseResponse.of(PATENT_SEARCH_SUCCESS, projectPatentService.searchProjectPatent(user, applicationNumber, projectIdx));
     }
 
+    /**
+     * 특허 등록 API
+     *
+     * <p>특허를 등록합니다.</p>
+     *
+     * @param user 사용자 정보
+     * @param applicationNumber 특허 출원번호
+     * @param projectIdx 프로젝트 인덱스
+     * @return 등록된 특허 정보를 포함하는 BaseResponse<PatentResponse>
+     */
     @PostMapping("/{projectIdx}")
     @Operation(summary = "조회한 특허 등록 API", description = "조회한 특허를 등록합니다.")
     public BaseResponse<PatentResponse> registerPatent(@AuthenticationPrincipal User user,

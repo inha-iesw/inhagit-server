@@ -62,6 +62,24 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
     private String basicInfoUrlString;
 
     /**
+     * 특허 조회 메서드
+     *
+     * @param user 로그인한 사용자 정보
+     * @param projectIdx 프로젝트의 식별자
+     * @return SearchPatentResponse 특허 정보
+     */
+    @Override
+    public SearchPatentResponse getProjectPatent(User user, Integer projectIdx) {
+        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+        ProjectPatent projectPatent = projectPatentJpaRepository.findByIdAndState(project.getProjectPatentId(), ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
+        List<SearchInventorResponse> inventors = projectPatentInventorJpaRepository.findByProjectPatentId(projectPatent.getId());
+        List<ProjectPatentInventor> patentInventors = projectMapper.toPatentInventor(inventors, projectPatent);
+        return projectMapper.toSearchPatentResponse(projectPatent, patentInventors);
+    }
+
+    /**
      * 특허 검색 메서드
      *
      * <p>이 메서드는 주어진 특허 출원번호(applicationNumber)를 기반으로 특허 정보를 검색하고 반환한다.
@@ -75,7 +93,7 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
      * @return SearchPatentResponse 특허 정보
      */
     @Override
-    public SearchPatentResponse getPatent(User user, String applicationNumber, Integer projectIdx) {
+    public SearchPatentResponse searchProjectPatent(User user, String applicationNumber, Integer projectIdx) {
         validApplicationNumber(applicationNumber);
 
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
@@ -103,6 +121,17 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
             return projectMapper.toSearchPatentResponse(applicationNumber, basicInfo.applicationDate(), basicInfo.inventionTitle(), basicInfo.inventionTitleEnglish(), applicantInfo.applicantName(), applicantInfo.applicantEnglishName(), inventors);
         }
     }
+
+    /**
+     * 특허 등록 메서드
+     *
+     * <p>이 메서드는 주어진 특허 출원번호(applicationNumber)를 기반으로 특허 정보를 등록하고 반환한다.
+     *
+     * @param user 로그인한 사용자 정보
+     * @param applicationNumber 특허 출원번호
+     * @param projectIdx 프로젝트의 식별자
+     * @return PatentResponse 특허 정보
+     */
     @Override
     public PatentResponse registerPatent(User user, String applicationNumber, Integer projectIdx) {
         validApplicationNumber(applicationNumber);
@@ -123,6 +152,8 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         project.setProjectPatentId(projectPatent.getId());
         return projectMapper.toPatentResponse(projectPatent);
     }
+
+
 
     private static void validApplicationNumber(String applicationNumber) {
         if (applicationNumber == null || !applicationNumber.matches("\\d{13}")) {
