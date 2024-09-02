@@ -256,7 +256,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setState(INACTIVE);
         projectJpaRepository.save(project);
 
-        statisticsService.decreaseCount(user, 1);
+        statisticsService.decreaseCount(project.getUser(), 1);
         return projectMapper.projectToProjectResponse(project);
 
 
