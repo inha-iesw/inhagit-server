@@ -40,6 +40,7 @@ public interface ProjectMapper {
     @Mapping(target = "registrationRecommendCount", constant = "0")
     @Mapping(target = "subjectName", source = "createProjectRequest.subject")
     @Mapping(target = "user", source = "user")
+    @Mapping(target = "id", ignore = true)
     Project createProjectRequestToProject(CreateProjectRequest createProjectRequest, User user);
     /**
      * UpdateProjectRequest를 Project 엔티티로 변환
