@@ -129,6 +129,7 @@ public class ProjectServiceImpl implements ProjectService {
         List<ProjectField> projectFields = createAndSaveProjectFields(createGithubProjectRequest.fieldIdxList(), savedProject);
         projectFieldJpaRepository.saveAll(projectFields);
 
+        projectPatentJpaRepository.save(projectMapper.createProjectPatent(savedProject));
         statisticsService.increaseCount(user, 1);
         return projectMapper.projectToProjectResponse(savedProject);
     }

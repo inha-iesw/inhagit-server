@@ -1,6 +1,7 @@
 package inha.git.project.api.service;
 
 import inha.git.common.exceptions.BaseException;
+import inha.git.project.api.controller.dto.response.PatentResponse;
 import inha.git.project.api.controller.dto.response.SearchInventorResponse;
 import inha.git.project.api.controller.dto.response.SearchPatentResponse;
 import inha.git.project.api.mapper.ProjectMapper;
@@ -63,9 +64,7 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
     @Override
     @Transactional(readOnly = true)
     public SearchPatentResponse getPatent(User user, String applicationNumber) {
-        if (applicationNumber == null || !applicationNumber.matches("\\d{13}")) {
-            throw new BaseException(INVALID_APPLICATION_NUMBER);
-        }
+        validApplicationNumber(applicationNumber);
         inventorUrlString += SEARCH_PATENT + applicationNumber + ACCESS_KEY + key;
         applicantUrlString += SEARCH_PATENT + applicationNumber + ACCESS_KEY + key;
         basicInfoUrlString += SEARCH_PATENT + applicationNumber + SERVICE_KEY + key;
@@ -73,6 +72,24 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         SearchPatentResponse applicantInfo = fetchApplicantInfo(applicantUrlString);
         SearchPatentResponse basicInfo = fetchBasicInfo(basicInfoUrlString);
         return projectMapper.toSearchPatentResponse(applicationNumber, basicInfo.applicationDate(), basicInfo.inventionTitle(), basicInfo.inventionTitleEnglish(), applicantInfo.applicantName(), applicantInfo.applicantEnglishName(), inventors);
+    }
+
+    @Override
+    public PatentResponse registerPatent(User user, String applicationNumber) {
+        validApplicationNumber(applicationNumber);
+        inventorUrlString += SEARCH_PATENT + applicationNumber + ACCESS_KEY + key;
+        applicantUrlString += SEARCH_PATENT + applicationNumber + ACCESS_KEY + key;
+        basicInfoUrlString += SEARCH_PATENT + applicationNumber + SERVICE_KEY + key;
+        List<SearchInventorResponse> inventors = fetchInventorInfo(inventorUrlString);
+        SearchPatentResponse applicantInfo = fetchApplicantInfo(applicantUrlString);
+        SearchPatentResponse basicInfo = fetchBasicInfo(basicInfoUrlString);
+        return null;
+    }
+
+    private static void validApplicationNumber(String applicationNumber) {
+        if (applicationNumber == null || !applicationNumber.matches("\\d{13}")) {
+            throw new BaseException(INVALID_APPLICATION_NUMBER);
+        }
     }
 
 

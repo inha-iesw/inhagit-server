@@ -138,7 +138,8 @@ public enum SuccessStatus implements BaseCode {
     TEAM_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2001", "팀 통계 조회 성공"),
     QUESTION_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2002", "질문 통계 조회 성공"),
 
-    PATENT_SEARCH_OK(HttpStatus.OK, "PATENT2000", "특허 조회 성공");
+    PATENT_SEARCH_OK(HttpStatus.OK, "PATENT2000", "특허 조회 성공"),
+    PATENT_REGISTER_SUCCESS(HttpStatus.CREATED, "PATENT2010", "특허 등록 성공");
 
     private final HttpStatus httpStatus;
     private final String code;
