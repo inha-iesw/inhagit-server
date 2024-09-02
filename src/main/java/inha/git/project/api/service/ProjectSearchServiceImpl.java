@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -109,7 +110,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
     public List<SearchFileResponse> getProjectFileByIdx(Integer projectIdx, String path) {
         ProjectUpload projectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-        String absoluteFilePath = BASE_DIR + projectUpload.getDirectoryName() + path;
+        String absoluteFilePath = BASE_DIR_SOURCE + projectUpload.getDirectoryName() + path;
         Path filePath = Paths.get(absoluteFilePath);
         if (!Files.exists(filePath)) {
             throw new BaseException(FILE_NOT_FOUND);
@@ -117,21 +118,24 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
         try {
             if (Files.isDirectory(filePath)) {
                 try (Stream<Path> paths = Files.list(filePath)) {
-                    return paths
+                    List<SearchFileResponse> fileList = paths
                             .filter(f -> !f.getFileName().toString().equals(GIT) &&
                                     !f.getFileName().toString().equals(DS_STORE) &&
                                     !f.getFileName().toString().startsWith(UNDERBAR) &&
                                     !f.getFileName().toString().startsWith(MACOSX))
                             .map(this::mapToFileResponse)
                             .toList();
+                    return List.of(new SearchDirectoryResponse(filePath.getFileName().toString(), "directory", fileList));
                 }
             } else {
-                return List.of(mapToFileResponse(filePath));
+                String content = extractFileContent(filePath);
+                return List.of(new SearchFileDetailResponse(filePath.getFileName().toString(), "file", content));
             }
         } catch (IOException e) {
             throw new BaseException(FILE_CONVERT);
         }
     }
+
     /**
      * 파일 정보를 SearchFileResponse로 변환
      *
@@ -139,9 +143,29 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
      * @return 파일 정보
      */
     private SearchFileResponse mapToFileResponse(Path path) {
-        return new SearchFileResponse(
-                path.getFileName().toString(),
-                Files.isDirectory(path) ? DIRECTORY : FILE
-        );
+        if (Files.isDirectory(path)) {
+            return new SearchDirectoryResponse(
+                    path.getFileName().toString(),
+                    "directory",
+                    null // 하위 파일 리스트는 상위 메소드에서 처리됨
+            );
+        } else {
+            return new SearchFileDetailResponse(
+                    path.getFileName().toString(),
+                    "file",
+                    null // 내용은 상위 메소드에서 처리됨
+            );
+        }
+    }
+
+    private String extractFileContent(Path filePath) throws IOException {
+        String contentType = Files.probeContentType(filePath);
+        if (contentType != null && contentType.startsWith("text")) {
+            return Files.readString(filePath);
+        } else if (contentType != null && contentType.startsWith("image")) {
+            byte[] imageBytes = Files.readAllBytes(filePath);
+            return Base64.getEncoder().encodeToString(imageBytes);
+        }
+        return null;
     }
 }

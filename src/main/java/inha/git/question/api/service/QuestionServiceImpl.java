@@ -142,7 +142,7 @@ public class QuestionServiceImpl implements QuestionService {
         question.setDeletedAt();
         question.setState(INACTIVE);
         questionJpaRepository.save(question);
-        statisticsService.decreaseCount(user, 2);
+        statisticsService.decreaseCount(question.getUser(), 2);
         return questionMapper.questionToQuestionResponse(question);
     }
 

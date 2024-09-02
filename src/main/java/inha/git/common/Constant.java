@@ -1,8 +1,19 @@
 package inha.git.common;
 
 import inha.git.user.domain.enums.Role;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public class Constant {
+
+    @Value("${user.basedir}")
+    private String basedirValue;
+
+    public static String basedir;
+    public static String BASE_DIR_SOURCE;
+    public static String BASE_DIR_SOURCE_2;
 
     public final static String HEADER_AUTHORIZATION = "Authorization";
     public final static String TOKEN_PREFIX = "Bearer ";
@@ -24,8 +35,6 @@ public class Constant {
     public final static Integer ADMIN_TYPE = 5;
     public final static String CREATE_AT = "createAt";
 
-    public final static String BASE_DIR = System.getProperty("user.dir") + "/source/";
-    public final static String BASE_DIR_2 = System.getProperty("user.dir") + "/source";
     public final static String PROJECT_ZIP = "project-zip";
     public final static String PROJECT = "project";
     public final static String ZIP = ".zip";
@@ -41,6 +50,23 @@ public class Constant {
     public final static String FILE = "file";
     public final static String UNDERBAR = "._";
     public final static String MACOSX = "__MACOSX";
+
+    public final static String ACCESS_KEY = "&accessKey=";
+
+    public final static String SERVICE_KEY = "&ServiceKey=";
+
+    public final static String SEARCH_PATENT = "?applicationNumber=";
+
+
+
+
+
+    @PostConstruct
+    public void init() {
+        basedir = basedirValue;
+        BASE_DIR_SOURCE = basedir + "/source/";
+        BASE_DIR_SOURCE_2 = basedir + "/source";
+    }
 
     public static Integer mapRoleToPosition(Role role) {
         if(role == Role.USER) {

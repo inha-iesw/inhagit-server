@@ -109,7 +109,7 @@ public class ProblemServiceImpl implements ProblemService {
         if (file.isEmpty()) {
             problemMapper.updateProblemRequestToProblem(updateProblemRequest, problem);
         } else {
-            if(FilePath.deleteFile(BASE_DIR_2 + problem.getFilePath())){
+            if(FilePath.deleteFile(BASE_DIR_SOURCE_2 + problem.getFilePath())){
                 log.info("기존 파일 삭제 성공");
             }else {
                 log.info("기존 파일 삭제 실패");

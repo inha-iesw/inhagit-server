@@ -132,7 +132,16 @@ public enum SuccessStatus implements BaseCode {
     MY_PAGE_PROJECT_SEARCH_OK(HttpStatus.OK, "USER2001", "마이페이지 프로젝트 조회 성공"),
     MY_PAGE_QUESTION_SEARCH_OK(HttpStatus.OK, "USER2002", "마이페이지 질문 조회 성공"),
     MY_PAGE_TEAM_SEARCH_OK(HttpStatus.OK, "USER2003", "마이페이지 팀 조회 성공"),
-    PW_CHANGE_OK(HttpStatus.OK, "USER2004", "비밀번호 변경 성공");
+    PW_CHANGE_OK(HttpStatus.OK, "USER2004", "비밀번호 변경 성공"),
+
+    PROJECT_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2000", "프로젝트 통계 조회 성공"),
+    TEAM_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2001", "팀 통계 조회 성공"),
+    QUESTION_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2002", "질문 통계 조회 성공"),
+
+    PATENT_SEARCH_OK(HttpStatus.OK, "PATENT2000", "특허 조회 성공"),
+    PATENT_SEARCH_SUCCESS(HttpStatus.OK, "PATENT2001", "특허 검색 성공"),
+    PATENT_REGISTER_SUCCESS(HttpStatus.CREATED, "PATENT2010", "특허 등록 성공"),
+    PATENT_DELETE_SUCCESS(HttpStatus.OK, "PATENT2011", "특허 삭제 성공");
 
     private final HttpStatus httpStatus;
     private final String code;

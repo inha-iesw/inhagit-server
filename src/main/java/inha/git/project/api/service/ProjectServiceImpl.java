@@ -109,7 +109,7 @@ public class ProjectServiceImpl implements ProjectService {
         // 클론된 프로젝트 압축
         String zipFileName = folderName + ZIP;
         String zipRelativePath = PROJECT_ZIP + '/' + zipFileName;
-        Path zipDestinationPath = Paths.get(BASE_DIR_2, zipRelativePath);
+        Path zipDestinationPath = Paths.get(BASE_DIR_SOURCE_2, zipRelativePath);
 
         FilePath.zipDirectory(projectPath, zipDestinationPath);
 
@@ -160,7 +160,7 @@ public class ProjectServiceImpl implements ProjectService {
         // 새로 클론한 프로젝트 압축
         String zipFileName = folderName + ZIP;
         String zipRelativePath = PROJECT_ZIP + '/' + zipFileName;
-        Path zipDestinationPath = Paths.get(BASE_DIR_2, zipRelativePath);
+        Path zipDestinationPath = Paths.get(BASE_DIR_SOURCE_2, zipRelativePath);
         FilePath.zipDirectory(projectPath, zipDestinationPath);
 
         // 트랜잭션 롤백 시 파일 삭제 로직 등록
@@ -169,8 +169,8 @@ public class ProjectServiceImpl implements ProjectService {
         // 기존 파일 및 디렉토리 삭제
         String oldDirectoryName = findProjectUpload.getDirectoryName();
         String oldZipDirectoryName = findProjectUpload.getZipDirectoryName();
-        boolean isFileDeleted = FilePath.deleteFile(BASE_DIR_2 + oldZipDirectoryName);
-        boolean isDirDeleted = FilePath.deleteDirectory(BASE_DIR_2 + oldDirectoryName);
+        boolean isFileDeleted = FilePath.deleteFile(BASE_DIR_SOURCE_2 + oldZipDirectoryName);
+        boolean isDirDeleted = FilePath.deleteDirectory(BASE_DIR_SOURCE_2 + oldDirectoryName);
         if (isFileDeleted && isDirDeleted) {
             log.info("기존 파일과 디렉토리가 성공적으로 삭제되었습니다.");
         } else {
@@ -225,8 +225,8 @@ public class ProjectServiceImpl implements ProjectService {
             projectMapper.updateProjectUpload(PROJECT_UPLOAD + folderName, zipFilePath, findProjectUpload);
             projectUploadJpaRepository.save(findProjectUpload);
 
-            boolean isFileDeleted = FilePath.deleteFile(BASE_DIR_2 + zipDirectoryName);
-            boolean isDirDeleted = FilePath.deleteDirectory(BASE_DIR_2 + directoryName);
+            boolean isFileDeleted = FilePath.deleteFile(BASE_DIR_SOURCE_2 + zipDirectoryName);
+            boolean isDirDeleted = FilePath.deleteDirectory(BASE_DIR_SOURCE_2 + directoryName);
             if (isFileDeleted && isDirDeleted) {
                 log.info("기존 파일과 디렉토리가 성공적으로 삭제되었습니다.");
             } else {
@@ -256,7 +256,7 @@ public class ProjectServiceImpl implements ProjectService {
         project.setState(INACTIVE);
         projectJpaRepository.save(project);
 
-        statisticsService.decreaseCount(user, 1);
+        statisticsService.decreaseCount(project.getUser(), 1);
         return projectMapper.projectToProjectResponse(project);
 
 
@@ -274,7 +274,7 @@ public class ProjectServiceImpl implements ProjectService {
     private String[] storeAndUnzipFile(MultipartFile file) {
         String zipFilePath = FilePath.storeFile(file, PROJECT_ZIP);
         String folderName = zipFilePath.substring(zipFilePath.lastIndexOf("/") + 1, zipFilePath.lastIndexOf(".zip"));
-        UnZip.unzipFile(BASE_DIR + zipFilePath, folderName, PROJECT);
+        UnZip.unzipFile(BASE_DIR_SOURCE + zipFilePath, folderName, PROJECT);
         return new String[] { zipFilePath, folderName };
     }
 
@@ -290,11 +290,11 @@ public class ProjectServiceImpl implements ProjectService {
             public void afterCompletion(int status) {
                 if (status == STATUS_ROLLED_BACK) {
                     log.info("트랜잭션 롤백 시 파일 삭제 로직 실행");
-                    log.info(BASE_DIR_2 + zipFilePath);
-                    log.info(BASE_DIR_2 + PROJECT_UPLOAD + folderName);
+                    log.info(BASE_DIR_SOURCE_2 + zipFilePath);
+                    log.info(BASE_DIR_SOURCE_2 + PROJECT_UPLOAD + folderName);
 
-                    boolean isFileDeleted = FilePath.deleteFile(BASE_DIR_2 + zipFilePath);
-                    boolean isDirDeleted = FilePath.deleteDirectory(BASE_DIR_2 + PROJECT_UPLOAD + folderName);
+                    boolean isFileDeleted = FilePath.deleteFile(BASE_DIR_SOURCE_2 + zipFilePath);
+                    boolean isDirDeleted = FilePath.deleteDirectory(BASE_DIR_SOURCE_2 + PROJECT_UPLOAD + folderName);
 
                     if (isFileDeleted && isDirDeleted) {
                         log.info("파일과 디렉토리가 성공적으로 삭제되었습니다.");

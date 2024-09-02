@@ -36,6 +36,9 @@ public class UserStatistics {
 
 
 
+
+
+
     public void increaseProjectCount() {
         projectCount++;
     }
@@ -67,4 +70,8 @@ public class UserStatistics {
     public void decreasePatentCount() {
         patentCount--;
     }
+
+
+
+
 }
