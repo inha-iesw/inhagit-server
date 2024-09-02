@@ -104,15 +104,24 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         }
     }
     @Override
-    public PatentResponse registerPatent(User user, String applicationNumber) {
+    public PatentResponse registerPatent(User user, String applicationNumber, Integer projectIdx) {
         validApplicationNumber(applicationNumber);
-        inventorUrlString += SEARCH_PATENT + applicationNumber + ACCESS_KEY + key;
-        applicantUrlString += SEARCH_PATENT + applicationNumber + ACCESS_KEY + key;
-        basicInfoUrlString += SEARCH_PATENT + applicationNumber + SERVICE_KEY + key;
-        List<SearchInventorResponse> inventors = fetchInventorInfo(inventorUrlString);
-        SearchPatentResponse applicantInfo = fetchApplicantInfo(applicantUrlString);
-        SearchPatentResponse basicInfo = fetchBasicInfo(basicInfoUrlString);
-        return null;
+        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+        if(user.getId() != project.getUser().getId()) {
+            throw new BaseException(USER_NOT_PROJECT_OWNER);
+        }
+        if(project.getProjectPatentId() != null) {
+            throw new BaseException(ALREADY_REGISTERED_PATENT);
+        }
+        ProjectPatent projectPatent = projectPatentJpaRepository.findByApplicationNumberAndState(applicationNumber, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
+
+        if (projectPatent.getProjectPatentInventors().stream()
+                .noneMatch(inventor -> inventor.getName().equals(user.getName())))
+            throw new BaseException(USER_NOT_INVENTORY);
+        project.setProjectPatentId(projectPatent.getId());
+        return projectMapper.toPatentResponse(projectPatent);
     }
 
     private static void validApplicationNumber(String applicationNumber) {

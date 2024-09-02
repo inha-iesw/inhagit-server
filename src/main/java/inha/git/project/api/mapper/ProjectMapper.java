@@ -338,4 +338,6 @@ public interface ProjectMapper {
     @Mapping(target = "id", ignore = true)
     ProjectPatent toProjectPatent(String applicationNumber, String applicationDate, String inventionTitle, String inventionTitleEnglish, String applicantName, String applicantEnglishName);
 
+    @Mapping(target = "idx", source = "projectPatent.id")
+    PatentResponse toPatentResponse(ProjectPatent projectPatent);
 }
