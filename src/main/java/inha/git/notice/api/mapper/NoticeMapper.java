@@ -23,6 +23,7 @@ public interface NoticeMapper {
      * @return Notice 엔티티
      */
     @Mapping(target = "user", source = "user")
+    @Mapping(target = "id", ignore = true)
     Notice createNoticeRequestToNotice(User user, CreateNoticeRequest createNoticeRequest);
 
     @Mapping(target = "idx", source = "notice.id")
