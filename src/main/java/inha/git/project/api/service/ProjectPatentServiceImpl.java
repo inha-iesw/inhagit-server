@@ -25,10 +25,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
@@ -53,43 +53,39 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
     @Value("${kipris.basic-info-url}")
     private String basicInfoUrlString;
 
+    /**
+     * 특허 검색
+     *
+     * @param user 로그인한 사용자 정보
+     * @param applicationNumber 특허 출원번호
+     * @return 특허 정보
+     */
     @Override
     @Transactional(readOnly = true)
     public SearchPatentResponse getPatent(User user, String applicationNumber) {
         if (applicationNumber == null || !applicationNumber.matches("\\d{13}")) {
             throw new BaseException(INVALID_APPLICATION_NUMBER);
         }
-
-        inventorUrlString += "?applicationNumber=" + applicationNumber + "&accessKey=" + key;
-        applicantUrlString += "?applicationNumber=" + applicationNumber + "&accessKey=" + key;
-        basicInfoUrlString += "?applicationNumber=" + applicationNumber + "&ServiceKey=" + key;
-
-        // 발명자 정보 가져오기
+        inventorUrlString += SEARCH_PATENT + applicationNumber + ACCESS_KEY + key;
+        applicantUrlString += SEARCH_PATENT + applicationNumber + ACCESS_KEY + key;
+        basicInfoUrlString += SEARCH_PATENT + applicationNumber + SERVICE_KEY + key;
         List<SearchInventorResponse> inventors = fetchInventorInfo(inventorUrlString);
-
-        // 출원인 정보 가져오기
         SearchPatentResponse applicantInfo = fetchApplicantInfo(applicantUrlString);
-
-        // 특허 기본 정보 가져오기
         SearchPatentResponse basicInfo = fetchBasicInfo(basicInfoUrlString);
-
-        // 정보를 합쳐서 반환
-        return new SearchPatentResponse(
-                applicationNumber,
-                basicInfo.applicationDate(),
-                basicInfo.inventionTitle(),
-                basicInfo.inventionTitleEnglish(),
-                applicantInfo.applicantName(),
-                applicantInfo.applicantEnglishName(),
-                inventors
-        );
+        return projectMapper.toSearchPatentResponse(applicationNumber, basicInfo.applicationDate(), basicInfo.inventionTitle(), basicInfo.inventionTitleEnglish(), applicantInfo.applicantName(), applicantInfo.applicantEnglishName(), inventors);
     }
 
+
+    /**
+     * 특허 발명자 조회
+     *
+     * @param urlString 특허 발명자 조회 URL
+     * @return List<SearchInventorResponse> 특허 발명자 정보
+     */
     private List<SearchInventorResponse> fetchInventorInfo(String urlString) {
         List<SearchInventorResponse> inventors = new ArrayList<>();
         Document doc = fetchDocument(urlString);
         NodeList inventorList = doc.getElementsByTagName("patentInventorInfo");
-        log.info("inventorList.getLength() : " + inventorList.getLength());
         if(inventorList.getLength() == 0) {
             throw new BaseException(NOT_EXIST_PATENT);
         }
@@ -111,6 +107,12 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         return inventors;
     }
 
+    /**
+     * 특허 출원인 조회
+     *
+     * @param urlString 특허 출원인 조회 URL
+     * @return SearchPatentResponse 특허 출원인 정보
+     */
     private SearchPatentResponse fetchApplicantInfo(String urlString) {
         Document doc = fetchDocument(urlString);
         NodeList applicantList = doc.getElementsByTagName("patentApplicantInfo");
@@ -121,13 +123,11 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         try {
             if (applicantList.getLength() > 0) {
                 Node applicantNode = applicantList.item(0);
-
                 if (applicantNode.getNodeType() == Node.ELEMENT_NODE) {
                     Element applicantElement = (Element) applicantNode;
                     String applicantName = applicantElement.getElementsByTagName("ApplicantName").item(0).getTextContent();
                     String applicantEnglishName = applicantElement.getElementsByTagName("ApplicantEnglishsentenceName").item(0).getTextContent();
-                    return new SearchPatentResponse(null, null, null, null, applicantName, applicantEnglishName, null);
-                }
+                    return projectMapper.toSearchPatentResponse(applicantName, applicantEnglishName);                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -136,10 +136,15 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         return null;
     }
 
+    /**
+     * 특허 기본 정보 조회
+     *
+     * @param urlString 특허 기본 정보 조회 URL
+     * @return SearchPatentResponse 특허 기본 정보
+     */
     private SearchPatentResponse fetchBasicInfo(String urlString) {
         Document doc = fetchDocument(urlString);
         NodeList itemList = doc.getElementsByTagName("item");
-        log.info("itemList.getLength() : " + itemList.getLength());
         if(itemList.getLength() == 0) {
             throw new BaseException(NOT_EXIST_PATENT);
         }
@@ -152,16 +157,7 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
                     String applicationDate = itemElement.getElementsByTagName("applicationDate").item(0).getTextContent();
                     String inventionTitle = itemElement.getElementsByTagName("inventionTitle").item(0).getTextContent();
                     String inventionTitleEng = itemElement.getElementsByTagName("inventionTitleEng").item(0).getTextContent();
-
-                    return new SearchPatentResponse(
-                            null,
-                            applicationDate,
-                            inventionTitle,
-                            inventionTitleEng,
-                            null,
-                            null,
-                            null
-                    );
+                    return projectMapper.toSearchPatentResponse(applicationDate, inventionTitle, inventionTitleEng);
                 }
             }
         } catch (Exception e) {
@@ -171,6 +167,12 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         return null;
     }
 
+    /**
+     * 특허 정보 조회
+     *
+     * @param urlString 특허 정보 조회 URL
+     * @return Document 특허 정보
+     */
     private Document fetchDocument(String urlString) {
         Document doc = null;
         try {

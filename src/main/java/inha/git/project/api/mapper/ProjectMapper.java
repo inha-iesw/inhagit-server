@@ -301,7 +301,15 @@ public interface ProjectMapper {
     @Mapping(target = "id", ignore = true)
     ProjectPatent createProjectPatent(Project project);
 
+    SearchPatentResponse toSearchPatentResponse(String applicationNumber, String applicationDate, String inventionTitle,
+                                                String inventionTitleEnglish, String applicantName, String applicantEnglishName,
+                                                List<SearchInventorResponse> inventors);
+    @Mapping(target = "applicationDate", source = "applicationDate")
+    @Mapping(target = "inventionTitle", source = "inventionTitle")
+    @Mapping(target = "inventionTitleEnglish", source = "inventionTitleEng")
+    SearchPatentResponse toSearchPatentResponse(String applicationDate, String inventionTitle, String inventionTitleEng);
 
-
-
+    @Mapping(target = "applicantName", source = "applicantName")
+    @Mapping(target = "applicantEnglishName", source = "applicantEnglishName")
+    SearchPatentResponse toSearchPatentResponse(String applicantName, String applicantEnglishName);
 }
