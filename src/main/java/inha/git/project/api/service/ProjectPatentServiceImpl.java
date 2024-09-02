@@ -12,6 +12,7 @@ import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentInventorJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentJpaRepository;
 import inha.git.user.domain.User;
+import inha.git.user.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -153,6 +154,27 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         return projectMapper.toPatentResponse(projectPatent);
     }
 
+    /**
+     * 특허 삭제 메서드
+     *
+     * <p>이 메서드는 주어진 프로젝트의 특허 정보를 삭제하고 반환한다.
+     *
+     * @param user 로그인한 사용자 정보
+     * @param projectIdx 프로젝트의 식별자
+     * @return PatentResponse 특허 정보
+     */
+    @Override
+    public PatentResponse deletePatent(User user, Integer projectIdx) {
+        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+        if(user.getId() != project.getUser().getId() && user.getRole() != Role.ADMIN) {
+            throw new BaseException(USER_NOT_PROJECT_OWNER);
+        }
+        ProjectPatent projectPatent = projectPatentJpaRepository.findByIdAndState(project.getProjectPatentId(), ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
+        project.setProjectPatentId(null);
+        return projectMapper.toPatentResponse(projectPatent);
+    }
 
 
     private static void validApplicationNumber(String applicationNumber) {

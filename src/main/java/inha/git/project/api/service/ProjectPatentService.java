@@ -9,5 +9,5 @@ public interface ProjectPatentService {
     SearchPatentResponse getProjectPatent(User user, Integer projectIdx);
     SearchPatentResponse searchProjectPatent(User user, String applicationNumber, Integer projectIdx);
     PatentResponse registerPatent(User user, String applicationNumber, Integer projectIdx);
-
+    PatentResponse deletePatent(User user, Integer projectIdx);
 }
