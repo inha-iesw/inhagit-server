@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static inha.git.common.Constant.BASE_DIR_SOURCE;
 import static inha.git.common.code.status.ErrorStatus.FILE_CONVERT;
 
 /**
@@ -27,8 +28,7 @@ public class UnZip {
      */
     public static void unzipFile(String zipFilePath, String folderName, String outputDir) {
         // 고유한 폴더명 생성 (타임스탬프 + UUID 6자리)
-        String baseDir = System.getProperty("user.dir") + "/source/"; // 현재 작업 디렉토리 + /source/
-        Path outputPath = Paths.get(baseDir + outputDir, folderName);
+        Path outputPath = Paths.get(BASE_DIR_SOURCE + outputDir, folderName);
 
         try {
             // 최상위 폴더 생성
