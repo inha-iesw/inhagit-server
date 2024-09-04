@@ -1,5 +1,6 @@
 package inha.git.statistics.api.mapper;
 
+import inha.git.statistics.api.controller.dto.response.ProblemStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.TeamStatisticsResponse;
@@ -16,4 +17,5 @@ public interface StatisticsMapper {
 
     QuestionStatisticsResponse toQuestionStatisticsResponse(Integer questionCount, Integer userCount);
     TeamStatisticsResponse toTeamStatisticsResponse(Integer teamCount, Integer userCount);
+    ProblemStatisticsResponse toProblemStatisticsResponse(Integer problemCount, Integer userCount);
 }

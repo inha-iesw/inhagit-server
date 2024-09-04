@@ -40,11 +40,16 @@ public class UserCountStatistics {
     @Column(name = "total_question_count", nullable = false, columnDefinition = "int default 0")
     private Integer totalQuestionCount = 0;
 
+    @Column(name = "total_problem_count", nullable = false, columnDefinition = "int default 0")
+    private Integer totalProblemCount = 0;
+
     @Column(name = "total_team_count", nullable = false, columnDefinition = "int default 0")
     private Integer totalTeamCount = 0;
 
     @Column(name = "total_patent_count", nullable = false, columnDefinition = "int default 0")
     private Integer totalPatentCount = 0;
+
+
 
 
     public void increaseUserProjectCount() {
@@ -94,6 +99,10 @@ public class UserCountStatistics {
         totalQuestionCount++;
     }
 
+    public void increaseTotalProblemCount() {
+        totalProblemCount++;
+    }
+
     public void increaseTotalTeamCount() {
         totalTeamCount++;
     }
@@ -108,6 +117,10 @@ public class UserCountStatistics {
 
     public void decreaseTotalQuestionCount() {
         totalQuestionCount--;
+    }
+
+    public void decreaseTotalProblemCount() {
+        totalProblemCount--;
     }
 
     public void decreaseTotalTeamCount() {

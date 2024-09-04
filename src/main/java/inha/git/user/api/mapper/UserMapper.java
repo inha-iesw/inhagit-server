@@ -127,6 +127,7 @@ public interface UserMapper {
     @Mapping(target = "questionCount", constant = "0")
     @Mapping(target = "teamCount", constant = "0")
     @Mapping(target = "patentCount", constant = "0")
+    @Mapping(target = "problemCount", constant = "0")
     UserStatistics toUserStatistics(Integer id);
 
     /**

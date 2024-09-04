@@ -28,6 +28,9 @@ public class DepartmentStatistics {
     @Column(name = "question_count", nullable = false)
     private Integer questionCount = 0;
 
+    @Column(name = "problem_count", nullable = false)
+    private Integer problemCount = 0;
+
     @Column(name = "team_count", nullable = false)
     private Integer teamCount = 0;
 
@@ -40,11 +43,17 @@ public class DepartmentStatistics {
     @Column(name = "question_user_count", nullable = false)
     private Integer questionUserCount = 0;
 
+    @Column(name = "problem_user_count", nullable = false)
+    private Integer problemUserCount = 0;
+
     @Column(name = "team_user_count", nullable = false)
     private Integer teamUserCount = 0;
 
     @Column(name = "patent_user_count", nullable = false)
     private Integer patentUserCount = 0;
+
+    @Column(name = "problem_participation_count", nullable = false)
+    private Integer problemParticipationCount = 0;
 
     public void increaseProjectCount() {
         projectCount++;
@@ -60,6 +69,15 @@ public class DepartmentStatistics {
 
     public void decreaseQuestionCount() {
         questionCount--;
+    }
+
+
+    public void increaseProblemCount() {
+        problemCount++;
+    }
+
+    public void decreaseProblemCount() {
+        problemCount--;
     }
 
     public void increaseTeamCount() {
@@ -86,6 +104,10 @@ public class DepartmentStatistics {
         questionUserCount++;
     }
 
+    public void increaseProblemUserCount() {
+        problemUserCount++;
+    }
+
     public void increaseTeamUserCount() {
         teamUserCount++;
     }
@@ -102,12 +124,24 @@ public class DepartmentStatistics {
         questionUserCount--;
     }
 
+    public void decreaseProblemUserCount() {
+        problemUserCount--;
+    }
+
     public void decreaseTeamUserCount() {
         teamUserCount--;
     }
 
     public void decreasePatentUserCount() {
         patentUserCount--;
+    }
+
+    public void increaseProblemParticipationCount() {
+        problemParticipationCount++;
+    }
+
+    public void decreaseProblemParticipationCount() {
+        problemParticipationCount--;
     }
 
 }

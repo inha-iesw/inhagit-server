@@ -7,6 +7,7 @@ import inha.git.problem.api.mapper.ProblemMapper;
 import inha.git.problem.domain.*;
 import inha.git.problem.domain.repository.*;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
+import inha.git.statistics.api.service.StatisticsService;
 import inha.git.team.domain.Team;
 import inha.git.team.domain.repository.TeamJpaRepository;
 import inha.git.user.domain.User;
@@ -49,6 +50,7 @@ public class ProblemServiceImpl implements ProblemService {
     private final ProblemTeamRequestJpaRepository problemTeamRequestJpaRepository;
     private final ProblemSubmitJpaRepository problemSubmitJpaRepository;
     private final TeamJpaRepository teamJpaRepository;
+    private final StatisticsService statisticsService;
 
 
 
@@ -91,6 +93,7 @@ public class ProblemServiceImpl implements ProblemService {
     public ProblemResponse createProblem(User user, CreateProblemRequest createProblemRequest, MultipartFile file) {
         Problem problem = problemMapper.createProblemRequestToProblem(createProblemRequest, FilePath.storeFile(file, PROBLEM_FILE), user);
         problemJpaRepository.save(problem);
+        statisticsService.increaseCount(user, 6);
         return problemMapper.problemToProblemResponse(problem);
     }
 
@@ -142,6 +145,7 @@ public class ProblemServiceImpl implements ProblemService {
         }
         problem.setDeletedAt();
         problem.setState(INACTIVE);
+        statisticsService.decreaseCount(problem.getUser(), 6);
         return problemMapper.problemToProblemResponse(problem);
     }
 
@@ -250,6 +254,18 @@ public class ProblemServiceImpl implements ProblemService {
             throw new BaseException(ALREADY_APPROVED_REQUEST);
         }
         problemRequest.setAcceptAt();
+
+        if(problemRequest.getType().equals(1)) {
+            problemPersonalRequestJpaRepository.findByProblemRequestId(problemRequest.getId())
+                    .ifPresent(personalRequest -> statisticsService.increaseCount(personalRequest.getUser(), 7));
+        }
+        else if(problemRequest.getType().equals(2)) {
+            problemTeamRequestJpaRepository.findByProblemRequestId(problemRequest.getId())
+                    .ifPresent(teamRequest -> teamJpaRepository.findById(teamRequest.getTeam().getId())
+                            .ifPresent(team -> team.getTeamUsers().forEach(teamUser -> {
+                                statisticsService.increaseCount(teamUser.getUser(), 7);
+                            })));
+        }
         return problemMapper.problemRequestToRequestProblemResponse(problemRequest);
     }
 

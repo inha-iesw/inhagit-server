@@ -39,5 +39,10 @@ public interface DepartmentMapper {
     @Mapping(target = "questionCount", constant = "0")
     @Mapping(target = "teamCount", constant = "0")
     @Mapping(target = "patentCount", constant = "0")
+    @Mapping(target = "projectUserCount", constant = "0")
+    @Mapping(target = "questionUserCount", constant = "0")
+    @Mapping(target = "teamUserCount", constant = "0")
+    @Mapping(target = "patentUserCount", constant = "0")
+    @Mapping(target = "problemParticipationCount", constant = "0")
     DepartmentStatistics toDepartmentStatistics(Integer id);
 }
