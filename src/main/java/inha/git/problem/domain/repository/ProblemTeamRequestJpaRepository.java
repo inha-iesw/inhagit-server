@@ -16,4 +16,6 @@ public interface ProblemTeamRequestJpaRepository extends JpaRepository<ProblemTe
 
 
     Optional<ProblemTeamRequest> findByProblemAndTeam(Problem problem, Team team);
+
+    Optional<ProblemTeamRequest> findByProblemRequestId(Integer id);
 }

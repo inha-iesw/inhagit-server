@@ -13,8 +13,8 @@ public record CreateProblemRequest(
         String title,
 
         @NotNull
-        @Schema(description = "제출 마감기한", example = "2021-08-31T00:00:00")
-        LocalDateTime duration,
+        @Schema(description = "제출 마감기한", example = "2021-08-31")
+        String duration,
 
         @NotNull
         @Size(min = 1, max = 250, message = "문제 내용은 1자 이상 250자 이하로 입력해주세요.")

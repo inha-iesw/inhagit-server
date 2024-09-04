@@ -2,9 +2,7 @@ package inha.git.problem.api.mapper;
 
 import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
 import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
-import inha.git.problem.api.controller.dto.response.ProblemResponse;
-import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
-import inha.git.problem.api.controller.dto.response.SearchProblemResponse;
+import inha.git.problem.api.controller.dto.response.*;
 import inha.git.problem.domain.Problem;
 import inha.git.problem.domain.ProblemPersonalRequest;
 import inha.git.problem.domain.ProblemRequest;
@@ -87,7 +85,6 @@ public interface ProblemMapper {
 
     /**
      * User와 Problem을 ProblemRequest로 변환
-     * @param user
      * @param problem
      * @param type
      * @return
@@ -128,5 +125,9 @@ public interface ProblemMapper {
     @Mapping(target = "problemRequest", source = "problemRequest")
     @Mapping(target = "problem", source = "problemRequest.problem")
     ProblemTeamRequest createTeamRequestProblemRequestToProblemTeamRequest(Team team, ProblemRequest problemRequest);
+
+
+
+
 
 }

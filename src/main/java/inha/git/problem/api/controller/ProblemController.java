@@ -20,6 +20,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 import static inha.git.common.code.status.ErrorStatus.*;
 import static inha.git.common.code.status.SuccessStatus.*;
 
@@ -118,11 +120,13 @@ public class ProblemController {
      */
     @GetMapping("/requests")
     @Operation(summary = "문제 신청 목록 조회 API", description = "문제 신청 목록을 조회합니다.")
-    public BaseResponse<Page<SearchRequestProblemResponse>> getRequestProblems(@RequestParam("page") Integer page) {
+    public BaseResponse<Page<SearchRequestProblemResponse>> getRequestProblems(
+            @RequestParam("problemIdx") Integer problemIdx,
+            @RequestParam("page") Integer page) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(PROBLEM_REQUEST_SEARCH_OK, problemService.getRequestProblems(page - 1));
+        return BaseResponse.of(PROBLEM_REQUEST_SEARCH_OK, problemService.getRequestProblems(problemIdx, page - 1));
     }
 
     /**
@@ -171,5 +175,31 @@ public class ProblemController {
     public BaseResponse<RequestProblemResponse> approveRequest(@AuthenticationPrincipal User user,
                                                                @Validated @RequestBody CreateProblemApproveRequest createProblemApproveRequest) {
         return BaseResponse.of(PROBLEM_APPROVE_OK, problemService.approveRequest(user, createProblemApproveRequest));
+    }
+
+    /**
+     * 문제 참여자 목록 조회 API
+     *
+     * @param problemIdx 문제 인덱스
+     * @return 문제 참여자 목록
+     */
+    @GetMapping("/{problemIdx}/participants")
+    @Operation(summary = "문제 참여자 목록 조회 API", description = "문제 참여자 목록을 조회합니다.")
+    public BaseResponse<List<ProblemParticipantsResponse>> getParticipants(@AuthenticationPrincipal User user,
+                                                                          @PathVariable("problemIdx") Integer problemIdx) {
+        return BaseResponse.of(PROBLEM_PARTICIPANTS_OK, problemService.getParticipants(user, problemIdx));
+    }
+
+    /**
+     * 문제 제출 가능 여부 조회 API
+     *
+     * @param problemIdx 문제 인덱스
+     * @return 문제 제출 가능 여부
+     */
+    @GetMapping("{problemIdx}/submits")
+    @Operation(summary = "문제 제출 가능 여부 조회 API", description = "문제 제출 가능 여부를 조회합니다.")
+    public BaseResponse<List<SearchRequestProblemResponse>> getAvailableSubmits(@AuthenticationPrincipal User user,
+                                                                               @PathVariable("problemIdx") Integer problemIdx) {
+        return BaseResponse.of(PROBLEM_AVAILABLE_SUBMITS_OK, problemService.getAvailableSubmits(user, problemIdx));
     }
 }

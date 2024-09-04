@@ -35,7 +35,7 @@ public class Problem extends BaseEntity {
 
     @Setter
     @Column(nullable = false)
-    private LocalDateTime duration;
+    private String duration;
 
     @Setter
     @Column(nullable = false, length = 255, name = "file_path")
