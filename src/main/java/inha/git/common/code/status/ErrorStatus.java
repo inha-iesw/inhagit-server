@@ -126,6 +126,11 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_EXIST_TEAM_REQUEST(HttpStatus.BAD_REQUEST, "PROBLEM4013", "해당 문제 팀 참여 요청이 존재하지 않습니다."),
     NOT_ALLOWED_VIEW_SUBMIT(HttpStatus.BAD_REQUEST, "PROBLEM4014", "출제자만 해당 문제 제출물을 볼 수 있습니다."),
     NOT_ALLOWED_CHECK_SUBMIT(HttpStatus.BAD_REQUEST, "PROBLEM4015", "출제자는 문제 제출 가능 여부 확인을 할 수 없습니다."),
+    NOT_ALLOWED_SUBMIT(HttpStatus.BAD_REQUEST, "PROBLEM4016", "출제자는 문제를 제출할 수 없습니다."),
+    NOT_ALLOWED_SUBMIT_PERSONAL(HttpStatus.BAD_REQUEST, "PROBLEM4017", "문제 참여가 승인되지 않았습니다."),
+    NOT_PERSONAL_REQUEST(HttpStatus.BAD_REQUEST, "PROBLEM4018", "개인 문제 요청이 아닙니다."),
+    NOT_PARTICIPANT(HttpStatus.BAD_REQUEST, "PROBLEM4019", "참여자 본인이 아닙니다."),
+
 
     COMPANY_CANNOT_CREATE_QUESTION(HttpStatus.BAD_REQUEST, "QUESTION4000", "기업 회원은 질문을 생성할 수 없습니다."),
     QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "QUESTION4001", "질문을 찾을 수 없습니다."),

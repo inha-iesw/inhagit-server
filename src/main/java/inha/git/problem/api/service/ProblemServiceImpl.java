@@ -4,10 +4,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.problem.api.controller.dto.request.*;
 import inha.git.problem.api.controller.dto.response.*;
 import inha.git.problem.api.mapper.ProblemMapper;
-import inha.git.problem.domain.Problem;
-import inha.git.problem.domain.ProblemPersonalRequest;
-import inha.git.problem.domain.ProblemRequest;
-import inha.git.problem.domain.ProblemTeamRequest;
+import inha.git.problem.domain.*;
 import inha.git.problem.domain.repository.*;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.team.domain.Team;
@@ -15,6 +12,7 @@ import inha.git.team.domain.repository.TeamJpaRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.utils.file.FilePath;
+import inha.git.utils.file.UnZip;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,6 +21,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -47,6 +47,7 @@ public class ProblemServiceImpl implements ProblemService {
     private final ProblemRequestJpaRepository problemRequestJpaRepository;
     private final ProblemPersonalRequestJpaRepository problemPersonalRequestJpaRepository;
     private final ProblemTeamRequestJpaRepository problemTeamRequestJpaRepository;
+    private final ProblemSubmitJpaRepository problemSubmitJpaRepository;
     private final TeamJpaRepository teamJpaRepository;
 
 
@@ -372,5 +373,82 @@ public class ProblemServiceImpl implements ProblemService {
         return submitResponses;
     }
 
+    @Override
+    @Transactional
+    public ProblemSubmitResponse submitPersonal(User user, Integer personalIdx, MultipartFile file) {
+        ProblemPersonalRequest problemPersonalRequest = problemPersonalRequestJpaRepository.findById(personalIdx)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PERSONAL_REQUEST));
+        ProblemRequest problemRequest = problemPersonalRequest.getProblemRequest();
+        Problem problem = problemRequest.getProblem();
+        if(!problemRequest.getType().equals(1)) {
+            throw new BaseException(NOT_PERSONAL_REQUEST);
+        }
+        if (problem.getUser().getId().equals(user.getId())) {
+            throw new BaseException(NOT_ALLOWED_SUBMIT);
+        }
+        if(!problemPersonalRequest.getUser().getId().equals(user.getId())){
+            throw new BaseException(NOT_PARTICIPANT);
+        }
+        if (LocalDate.parse(problem.getDuration(), DateTimeFormatter.ofPattern("yyyy-MM-dd")).isBefore(LocalDate.now())) {
+            throw new BaseException(PROBLEM_DEADLINE_PASSED);
+        }
+        ProblemPersonalRequest personalRequest = problemPersonalRequestJpaRepository.findByProblemAndUser(problem, user)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PERSONAL_REQUEST));
+        if (personalRequest.getProblemRequest().getAcceptAt() == null) {
+            throw new BaseException(NOT_ALLOWED_SUBMIT_PERSONAL);
+        }
+
+        String[] paths = storeAndUnzipFile(file);
+        String zipFilePath = paths[0];
+        String folderName = paths[1];
+
+        registerRollbackCleanup(zipFilePath, folderName);
+        ProblemSubmit problemSubmit = problemSubmitJpaRepository.save(problemMapper.createProblemSubmitRequestToProblemSubmit(problemRequest, zipFilePath, folderName));
+        return problemMapper.problemSubmitToProblemSubmitResponse(problemSubmit);
+    }
+
+
+
+    /**
+     * 파일 저장 및 압축 해제
+     *
+     * @param file 저장할 파일
+     * @return 압축 해제된 폴더명
+     */
+    private String[] storeAndUnzipFile(MultipartFile file) {
+        String zipFilePath = FilePath.storeFile(file, PROBLEM_ZIP);
+        String folderName = zipFilePath.substring(zipFilePath.lastIndexOf("/") + 1, zipFilePath.lastIndexOf(".zip"));
+        UnZip.unzipFile(BASE_DIR_SOURCE + zipFilePath, folderName, PROBLEM);
+        return new String[] { zipFilePath, folderName };
+    }
+
+
+    /**
+     * 트랜잭션 롤백 시 파일 삭제 로직 등록
+     *
+     * @param zipFilePath 압축 파일 경로
+     * @param folderName  압축 해제된 폴더명
+     */
+    private void registerRollbackCleanup(String zipFilePath, String folderName) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+            @Override
+            public void afterCompletion(int status) {
+                if (status == STATUS_ROLLED_BACK) {
+                    log.info("트랜잭션 롤백 시 파일 삭제 로직 실행");
+                    log.info(BASE_DIR_SOURCE_2 + zipFilePath);
+                    log.info(BASE_DIR_SOURCE_2 + PROJECT_UPLOAD + folderName);
+
+                    boolean isFileDeleted = FilePath.deleteFile(BASE_DIR_SOURCE_2 + zipFilePath);
+                    boolean isDirDeleted = FilePath.deleteDirectory(BASE_DIR_SOURCE_2 + PROJECT_UPLOAD + folderName);
+
+                    if (isFileDeleted && isDirDeleted) {
+                        log.info("파일과 디렉토리가 성공적으로 삭제되었습니다.");
+                    } else {
+                        log.error("파일 또는 디렉토리 삭제에 실패했습니다.");
+                    }
+                }
+            }
+        });
+    }
 
 }

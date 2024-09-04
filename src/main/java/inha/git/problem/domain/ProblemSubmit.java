@@ -24,25 +24,11 @@ public class ProblemSubmit extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-
-    @Column(nullable = false, length = 50)
-    private String title;
-
-    @Column(nullable = false, length = 255)
-    private String contents;
-
-    @Column(nullable = false)
-    private LocalDateTime duration;
-
     @Column(nullable = false, length = 255, name = "directory_name")
     private String directoryName;
 
     @Column(nullable = false, length = 255, name = "zip_directory_name")
     private String zipDirectoryName;
-
-
-
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_request_id")

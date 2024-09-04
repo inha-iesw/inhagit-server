@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -41,6 +43,10 @@ public class ProblemRequest extends BaseEntity {
     // 팀 신청의 경우 연관관계 설정
     @OneToOne(mappedBy = "problemRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ProblemTeamRequest teamRequest;
+
+
+    @OneToMany(mappedBy = "problemRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ProblemSubmit> problemSubmits = new ArrayList<>();
 
     public void setAcceptAt() {
         this.acceptAt = LocalDateTime.now();

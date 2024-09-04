@@ -202,4 +202,13 @@ public class ProblemController {
                                                                                @PathVariable("problemIdx") Integer problemIdx) {
         return BaseResponse.of(PROBLEM_AVAILABLE_SUBMITS_OK, problemService.getAvailableSubmits(user, problemIdx));
     }
+
+    @PostMapping(value = "/{personalIdx}/submits/personal", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "문제 개인 제출 API", description = "문제를 개인으로 제출합니다.")
+    public BaseResponse<ProblemSubmitResponse> submitPersonal(@AuthenticationPrincipal User user,
+                                                              @PathVariable("personalIdx") Integer personalIdx,
+                                                              @RequestPart(value = "file") MultipartFile file) {
+        ValidFile.validateZipFile(file);
+        return BaseResponse.of(PROBLEM_SUBMIT_PERSONAL_OK, problemService.submitPersonal(user, personalIdx, file));
+    }
 }

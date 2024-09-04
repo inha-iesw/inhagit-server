@@ -2,6 +2,7 @@ package inha.git.problem.domain.repository;
 
 
 import inha.git.common.BaseEntity;
+import inha.git.problem.domain.Problem;
 import inha.git.problem.domain.ProblemRequest;
 import inha.git.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,4 +22,6 @@ public interface ProblemRequestJpaRepository extends JpaRepository<ProblemReques
     List<ProblemRequest> findByProblemIdAndAcceptAtIsNotNullAndState(Integer problemId, State state);
 
     List<ProblemRequest> findByProblemIdAndState(Integer problemIdx, State state);
+
+    Optional<ProblemRequest> findByProblemAndAcceptAtIsNotNullAndState(Problem problem, State state);
 }

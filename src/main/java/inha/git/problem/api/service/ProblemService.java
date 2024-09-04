@@ -20,4 +20,5 @@ public interface ProblemService {
     RequestProblemResponse approveRequest(User user, CreateProblemApproveRequest createProblemApproveRequest);
     List<ProblemParticipantsResponse> getParticipants(User user, Integer problemIdx);
     List<SearchRequestProblemResponse> getAvailableSubmits(User user, Integer problemIdx);
+    ProblemSubmitResponse submitPersonal(User user, Integer personalIdx, MultipartFile file);
 }
