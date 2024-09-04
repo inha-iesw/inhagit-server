@@ -433,7 +433,6 @@ public class ProblemServiceImpl implements ProblemService {
         ProblemTeamRequest problemTeamRequest = problemTeamRequestJpaRepository.findById(teamIdx)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_TEAM_REQUEST));
         ProblemRequest problemRequest = problemTeamRequest.getProblemRequest();
-        log.info("problemRequest : " + problemRequest.getId());
         Problem problem = problemRequest.getProblem();
         Team team = problemTeamRequest.getTeam();
         problemSubmitJpaRepository.findByProblemRequestAndState(problemRequest, ACTIVE)

@@ -102,6 +102,12 @@ public interface TeamMapper {
     @Mapping(target = "name", source = "user.name")
     SearchUserResponse userToSearchUserResponse(User user);
 
+
+    @Mapping(target = "idx", source = "user.id")
+    @Mapping(target = "name", source = "user.name")
+    @Mapping(target = "email", source = "user.email")
+    SearchTeamUserResponse userToTeamSearchUserResponse(User user);
+
     /**
      * 팀을 SearchTeamResponse 으로 변환.
      *
@@ -284,6 +290,7 @@ public interface TeamMapper {
      * @return List<CommentWithRepliesResponse>
      */
     List<CommentWithRepliesResponse> toCommentWithRepliesResponseList(List<TeamComment> comments);
+
 
 
 }

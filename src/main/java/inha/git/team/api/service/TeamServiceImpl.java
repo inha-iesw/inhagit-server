@@ -3,6 +3,7 @@ package inha.git.team.api.service;
 import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.TeamUser;
 import inha.git.mapping.domain.repository.TeamUserJpaRepository;
+import inha.git.problem.api.controller.dto.response.SearchTeamRequestProblemResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.statistics.api.service.StatisticsService;
 import inha.git.team.api.controller.dto.request.ApproveRequestTeamRequest;
@@ -10,6 +11,7 @@ import inha.git.team.api.controller.dto.request.CreateTeamRequest;
 import inha.git.team.api.controller.dto.request.RequestTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
 import inha.git.team.api.controller.dto.response.SearchTeamResponse;
+import inha.git.team.api.controller.dto.response.SearchTeamUserResponse;
 import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
 import inha.git.team.api.controller.dto.response.TeamResponse;
 import inha.git.team.api.mapper.TeamMapper;
@@ -65,7 +67,11 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamJpaRepository.findByIdAndState(teamIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(TEAM_NOT_FOUND));
         SearchUserResponse searchUserResponse = teamMapper.userToSearchUserResponse(team.getUser());
-        return teamMapper.teamToSearchTeamResponse(team, searchUserResponse);
+        List<SearchTeamUserResponse> list = team.getTeamUsers().stream()
+                .filter(tu -> tu.getAcceptedAt() != null) // acceptAt이 null이 아닌 것만 필터링
+                .map(tu -> new SearchTeamUserResponse(tu.getUser().getId(), tu.getUser().getName(), tu.getUser().getEmail()))
+                .toList();
+        return new SearchTeamResponse(team.getId(), team.getName(), team.getMaxMemberNumber(), team.getCurrtentMemberNumber(), team.getCreatedAt(), searchUserResponse, list);
     }
 
     /**
