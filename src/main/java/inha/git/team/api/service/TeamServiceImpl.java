@@ -3,7 +3,6 @@ package inha.git.team.api.service;
 import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.TeamUser;
 import inha.git.mapping.domain.repository.TeamUserJpaRepository;
-import inha.git.problem.api.controller.dto.response.SearchTeamRequestProblemResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.statistics.api.service.StatisticsService;
 import inha.git.team.api.controller.dto.request.ApproveRequestTeamRequest;
@@ -22,6 +21,9 @@ import inha.git.user.domain.enums.Role;
 import inha.git.user.domain.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -215,5 +217,29 @@ public class TeamServiceImpl implements TeamService {
         team.decreaseCurrentMemberNumber();
         statisticsService.decreaseCount(user, 3);
         return teamMapper.teamToTeamResponse(team);
+    }
+
+    /**
+     * 팀 가입 요청 목록 가져오기
+     *
+     * @param user User
+     * @param teamIdx Integer
+     * @param page Integer
+     * @return Page<SearchTeamUserResponse>
+     */
+    @Override
+    public Page<SearchTeamUserResponse> getRequestTeams(User user, Integer teamIdx, Integer page) {
+        Team team = teamJpaRepository.findByIdAndState(teamIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(TEAM_NOT_FOUND));
+        if (!team.getUser().getId().equals(user.getId())) {
+            throw new BaseException(TEAM_NOT_LEADER);
+        }
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<TeamUser> teamUsers = teamUserJpaRepository.findByTeamAndAcceptedAtIsNull(team, pageable);
+        return teamUsers.map(tu -> new SearchTeamUserResponse(
+                tu.getUser().getId(),
+                tu.getUser().getName(),
+                tu.getUser().getEmail()
+        ));
     }
 }

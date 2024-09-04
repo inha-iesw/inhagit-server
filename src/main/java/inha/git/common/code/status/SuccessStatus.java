@@ -132,6 +132,8 @@ public enum SuccessStatus implements BaseCode {
     TEAM_COMMENT_REPLY_CREATE_OK(HttpStatus.CREATED, "TEAM2023", "팀 게시글 대댓글 생성 성공"),
     TEAM_COMMENT_REPLY_DELETE_OK(HttpStatus.OK, "TEAM2024", "팀 게시글 대댓글 삭제 성공"),
     TEAM_COMMENT_REPLY_UPDATE_OK(HttpStatus.OK, "TEAM2025", "팀 게시글 대댓글 수정 성공"),
+    TEAM_REQUEST_LIST_OK(HttpStatus.OK, "TEAM2026", "팀 가입 요청 목록 조회 성공"),
+
 
     MY_PAGE_USER_SEARCH_OK(HttpStatus.OK, "USER2000", "마이페이지 유저 조회 성공"),
     MY_PAGE_PROJECT_SEARCH_OK(HttpStatus.OK, "USER2001", "마이페이지 프로젝트 조회 성공"),

@@ -7,6 +7,7 @@ import inha.git.team.api.controller.dto.request.CreateTeamRequest;
 import inha.git.team.api.controller.dto.request.RequestTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
 import inha.git.team.api.controller.dto.response.SearchTeamResponse;
+import inha.git.team.api.controller.dto.response.SearchTeamUserResponse;
 import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
 import inha.git.team.api.controller.dto.response.TeamResponse;
 import inha.git.team.api.service.TeamService;
@@ -16,14 +17,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static inha.git.common.code.status.ErrorStatus.COMPANY_CANNOT_CREATE_TEAM;
-import static inha.git.common.code.status.ErrorStatus.COMPANY_CANNOT_JOIN_TEAM;
+import static inha.git.common.code.status.ErrorStatus.*;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
@@ -127,6 +128,25 @@ public class TeamController {
             throw new BaseException(COMPANY_CANNOT_JOIN_TEAM);
         }
         return BaseResponse.of(TEAM_JOIN_OK, teamService.requestTeam(user, requestTeamRequest));
+    }
+
+    /**
+     * 팀 가입 요청 목록 조회 API
+     *
+     * @param user User
+     * @param teamIdx Integer
+     * @param page Integer
+     * @return BaseResponse<Page<SearchTeamUserResponse>>
+     */
+    @GetMapping("/{teamIdx}/request")
+    @Operation(summary = "팀 가입 요청 목록 조회 API", description = "팀 가입 요청 목록을 조회합니다.")
+    public BaseResponse<Page<SearchTeamUserResponse>> getRequestTeams(@AuthenticationPrincipal User user,
+                                                                      @PathVariable("teamIdx") Integer teamIdx,
+                                                                      @RequestParam(value = "page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(TEAM_REQUEST_LIST_OK, teamService.getRequestTeams(user, teamIdx, page - 1));
     }
 
     /**
