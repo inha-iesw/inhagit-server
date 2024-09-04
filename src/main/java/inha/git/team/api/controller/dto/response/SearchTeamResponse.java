@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record SearchTeamResponse(
         @NotNull
@@ -25,8 +26,9 @@ public record SearchTeamResponse(
         @Schema(description = "팀 생성일", example = "2021-08-01T00:00:00")
         LocalDateTime createdAt,
         @NotNull
-        SearchUserResponse leader
+        SearchUserResponse leader,
 
+        List<SearchTeamUserResponse> memberList
 
 
 ) {

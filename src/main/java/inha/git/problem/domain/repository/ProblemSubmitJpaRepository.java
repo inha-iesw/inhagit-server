@@ -1,8 +1,12 @@
 package inha.git.problem.domain.repository;
 
 
+import inha.git.common.BaseEntity.State;
+import inha.git.problem.domain.ProblemRequest;
 import inha.git.problem.domain.ProblemSubmit;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
 
 
 /**
@@ -10,5 +14,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface ProblemSubmitJpaRepository extends JpaRepository<ProblemSubmit, Integer> {
 
-
+    Optional<ProblemSubmit> findByProblemRequestAndState(ProblemRequest problemRequest, State state);
 }

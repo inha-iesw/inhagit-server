@@ -94,6 +94,8 @@ public enum SuccessStatus implements BaseCode {
     PROBLEM_PARTICIPANTS_OK(HttpStatus.OK, "PROBLEM2005", "문제 참여자 목록 조회 성공"),
     PROBLEM_SUBMITS_OK(HttpStatus.OK, "PROBLEM2006", "문제 제출 목록 조회 성공"),
     PROBLEM_AVAILABLE_SUBMITS_OK(HttpStatus.OK, "PROBLEM2007", "문제 제출 가능 여부 조회 성공"),
+    PROBLEM_SUBMIT_PERSONAL_OK(HttpStatus.CREATED, "PROBLEM2014", "문제 개인 제출 성공"),
+    PROBLEM_SUBMIT_TEAM_OK(HttpStatus.CREATED, "PROBLEM2015", "문제 팀 제출 성공"),
 
     QUESTION_CREATE_OK(HttpStatus.CREATED, "QUESTION2010", "질문 생성 성공"),
     QUESTION_SEARCH_OK(HttpStatus.OK, "QUESTION2000", "질문 전체 조회 성공"),
@@ -130,6 +132,8 @@ public enum SuccessStatus implements BaseCode {
     TEAM_COMMENT_REPLY_CREATE_OK(HttpStatus.CREATED, "TEAM2023", "팀 게시글 대댓글 생성 성공"),
     TEAM_COMMENT_REPLY_DELETE_OK(HttpStatus.OK, "TEAM2024", "팀 게시글 대댓글 삭제 성공"),
     TEAM_COMMENT_REPLY_UPDATE_OK(HttpStatus.OK, "TEAM2025", "팀 게시글 대댓글 수정 성공"),
+    TEAM_REQUEST_LIST_OK(HttpStatus.OK, "TEAM2026", "팀 가입 요청 목록 조회 성공"),
+
 
     MY_PAGE_USER_SEARCH_OK(HttpStatus.OK, "USER2000", "마이페이지 유저 조회 성공"),
     MY_PAGE_PROJECT_SEARCH_OK(HttpStatus.OK, "USER2001", "마이페이지 프로젝트 조회 성공"),
@@ -140,6 +144,7 @@ public enum SuccessStatus implements BaseCode {
     PROJECT_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2000", "프로젝트 통계 조회 성공"),
     TEAM_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2001", "팀 통계 조회 성공"),
     QUESTION_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2002", "질문 통계 조회 성공"),
+    PROBLEM_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2003", "문제 통계 조회 성공"),
 
     PATENT_SEARCH_OK(HttpStatus.OK, "PATENT2000", "특허 조회 성공"),
     PATENT_SEARCH_SUCCESS(HttpStatus.OK, "PATENT2001", "특허 검색 성공"),

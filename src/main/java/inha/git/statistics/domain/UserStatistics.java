@@ -34,6 +34,8 @@ public class UserStatistics {
     @Column(name = "patent_count", nullable = false)
     private Integer patentCount = 0;
 
+    @Column(name = "problem_count", nullable = false)
+    private Integer problemCount = 0;
 
 
 
@@ -69,6 +71,14 @@ public class UserStatistics {
 
     public void decreasePatentCount() {
         patentCount--;
+    }
+
+    public void increaseProblemCount() {
+        problemCount++;
+    }
+
+    public void decreaseProblemCount() {
+        problemCount--;
     }
 
 

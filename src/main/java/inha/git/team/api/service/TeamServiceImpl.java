@@ -10,6 +10,7 @@ import inha.git.team.api.controller.dto.request.CreateTeamRequest;
 import inha.git.team.api.controller.dto.request.RequestTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
 import inha.git.team.api.controller.dto.response.SearchTeamResponse;
+import inha.git.team.api.controller.dto.response.SearchTeamUserResponse;
 import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
 import inha.git.team.api.controller.dto.response.TeamResponse;
 import inha.git.team.api.mapper.TeamMapper;
@@ -20,6 +21,9 @@ import inha.git.user.domain.enums.Role;
 import inha.git.user.domain.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,7 +69,11 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamJpaRepository.findByIdAndState(teamIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(TEAM_NOT_FOUND));
         SearchUserResponse searchUserResponse = teamMapper.userToSearchUserResponse(team.getUser());
-        return teamMapper.teamToSearchTeamResponse(team, searchUserResponse);
+        List<SearchTeamUserResponse> list = team.getTeamUsers().stream()
+                .filter(tu -> tu.getAcceptedAt() != null) // acceptAt이 null이 아닌 것만 필터링
+                .map(tu -> new SearchTeamUserResponse(tu.getUser().getId(), tu.getUser().getName(), tu.getUser().getEmail()))
+                .toList();
+        return new SearchTeamResponse(team.getId(), team.getName(), team.getMaxMemberNumber(), team.getCurrtentMemberNumber(), team.getCreatedAt(), searchUserResponse, list);
     }
 
     /**
@@ -209,5 +217,29 @@ public class TeamServiceImpl implements TeamService {
         team.decreaseCurrentMemberNumber();
         statisticsService.decreaseCount(user, 3);
         return teamMapper.teamToTeamResponse(team);
+    }
+
+    /**
+     * 팀 가입 요청 목록 가져오기
+     *
+     * @param user User
+     * @param teamIdx Integer
+     * @param page Integer
+     * @return Page<SearchTeamUserResponse>
+     */
+    @Override
+    public Page<SearchTeamUserResponse> getRequestTeams(User user, Integer teamIdx, Integer page) {
+        Team team = teamJpaRepository.findByIdAndState(teamIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(TEAM_NOT_FOUND));
+        if (!team.getUser().getId().equals(user.getId())) {
+            throw new BaseException(TEAM_NOT_LEADER);
+        }
+        Pageable pageable = PageRequest.of(page, 10);
+        Page<TeamUser> teamUsers = teamUserJpaRepository.findByTeamAndAcceptedAtIsNull(team, pageable);
+        return teamUsers.map(tu -> new SearchTeamUserResponse(
+                tu.getUser().getId(),
+                tu.getUser().getName(),
+                tu.getUser().getEmail()
+        ));
     }
 }

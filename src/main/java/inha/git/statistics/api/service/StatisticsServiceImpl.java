@@ -4,6 +4,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
 import inha.git.mapping.domain.UserDepartment;
 import inha.git.mapping.domain.repository.UserDepartmentJpaRepository;
+import inha.git.statistics.api.controller.dto.response.ProblemStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.TeamStatisticsResponse;
@@ -113,6 +114,24 @@ public class StatisticsServiceImpl implements StatisticsService {
                     .forEach(userDepartment -> departmentStatisticsJpaRepository.findById(userDepartment.getDepartment().getId())
                             .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increasePatentCount());
         }
+        else if(type == 6) {
+            userCountStatistics.increaseTotalProblemCount();
+            userDepartments
+                    .forEach(userDepartment -> departmentStatisticsJpaRepository.findById(userDepartment.getDepartment().getId())
+                            .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseProblemCount());
+        }
+        else if(type == 7) {
+            if (userStatistics.getProblemCount() == 0) {
+                userCountStatistics.increaseUserProblemCount();
+                userDepartments
+                        .forEach(userDepartment -> departmentStatisticsJpaRepository.findById(userDepartment.getDepartment().getId())
+                                .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseProblemUserCount());
+            }
+            userStatistics.increaseProblemCount();
+            userDepartments
+                    .forEach(userDepartment -> departmentStatisticsJpaRepository.findById(userDepartment.getDepartment().getId())
+                            .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseProblemParticipationCount());
+        }
     }
 
     /**
@@ -184,6 +203,24 @@ public class StatisticsServiceImpl implements StatisticsService {
                     .forEach(userDepartment -> departmentStatisticsJpaRepository.findById(userDepartment.getDepartment().getId())
                             .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreasePatentCount());
         }
+        else if(type == 6) {
+            userCountStatistics.decreaseTotalProblemCount();
+            userDepartments
+                    .forEach(userDepartment -> departmentStatisticsJpaRepository.findById(userDepartment.getDepartment().getId())
+                            .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseProblemCount());
+        }
+        else if(type == 7) {
+            if(userStatistics.getProblemCount() == 1) {
+                userCountStatistics.decreaseUserProblemCount();
+                userDepartments
+                        .forEach(userDepartment -> departmentStatisticsJpaRepository.findById(userDepartment.getDepartment().getId())
+                                .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseProblemUserCount());
+            }
+            userStatistics.decreaseProblemCount();
+            userDepartments
+                    .forEach(userDepartment -> departmentStatisticsJpaRepository.findById(userDepartment.getDepartment().getId())
+                            .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseProblemParticipationCount());
+        }
     }
 
 
@@ -246,5 +283,21 @@ public class StatisticsServiceImpl implements StatisticsService {
         UserCountStatistics userCountStatistics = userCountStatisticsJpaRepository.findById(1)
                 .orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
         return statisticsMapper.toTeamStatisticsResponse(userCountStatistics.getTotalTeamCount(), userCountStatistics.getUserTeamCount());
+    }
+
+    @Override
+    public ProblemStatisticsResponse getProblemStatistics(Integer idx) {
+        if (idx != null) {
+            return departmentJpaRepository.findByIdAndState(idx, ACTIVE)
+                    .map(department -> {
+                        DepartmentStatistics departmentStatistics = departmentStatisticsJpaRepository.findById(department.getId())
+                                .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND));
+                        return statisticsMapper.toProblemStatisticsResponse(departmentStatistics.getProblemCount(), departmentStatistics.getProblemUserCount());
+                    })
+                    .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
+        }
+        UserCountStatistics userCountStatistics = userCountStatisticsJpaRepository.findById(1)
+                .orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
+        return statisticsMapper.toProblemStatisticsResponse(userCountStatistics.getTotalProblemCount(), userCountStatistics.getUserProblemCount());
     }
 }

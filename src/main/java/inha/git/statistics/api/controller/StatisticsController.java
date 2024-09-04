@@ -1,6 +1,7 @@
 package inha.git.statistics.api.controller;
 
 import inha.git.common.BaseResponse;
+import inha.git.statistics.api.controller.dto.response.ProblemStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.TeamStatisticsResponse;
@@ -48,5 +49,11 @@ public class StatisticsController {
     @Operation(summary = "팀 통계 조회 API", description = "팀 통계를 조회합니다.")
     public BaseResponse<TeamStatisticsResponse> getTeamStatistics(@RequestParam(value = "idx", required = false) Integer idx) {
         return BaseResponse.of(TEAM_STATISTICS_SEARCH_OK, statisticsService.getTeamStatistics(idx));
+    }
+
+    @GetMapping("/problem")
+    @Operation(summary = "문제 통계 조회 API", description = "문제 통계를 조회합니다.")
+    public BaseResponse<ProblemStatisticsResponse> getProblemStatistics(@RequestParam(value = "idx", required = false) Integer idx) {
+        return BaseResponse.of(PROBLEM_STATISTICS_SEARCH_OK, statisticsService.getProblemStatistics(idx));
     }
 }
