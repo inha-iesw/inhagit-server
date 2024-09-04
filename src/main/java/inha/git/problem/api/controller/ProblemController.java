@@ -203,6 +203,14 @@ public class ProblemController {
         return BaseResponse.of(PROBLEM_AVAILABLE_SUBMITS_OK, problemService.getAvailableSubmits(user, problemIdx));
     }
 
+    /**
+     * 문제 개인 제출 API
+     *
+     * @param user 유저 정보
+     * @param personalIdx 개인 인덱스
+     * @param file 제출 파일
+     * @return 제출된 문제 정보
+     */
     @PostMapping(value = "/{personalIdx}/submits/personal", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "문제 개인 제출 API", description = "문제를 개인으로 제출합니다.")
     public BaseResponse<ProblemSubmitResponse> submitPersonal(@AuthenticationPrincipal User user,
@@ -210,5 +218,22 @@ public class ProblemController {
                                                               @RequestPart(value = "file") MultipartFile file) {
         ValidFile.validateZipFile(file);
         return BaseResponse.of(PROBLEM_SUBMIT_PERSONAL_OK, problemService.submitPersonal(user, personalIdx, file));
+    }
+
+    /**
+     * 문제 팀 제출 API
+     *
+     * @param user 유저 정보
+     * @param teamIdx 팀 인덱스
+     * @param file 제출 파일
+     * @return 제출된 문제 정보
+     */
+    @PostMapping(value = "/{teamIdx}/submits/team", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "문제 팀 제출 API", description = "문제를 팀으로 제출합니다.")
+    public BaseResponse<ProblemSubmitResponse> submitTeam(@AuthenticationPrincipal User user,
+                                                          @PathVariable("teamIdx") Integer teamIdx,
+                                                          @RequestPart(value = "file") MultipartFile file) {
+        ValidFile.validateZipFile(file);
+        return BaseResponse.of(PROBLEM_SUBMIT_TEAM_OK, problemService.submitTeam(user, teamIdx, file));
     }
 }

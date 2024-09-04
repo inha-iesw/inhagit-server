@@ -373,12 +373,24 @@ public class ProblemServiceImpl implements ProblemService {
         return submitResponses;
     }
 
+    /**
+     * 문제 제출
+     *
+     * @param user 유저 정보
+     * @param personalIdx 개인 문제 인덱스
+     * @param file 제출 파일
+     * @return 제출 정보
+     */
     @Override
     @Transactional
     public ProblemSubmitResponse submitPersonal(User user, Integer personalIdx, MultipartFile file) {
         ProblemPersonalRequest problemPersonalRequest = problemPersonalRequestJpaRepository.findById(personalIdx)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PERSONAL_REQUEST));
         ProblemRequest problemRequest = problemPersonalRequest.getProblemRequest();
+        problemSubmitJpaRepository.findByProblemRequestAndState(problemRequest, ACTIVE)
+                .ifPresent(problemSubmit -> {
+                    throw new BaseException(ALREADY_SUBMITTED);
+                });
         Problem problem = problemRequest.getProblem();
         if(!problemRequest.getType().equals(1)) {
             throw new BaseException(NOT_PERSONAL_REQUEST);
@@ -407,6 +419,53 @@ public class ProblemServiceImpl implements ProblemService {
         return problemMapper.problemSubmitToProblemSubmitResponse(problemSubmit);
     }
 
+    /**
+     * 문제 팀 제출
+     *
+     * @param user 유저 정보
+     * @param teamIdx 팀 문제 인덱스
+     * @param file 제출 파일
+     * @return 제출 정보
+     */
+    @Override
+    @Transactional
+    public ProblemSubmitResponse submitTeam(User user, Integer teamIdx, MultipartFile file) {
+        ProblemTeamRequest problemTeamRequest = problemTeamRequestJpaRepository.findById(teamIdx)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_TEAM_REQUEST));
+        ProblemRequest problemRequest = problemTeamRequest.getProblemRequest();
+        log.info("problemRequest : " + problemRequest.getId());
+        Problem problem = problemRequest.getProblem();
+        Team team = problemTeamRequest.getTeam();
+        problemSubmitJpaRepository.findByProblemRequestAndState(problemRequest, ACTIVE)
+                .ifPresent(problemSubmit -> {
+                    throw new BaseException(ALREADY_SUBMITTED);
+                });
+        if(!problemRequest.getType().equals(2)) {
+            throw new BaseException(NOT_TEAM_REQUEST);
+        }
+        if (problem.getUser().getId().equals(user.getId())) {
+            throw new BaseException(NOT_TEAM_PARTICIPANT);
+        }
+        if(!team.getUser().getId().equals(user.getId())){
+            throw new BaseException(NOT_TEAM_LEADER);
+        }
+        if (LocalDate.parse(problem.getDuration(), DateTimeFormatter.ofPattern("yyyy-MM-dd")).isBefore(LocalDate.now())) {
+            throw new BaseException(PROBLEM_DEADLINE_PASSED);
+        }
+        ProblemTeamRequest teamRequest = problemTeamRequestJpaRepository.findByProblemAndTeam(problem, team)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_TEAM_REQUEST));
+        if (teamRequest.getProblemRequest().getAcceptAt() == null) {
+            throw new BaseException(NOT_ALLOWED_SUBMIT_TEAM);
+        }
+
+        String[] paths = storeAndUnzipFile(file);
+        String zipFilePath = paths[0];
+        String folderName = paths[1];
+
+        registerRollbackCleanup(zipFilePath, folderName);
+        ProblemSubmit problemSubmit = problemSubmitJpaRepository.save(problemMapper.createProblemSubmitRequestToProblemSubmit(problemRequest, zipFilePath, folderName));
+        return problemMapper.problemSubmitToProblemSubmitResponse(problemSubmit);
+    }
 
 
     /**

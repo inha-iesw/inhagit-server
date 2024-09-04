@@ -21,4 +21,5 @@ public interface ProblemService {
     List<ProblemParticipantsResponse> getParticipants(User user, Integer problemIdx);
     List<SearchRequestProblemResponse> getAvailableSubmits(User user, Integer problemIdx);
     ProblemSubmitResponse submitPersonal(User user, Integer personalIdx, MultipartFile file);
+    ProblemSubmitResponse submitTeam(User user, Integer teamIdx, MultipartFile file);
 }
