@@ -9,6 +9,7 @@ import inha.git.problem.domain.ProblemPersonalRequest;
 import inha.git.problem.domain.ProblemRequest;
 import inha.git.problem.domain.ProblemTeamRequest;
 import inha.git.problem.domain.repository.*;
+import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.team.domain.Team;
 import inha.git.team.domain.repository.TeamJpaRepository;
 import inha.git.user.domain.User;
@@ -24,7 +25,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
@@ -168,7 +172,7 @@ public class ProblemServiceImpl implements ProblemService {
         if(problem.getUser().getId().equals(user.getId())){
             throw new BaseException(NOT_ALLOWED_PARTICIPATE);
         }
-        if (problem.getDuration().isBefore(LocalDateTime.now())) {
+        if (LocalDate.parse(problem.getDuration(), DateTimeFormatter.ofPattern("yyyy-MM-dd")).isBefore(LocalDate.now())) {
             throw new BaseException(PROBLEM_DEADLINE_PASSED);
         }
         problemPersonalRequestJpaRepository.findByProblemAndUser(problem, user)
@@ -208,7 +212,7 @@ public class ProblemServiceImpl implements ProblemService {
         if(problem.getUser().getId().equals(user.getId())){
             throw new BaseException(NOT_ALLOWED_PARTICIPATE);
         }
-        if (problem.getDuration().isBefore(LocalDateTime.now())) {
+        if (LocalDate.parse(problem.getDuration(), DateTimeFormatter.ofPattern("yyyy-MM-dd")).isBefore(LocalDate.now())) {
             throw new BaseException(PROBLEM_DEADLINE_PASSED);
         }
         problemTeamRequestJpaRepository.findByProblemAndTeam(problem, team)
@@ -246,6 +250,67 @@ public class ProblemServiceImpl implements ProblemService {
         }
         problemRequest.setAcceptAt();
         return problemMapper.problemRequestToRequestProblemResponse(problemRequest);
+    }
+
+    /**
+     * 문제 참여자 목록 조회
+     * 나중에 mapper 쓰는 것으로 변경해야함
+     *
+     * @param user 유저 정보
+     * @param problemIdx 문제 인덱스
+     * @return 참여자 목록
+     */
+    @Override
+    public List<ProblemParticipantsResponse> getParticipants(User user, Integer problemIdx) {
+        Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
+
+        if (!problem.getUser().getId().equals(user.getId())) {
+            throw new BaseException(NOT_ALLOWED_VIEW_PARTICIPANT);
+        }
+        // 문제 요청 가져오기
+        List<ProblemRequest> problemRequests = problemRequestJpaRepository.findByProblemIdAndAcceptAtIsNotNullAndState(problemIdx, ACTIVE);
+        // 반환할 List 생성
+        List<ProblemParticipantsResponse> participantsResponses = new ArrayList<>();
+        problemRequests.forEach(request -> {
+            if (request.getType() == 1) { // 개인 신청일 경우
+                ProblemPersonalRequest personalRequest = problemPersonalRequestJpaRepository.findByProblemRequestId(request.getId())
+                        .orElseThrow(() -> new BaseException(NOT_EXIST_PERSONAL_REQUEST));
+                User personalRequestUser = personalRequest.getUser();
+                participantsResponses.add(
+                        new ProblemParticipantsResponse(
+                                personalRequest.getId(), // 문제 참여 인덱스
+                                request.getAcceptAt(), // 승인 날짜
+                                request.getCreatedAt(), // 생성 날짜
+                                1, // 타입은 개인 유저
+                                null, // ProblemSubmitResponse는 따로 정의 필요
+                                new SearchUserResponse(personalRequestUser.getId(), personalRequestUser.getName()), // 유저 정보
+                                null // 팀 정보는 null
+                        )
+                );
+            } else if (request.getType() == 2) { // 팀 신청일 경우
+                ProblemTeamRequest teamRequest = problemTeamRequestJpaRepository.findByProblemRequestId(request.getId())
+                        .orElseThrow(() -> new BaseException(NOT_EXIST_TEAM_REQUEST));
+                Team team = teamRequest.getTeam();
+                participantsResponses.add(
+                        new ProblemParticipantsResponse(
+                                teamRequest.getId(), // 문제 참여 인덱스
+                                request.getAcceptAt(), // 승인 날짜
+                                request.getCreatedAt(), // 생성 날짜
+                                2, // 타입은 팀
+                                null, // ProblemSubmitResponse는 따로 정의 필요
+                                null, // 유저 정보는 null
+                                new SearchTeamRequestProblemResponse(team.getId(), team.getName(),
+                                        new SearchUserResponse(team.getUser().getId(), team.getUser().getName()),
+                                        team.getTeamUsers().stream()
+                                                .map(tu -> new SearchUserResponse(tu.getUser().getId(), tu.getUser().getName()))
+                                                .toList()
+                                        ) // 팀 정보
+                        )
+                );
+            }
+        });
+        return participantsResponses;
     }
 
 

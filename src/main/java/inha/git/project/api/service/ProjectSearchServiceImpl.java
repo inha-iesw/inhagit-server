@@ -108,9 +108,10 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
      */
     @Override
     public List<SearchFileResponse> getProjectFileByIdx(Integer projectIdx, String path) {
+        log.info("path: {}", path);
         ProjectUpload projectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-        String absoluteFilePath = BASE_DIR_SOURCE + projectUpload.getDirectoryName() + path;
+        String absoluteFilePath = BASE_DIR_SOURCE + projectUpload.getDirectoryName() + '/' + path;
         Path filePath = Paths.get(absoluteFilePath);
         if (!Files.exists(filePath)) {
             throw new BaseException(FILE_NOT_FOUND);
@@ -125,7 +126,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
                                     !f.getFileName().toString().startsWith(MACOSX))
                             .map(this::mapToFileResponse)
                             .toList();
-                    return List.of(new SearchDirectoryResponse(filePath.getFileName().toString(), "directory", fileList));
+                    return fileList;
                 }
             } else {
                 String content = extractFileContent(filePath);
@@ -135,6 +136,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
             throw new BaseException(FILE_CONVERT);
         }
     }
+
 
     /**
      * 파일 정보를 SearchFileResponse로 변환

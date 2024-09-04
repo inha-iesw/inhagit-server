@@ -6,6 +6,8 @@ import inha.git.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 public interface ProblemService {
     Page<SearchProblemsResponse> getProblems(Integer page);
     SearchProblemResponse getProblem(Integer problemIdx);
@@ -16,6 +18,5 @@ public interface ProblemService {
     RequestProblemResponse requestUser(User user, CreateRequestProblemRequest createRequestProblemRequest);
     RequestProblemResponse requestTeam(User user, CreateTeamRequestProblemRequest createTeamRequestProblemRequest);
     RequestProblemResponse approveRequest(User user, CreateProblemApproveRequest createProblemApproveRequest);
-
-
+    List<ProblemParticipantsResponse> getParticipants(User user, Integer problemIdx);
 }

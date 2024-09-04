@@ -20,6 +20,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 import static inha.git.common.code.status.ErrorStatus.*;
 import static inha.git.common.code.status.SuccessStatus.*;
 
@@ -174,6 +176,18 @@ public class ProblemController {
                                                                @Validated @RequestBody CreateProblemApproveRequest createProblemApproveRequest) {
         return BaseResponse.of(PROBLEM_APPROVE_OK, problemService.approveRequest(user, createProblemApproveRequest));
     }
-    //problemIdx/participant/all'
+
+    /**
+     * 문제 참여자 목록 조회 API
+     *
+     * @param problemIdx 문제 인덱스
+     * @return 문제 참여자 목록
+     */
+    @GetMapping("/{problemIdx}/participants")
+    @Operation(summary = "문제 참여자 목록 조회 API", description = "문제 참여자 목록을 조회합니다.")
+    public BaseResponse<List<ProblemParticipantsResponse>> getParticipants(@AuthenticationPrincipal User user,
+                                                                          @PathVariable("problemIdx") Integer problemIdx) {
+        return BaseResponse.of(PROBLEM_PARTICIPANTS_OK, problemService.getParticipants(user, problemIdx));
+    }
 
 }
