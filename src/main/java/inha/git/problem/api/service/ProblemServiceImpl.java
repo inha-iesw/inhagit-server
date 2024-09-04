@@ -314,4 +314,63 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
 
+    /**
+     * 문제 제출 가능 목록 조회
+     *
+     * @param user 유저 정보
+     * @param problemIdx 문제 인덱스
+     * @return 제출 가능 목록
+     */
+    @Override
+    public List<SearchRequestProblemResponse> getAvailableSubmits(User user, Integer problemIdx) {
+        Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
+        if (problem.getUser().getId().equals(user.getId())) {
+            throw new BaseException(NOT_ALLOWED_CHECK_SUBMIT);
+        }
+        List<ProblemRequest> problemRequests = problemRequestJpaRepository.findByProblemIdAndState(problemIdx, ACTIVE);
+
+        List<SearchRequestProblemResponse> submitResponses = new ArrayList<>();
+        problemRequests.forEach(request -> {
+            if (request.getType() == 1) {
+                ProblemPersonalRequest personalRequest = problemPersonalRequestJpaRepository.findByProblemRequestId(request.getId())
+                        .orElseThrow(() -> new BaseException(NOT_EXIST_PERSONAL_REQUEST));
+                User personalRequestUser = personalRequest.getUser();
+                submitResponses.add(
+                        new SearchRequestProblemResponse(
+                                personalRequest.getId(),
+                                request.getType(),
+                                request.getCreatedAt(),
+                                request.getAcceptAt(),
+                                new SearchUserRequestProblemResponse(personalRequestUser.getId(), personalRequestUser.getName()),
+                                null
+                        )
+                );
+            } else if (request.getType() == 2) {
+                ProblemTeamRequest teamRequest = problemTeamRequestJpaRepository.findByProblemRequestId(request.getId())
+                        .orElseThrow(() -> new BaseException(NOT_EXIST_TEAM_REQUEST));
+                Team team = teamRequest.getTeam();
+                if(team.getUser().getId().equals(user.getId())) {
+                    submitResponses.add(
+                            new SearchRequestProblemResponse(
+                                    teamRequest.getId(),
+                                    request.getType(),
+                                    request.getCreatedAt(),
+                                    request.getAcceptAt(),
+                                    null,
+                                    new SearchTeamRequestProblemResponse(team.getId(), team.getName(),
+                                            new SearchUserResponse(team.getUser().getId(), team.getUser().getName()),
+                                            team.getTeamUsers().stream()
+                                                    .map(tu -> new SearchUserResponse(tu.getUser().getId(), tu.getUser().getName()))
+                                                    .toList()
+                                    )
+                            )
+                    );
+                }
+            }
+        });
+        return submitResponses;
+    }
+
+
 }

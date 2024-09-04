@@ -190,4 +190,16 @@ public class ProblemController {
         return BaseResponse.of(PROBLEM_PARTICIPANTS_OK, problemService.getParticipants(user, problemIdx));
     }
 
+    /**
+     * 문제 제출 가능 여부 조회 API
+     *
+     * @param problemIdx 문제 인덱스
+     * @return 문제 제출 가능 여부
+     */
+    @GetMapping("{problemIdx}/submits")
+    @Operation(summary = "문제 제출 가능 여부 조회 API", description = "문제 제출 가능 여부를 조회합니다.")
+    public BaseResponse<List<SearchRequestProblemResponse>> getAvailableSubmits(@AuthenticationPrincipal User user,
+                                                                               @PathVariable("problemIdx") Integer problemIdx) {
+        return BaseResponse.of(PROBLEM_AVAILABLE_SUBMITS_OK, problemService.getAvailableSubmits(user, problemIdx));
+    }
 }

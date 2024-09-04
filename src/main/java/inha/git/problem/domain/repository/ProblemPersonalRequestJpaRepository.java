@@ -18,5 +18,8 @@ import java.util.Optional;
 public interface ProblemPersonalRequestJpaRepository extends JpaRepository<ProblemPersonalRequest, Integer> {
     Optional<ProblemPersonalRequest> findByProblemAndUser(Problem problem, User user);
 
-    Optional<ProblemPersonalRequest> findByProblemRequestId(Integer problemRequestIdx);
+    Optional<ProblemPersonalRequest> findByProblemRequestId(Integer id);
+    Optional<ProblemPersonalRequest> findByProblemRequestIdAndUser(Integer problemRequestIdx, User user);
+
+
 }

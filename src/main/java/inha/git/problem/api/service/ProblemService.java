@@ -19,4 +19,5 @@ public interface ProblemService {
     RequestProblemResponse requestTeam(User user, CreateTeamRequestProblemRequest createTeamRequestProblemRequest);
     RequestProblemResponse approveRequest(User user, CreateProblemApproveRequest createProblemApproveRequest);
     List<ProblemParticipantsResponse> getParticipants(User user, Integer problemIdx);
+    List<SearchRequestProblemResponse> getAvailableSubmits(User user, Integer problemIdx);
 }
