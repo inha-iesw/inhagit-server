@@ -46,6 +46,20 @@ public class UserController {
     private final ProfessorService professorService;
     private final CompanyService companyService;
 
+
+    /**
+     * 특정 유저 조회 API
+     *
+     * <p>특정 유저를 조회.</p>
+     *
+     * @return 특정 유저 조회 결과를 포함하는 BaseResponse<SearchUserResponse>
+     */
+    @GetMapping
+    @Operation(summary = "특정 유저 조회 API", description = "특정 유저를 조회합니다.")
+    public BaseResponse<SearchUserResponse> getLoginUser(@AuthenticationPrincipal User user) {
+        return BaseResponse.of(MY_PAGE_USER_SEARCH_OK, userService.getUser(user.getId()));
+    }
+
     /**
      * 특정 유저 조회 API
      *
