@@ -2,6 +2,7 @@ package inha.git.user.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
+import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
 import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
 import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
 import inha.git.team.api.controller.dto.response.SearchMyTeamsResponse;
@@ -50,14 +51,14 @@ public class UserController {
      *
      * <p>특정 유저를 조회.</p>
      *
-     * @param user 인증된 유저 정보
+     * @PathVariable userIdx 조회할 유저의 idx
      *
      * @return 특정 유저 조회 결과를 포함하는 BaseResponse<SearchUserResponse>
      */
-    @GetMapping
+    @GetMapping("/{userIdx}")
     @Operation(summary = "특정 유저 조회 API", description = "특정 유저를 조회합니다.")
-    public BaseResponse<SearchUserResponse> getUser(@AuthenticationPrincipal User user) {
-        return BaseResponse.of(MY_PAGE_USER_SEARCH_OK, userService.getUser(user));
+    public BaseResponse<SearchUserResponse> getUser(@PathVariable("userIdx" ) Integer userIdx) {
+        return BaseResponse.of(MY_PAGE_USER_SEARCH_OK, userService.getUser(userIdx));
     }
 
     /**
@@ -70,13 +71,15 @@ public class UserController {
      *
      * @return 특정 유저의 프로젝트 조회 결과를 포함하는 BaseResponse<Page<SearchProjectsResponse>>
      */
-    @GetMapping("/projects")
+    @GetMapping("/{userIdx}/projects")
     @Operation(summary = "특정 유저의 프로젝트 조회 API", description = "특정 유저의 프로젝트를 조회합니다.")
-    public BaseResponse<Page<SearchProjectsResponse>> getUserProjects(@AuthenticationPrincipal User user, @RequestParam("page") Integer page) {
+    public BaseResponse<Page<SearchProjectsResponse>> getUserProjects(@AuthenticationPrincipal User user,
+                                                                      @PathVariable("userIdx") Integer userIdx,
+                                                                      @RequestParam("page") Integer page) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(MY_PAGE_PROJECT_SEARCH_OK, userService.getUserProjects(user, page - 1));
+        return BaseResponse.of(MY_PAGE_PROJECT_SEARCH_OK, userService.getUserProjects(user, userIdx, page - 1));
     }
 
     /**
@@ -89,13 +92,15 @@ public class UserController {
      *
      * @return 특정 유저의 질문 조회 결과를 포함하는 BaseResponse<Page<SearchQuestionsResponse>>
      */
-    @GetMapping("/questions")
+    @GetMapping("/{userIdx}/questions")
     @Operation(summary = "특정 유저의 질문 조회 API", description = "특정 유저의 질문을 조회합니다.")
-    public BaseResponse<Page<SearchQuestionsResponse>> getUserQuestions(@AuthenticationPrincipal User user, @RequestParam("page") Integer page) {
+    public BaseResponse<Page<SearchQuestionsResponse>> getUserQuestions(@AuthenticationPrincipal User user,
+                                                                          @PathVariable("userIdx") Integer userIdx,
+                                                                        @RequestParam("page") Integer page) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(MY_PAGE_QUESTION_SEARCH_OK, userService.getUserQuestions(user, page - 1));
+        return BaseResponse.of(MY_PAGE_QUESTION_SEARCH_OK, userService.getUserQuestions(user,userIdx, page - 1));
     }
 
     /**
@@ -108,15 +113,38 @@ public class UserController {
      *
      * @return 특정 유저의 팀 조회 결과를 포함하는 BaseResponse<Page<SearchMyTeamsResponse>>
      */
-    @GetMapping("/teams")
+    @GetMapping("/{userIdx}/teams")
     @Operation(summary = "특정 유저의 팀 조회 API", description = "특정 유저의 팀을 조회합니다.")
-    public BaseResponse<Page<SearchMyTeamsResponse>> getUserTeams(@AuthenticationPrincipal User user, @RequestParam("page") Integer page) {
+    public BaseResponse<Page<SearchMyTeamsResponse>> getUserTeams(@AuthenticationPrincipal User user,
+                                                                  @PathVariable("userIdx") Integer userIdx,
+                                                                  @RequestParam("page") Integer page) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(MY_PAGE_TEAM_SEARCH_OK, userService.getUserTeams(user, page - 1));
+        return BaseResponse.of(MY_PAGE_TEAM_SEARCH_OK, userService.getUserTeams(user, userIdx, page - 1));
     }
 
+
+    /**
+     * 특정 유저의 참여중인 문제 조회 API
+     *
+     * <p>특정 유저의 참여중인 문제를 조회.</p>
+     *
+     * @param user 인증된 유저 정보
+     * @param page 페이지 번호
+     *
+     * @return 특정 유저의 참여중인 문제 조회 결과를 포함하는 BaseResponse<Page<SearchProblemsResponse>>
+     */
+    @GetMapping("/{userIdx}/problems")
+    @Operation(summary = "특정 유저의 참여중인 문제 조회 API", description = "특정 유저의 참여중인 문제를 조회합니다.")
+    public BaseResponse<Page<SearchProblemsResponse>> getUserProblems(@AuthenticationPrincipal User user,
+                                                                      @PathVariable("userIdx") Integer userIdx,
+                                                                      @RequestParam("page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(MY_PAGE_PROBLEM_SEARCH_OK, userService.getUserProblems(user, userIdx,page - 1));
+    }
     /**
      * 학생 회원가입 API
      *
