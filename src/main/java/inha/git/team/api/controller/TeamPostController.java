@@ -1,6 +1,7 @@
 package inha.git.team.api.controller;
 
 import inha.git.common.BaseResponse;
+import inha.git.common.exceptions.BaseException;
 import inha.git.team.api.controller.dto.request.CreateTeamPostRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamPostRequest;
 import inha.git.team.api.controller.dto.response.SearchTeamPostResponse;
@@ -17,6 +18,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
@@ -42,6 +44,9 @@ public class TeamPostController {
     @GetMapping
     @Operation(summary = "팀 게시글 전체 조회 API", description = "팀 게시글 전체를 조회한다.")
     public BaseResponse<Page<SearchTeamPostsResponse>> getTeamPosts(@RequestParam("page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
         return BaseResponse.of(TEAM_POST_SEARCH_OK, teamPostService.getTeamPosts(page - 1));
     }
 

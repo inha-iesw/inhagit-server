@@ -150,7 +150,9 @@ public enum SuccessStatus implements BaseCode {
     PATENT_SEARCH_OK(HttpStatus.OK, "PATENT2000", "특허 조회 성공"),
     PATENT_SEARCH_SUCCESS(HttpStatus.OK, "PATENT2001", "특허 검색 성공"),
     PATENT_REGISTER_SUCCESS(HttpStatus.CREATED, "PATENT2010", "특허 등록 성공"),
-    PATENT_DELETE_SUCCESS(HttpStatus.OK, "PATENT2011", "특허 삭제 성공");
+    PATENT_DELETE_SUCCESS(HttpStatus.OK, "PATENT2011", "특허 삭제 성공"),
+
+    SEARCH_OK(HttpStatus.OK, "SEARCH2000", "검색 성공");
 
     private final HttpStatus httpStatus;
     private final String code;
