@@ -49,6 +49,7 @@ public class SecurityConfig {
             "/api/v1/notices",
             "/api/v1/teams/posts",
             "/api/v1/statistics/**",
+            "/api/v1/statistics",
             "/api/v1/problems",
             "/api/v1/projects",
             "/api/v1/notices/{noticeIdx}"
