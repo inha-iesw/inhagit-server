@@ -6,6 +6,7 @@ import inha.git.common.BaseEntity.State;
 import inha.git.department.domain.Department;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,4 +23,6 @@ public interface DepartmentJpaRepository extends JpaRepository<Department, Integ
     Optional<Department> findByIdAndState(Integer id, State state);
 
     boolean existsByNameAndState(String name, State state);
+
+    Optional<Department> findByName(String name);
 }

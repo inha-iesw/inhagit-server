@@ -44,3 +44,5 @@ application-prod.yml
 src/main/generated/
 
 source/**
+
+src/main/java/inha/git/InitData.java
