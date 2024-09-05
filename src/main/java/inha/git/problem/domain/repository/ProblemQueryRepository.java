@@ -3,6 +3,8 @@ package inha.git.problem.domain.repository;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.common.BaseEntity;
+import inha.git.common.BaseEntity.State;
+import inha.git.mapping.domain.QTeamUser;
 import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
 import inha.git.problem.api.controller.dto.response.SearchRequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchTeamRequestProblemResponse;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static inha.git.common.BaseEntity.State.ACTIVE;
+
 @Repository
 @RequiredArgsConstructor
 public class ProblemQueryRepository {
@@ -32,7 +36,7 @@ public class ProblemQueryRepository {
                 .select(problem)
                 .from(problem)
                 .leftJoin(problem.user, user)
-                .where(problem.state.eq(Problem.State.ACTIVE))
+                .where(problem.state.eq(ACTIVE))
                 .orderBy(problem.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
@@ -78,7 +82,7 @@ public class ProblemQueryRepository {
                 .leftJoin(problemRequest.teamRequest, teamRequest)
                 .leftJoin(teamRequest.team, team)
                 .leftJoin(team.user, teamLeaderUser)
-                .where(problemRequest.state.eq(BaseEntity.State.ACTIVE), problemRequest.problem.id.eq(problemIdx))
+                .where(problemRequest.state.eq(ACTIVE), problemRequest.problem.id.eq(problemIdx))
                 .orderBy(problemRequest.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
@@ -120,6 +124,61 @@ public class ProblemQueryRepository {
                             teamResponse
                     );
                 })
+                .toList();
+
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    /**
+     * 사용자가 신청한 문제 목록 조회
+     *
+     * @param userId 사용자 인덱스
+     * @param pageable 페이징 정보
+     * @return 사용자가 신청한 문제 목록
+     */
+    public Page<SearchProblemsResponse> getUserProblems(Integer userId, Pageable pageable) {
+        QProblem problem = QProblem.problem;
+        QProblemRequest problemRequest = QProblemRequest.problemRequest;
+        QProblemPersonalRequest personalRequest = QProblemPersonalRequest.problemPersonalRequest;
+        QProblemTeamRequest teamRequest = QProblemTeamRequest.problemTeamRequest;
+        QTeamUser teamUser = QTeamUser.teamUser;
+        QTeam team = QTeam.team;
+        QUser user = QUser.user;
+
+        JPAQuery<Problem> query = queryFactory
+                .selectDistinct(problem)  // 중복을 제거하기 위해 distinct 사용
+                .from(problemRequest)
+                .leftJoin(problemRequest.personalRequest, personalRequest)
+                .leftJoin(problemRequest.teamRequest, teamRequest)
+                .leftJoin(personalRequest.user, user)  // 개인 신청의 경우 유저 조인
+                .leftJoin(teamRequest.team, team)      // 팀 신청의 경우 팀 조인
+                .leftJoin(team.teamUsers, teamUser)    // 팀에 속한 유저 조인 (팀원 여부 확인)
+                .leftJoin(problemRequest.problem, problem)
+                .where(problemRequest.state.eq(ACTIVE)
+                        .and(problemRequest.acceptAt.isNotNull())  // 승인된 요청만 조회
+                        .and(
+                                personalRequest.user.id.eq(userId)     // 개인 신청의 경우 유저 필터링
+                                        .or(team.user.id.eq(userId))           // 팀장이 해당 유저일 경우
+                                        .or(teamUser.user.id.eq(userId))       // 팀에 속한 유저일 경우
+                        ))
+                .orderBy(problem.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        List<Problem> problems = query.fetch();
+        long total = query.fetchCount();
+
+        List<SearchProblemsResponse> content = problems.stream()
+                .map(p -> new SearchProblemsResponse(
+                        p.getId(),
+                        p.getTitle(),
+                        p.getCreatedAt(),
+                        0,
+                        new SearchUserResponse(
+                                p.getUser().getId(),
+                                p.getUser().getName()
+                        )
+                ))
                 .toList();
 
         return new PageImpl<>(content, pageable, total);

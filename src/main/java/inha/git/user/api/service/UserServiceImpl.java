@@ -4,6 +4,8 @@ import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.UserDepartment;
 import inha.git.mapping.domain.repository.UserDepartmentJpaRepository;
+import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
+import inha.git.problem.domain.repository.ProblemQueryRepository;
 import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
 import inha.git.project.domain.repository.ProjectQueryRepository;
 import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
@@ -53,15 +55,18 @@ public class UserServiceImpl implements UserService {
     private final ProjectQueryRepository projectQueryRepository;
     private final QuestionQueryRepository questionQueryRepository;
     private final TeamQueryRepository teamQueryRepository;
+    private final ProblemQueryRepository problemQueryRepository;
 
     /**
      * 사용자 정보 조회
      *
-     * @param user 사용자 정보
+     * @param userIdx 사용자 인덱스
      * @return 사용자 정보 조회 결과
      */
     @Override
-    public SearchUserResponse getUser(User user) {
+    public SearchUserResponse getUser(Integer userIdx) {
+        User user = userJpaRepository.findByIdAndState(userIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
         Integer position = mapRoleToPosition(user.getRole());
         if (user.getRole().equals(Role.COMPANY)) {
             Company company = companyJpaRepository.findByUserId(user.getId())
@@ -87,9 +92,10 @@ public class UserServiceImpl implements UserService {
      * @return 사용자 프로젝트 조회 결과
      */
     @Override
-    public Page<SearchProjectsResponse> getUserProjects(User user, Integer page) {
+    public Page<SearchProjectsResponse> getUserProjects(User user, Integer userIdx, Integer page) {
+        User findUser = validUser(user, userIdx);
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
-        return projectQueryRepository.getUserProjects(user.getId(), pageable);
+        return projectQueryRepository.getUserProjects(findUser.getId(), pageable);
     }
 
     /**
@@ -100,10 +106,12 @@ public class UserServiceImpl implements UserService {
      * @return 사용자 질문 조회 결과
      */
     @Override
-    public Page<SearchQuestionsResponse> getUserQuestions(User user, Integer page) {
+    public Page<SearchQuestionsResponse> getUserQuestions(User user, Integer userIdx, Integer page) {
+        User findUser = validUser(user, userIdx);
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
-        return questionQueryRepository.getUserQuestions(user.getId(), pageable);
+        return questionQueryRepository.getUserQuestions(findUser.getId(), pageable);
     }
+
 
     /**
      * 사용자 팀 조회
@@ -113,9 +121,25 @@ public class UserServiceImpl implements UserService {
      * @return 사용자 팀 조회 결과
      */
     @Override
-    public Page<SearchMyTeamsResponse> getUserTeams(User user, Integer page) {
+    public Page<SearchMyTeamsResponse> getUserTeams(User user, Integer userIdx, Integer page) {
+        User findUser = validUser(user, userIdx);
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
-        return teamQueryRepository.getUserTeams(user.getId(), pageable);
+        return teamQueryRepository.getUserTeams(findUser.getId(), pageable);
+    }
+
+    /**
+     * 사용자 문제 조회
+     *
+     * @param user 사용자 정보
+     * @param page 페이지 번호
+     * @return 사용자 문제 조회 결과
+     */
+    @Override
+    public Page<SearchProblemsResponse> getUserProblems(User user, Integer userIdx, Integer page) {
+        User findUser = validUser(user, userIdx);
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return problemQueryRepository.getUserProblems(findUser.getId(), pageable);
+
     }
 
     /**
@@ -133,4 +157,14 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(updatePwRequest.pw()));
         return userMapper.toUserResponse(user);
     }
+
+    private User validUser(User user, Integer userIdx) {
+        User findUser = userJpaRepository.findByIdAndState(userIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        if(!user.getId().equals(findUser.getId()) && !user.getRole().equals(Role.ADMIN) && !user.getRole().equals(Role.PROFESSOR) && !user.getRole().equals(Role.ASSISTANT)){
+            throw new BaseException(NOT_AUTHORIZED_USER);
+        }
+        return findUser;
+    }
+
 }
