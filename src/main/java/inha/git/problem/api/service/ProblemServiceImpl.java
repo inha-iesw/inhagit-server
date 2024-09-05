@@ -287,9 +287,15 @@ public class ProblemServiceImpl implements ProblemService {
         }
         // 문제 요청 가져오기
         List<ProblemRequest> problemRequests = problemRequestJpaRepository.findByProblemIdAndAcceptAtIsNotNullAndState(problemIdx, ACTIVE);
+
         // 반환할 List 생성
         List<ProblemParticipantsResponse> participantsResponses = new ArrayList<>();
         problemRequests.forEach(request -> {
+            // problemSubmitResponse를 Optional로 받기
+            ProblemSubmitResponse problemSubmitResponse = problemSubmitJpaRepository.findByProblemRequestAndState(request, ACTIVE)
+                    .map(problemSubmit -> problemMapper.problemSubmitToProblemSubmitResponse(problemSubmit))
+                    .orElse(null);  // 없으면 null
+
             if (request.getType() == 1) { // 개인 신청일 경우
                 ProblemPersonalRequest personalRequest = problemPersonalRequestJpaRepository.findByProblemRequestId(request.getId())
                         .orElseThrow(() -> new BaseException(NOT_EXIST_PERSONAL_REQUEST));
@@ -300,7 +306,7 @@ public class ProblemServiceImpl implements ProblemService {
                                 request.getAcceptAt(), // 승인 날짜
                                 request.getCreatedAt(), // 생성 날짜
                                 1, // 타입은 개인 유저
-                                null, // ProblemSubmitResponse는 따로 정의 필요
+                                problemSubmitResponse, // ProblemSubmitResponse 추가
                                 new SearchUserResponse(personalRequestUser.getId(), personalRequestUser.getName()), // 유저 정보
                                 null // 팀 정보는 null
                         )
@@ -315,14 +321,14 @@ public class ProblemServiceImpl implements ProblemService {
                                 request.getAcceptAt(), // 승인 날짜
                                 request.getCreatedAt(), // 생성 날짜
                                 2, // 타입은 팀
-                                null, // ProblemSubmitResponse는 따로 정의 필요
+                                problemSubmitResponse, // ProblemSubmitResponse 추가
                                 null, // 유저 정보는 null
                                 new SearchTeamRequestProblemResponse(team.getId(), team.getName(),
                                         new SearchUserResponse(team.getUser().getId(), team.getUser().getName()),
                                         team.getTeamUsers().stream()
                                                 .map(tu -> new SearchUserResponse(tu.getUser().getId(), tu.getUser().getName()))
                                                 .toList()
-                                        ) // 팀 정보
+                                ) // 팀 정보
                         )
                 );
             }
