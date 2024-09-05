@@ -43,7 +43,7 @@ public class TeamQueryRepository {
                 .from(teamUser)
                 .join(teamUser.team, team).fetchJoin()
                 .join(team.user, user).fetchJoin()
-                .where(teamUser.user.id.eq(userId))
+                .where(teamUser.user.id.eq(userId), teamUser.acceptedAt.isNotNull())
                 .orderBy(teamUser.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
