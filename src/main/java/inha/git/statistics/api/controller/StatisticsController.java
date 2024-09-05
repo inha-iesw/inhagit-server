@@ -1,10 +1,7 @@
 package inha.git.statistics.api.controller;
 
 import inha.git.common.BaseResponse;
-import inha.git.statistics.api.controller.dto.response.ProblemStatisticsResponse;
-import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
-import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
-import inha.git.statistics.api.controller.dto.response.TeamStatisticsResponse;
+import inha.git.statistics.api.controller.dto.response.*;
 import inha.git.statistics.api.service.StatisticsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,6 +11,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 import static inha.git.common.code.status.SuccessStatus.*;
 
@@ -26,6 +25,17 @@ public class StatisticsController {
 
     private final StatisticsService statisticsService;
 
+
+    /**
+     * 학과별 전체 통계 조회 API
+     *
+     * @return BaseResponse<List<HomeStatisticsResponse>>
+     */
+    @GetMapping
+    @Operation(summary = "학과별 전체 통계 조회 API", description = "학과별 전체 통계를 조회합니다.")
+    public BaseResponse<List<HomeStatisticsResponse>> getStatistics() {
+        return BaseResponse.of(DEPARTMENT_STATISTICS_SEARCH_OK, statisticsService.getStatistics());
+    }
 
     /**
      * 프로젝트 통계 조회 API

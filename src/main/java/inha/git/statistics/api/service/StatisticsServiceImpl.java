@@ -4,10 +4,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
 import inha.git.mapping.domain.UserDepartment;
 import inha.git.mapping.domain.repository.UserDepartmentJpaRepository;
-import inha.git.statistics.api.controller.dto.response.ProblemStatisticsResponse;
-import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
-import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
-import inha.git.statistics.api.controller.dto.response.TeamStatisticsResponse;
+import inha.git.statistics.api.controller.dto.response.*;
 import inha.git.statistics.api.mapper.StatisticsMapper;
 import inha.git.statistics.domain.DepartmentStatistics;
 import inha.git.statistics.domain.UserCountStatistics;
@@ -221,6 +218,23 @@ public class StatisticsServiceImpl implements StatisticsService {
                     .forEach(userDepartment -> departmentStatisticsJpaRepository.findById(userDepartment.getDepartment().getId())
                             .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseProblemParticipationCount());
         }
+    }
+
+    /**
+     * 학과별 전체 통계 정보를 조회한다.
+     *
+     * @return List<HomeStatisticsResponse>
+     */
+    @Override
+    public List<HomeStatisticsResponse> getStatistics() {
+        return departmentJpaRepository.findAllByState(ACTIVE)
+                .stream()
+                .map(department -> {
+                    DepartmentStatistics departmentStatistics = departmentStatisticsJpaRepository.findById(department.getId())
+                            .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND));
+                    return statisticsMapper.toHomeStatisticsResponse(department,  departmentStatistics);
+                })
+                .toList();
     }
 
 
