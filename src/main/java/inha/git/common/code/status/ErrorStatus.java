@@ -174,6 +174,7 @@ public enum ErrorStatus implements BaseErrorCode {
     TEAM_REPLY_COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM4020", "팀 대댓글을 찾을 수 없습니다."),
     TEAM_REPLY_COMMENT_UPDATE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "TEAM4021", "대댓글을 수정할 권한이 없습니다."),
     TEAM_REPLY_COMMENT_DELETE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "TEAM4022", "대댓글을 삭제할 권한이 없습니다."),
+    TEAM_NOT_PARTICIPANT(HttpStatus.BAD_REQUEST, "TEAM4023", "해당 팀원이 아닙니다."),
 
     USER_STATISTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTICS4000", "사용자 통계를 찾을 수 없습니다."),
     DEPARTMENT_STATISTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTICS4001", "학과 통계를 찾을 수 없습니다."),
