@@ -228,8 +228,14 @@ public class TeamServiceImpl implements TeamService {
     public Page<SearchRequestResponse> getRequestTeams(User user, Integer teamIdx, Integer page) {
         Team team = teamJpaRepository.findByIdAndState(teamIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(TEAM_NOT_FOUND));
-        if (!team.getUser().getId().equals(user.getId())) {
-            throw new BaseException(TEAM_NOT_LEADER);
+        //팀에 포함되어있어야함
+
+        if (!team.getUser().getId().equals(user.getId())
+                && user.getRole() != Role.ADMIN
+                && user .getRole() != Role.PROFESSOR
+                && user . getRole() != Role.ASSISTANT
+                && team.getTeamUsers().stream().noneMatch(teamUser -> teamUser.getUser().getId().equals(user.getId()))) { // 팀원도 아니면
+            throw new BaseException(TEAM_NOT_PARTICIPANT);
         }
         Pageable pageable = PageRequest.of(page, 10);
         Page<TeamUser> teamUsers = teamUserJpaRepository.findByTeamAndAcceptedAtIsNull(team, pageable);
