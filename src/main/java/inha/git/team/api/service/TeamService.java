@@ -4,10 +4,7 @@ import inha.git.team.api.controller.dto.request.ApproveRequestTeamRequest;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
 import inha.git.team.api.controller.dto.request.RequestTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
-import inha.git.team.api.controller.dto.response.SearchTeamResponse;
-import inha.git.team.api.controller.dto.response.SearchTeamUserResponse;
-import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
-import inha.git.team.api.controller.dto.response.TeamResponse;
+import inha.git.team.api.controller.dto.response.*;
 import inha.git.user.domain.User;
 import org.springframework.data.domain.Page;
 
@@ -22,6 +19,6 @@ public interface TeamService {
     TeamResponse requestTeam(User user, RequestTeamRequest requestTeamRequest);
     TeamResponse approveRequestTeam(User user, ApproveRequestTeamRequest approveRequestTeamRequest);
     TeamResponse exitTeam(User user, Integer teamIdx);
-    Page<SearchTeamUserResponse> getRequestTeams(User user, Integer teamIdx, Integer page);
+    Page<SearchRequestResponse> getRequestTeams(User user, Integer teamIdx, Integer page);
 
 }

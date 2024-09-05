@@ -9,10 +9,7 @@ import inha.git.team.api.controller.dto.request.ApproveRequestTeamRequest;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
 import inha.git.team.api.controller.dto.request.RequestTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
-import inha.git.team.api.controller.dto.response.SearchTeamResponse;
-import inha.git.team.api.controller.dto.response.SearchTeamUserResponse;
-import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
-import inha.git.team.api.controller.dto.response.TeamResponse;
+import inha.git.team.api.controller.dto.response.*;
 import inha.git.team.api.mapper.TeamMapper;
 import inha.git.team.domain.Team;
 import inha.git.team.domain.repository.TeamJpaRepository;
@@ -71,7 +68,7 @@ public class TeamServiceImpl implements TeamService {
         SearchUserResponse searchUserResponse = teamMapper.userToSearchUserResponse(team.getUser());
         List<SearchTeamUserResponse> list = team.getTeamUsers().stream()
                 .filter(tu -> tu.getAcceptedAt() != null) // acceptAt이 null이 아닌 것만 필터링
-                .map(tu -> new SearchTeamUserResponse(tu.getUser().getId(), tu.getUser().getName(), tu.getUser().getEmail()))
+                .map(tu -> new SearchTeamUserResponse(tu.getUser().getId(), tu.getUser().getName(), tu.getUser().getEmail(), tu.getAcceptedAt()))
                 .toList();
         return new SearchTeamResponse(team.getId(), team.getName(), team.getMaxMemberNumber(), team.getCurrtentMemberNumber(), team.getCreatedAt(), searchUserResponse, list);
     }
@@ -228,7 +225,7 @@ public class TeamServiceImpl implements TeamService {
      * @return Page<SearchTeamUserResponse>
      */
     @Override
-    public Page<SearchTeamUserResponse> getRequestTeams(User user, Integer teamIdx, Integer page) {
+    public Page<SearchRequestResponse> getRequestTeams(User user, Integer teamIdx, Integer page) {
         Team team = teamJpaRepository.findByIdAndState(teamIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(TEAM_NOT_FOUND));
         if (!team.getUser().getId().equals(user.getId())) {
@@ -236,10 +233,11 @@ public class TeamServiceImpl implements TeamService {
         }
         Pageable pageable = PageRequest.of(page, 10);
         Page<TeamUser> teamUsers = teamUserJpaRepository.findByTeamAndAcceptedAtIsNull(team, pageable);
-        return teamUsers.map(tu -> new SearchTeamUserResponse(
+        return teamUsers.map(tu -> new SearchRequestResponse(
                 tu.getUser().getId(),
                 tu.getUser().getName(),
-                tu.getUser().getEmail()
+                tu.getUser().getEmail(),
+                tu.getCreatedAt()
         ));
     }
 }

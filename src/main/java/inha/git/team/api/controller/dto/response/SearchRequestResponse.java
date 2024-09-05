@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
-public record SearchTeamUserResponse(
+public record SearchRequestResponse(
 
         @NotNull
         @Schema(description = "유저 인덱스", example = "1")
@@ -20,8 +20,8 @@ public record SearchTeamUserResponse(
         String email,
 
         @NotNull
-        @Schema(description = "팀 가입일", example = "2021-08-01T00:00:00")
-        LocalDateTime joinedAt
+        @Schema(description = "팀 가입 신청일", example = "2021-08-01T00:00:00")
+        LocalDateTime createAt
 
 ) {
 }

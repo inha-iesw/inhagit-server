@@ -6,10 +6,7 @@ import inha.git.team.api.controller.dto.request.ApproveRequestTeamRequest;
 import inha.git.team.api.controller.dto.request.CreateTeamRequest;
 import inha.git.team.api.controller.dto.request.RequestTeamRequest;
 import inha.git.team.api.controller.dto.request.UpdateTeamRequest;
-import inha.git.team.api.controller.dto.response.SearchTeamResponse;
-import inha.git.team.api.controller.dto.response.SearchTeamUserResponse;
-import inha.git.team.api.controller.dto.response.SearchTeamsResponse;
-import inha.git.team.api.controller.dto.response.TeamResponse;
+import inha.git.team.api.controller.dto.response.*;
 import inha.git.team.api.service.TeamService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
@@ -140,9 +137,9 @@ public class TeamController {
      */
     @GetMapping("/{teamIdx}/request")
     @Operation(summary = "팀 가입 요청 목록 조회 API", description = "팀 가입 요청 목록을 조회합니다.")
-    public BaseResponse<Page<SearchTeamUserResponse>> getRequestTeams(@AuthenticationPrincipal User user,
-                                                                      @PathVariable("teamIdx") Integer teamIdx,
-                                                                      @RequestParam(value = "page") Integer page) {
+    public BaseResponse<Page<SearchRequestResponse>> getRequestTeams(@AuthenticationPrincipal User user,
+                                                                     @PathVariable("teamIdx") Integer teamIdx,
+                                                                     @RequestParam(value = "page") Integer page) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
