@@ -28,8 +28,8 @@ public record SearchProblemResponse(
         SearchUserResponse author,
 
         @NotNull
-        @Schema(description = "문제 제출 기한", example = "2021-08-01T00:00:00")
-        LocalDateTime duration,
+        @Schema(description = "문제 제출 기한", example = "2025-08-31")
+        String duration,
 
         @NotNull
         @Schema(description = "문제 파일 경로", example = "/problem-file/1722397992636-372869.pdf")
