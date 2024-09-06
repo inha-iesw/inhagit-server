@@ -1,5 +1,7 @@
 package inha.git.team.api.controller.dto.request;
 
+import inha.git.common.validation.annotation.TeamNameLanguage;
+import inha.git.common.validation.annotation.UniqueTeamName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -7,6 +9,8 @@ import jakarta.validation.constraints.NotNull;
 
 public record CreateTeamRequest(
         @NotNull
+        @UniqueTeamName
+        @TeamNameLanguage
         @Schema(description = "팀 이름", example = "팀 이름")
         String name,
 
