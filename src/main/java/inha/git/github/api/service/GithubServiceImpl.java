@@ -79,7 +79,12 @@ public class GithubServiceImpl implements GithubService {
         try {
             GitHub github = GitHub.connectUsingOAuth(githubToken);
             List<GHRepository> repositories = github.getMyself().listRepositories().toList();
+
+            String username = github.getMyself().getLogin(); // 현재 사용자의 GitHub 계정 가져오기
+
+            // 내가 소유한 레포지토리만 필터링
             return repositories.stream()
+                    .filter(repo -> repo.getOwnerName().equals(username)) // 소유자가 현재 사용자와 같은지 확인
                     .sorted(Comparator.comparing(GHRepository::getId).reversed()) // 아이디 최신순으로 정렬
                     .map(githubMapper::toDto)
                     .toList();
