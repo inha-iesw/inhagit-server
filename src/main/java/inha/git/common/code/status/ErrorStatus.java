@@ -94,8 +94,10 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_NOT_PROJECT_OWNER(HttpStatus.BAD_REQUEST, "PROJECT4015", "프로젝트의 소유자가 아닙니다."),
 
     GITHUB_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "GITHUB4000", "깃허브 토큰이 등록되지 않았습니다. 깃허브 토큰을 먼저 등록해주세요."),
-    FAILED_TO_GET_GITHUB_REPOSITORIES(HttpStatus.BAD_REQUEST, "GITHUB4001", "깃허브 레포지토리 목록을 가져오는데 실패했습니다."),
-    GITHUB_CLONE_ERROR(HttpStatus.BAD_REQUEST, "GITHUB4002", "깃허브 레포지토리 클론에 실패했습니다."),
+    INVALID_GITHUB_TOKEN(HttpStatus.BAD_REQUEST, "GITHUB4001", "유효하지 않은 GitHub 토큰입니다."),
+    FAILED_TO_GET_GITHUB_REPOSITORIES(HttpStatus.BAD_REQUEST, "GITHUB4002", "깃허브 레포지토리 목록을 가져오는데 실패했습니다."),
+    GITHUB_CLONE_ERROR(HttpStatus.BAD_REQUEST, "GITHUB4003", "깃허브 레포지토리 클론에 실패했습니다."),
+    GITHUB_REPO_NOT_FOUND(HttpStatus.BAD_REQUEST, "GITHUB4004", "깃허브로 등록된 프로젝트가 아닙니다."),
 
 
 
