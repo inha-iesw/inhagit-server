@@ -57,6 +57,7 @@ public class ProjectQueryRepository {
                         p.getId(),
                         p.getTitle(),
                         p.getCreatedAt(),
+                        p.getRepoName() != null,
                         p.getProjectFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),
@@ -104,6 +105,7 @@ public class ProjectQueryRepository {
                         p.getId(),
                         p.getTitle(),
                         p.getCreatedAt(),
+                        p.getRepoName() != null,
                         p.getProjectFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),

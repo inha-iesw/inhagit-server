@@ -19,6 +19,10 @@ public record SearchProjectsResponse(
         LocalDateTime createdAt,
 
         @NotNull
+        @Schema(description = "true면 깃허브 false면 사용자 업로드 프로젝트", example = "true")
+        Boolean isRepo,
+
+        @NotNull
         List<SearchFieldResponse> fieldList,
         @NotNull
         SearchUserResponse author
