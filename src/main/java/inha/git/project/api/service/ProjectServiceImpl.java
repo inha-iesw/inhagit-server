@@ -85,15 +85,15 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /**
-     * GitHub 프로젝트 클론 및 압축
+     * 깃허브 프로젝트 생성
      *
      * @param user                     사용자 정보
-     * @param createGithubProjectRequest GitHub 프로젝트 생성 요청
+     * @param createGithubProjectRequest 깃허브 프로젝트 생성 요청
      * @return 생성된 프로젝트 정보
      */
     @Override
     @Transactional
-    public ProjectResponse cloneAndZipProject(User user, CreateGithubProjectRequest createGithubProjectRequest) {
+    public ProjectResponse createGithubProject(User user, CreateGithubProjectRequest createGithubProjectRequest) {
         // 프로젝트 엔티티 생성 및 저장
         Project project = projectMapper.createGithubProjectRequestToProject(createGithubProjectRequest, user);
         Project savedProject = projectJpaRepository.saveAndFlush(project);

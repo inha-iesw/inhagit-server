@@ -117,20 +117,20 @@ public class ProjectController {
     }
 
     /**
-     * GitHub 프로젝트 클론 및 압축 생성 API
+     * GitHub 프로젝트 생성
      *
-     * @param user                     사용자 정보
+     * @param user                        사용자 정보
      * @param createGithubProjectRequest GitHub 프로젝트 생성 요청
      * @return 생성된 프로젝트 정보
      */
     @PostMapping("/github")
-    @Operation(summary = "GitHub 프로젝트 클론 및 압축 생성 API", description = "GitHub 레포지토리를 클론하고 압축하여 프로젝트를 생성합니다.")
+    @Operation(summary = "GitHub 프로젝트 생성 API", description = "GitHub 프로젝트를 생성합니다.")
     public BaseResponse<ProjectResponse> createGithubProject(@AuthenticationPrincipal User user,
                                                         @Validated @RequestBody CreateGithubProjectRequest createGithubProjectRequest) {
         if (user.getRole() == Role.COMPANY) {
             throw new BaseException(COMPANY_CANNOT_CREATE_PROJECT);
         }
-        return BaseResponse.of(PROJECT_CREATE_OK, projectService.cloneAndZipProject(user, createGithubProjectRequest));
+        return BaseResponse.of(PROJECT_CREATE_OK, projectService.createGithubProject(user, createGithubProjectRequest));
     }
 
     @PutMapping("/github/{projectIdx}")

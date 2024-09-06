@@ -13,6 +13,6 @@ public interface ProjectService {
     ProjectResponse updateProject(User user, Integer projectIdx, UpdateProjectRequest updateProjectRequest, MultipartFile file);
     ProjectResponse deleteProject(User user, Integer projectIdx);
 
-    ProjectResponse cloneAndZipProject(User user, CreateGithubProjectRequest createGithubProjectRequest);
+    ProjectResponse createGithubProject(User user, CreateGithubProjectRequest createGithubProjectRequest);
     ProjectResponse updateGithubProject(User user, Integer projectIdx);
 }

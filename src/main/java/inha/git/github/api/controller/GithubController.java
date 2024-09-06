@@ -57,6 +57,14 @@ public class GithubController {
         return BaseResponse.of(GITHUB_REPOSITORIES_OK, githubService.getGithubRepositories(user));
     }
 
+    /**
+     * Github 레포지토리의 내용을 조회합니다.
+     *
+     * @param user      사용자 정보
+     * @param projectIdx 프로젝트 인덱스
+     * @param path      조회할 경로
+     * @return Github 레포지토리의 내용
+     */
     @GetMapping("/repository/{projectIdx}")
     @Operation(summary = "GitHub 레포지토리 내용 조회 API", description = "GitHub 레포지토리의 내용을 조회합니다.")
     public BaseResponse<List<SearchFileResponse>> getRepositoryContents(@AuthenticationPrincipal User user,

@@ -114,6 +114,14 @@ public class GithubServiceImpl implements GithubService {
     }
 
 
+    /**
+     * 프로젝트의 Github 파일 목록을 조회합니다.
+     *
+     * @param user       사용자 정보
+     * @param projectIdx 프로젝트 ID
+     * @param path       파일 경로
+     * @return 프로젝트 파일 목록
+     */
     @Override
     public List<SearchFileResponse> getGithubFiles(User user, Integer projectIdx, String path) {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
