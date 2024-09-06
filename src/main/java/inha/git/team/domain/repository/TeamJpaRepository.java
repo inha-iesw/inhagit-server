@@ -20,4 +20,6 @@ public interface TeamJpaRepository extends JpaRepository<Team, Integer> {
     Optional<Team> findByIdAndState(Integer teamIdx, State state);
 
     List<Team> findByUserAndStateOrderByCreatedAtDesc(User user, State state);
+
+    boolean existsByName(String teamName);
 }
