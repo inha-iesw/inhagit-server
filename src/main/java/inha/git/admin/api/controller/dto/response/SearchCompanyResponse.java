@@ -51,7 +51,7 @@ public record SearchCompanyResponse(
                 mapRoleToPosition(user.getRole()),
                 user.getCreatedAt(),
                 company.getAffiliation(),
-                "/file/user/" + user.getId() + "/evidence",
+                company.getEvidenceFilePath(),
                 company != null ? company.getAcceptedAt() : null
 
         );
