@@ -85,47 +85,20 @@ public class ProjectServiceImpl implements ProjectService {
     }
 
     /**
-     * GitHub 프로젝트 클론 및 압축
+     * 깃허브 프로젝트 생성
      *
      * @param user                     사용자 정보
-     * @param createGithubProjectRequest GitHub 프로젝트 생성 요청
+     * @param createGithubProjectRequest 깃허브 프로젝트 생성 요청
      * @return 생성된 프로젝트 정보
      */
     @Override
     @Transactional
-    public ProjectResponse cloneAndZipProject(User user, CreateGithubProjectRequest createGithubProjectRequest) {
-        String folderName = FilePath.generateFolderName();
-        Path projectPath = FilePath.generateProjectPath(folderName);
-        // GitHub 리포지토리 클론 수행
-        try {
-            Git.cloneRepository()
-                    .setURI(GITHUB + createGithubProjectRequest.repoName() + GIT)
-                    .setDirectory(projectPath.toFile())
-                    .call();
-        } catch (GitAPIException e) {
-            throw new BaseException(GITHUB_CLONE_ERROR);
-        }
-
-        // 클론된 프로젝트 압축
-        String zipFileName = folderName + ZIP;
-        String zipRelativePath = PROJECT_ZIP + '/' + zipFileName;
-        Path zipDestinationPath = Paths.get(BASE_DIR_SOURCE_2, zipRelativePath);
-
-        FilePath.zipDirectory(projectPath, zipDestinationPath);
-
-        // 트랜잭션 롤백 시 파일 삭제 로직 등록
-        registerRollbackCleanup("/" + zipRelativePath, folderName);
-
+    public ProjectResponse createGithubProject(User user, CreateGithubProjectRequest createGithubProjectRequest) {
         // 프로젝트 엔티티 생성 및 저장
         Project project = projectMapper.createGithubProjectRequestToProject(createGithubProjectRequest, user);
         Project savedProject = projectJpaRepository.saveAndFlush(project);
-
-        ProjectUpload projectUpload = projectMapper.createProjectUpload(PROJECT_UPLOAD + folderName, "/" + zipRelativePath, savedProject);
-        projectUploadJpaRepository.save(projectUpload);
-
         List<ProjectField> projectFields = createAndSaveProjectFields(createGithubProjectRequest.fieldIdxList(), savedProject);
         projectFieldJpaRepository.saveAll(projectFields);
-
         statisticsService.increaseCount(user, 1);
         return projectMapper.projectToProjectResponse(savedProject);
     }

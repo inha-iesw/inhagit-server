@@ -4,6 +4,7 @@ import inha.git.common.BaseResponse;
 import inha.git.github.api.controller.dto.request.GitubTokenResquest;
 import inha.git.github.api.controller.dto.response.GithubRepositoryResponse;
 import inha.git.github.api.service.GithubService;
+import inha.git.project.api.controller.dto.response.SearchFileResponse;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -55,4 +56,20 @@ public class GithubController {
     public BaseResponse<List<GithubRepositoryResponse>> getGithubRepositories(@AuthenticationPrincipal User user) {
         return BaseResponse.of(GITHUB_REPOSITORIES_OK, githubService.getGithubRepositories(user));
     }
+
+    /**
+     * Github 레포지토리의 내용을 조회합니다.
+     *
+     * @param user      사용자 정보
+     * @param projectIdx 프로젝트 인덱스
+     * @param path      조회할 경로
+     * @return Github 레포지토리의 내용
+     */
+    @GetMapping("/repository/{projectIdx}")
+    @Operation(summary = "GitHub 레포지토리 내용 조회 API", description = "GitHub 레포지토리의 내용을 조회합니다.")
+    public BaseResponse<List<SearchFileResponse>> getRepositoryContents(@AuthenticationPrincipal User user,
+                                                                        @PathVariable("projectIdx") Integer projectIdx,
+                                                                        @RequestParam(value = "path", required = false, defaultValue = "/") String path) {
+            return BaseResponse.of(GITHUB_REPOSITORIES_OK, githubService.getGithubFiles(user, projectIdx, path));
+        }
 }
