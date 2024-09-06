@@ -162,12 +162,21 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
 
     private String extractFileContent(Path filePath) throws IOException {
         String contentType = Files.probeContentType(filePath);
-        if (contentType != null && contentType.startsWith("text")) {
+
+        if (contentType != null && (contentType.startsWith("text") || contentType.contains("json"))) {
+            // text 혹은 json 파일 처리
             return Files.readString(filePath);
         } else if (contentType != null && contentType.startsWith("image")) {
+            // 이미지 파일 처리
             byte[] imageBytes = Files.readAllBytes(filePath);
             return Base64.getEncoder().encodeToString(imageBytes);
         }
+
+        // 특정한 MIME 타입이 없을 때, 기본적으로 텍스트 파일로 처리
+        if (contentType == null) {
+            return Files.readString(filePath);  // MIME 타입이 없을 경우, 기본적으로 텍스트 파일로 처리
+        }
+
         return null;
     }
 }
