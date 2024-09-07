@@ -112,7 +112,7 @@ public class ProjectController {
         if (user.getRole() == Role.COMPANY) {
             throw new BaseException(COMPANY_CANNOT_CREATE_PROJECT);
         }
-        ValidFile.validateZipFile(file);
+        ValidFile.validateAndProcessZipFile(file);
         return BaseResponse.of(PROJECT_CREATE_OK, projectService.createProject(user, createProjectRequest, file));
     }
 
@@ -133,15 +133,6 @@ public class ProjectController {
         return BaseResponse.of(PROJECT_CREATE_OK, projectService.createGithubProject(user, createGithubProjectRequest));
     }
 
-    @PutMapping("/github/{projectIdx}")
-    @Operation(summary = "GitHub 프로젝트 수정 API", description = "GitHub 프로젝트를 수정합니다.")
-    public BaseResponse<ProjectResponse> updateGithubProject(@AuthenticationPrincipal User user,
-                                                            @PathVariable("projectIdx") Integer projectIdx) {
-        if (user.getRole() == Role.COMPANY) {
-            throw new BaseException(COMPANY_CANNOT_CREATE_PROJECT);
-        }
-        return BaseResponse.of(PROJECT_UPDATE_OK, projectService.updateGithubProject(user, projectIdx));
-    }
 
     /**
      * 프로젝트 수정
@@ -160,7 +151,7 @@ public class ProjectController {
             @Validated @RequestPart("updateProjectRequest") UpdateProjectRequest updateProjectRequest,
             @RequestPart(value = "file", required = false) MultipartFile file) {
         if (file != null) {
-            ValidFile.validateZipFile(file);
+            ValidFile.validateAndProcessZipFile(file);
         }
         return BaseResponse.of(PROJECT_UPDATE_OK, projectService.updateProject(user, projectIdx, updateProjectRequest, file));
     }

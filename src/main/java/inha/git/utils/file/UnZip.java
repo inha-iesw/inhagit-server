@@ -1,65 +1,81 @@
 package inha.git.utils.file;
 
 import inha.git.common.exceptions.BaseException;
+import lombok.extern.slf4j.Slf4j;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.zip.ZipFile;
 
-import static inha.git.common.Constant.BASE_DIR_SOURCE;
-import static inha.git.common.code.status.ErrorStatus.FILE_CONVERT;
+import static inha.git.common.code.status.ErrorStatus.FILE_UNZIP_ERROR;
 
 /**
  * UnZip 클래스는 ZIP 파일을 해제하는 기능을 제공하는 클래스입니다.
  */
+@Slf4j
 public class UnZip {
 
     /**
      * ZIP 파일을 해제하고, 해제된 파일들이 저장된 경로를 반환하는 메서드
      *
      * @param zipFilePath 압축 파일 경로
-     * @param outputDir   압축 해제할 디렉토리
      */
-    public static void unzipFile(String zipFilePath, String folderName, String outputDir) {
-        // 고유한 폴더명 생성 (타임스탬프 + UUID 6자리)
-        Path outputPath = Paths.get(BASE_DIR_SOURCE + outputDir, folderName);
 
-        try {
-            // 최상위 폴더 생성
-            Files.createDirectories(outputPath);
+    public static void unzipFile(String zipFilePath, String destDirectory) {
+        log.info("Starting to unzip file: {}", zipFilePath);
+        log.info("Destination directory: {}", destDirectory);
 
-            try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFilePath), Charset.forName("UTF-8"))) {
-                ZipEntry zipEntry;
+        File destDir = new File(destDirectory);
+        if (!destDir.exists()) {
+            log.info("Destination directory does not exist. Creating directory: {}", destDirectory);
+            destDir.mkdirs();
+        }
 
-                // 압축 파일의 각 항목 처리
-                while ((zipEntry = zis.getNextEntry()) != null) {
-                    Path entryDestination = outputPath.resolve(zipEntry.getName());
+        try (ZipFile zipFile = new ZipFile(zipFilePath, StandardCharsets.UTF_8)) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
-                    if (zipEntry.isDirectory()) {
-                        Files.createDirectories(entryDestination);
-                    } else {
-                        Files.createDirectories(entryDestination.getParent());
-                        try (FileOutputStream fos = new FileOutputStream(entryDestination.toFile())) {
-                            byte[] buffer = new byte[4096];
-                            int length;
-                            while ((length = zis.read(buffer)) > 0) {
-                                fos.write(buffer, 0, length);
-                            }
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                String filePath = destDirectory + File.separator + entry.getName();
+                log.info("Processing entry: {}", entry.getName());
+
+                // 디렉토리인지 확인
+                if (entry.isDirectory()) {
+                    log.info("Entry is a directory. Creating directory: {}", filePath);
+                    File dir = new File(filePath);
+                    dir.mkdirs();
+                } else {
+                    // 파일을 처리 (DEFLATED 및 STORED 지원)
+                    if (entry.getMethod() == ZipEntry.DEFLATED || entry.getMethod() == ZipEntry.STORED) {
+                        log.info("Entry is a file. Extracting to: {}", filePath);
+                        File outputFile = new File(filePath);
+                        if (!outputFile.getParentFile().exists()) {
+                            log.info("Creating parent directory for file: {}", outputFile.getParentFile().getAbsolutePath());
+                            outputFile.getParentFile().mkdirs();
                         }
+
+                        try (InputStream inputStream = zipFile.getInputStream(entry)) {
+                            Files.copy(inputStream, Path.of(filePath));
+                            log.info("Successfully extracted file: {}", filePath);
+                        } catch (IOException e) {
+                            log.error("Error extracting file: {}", filePath, e);
+                            throw new BaseException(FILE_UNZIP_ERROR);
+                        }
+                    } else {
+                        log.warn("Unsupported compression method for entry: {}", entry.getName());
+                        throw new BaseException(FILE_UNZIP_ERROR);
                     }
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new BaseException(FILE_CONVERT);
+            log.error("Error unzipping file: {}", zipFilePath, e);
+            throw new BaseException(FILE_UNZIP_ERROR);
         }
     }
-
-
 }
