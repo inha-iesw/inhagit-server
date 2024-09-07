@@ -92,6 +92,7 @@ public enum ErrorStatus implements BaseErrorCode {
     ALREADY_REGISTERED_PATENT(HttpStatus.BAD_REQUEST, "PROJECT4013", "이미 등록된 특허입니다."),
     USER_NOT_INVENTORY(HttpStatus.BAD_REQUEST, "PROJECT4014", "해당 특허에 참여하지 않은 유저입니다."),
     USER_NOT_PROJECT_OWNER(HttpStatus.BAD_REQUEST, "PROJECT4015", "프로젝트의 소유자가 아닙니다."),
+    PROJECT_UPLOAD_NOT_FOUND(HttpStatus.NOT_FOUND, "PROJECT4016", "프로젝트 업로드 파일을 찾을 수 없습니다."),
 
     GITHUB_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "GITHUB4000", "깃허브 토큰이 등록되지 않았습니다. 깃허브 토큰을 먼저 등록해주세요."),
     INVALID_GITHUB_TOKEN(HttpStatus.BAD_REQUEST, "GITHUB4001", "유효하지 않은 GitHub 토큰입니다."),
