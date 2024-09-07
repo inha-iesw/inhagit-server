@@ -75,10 +75,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
     public SearchProjectResponse getProject(User user, Integer projectIdx) {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-
-        ProjectUpload projectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
-                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-
+        ProjectUpload projectUpload = getProjectUploadIfNeeded(project, projectIdx);
         List<SearchFieldResponse> searchFieldResponses = projectFieldJpaRepository.findByProject(project)
                 .stream()
                 .map(projectField -> projectMapper.projectFieldToSearchFieldResponse(projectField.getField()))
@@ -177,6 +174,21 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
             return Files.readString(filePath);  // MIME 타입이 없을 경우, 기본적으로 텍스트 파일로 처리
         }
 
+        return null;
+    }
+
+    /**
+     * 프로젝트 업로드 정보 조회
+     *
+     * @param project 프로젝트
+     * @param projectIdx 프로젝트 번호
+     * @return 프로젝트 업로드 정보
+     */
+    private ProjectUpload getProjectUploadIfNeeded(Project project, Integer projectIdx) {
+        if (project.getRepoName() == null) {
+            return projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
+                    .orElseThrow(() -> new BaseException(PROJECT_UPLOAD_NOT_FOUND));
+        }
         return null;
     }
 }
