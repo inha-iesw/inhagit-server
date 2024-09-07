@@ -2,6 +2,7 @@ package inha.git.college.controller;
 
 import inha.git.college.controller.dto.request.CreateCollegeRequest;
 import inha.git.college.controller.dto.request.UpdateCollegeRequest;
+import inha.git.college.controller.dto.response.SearchCollegeResponse;
 import inha.git.college.service.CollegeService;
 import inha.git.common.BaseResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
@@ -21,10 +24,23 @@ import static inha.git.common.code.status.SuccessStatus.*;
 @Tag(name = "collage controller", description = "collage 관련 API")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/collages")
+@RequestMapping("/api/v1/colleges")
 public class CollegeController {
 
     private final CollegeService collegeService;
+
+    /**
+     * 단과대 전체 조회 API
+     *
+     * <p>단과대 전체를 조회합니다.</p>
+     *
+     * @return 단과대 전체 조회 결과를 포함하는 BaseResponse<List<SearchCollegeResponse>>
+     */
+    @GetMapping
+    @Operation(summary = "단과대 전체 조회 API", description = "단과대 전체를 조회합니다.")
+    public BaseResponse<List<SearchCollegeResponse>> getDepartments() {
+        return BaseResponse.of(COLLEGE_SEARCH_OK, collegeService.getDepartments());
+    }
 
     /**
      * 단과대 생성 API

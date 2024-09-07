@@ -2,6 +2,7 @@ package inha.git.college.service;
 
 import inha.git.college.controller.dto.request.CreateCollegeRequest;
 import inha.git.college.controller.dto.request.UpdateCollegeRequest;
+import inha.git.college.controller.dto.response.SearchCollegeResponse;
 import inha.git.college.domain.College;
 import inha.git.college.domain.repository.CollegeJpaRepository;
 import inha.git.college.mapper.CollegeMapper;
@@ -11,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
@@ -28,6 +31,16 @@ public class CollegeServiceImpl implements CollegeService {
     private final CollegeJpaRepository collegeJpaRepository;
     private final CollegeStatisticsJpaRepository collegeStatisticsJpaRepository;
     private final CollegeMapper collegeMapper;
+
+    /**
+     * 단과대 전체 조회
+     *
+     * @return 단과대 전체 조회 결과
+     */
+    @Override
+    public List<SearchCollegeResponse> getDepartments() {
+        return collegeMapper.collegesToSearchCollegeResponses(collegeJpaRepository.findAllByState(ACTIVE));
+    }
 
     /**
      * 단과대 생성

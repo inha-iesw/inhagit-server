@@ -1,11 +1,14 @@
 package inha.git.college.mapper;
 
 import inha.git.college.controller.dto.request.CreateCollegeRequest;
+import inha.git.college.controller.dto.response.SearchCollegeResponse;
 import inha.git.college.domain.College;
 import inha.git.statistics.domain.CollegeStatistics;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+
+import java.util.List;
 
 /**
  * CollegeMapper는 College 엔티티와 관련된 데이터 변환 기능을 제공.
@@ -43,4 +46,9 @@ public interface CollegeMapper {
     @Mapping(target = "problemUserCount", constant = "0")
     @Mapping(target = "problemParticipationCount", constant = "0")
     CollegeStatistics toCollegeStatistics(Integer id);
+
+    @Mapping(source = "college.id", target = "idx")
+    SearchCollegeResponse collegeToSearchCollegeResponse(College college);
+
+    List<SearchCollegeResponse> collegesToSearchCollegeResponses(List<College> collegeList);
 }

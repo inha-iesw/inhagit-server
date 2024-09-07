@@ -2,9 +2,11 @@ package inha.git.college.domain.repository;
 
 
 import inha.git.college.domain.College;
+import inha.git.common.BaseEntity;
 import inha.git.common.BaseEntity.State;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -17,4 +19,6 @@ public interface CollegeJpaRepository extends JpaRepository<College, Integer> {
 
     boolean existsByNameAndState(String name, State state);
     Optional<College> findByIdAndState(Integer collegeIdx, State state);
+
+    List<College> findAllByState(State state);
 }
