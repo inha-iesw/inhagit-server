@@ -19,7 +19,7 @@ import lombok.*;
 public class CollegeStatistics {
 
     @Id
-    @Column(name = "college_d", nullable = false)
+    @Column(name = "college_id", nullable = false)
     private Integer collegeId;
 
     @Column(name = "project_count", nullable = false)
