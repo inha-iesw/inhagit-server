@@ -6,6 +6,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
 public record CreateDepartmentRequest(
+
+        @NotNull
+        @Schema(description = "단과대 인덱스", example = "1")
+        Integer collegeIdx,
+
         @NotNull
         @ValidDepartmentName
         @DepartmentNameUnique
