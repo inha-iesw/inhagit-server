@@ -1,5 +1,6 @@
 package inha.git.common.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -7,6 +8,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
+
+    @Value("${user.file}")
+    private String fileUrl;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -21,14 +25,14 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/banner/**")
-                .addResourceLocations("file:source/banner/");
+                .addResourceLocations(fileUrl + "/banner/");
         registry.addResourceHandler("/evidence/**")
-                .addResourceLocations("file:source/evidence/");
+                .addResourceLocations(fileUrl + "/evidence/");
         registry.addResourceHandler("/problem-file/**")
-                .addResourceLocations("file:source/problem-file/");
+                .addResourceLocations(fileUrl + "/problem-file/");
         registry.addResourceHandler("/project/**")
-                .addResourceLocations("file:source/project/");
+                .addResourceLocations(fileUrl + "/project/");
         registry.addResourceHandler("/project-zip/**")
-                .addResourceLocations("file:source/project-zip/");
+                .addResourceLocations(fileUrl + "/project-zip/");
     }
 }
