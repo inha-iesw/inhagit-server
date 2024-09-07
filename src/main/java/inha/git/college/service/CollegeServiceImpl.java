@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.COLLEGE_NOT_FOUND;
 
 /**
@@ -58,5 +59,21 @@ public class CollegeServiceImpl implements CollegeService {
                 .orElseThrow(() -> new BaseException(COLLEGE_NOT_FOUND));
         college.setName(updateCollegeRequest.name());
         return college.getName() + " 단과대 이름이 변경되었습니다.";
+    }
+
+    /**
+     * 단과대 삭제
+     *
+     * @param collegeIdx 단과대 인덱스
+     * @return 삭제된 단과대 이름
+     */
+    @Override
+    @Transactional
+    public String deleteCollege(Integer collegeIdx) {
+        College college = collegeJpaRepository.findByIdAndState(collegeIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(COLLEGE_NOT_FOUND));
+        college.setState(INACTIVE);
+        college.setDeletedAt();
+        return college.getName() + " 단과대가 삭제되었습니다.";
     }
 }

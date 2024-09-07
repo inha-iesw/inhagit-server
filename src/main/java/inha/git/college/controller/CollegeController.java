@@ -4,7 +4,6 @@ import inha.git.college.controller.dto.request.CreateCollegeRequest;
 import inha.git.college.controller.dto.request.UpdateCollegeRequest;
 import inha.git.college.service.CollegeService;
 import inha.git.common.BaseResponse;
-import inha.git.department.api.controller.dto.request.CreateDepartmentRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -55,5 +54,17 @@ public class CollegeController {
         return BaseResponse.of(COLLEGE_UPDATE_OK, collegeService.updateCollegeName(collegeIdx, updateCollegeRequest));
     }
 
+    /**
+     * 단과대 삭제 API
+     *
+     * @param collegeIdx 단과대 인덱스
+     * @return 삭제된 단과대 이름
+     */
+    @DeleteMapping("/{collegeIdx}")
+    @PreAuthorize("hasAuthority('admin:delete')")
+    @Operation(summary = "단과대 삭제(관리자 전용) API", description = "단과대를 soft 삭제합니다.(관리자 전용)")
+    public BaseResponse<String> deleteCollege (@PathVariable("collegeIdx") Integer collegeIdx) {
+        return BaseResponse.of(DEPARTMENT_DELETE_OK, collegeService.deleteCollege(collegeIdx));
+    }
 
 }

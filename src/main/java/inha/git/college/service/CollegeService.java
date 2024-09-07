@@ -7,4 +7,7 @@ public interface CollegeService {
 
     String createCollege(CreateCollegeRequest createDepartmentRequest);
     String updateCollegeName(Integer collegeIdx, UpdateCollegeRequest updateCollegeRequest);
+
+    String deleteCollege(Integer collegeIdx);
+
 }
