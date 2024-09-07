@@ -16,4 +16,5 @@ public interface CollegeJpaRepository extends JpaRepository<College, Integer> {
     Optional<College> findByName(String name);
 
     boolean existsByNameAndState(String name, State state);
+    Optional<College> findByIdAndState(Integer collegeIdx, State state);
 }

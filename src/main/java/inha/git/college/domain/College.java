@@ -32,4 +32,7 @@ public class College extends BaseEntity {
     @OneToMany(mappedBy = "college", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Department> departments = new ArrayList<>();
 
+    public void setName(String name) {
+        this.name = name;
+    }
 }

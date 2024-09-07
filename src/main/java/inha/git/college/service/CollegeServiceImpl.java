@@ -1,15 +1,19 @@
 package inha.git.college.service;
 
 import inha.git.college.controller.dto.request.CreateCollegeRequest;
+import inha.git.college.controller.dto.request.UpdateCollegeRequest;
 import inha.git.college.domain.College;
 import inha.git.college.domain.repository.CollegeJpaRepository;
 import inha.git.college.mapper.CollegeMapper;
-import inha.git.statistics.domain.CollegeStatistics;
+import inha.git.common.exceptions.BaseException;
 import inha.git.statistics.domain.repository.CollegeStatisticsJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.code.status.ErrorStatus.COLLEGE_NOT_FOUND;
 
 /**
  * CollegeServiceImpl는 CollegeService 인터페이스를 구현하는 클래스.
@@ -24,6 +28,12 @@ public class CollegeServiceImpl implements CollegeService {
     private final CollegeStatisticsJpaRepository collegeStatisticsJpaRepository;
     private final CollegeMapper collegeMapper;
 
+    /**
+     * 단과대 생성
+     *
+     * @param createDepartmentRequest 단과대 생성 요청
+     * @return 생성된 단과대 이름
+     */
     @Override
     @Transactional
     public String createCollege(CreateCollegeRequest createDepartmentRequest) {
@@ -31,5 +41,22 @@ public class CollegeServiceImpl implements CollegeService {
                 (collegeMapper.createCollegeRequestToCollege(createDepartmentRequest));
         collegeStatisticsJpaRepository.save(collegeMapper.toCollegeStatistics(college.getId()));
         return college.getName() + " 단과대가 생성되었습니다.";
+    }
+
+
+    /**
+     * 단과대 이름 수정
+     *
+     * @param collegeIdx 단과대 인덱스
+     * @param updateCollegeRequest 단과대 수정 요청
+     * @return 수정된 단과대 이름
+     */
+    @Override
+    @Transactional
+    public String updateCollegeName(Integer collegeIdx ,UpdateCollegeRequest updateCollegeRequest) {
+        College college = collegeJpaRepository.findByIdAndState(collegeIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(COLLEGE_NOT_FOUND));
+        college.setName(updateCollegeRequest.name());
+        return college.getName() + " 단과대 이름이 변경되었습니다.";
     }
 }

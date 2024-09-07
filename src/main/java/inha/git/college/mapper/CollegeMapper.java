@@ -14,10 +14,22 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 public interface CollegeMapper {
 
 
+    /**
+     * CreateCollegeRequest를 College 엔티티로 변환
+     *
+     * @param createDepartmentRequest CreateCollegeRequest
+     * @return College 엔티티
+     */
     @Mapping(target = "id", ignore = true)
     College createCollegeRequestToCollege(CreateCollegeRequest createDepartmentRequest);
 
 
+    /**
+     * College 엔티티를 CollegeStatistics 엔티티로 변환
+     *
+     * @param id College 엔티티의 id
+     * @return CollegeStatistics 엔티티
+     */
     @Mapping(source = "id", target = "collegeId")
     @Mapping(target = "projectCount", constant = "0")
     @Mapping(target = "questionCount", constant = "0")
