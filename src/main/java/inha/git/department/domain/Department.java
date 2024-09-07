@@ -1,5 +1,6 @@
 package inha.git.department.domain;
 
+import inha.git.college.domain.College;
 import inha.git.common.BaseEntity;
 import inha.git.mapping.domain.UserDepartment;
 import jakarta.persistence.*;
@@ -32,6 +33,10 @@ public class Department extends BaseEntity {
 
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserDepartment> userDepartments = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "college_id")
+    private College college;
 
     public void setName(String name) {
         this.name = name;
