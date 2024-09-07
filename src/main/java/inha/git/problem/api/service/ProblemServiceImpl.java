@@ -498,7 +498,8 @@ public class ProblemServiceImpl implements ProblemService {
     private String[] storeAndUnzipFile(MultipartFile file) {
         String zipFilePath = FilePath.storeFile(file, PROBLEM_ZIP);
         String folderName = zipFilePath.substring(zipFilePath.lastIndexOf("/") + 1, zipFilePath.lastIndexOf(".zip"));
-        UnZip.unzipFile(BASE_DIR_SOURCE + zipFilePath, folderName, PROBLEM);
+        UnZip.unzipFile(BASE_DIR_SOURCE + zipFilePath, BASE_DIR_SOURCE + PROBLEM + '/' + folderName);
+        log.info("압축 해제될 폴더 경로 " + BASE_DIR_SOURCE + zipFilePath + " " + folderName);
         return new String[] { zipFilePath, folderName };
     }
 

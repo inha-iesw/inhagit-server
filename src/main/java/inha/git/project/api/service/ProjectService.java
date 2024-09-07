@@ -14,5 +14,4 @@ public interface ProjectService {
     ProjectResponse deleteProject(User user, Integer projectIdx);
 
     ProjectResponse createGithubProject(User user, CreateGithubProjectRequest createGithubProjectRequest);
-    ProjectResponse updateGithubProject(User user, Integer projectIdx);
 }

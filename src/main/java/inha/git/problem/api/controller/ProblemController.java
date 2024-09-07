@@ -216,7 +216,7 @@ public class ProblemController {
     public BaseResponse<ProblemSubmitResponse> submitPersonal(@AuthenticationPrincipal User user,
                                                               @PathVariable("personalIdx") Integer personalIdx,
                                                               @RequestPart(value = "file") MultipartFile file) {
-        ValidFile.validateZipFile(file);
+        ValidFile.validateAndProcessZipFile(file);
         return BaseResponse.of(PROBLEM_SUBMIT_PERSONAL_OK, problemService.submitPersonal(user, personalIdx, file));
     }
 
@@ -233,7 +233,7 @@ public class ProblemController {
     public BaseResponse<ProblemSubmitResponse> submitTeam(@AuthenticationPrincipal User user,
                                                           @PathVariable("teamIdx") Integer teamIdx,
                                                           @RequestPart(value = "file") MultipartFile file) {
-        ValidFile.validateZipFile(file);
+        ValidFile.validateAndProcessZipFile(file);
         return BaseResponse.of(PROBLEM_SUBMIT_TEAM_OK, problemService.submitTeam(user, teamIdx, file));
     }
 }
