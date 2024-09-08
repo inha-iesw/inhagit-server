@@ -85,7 +85,7 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamMapper.createTeamRequestToTeam(createTeamRequest, user);
         teamJpaRepository.save(team);
         teamUserJpaRepository.save(teamMapper.createTeamUser(user, team));
-        statisticsService.increaseCount(user, 3);
+        //statisticsService.increaseCount(user, 3);
         return teamMapper.teamToTeamResponse(team);
     }
 
@@ -128,8 +128,8 @@ public class TeamServiceImpl implements TeamService {
         team.setState(INACTIVE);
         team.setDeletedAt();
         teamJpaRepository.save(team);
-        teamUserJpaRepository.findByTeam(team)
-                .forEach(teamUser -> statisticsService.decreaseCount(teamUser.getUser(), 3));
+//        teamUserJpaRepository.findByTeam(team)
+//                .forEach(teamUser -> statisticsService.decreaseCount(teamUser.getUser(), 3));
         return teamMapper.teamToTeamResponse(team);
     }
 
@@ -187,7 +187,7 @@ public class TeamServiceImpl implements TeamService {
         teamUser.setAcceptedAt();
         teamUserJpaRepository.save(teamUser);
         team.increaseCurrentMemberNumber();
-        statisticsService.increaseCount(requestUser, 4);
+        //statisticsService.increaseCount(requestUser, 4);
         return teamMapper.teamToTeamResponse(team);
     }
 
@@ -212,7 +212,7 @@ public class TeamServiceImpl implements TeamService {
         }
         teamUserJpaRepository.delete(teamUser);
         team.decreaseCurrentMemberNumber();
-        statisticsService.decreaseCount(user, 3);
+        //statisticsService.decreaseCount(user, 3);
         return teamMapper.teamToTeamResponse(team);
     }
 

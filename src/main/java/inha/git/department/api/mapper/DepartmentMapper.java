@@ -46,6 +46,6 @@ public interface DepartmentMapper {
      * @return DepartmentStatistics 엔티티
      */
     default DepartmentStatistics createDepartmentStatistics(Department department, Semester semester, Field field) {
-        return new DepartmentStatistics(new DepartmentStatisticsId(department.getId(), semester.getId(), field.getId()), department, semester, field, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        return new DepartmentStatistics(new DepartmentStatisticsId(department.getId(), semester.getId(), field.getId()), department, semester, field, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 }

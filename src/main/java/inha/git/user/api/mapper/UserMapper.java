@@ -120,7 +120,7 @@ public interface UserMapper {
 
 
     default UserStatistics createUserStatistics(User user, Semester semester, Field field) {
-        return new UserStatistics(new UserStatisticsId(user.getId(), semester.getId(), field.getId()), user, semester, field, 0, 0, 0, 0, 0);
+        return new UserStatistics(new UserStatisticsId(user.getId(), semester.getId(), field.getId()), user, semester, field, 0, 0, 0, 0, 0, 0);
     }
 
     /**

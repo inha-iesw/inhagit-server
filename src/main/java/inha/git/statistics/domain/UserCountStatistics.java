@@ -46,6 +46,9 @@ public class UserCountStatistics {
     @Column(name = "total_project_count", nullable = false, columnDefinition = "int default 0")
     private Integer totalProjectCount = 0;
 
+    @Column(name = "total_github_project_count", nullable = false, columnDefinition = "int default 0")
+    private Integer totalGithubProjectCount = 0;
+
     @Column(name = "total_question_count", nullable = false, columnDefinition = "int default 0")
     private Integer totalQuestionCount = 0;
 
@@ -138,5 +141,13 @@ public class UserCountStatistics {
 
     public void decreaseTotalPatentCount() {
         totalPatentCount--;
+    }
+
+    public void increaseTotalGithubProjectCount() {
+        totalGithubProjectCount++;
+    }
+
+    public void decreaseTotalGithubProjectCount() {
+        totalGithubProjectCount--;
     }
 }

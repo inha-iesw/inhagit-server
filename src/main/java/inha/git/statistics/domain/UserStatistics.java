@@ -42,6 +42,9 @@ public class UserStatistics {
     @Column(name = "project_count", nullable = false)
     private Integer projectCount = 0;
 
+    @Column(name = "github_project_count", nullable = false)
+    private Integer githubProjectCount = 0;
+
     @Column(name = "question_count", nullable = false)
     private Integer questionCount = 0;
 
@@ -96,6 +99,14 @@ public class UserStatistics {
 
     public void decreaseProblemCount() {
         problemCount--;
+    }
+
+    public void increaseGithubProjectCount() {
+        githubProjectCount++;
+    }
+
+    public void decreaseGithubProjectCount() {
+        githubProjectCount--;
     }
 
 
