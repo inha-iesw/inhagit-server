@@ -16,6 +16,8 @@ import inha.git.question.api.mapper.QuestionMapper;
 import inha.git.question.domain.Question;
 import inha.git.question.domain.repository.QuestionJpaRepository;
 import inha.git.question.domain.repository.QuestionQueryRepository;
+import inha.git.semester.domain.Semester;
+import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.api.service.StatisticsService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
@@ -45,6 +47,7 @@ public class QuestionServiceImpl implements QuestionService {
     private final QuestionMapper questionMapper;
     private final QuestionFieldJpaRepository questionFieldJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
+    private final SemesterJpaRepository semesterJpaRepository;
     private final QuestionQueryRepository questionQueryRepository;
     private final StatisticsService statisticsService;
 
@@ -90,7 +93,9 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     @Transactional
     public QuestionResponse createQuestion(User user, CreateQuestionRequest createQuestionRequest) {
-        Question question = questionMapper.createQuestionRequestToQuestion(createQuestionRequest, user);
+        Semester semester = semesterJpaRepository.findByIdAndState(createQuestionRequest.semesterIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
+        Question question = questionMapper.createQuestionRequestToQuestion(createQuestionRequest, user, semester);
         Question saveQuestion = questionJpaRepository.save(question);
 
         List<QuestionField> questionFields = createAndSaveQuestionFields(createQuestionRequest.fieldIdxList(), saveQuestion);
@@ -115,7 +120,9 @@ public class QuestionServiceImpl implements QuestionService {
         if (!question.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
             throw new BaseException(QUESTION_NOT_AUTHORIZED);
         }
-        questionMapper.updateQuestionRequestToQuestion(updateQuestionRequest, question);
+        Semester semester = semesterJpaRepository.findByIdAndState(updateQuestionRequest.semesterIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
+        questionMapper.updateQuestionRequestToQuestion(updateQuestionRequest, question, semester);
         Question savedQuestion = questionJpaRepository.save(question);
         questionFieldJpaRepository.deleteByQuestion(savedQuestion);
 

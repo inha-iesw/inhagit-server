@@ -15,6 +15,7 @@ import inha.git.question.api.controller.dto.response.SearchQuestionResponse;
 import inha.git.question.domain.Question;
 import inha.git.question.domain.QuestionComment;
 import inha.git.question.domain.QuestionReplyComment;
+import inha.git.semester.domain.Semester;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -39,7 +40,8 @@ public interface QuestionMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "subjectName", source = "createQuestionRequest.subject")
     @Mapping(target = "user", source = "user")
-    Question createQuestionRequestToQuestion(CreateQuestionRequest createQuestionRequest, User user);
+    @Mapping(target = "semester", source = "semester")
+    Question createQuestionRequestToQuestion(CreateQuestionRequest createQuestionRequest, User user, Semester semester);
 
     /**
      * Question을 QuestionResponse로 변환합니다.
@@ -71,7 +73,8 @@ public interface QuestionMapper {
     @Mapping(target = "subjectName", source = "updateQuestionRequest.subject")
     @Mapping(target = "title", source = "updateQuestionRequest.title")
     @Mapping(target = "contents", source = "updateQuestionRequest.contents")
-    void updateQuestionRequestToQuestion(UpdateQuestionRequest updateQuestionRequest, @MappingTarget Question question);
+    @Mapping(target = "semester", source = "semester")
+    void updateQuestionRequestToQuestion(UpdateQuestionRequest updateQuestionRequest, @MappingTarget Question question, Semester semester);
 
     /**
      * Field를 SearchFieldResponse로 변환합니다.

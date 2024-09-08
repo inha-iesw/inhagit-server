@@ -21,6 +21,10 @@ public record UpdateProjectRequest(
         String subject,
         @NotNull(message = "분야를 선택해주세요.")
         @Schema(description = "분야 인덱스 리스트", example = "[1, 2]")
-        List<Integer>fieldIdxList
+        List<Integer>fieldIdxList,
+
+        @NotNull
+        @Schema(description = "학기 인덱스", example = "1")
+        Integer semesterIdx
 ) {
 }

@@ -13,6 +13,7 @@ import inha.git.mapping.domain.id.RegistrationRecommendId;
 import inha.git.project.api.controller.dto.request.*;
 import inha.git.project.api.controller.dto.response.*;
 import inha.git.project.domain.*;
+import inha.git.semester.domain.Semester;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -42,8 +43,9 @@ public interface ProjectMapper {
     @Mapping(target = "registrationRecommendCount", constant = "0")
     @Mapping(target = "subjectName", source = "createProjectRequest.subject")
     @Mapping(target = "user", source = "user")
+    @Mapping(target = "semester", source = "semester")
     @Mapping(target = "id", ignore = true)
-    Project createProjectRequestToProject(CreateProjectRequest createProjectRequest, User user);
+    Project createProjectRequestToProject(CreateProjectRequest createProjectRequest, User user, Semester semester);
     /**
      * UpdateProjectRequest를 Project 엔티티로 변환
      *
@@ -53,7 +55,8 @@ public interface ProjectMapper {
     @Mapping(target = "subjectName", source = "updateProjectRequest.subject")
     @Mapping(target = "title", source = "updateProjectRequest.title")
     @Mapping(target = "contents", source = "updateProjectRequest.contents")
-    void updateProjectRequestToProject(UpdateProjectRequest updateProjectRequest, @MappingTarget Project project);
+    @Mapping(target = "semester", source = "semester")
+    void updateProjectRequestToProject(UpdateProjectRequest updateProjectRequest, @MappingTarget Project project, Semester semester);
 
     /**
      * Project 엔티티를 ProjectResponse로 변환
@@ -299,7 +302,8 @@ public interface ProjectMapper {
     @Mapping(target = "registrationRecommendCount", constant = "0")
     @Mapping(target = "subjectName", source = "createGithubProjectRequest.subject")
     @Mapping(target = "user", source = "user")
-    Project createGithubProjectRequestToProject(CreateGithubProjectRequest createGithubProjectRequest, User user);
+    @Mapping(target = "semester", source = "semester")
+    Project createGithubProjectRequestToProject(CreateGithubProjectRequest createGithubProjectRequest, User user, Semester semester);
 
 
     SearchPatentResponse toSearchPatentResponse(String applicationNumber, String applicationDate, String inventionTitle,

@@ -14,6 +14,8 @@ import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectUpload;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectUploadJpaRepository;
+import inha.git.semester.domain.Semester;
+import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.api.service.StatisticsService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
@@ -50,6 +52,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectJpaRepository projectJpaRepository;
     private final ProjectUploadJpaRepository projectUploadJpaRepository;
     private final ProjectFieldJpaRepository projectFieldJpaRepository;
+    private final SemesterJpaRepository semesterJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
     private final ProjectMapper projectMapper;
     private final StatisticsService statisticsService;
@@ -70,9 +73,12 @@ public class ProjectServiceImpl implements ProjectService {
         String zipFilePath = paths[0];
         String folderName = paths[1];
 
+
         registerRollbackCleanup(zipFilePath, folderName);
 
-        Project project = projectMapper.createProjectRequestToProject(createProjectRequest, user);
+        Semester semester = semesterJpaRepository.findByIdAndState(createProjectRequest.semesterIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
+        Project project = projectMapper.createProjectRequestToProject(createProjectRequest, user, semester);
         Project savedProject = projectJpaRepository.saveAndFlush(project);
 
         ProjectUpload projectUpload = projectMapper.createProjectUpload(PROJECT_UPLOAD + folderName, zipFilePath, savedProject);
@@ -95,9 +101,11 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     public ProjectResponse createGithubProject(User user, CreateGithubProjectRequest createGithubProjectRequest) {
-        // 프로젝트 엔티티 생성 및 저장
-        Project project = projectMapper.createGithubProjectRequestToProject(createGithubProjectRequest, user);
+        Semester semester = semesterJpaRepository.findByIdAndState(createGithubProjectRequest.semesterIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
+        Project project = projectMapper.createGithubProjectRequestToProject(createGithubProjectRequest, user, semester);
         Project savedProject = projectJpaRepository.saveAndFlush(project);
+
         List<ProjectField> projectFields = createAndSaveProjectFields(createGithubProjectRequest.fieldIdxList(), savedProject);
         projectFieldJpaRepository.saveAll(projectFields);
         statisticsService.increaseCount(user, 1);
@@ -117,18 +125,21 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     public ProjectResponse updateProject(User user, Integer projectIdx, UpdateProjectRequest updateProjectRequest, MultipartFile file) {
+
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         if(!project.getUser().getId().equals(user.getId()) && !user.getRole().equals(Role.ADMIN)) {
             throw new BaseException(PROJECT_NOT_AUTHORIZED);
         }
+        Semester semester = semesterJpaRepository.findByIdAndState(updateProjectRequest.semesterIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
         ProjectUpload findProjectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
 
         String directoryName = findProjectUpload.getDirectoryName();
         String zipDirectoryName = findProjectUpload.getZipDirectoryName();
 
-        projectMapper.updateProjectRequestToProject(updateProjectRequest, project);
+        projectMapper.updateProjectRequestToProject(updateProjectRequest, project, semester);
         Project savedProject = projectJpaRepository.saveAndFlush(project);
 
         projectFieldJpaRepository.deleteByProject(savedProject);
