@@ -3,7 +3,11 @@ package inha.git.semester.domain.repository;
 
 import inha.git.common.BaseEntity.State;
 import inha.git.semester.domain.Semester;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -12,4 +16,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface SemesterJpaRepository extends JpaRepository<Semester, Integer> {
 
     boolean existsByNameAndState(String name, State state);
+
+    Optional<Semester> findByIdAndState(Integer semesterIdx, State state);
+
+    List<Semester> findAllByState(State state, Sort sort);
 }
