@@ -1,6 +1,8 @@
 package inha.git.department.api.service;
 
 import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
+import inha.git.college.domain.College;
+import inha.git.college.domain.repository.CollegeJpaRepository;
 import inha.git.common.exceptions.BaseException;
 import inha.git.department.api.controller.dto.request.CreateDepartmentRequest;
 import inha.git.department.api.controller.dto.request.UpdateDepartmentRequest;
@@ -31,6 +33,7 @@ public class DepartmentServiceImpl implements DepartmentService{
     private final DepartmentJpaRepository departmentJpaRepository;
     private final DepartmentMapper departmentMapper;
     private final DepartmentStatisticsJpaRepository departmentStatisticsJpaRepository;
+    private final CollegeJpaRepository collegeJpaRepository;
 
     /**
      * 학과 전체 조회
@@ -51,7 +54,9 @@ public class DepartmentServiceImpl implements DepartmentService{
     @Override
     @Transactional
     public String createDepartment(CreateDepartmentRequest createDepartmentRequest) {
-        Department department = departmentMapper.createDepartmentRequestToDepartment(createDepartmentRequest);
+        College college = collegeJpaRepository.findByIdAndState(createDepartmentRequest.collegeIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
+        Department department = departmentMapper.createDepartmentRequestToDepartment(createDepartmentRequest, college);
         Department savedDepartment = departmentJpaRepository.save(department);
         DepartmentStatistics departmentStatistics = departmentMapper.toDepartmentStatistics(savedDepartment.getId());
         departmentStatisticsJpaRepository.save(departmentStatistics);
