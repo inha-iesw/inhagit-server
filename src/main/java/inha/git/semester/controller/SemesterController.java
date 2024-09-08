@@ -42,4 +42,19 @@ public class SemesterController {
     public BaseResponse<String> createSemester(@Validated @RequestBody CreateSemesterRequest createDepartmentRequest) {
         return BaseResponse.of(SEMESTER_CREATE_OK, semesterService.createSemester(createDepartmentRequest));
     }
+
+    /**
+     * 학기 수정 API
+     *
+     * @param semesterIdx 학기 인덱스
+     * @param updateSemesterRequest 학기 수정 요청
+     * @return 수정된 학기 이름
+     */
+    @PutMapping("/{semesterIdx}")
+    @PreAuthorize("hasAuthority('admin:update')")
+    @Operation(summary = "학기 수정(관리자 전용) API", description = "학기를 수정합니다.(관리자 전용)")
+    public BaseResponse<String> updateSemester(@PathVariable("semesterIdx") Integer semesterIdx,
+                                               @Validated @RequestBody UpdateSemesterRequest updateSemesterRequest) {
+        return BaseResponse.of(SEMESTER_UPDATE_OK, semesterService.updateSemesterName(semesterIdx, updateSemesterRequest));
+    }
 }
