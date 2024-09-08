@@ -7,7 +7,7 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 /**
- * 학과 이름 중복 검증을 위한 Annotation.
+ * 학기 이름 중복 검증을 위한 Annotation.
  */
 @Documented
 @Constraint(validatedBy = SemesterNameUniqueValidator.class)
@@ -15,7 +15,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SemesterNameUnique {
 
-    String message() default "이미 등록된 학과입니다.";
+    String message() default "이미 등록된 학기입니다.";
 
     Class<?>[] groups() default {};
 

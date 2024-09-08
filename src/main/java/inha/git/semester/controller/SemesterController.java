@@ -1,5 +1,6 @@
 package inha.git.semester.controller;
 
+import inha.git.college.controller.dto.request.CreateCollegeRequest;
 import inha.git.common.BaseResponse;
 import inha.git.semester.controller.dto.request.CreateSemesterRequest;
 import inha.git.semester.controller.dto.request.UpdateSemesterRequest;
@@ -29,5 +30,16 @@ public class SemesterController {
 
     private final SemesterService semesterService;
 
-
+    /**
+     * 학기 생성 API
+     *
+     * @param createDepartmentRequest 학기 생성 요청
+     * @return 생성된 학기 이름
+     */
+    @PostMapping
+    @PreAuthorize("hasAuthority('admin:create')")
+    @Operation(summary = "학기 생성(관리자 전용) API", description = "학기를 생성합니다.(관리자 전용)")
+    public BaseResponse<String> createSemester(@Validated @RequestBody CreateSemesterRequest createDepartmentRequest) {
+        return BaseResponse.of(SEMESTER_CREATE_OK, semesterService.createSemester(createDepartmentRequest));
+    }
 }

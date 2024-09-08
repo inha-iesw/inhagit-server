@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface CollegeService {
 
-    List<SearchCollegeResponse> getDepartments();
+    List<SearchCollegeResponse> getColleges();
     String createCollege(CreateCollegeRequest createDepartmentRequest);
     String updateCollegeName(Integer collegeIdx, UpdateCollegeRequest updateCollegeRequest);
 

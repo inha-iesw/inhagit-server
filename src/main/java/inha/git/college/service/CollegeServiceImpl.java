@@ -38,7 +38,7 @@ public class CollegeServiceImpl implements CollegeService {
      * @return 단과대 전체 조회 결과
      */
     @Override
-    public List<SearchCollegeResponse> getDepartments() {
+    public List<SearchCollegeResponse> getColleges() {
         return collegeMapper.collegesToSearchCollegeResponses(collegeJpaRepository.findAllByState(ACTIVE));
     }
 

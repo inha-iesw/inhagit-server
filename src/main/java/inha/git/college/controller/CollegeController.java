@@ -38,8 +38,8 @@ public class CollegeController {
      */
     @GetMapping
     @Operation(summary = "단과대 전체 조회 API", description = "단과대 전체를 조회합니다.")
-    public BaseResponse<List<SearchCollegeResponse>> getDepartments() {
-        return BaseResponse.of(COLLEGE_SEARCH_OK, collegeService.getDepartments());
+    public BaseResponse<List<SearchCollegeResponse>> getColleges() {
+        return BaseResponse.of(COLLEGE_SEARCH_OK, collegeService.getColleges());
     }
 
     /**
@@ -51,7 +51,7 @@ public class CollegeController {
     @PostMapping
     @PreAuthorize("hasAuthority('admin:create')")
     @Operation(summary = "단과대 생성(관리자 전용) API", description = "단과대를 생성합니다.(관리자 전용)")
-    public BaseResponse<String> createDepartment(@Validated @RequestBody CreateCollegeRequest createDepartmentRequest) {
+    public BaseResponse<String> createCollege(@Validated @RequestBody CreateCollegeRequest createDepartmentRequest) {
         return BaseResponse.of(COLLEGE_CREATE_OK, collegeService.createCollege(createDepartmentRequest));
     }
 
@@ -65,7 +65,7 @@ public class CollegeController {
     @PutMapping("/{collegeIdx}")
     @PreAuthorize("hasAuthority('admin:update')")
     @Operation(summary = "단과대 수정(관리자 전용) API", description = "단과대를 수정합니다.(관리자 전용)")
-    public BaseResponse<String> updateDepartment(@PathVariable("collegeIdx") Integer collegeIdx,
+    public BaseResponse<String> updateCollege(@PathVariable("collegeIdx") Integer collegeIdx,
                                                  @Validated @RequestBody UpdateCollegeRequest updateCollegeRequest) {
         return BaseResponse.of(COLLEGE_UPDATE_OK, collegeService.updateCollegeName(collegeIdx, updateCollegeRequest));
     }
