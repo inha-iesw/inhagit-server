@@ -15,6 +15,7 @@ import inha.git.question.api.controller.dto.response.SearchQuestionResponse;
 import inha.git.question.domain.Question;
 import inha.git.question.domain.QuestionComment;
 import inha.git.question.domain.QuestionReplyComment;
+import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.semester.domain.Semester;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
@@ -92,12 +93,14 @@ public interface QuestionMapper {
      * @param question  Question
      * @param fieldList List<SearchFieldResponse>
      * @param author    SearchUserResponse
+     * @param semester SearchSemesterResponse
      * @return SearchQuestionResponse
      */
     @Mapping(target = "idx", source = "question.id")
     @Mapping(target = "subject", source = "question.subjectName")
     @Mapping(target = "createdAt", source = "question.createdAt")
-    SearchQuestionResponse questionToSearchQuestionResponse(Question question, List<SearchFieldResponse> fieldList, SearchUserResponse author);
+    @Mapping(target = "semester", source = "semester")
+    SearchQuestionResponse questionToSearchQuestionResponse(Question question, List<SearchFieldResponse> fieldList, SearchUserResponse author, SearchSemesterResponse semester);
 
     /**
      * User를 SearchUserResponse로 변환합니다.

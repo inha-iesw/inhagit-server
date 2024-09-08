@@ -12,6 +12,8 @@ import inha.git.project.domain.ProjectUpload;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectQueryRepository;
 import inha.git.project.domain.repository.ProjectUploadJpaRepository;
+import inha.git.semester.controller.dto.response.SearchSemesterResponse;
+import inha.git.semester.mapper.SemesterMapper;
 import inha.git.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +49,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
     private final ProjectUploadJpaRepository projectUploadJpaRepository;
     private final ProjectFieldJpaRepository projectFieldJpaRepository;
     private final ProjectMapper projectMapper;
+    private final SemesterMapper semesterMapper;
     private final ProjectQueryRepository projectQueryRepository;
     private final PatentRecommendJpaRepository patentRecommendJpaRepository;
     private final FoundingRecommendJpaRepository foundingRecommendJpaRepository;
@@ -76,6 +79,12 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         ProjectUpload projectUpload = getProjectUploadIfNeeded(project, projectIdx);
+
+        log.info("semesterIdx {}", project.getSemester().getId());
+        log.info("semesterName {}", project.getSemester().getName());
+        SearchSemesterResponse searchSemesterResponse = semesterMapper.semesterToSearchSemesterResponse(project.getSemester());
+        log.info("semesterResponse {}", searchSemesterResponse.idx());
+        log.info("semesterResponse {}", searchSemesterResponse.name());
         List<SearchFieldResponse> searchFieldResponses = projectFieldJpaRepository.findByProject(project)
                 .stream()
                 .map(projectField -> projectMapper.projectFieldToSearchFieldResponse(projectField.getField()))
@@ -92,7 +101,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
                 (isRecommendPatent, isRecommendFounding, isRecommendRegistration);
 
         return projectMapper.projectToSearchProjectResponse(
-                project, projectUpload, searchFieldResponses, searchRecommendCountResponse, searchUserResponse, searchRecommendState
+                project, projectUpload, searchFieldResponses, searchRecommendCountResponse, searchUserResponse, searchRecommendState, searchSemesterResponse
         );
     }
 

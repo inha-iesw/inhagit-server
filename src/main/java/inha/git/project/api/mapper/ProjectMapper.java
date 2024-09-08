@@ -13,6 +13,7 @@ import inha.git.mapping.domain.id.RegistrationRecommendId;
 import inha.git.project.api.controller.dto.request.*;
 import inha.git.project.api.controller.dto.response.*;
 import inha.git.project.domain.*;
+import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.semester.domain.Semester;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
@@ -154,6 +155,7 @@ public interface ProjectMapper {
      * @param recommendCount  추천 수
      * @param author          작성자 정보
      * @param recommendState  추천 상태
+     * @param semester         학기 정보
      * @return SearchProjectResponse
      */
     @Mapping(target = "idx", source = "project.id")
@@ -162,7 +164,8 @@ public interface ProjectMapper {
     @Mapping(target = "zipFilePath", source = "projectUpload.zipDirectoryName")
     @Mapping(target = "repoName", source = "project.repoName")
     @Mapping(target = "createdAt", source = "project.createdAt")
-    SearchProjectResponse projectToSearchProjectResponse(Project project, ProjectUpload projectUpload, List<SearchFieldResponse> fieldList, SearchRecommendCount recommendCount, SearchUserResponse author, SearchRecommendState recommendState);
+    @Mapping(target = "semester", source = "semester")
+    SearchProjectResponse projectToSearchProjectResponse(Project project, ProjectUpload projectUpload, List<SearchFieldResponse> fieldList, SearchRecommendCount recommendCount, SearchUserResponse author, SearchRecommendState recommendState, SearchSemesterResponse semester);
 
     /**
      * FoundingRecommend 엔티티 생성

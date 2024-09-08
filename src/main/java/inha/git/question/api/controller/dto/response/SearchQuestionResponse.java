@@ -2,6 +2,7 @@ package inha.git.question.api.controller.dto.response;
 
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
+import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
@@ -29,6 +30,9 @@ public record SearchQuestionResponse(
         @NotNull
         List<SearchFieldResponse> fieldList,
         @NotNull
-        SearchUserResponse author
+        SearchUserResponse author,
+
+        @NotNull
+        SearchSemesterResponse semester
 ) {
 }
