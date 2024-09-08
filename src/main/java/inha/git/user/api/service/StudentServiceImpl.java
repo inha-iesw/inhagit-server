@@ -2,6 +2,10 @@ package inha.git.user.api.service;
 
 import inha.git.auth.api.service.MailService;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
+import inha.git.field.domain.Field;
+import inha.git.field.domain.repository.FieldJpaRepository;
+import inha.git.semester.domain.Semester;
+import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.domain.UserStatistics;
 import inha.git.statistics.domain.repository.UserStatisticsJpaRepository;
 import inha.git.user.api.controller.dto.request.StudentSignupRequest;
@@ -15,6 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.Constant.SIGN_UP_TYPE;
 
 
@@ -31,6 +38,8 @@ public class StudentServiceImpl implements StudentService{
     private final PasswordEncoder passwordEncoder;
     private final DepartmentJpaRepository departmentRepository;
     private final UserStatisticsJpaRepository userStatisticsJpaRepository;
+    private final SemesterJpaRepository semesterJpaRepository;
+    private final FieldJpaRepository fieldJpaRepository;
     private final UserMapper userMapper;
     private final MailService mailService;
 
@@ -49,8 +58,15 @@ public class StudentServiceImpl implements StudentService{
         userMapper.mapDepartmentsToUser(user, studentSignupRequest.departmentIdList(), departmentRepository);
         user.setPassword(passwordEncoder.encode(studentSignupRequest.pw()));
         User savedUser = userJpaRepository.save(user);
-        UserStatistics userStatistics = userMapper.toUserStatistics(savedUser.getId());
-        userStatisticsJpaRepository.save(userStatistics);
+        List<Semester> semesters = semesterJpaRepository.findAllByState(ACTIVE);
+        List<Field> fields = fieldJpaRepository.findAllByState(ACTIVE);
+
+        for (Semester semester : semesters) {
+            for (Field field : fields) {
+                UserStatistics userStatistics = userMapper.createUserStatistics(user, semester, field);
+                userStatisticsJpaRepository.save(userStatistics);
+            }
+        }
         return userMapper.userToStudentSignupResponse(savedUser);
     }
 }

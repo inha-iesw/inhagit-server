@@ -1,9 +1,12 @@
 package inha.git.statistics.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import inha.git.field.domain.Field;
+import inha.git.mapping.domain.id.FoundingRecommendId;
+import inha.git.project.domain.Project;
+import inha.git.semester.domain.Semester;
+import inha.git.statistics.domain.id.UserStatisticsId;
+import inha.git.user.domain.User;
+import jakarta.persistence.*;
 import lombok.*;
 
 /**
@@ -18,9 +21,23 @@ import lombok.*;
 @Table(name = "user_statistics_tb")
 public class UserStatistics {
 
-    @Id
-    @Column(name = "user_id", nullable = false)
-    private Integer userId;
+    @EmbeddedId
+    private UserStatisticsId id;
+
+    @MapsId("userId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @MapsId("semesterId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "semester_id", nullable = false)
+    private Semester semester;
+
+    @MapsId("fieldId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "field_id", nullable = false)
+    private Field field;
 
     @Column(name = "project_count", nullable = false)
     private Integer projectCount = 0;

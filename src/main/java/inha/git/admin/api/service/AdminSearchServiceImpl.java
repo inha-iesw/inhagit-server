@@ -109,14 +109,17 @@ public class AdminSearchServiceImpl implements AdminSearchService {
                     .orElseThrow(() -> new BaseException(NOT_COMPANY));
             return userMapper.toSearchCompanyUserResponse(user, position, company);
         } else {
-            UserStatistics userStatistics = userStatisticsJpaRepository.findById(user.getId())
+            List<UserStatistics> userStatistics = userStatisticsJpaRepository.findByUser(user)
                     .orElseThrow(() -> new BaseException(USER_STATISTICS_NOT_FOUND));
+            int totalProjectCount = userStatistics.stream().mapToInt(UserStatistics::getProjectCount).sum();
+            int totalQuestionCount = userStatistics.stream().mapToInt(UserStatistics::getQuestionCount).sum();
+            int totalTeamCount = userStatistics.stream().mapToInt(UserStatistics::getTeamCount).sum();
             List<SearchDepartmentResponse> searchDepartmentResponses = userMapper.departmentsToSearchDepartmentResponses(userDepartmentJpaRepository.findByUserId(user.getId())
                     .orElseThrow(() -> new BaseException(USER_STATISTICS_NOT_FOUND))
                     .stream()
                     .map(UserDepartment::getDepartment)
                     .toList());
-            return userMapper.toSearchNonCompanyUserResponse(user, userStatistics, searchDepartmentResponses, position, user.getGithubToken() != null);
+            return userMapper.toSearchNonCompanyUserResponse(user, totalProjectCount, totalQuestionCount, totalTeamCount, searchDepartmentResponses, position, user.getGithubToken() != null);
         }
     }
 }

@@ -1,9 +1,9 @@
 package inha.git.statistics.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import inha.git.field.domain.Field;
+import inha.git.semester.domain.Semester;
+import inha.git.statistics.domain.id.UserCountStatisticsId;
+import jakarta.persistence.*;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -15,9 +15,18 @@ import lombok.*;
 @Table(name = "user_count_statistics_tb")
 public class UserCountStatistics {
 
-    @Id
-    @Column(name = "user_count_statistics_id", nullable = false)
-    private Integer id = 1;
+    @EmbeddedId
+    private UserCountStatisticsId id;
+
+    @MapsId("semesterId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "semester_id", nullable = false)
+    private Semester semester;
+
+    @MapsId("fieldId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "field_id", nullable = false)
+    private Field field;
 
     @Column(name = "user_project_count", nullable = false, columnDefinition = "int default 0")
     private Integer userProjectCount = 0;
