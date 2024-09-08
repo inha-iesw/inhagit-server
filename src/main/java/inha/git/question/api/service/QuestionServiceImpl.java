@@ -16,9 +16,14 @@ import inha.git.question.api.mapper.QuestionMapper;
 import inha.git.question.domain.Question;
 import inha.git.question.domain.repository.QuestionJpaRepository;
 import inha.git.question.domain.repository.QuestionQueryRepository;
+import inha.git.semester.controller.dto.response.SearchSemesterResponse;
+import inha.git.semester.domain.Semester;
+import inha.git.semester.domain.repository.SemesterJpaRepository;
+import inha.git.semester.mapper.SemesterMapper;
 import inha.git.statistics.api.service.StatisticsService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -43,8 +48,10 @@ public class QuestionServiceImpl implements QuestionService {
 
     private final QuestionJpaRepository questionJpaRepository;
     private final QuestionMapper questionMapper;
+    private final SemesterMapper semesterMapper;
     private final QuestionFieldJpaRepository questionFieldJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
+    private final SemesterJpaRepository semesterJpaRepository;
     private final QuestionQueryRepository questionQueryRepository;
     private final StatisticsService statisticsService;
 
@@ -70,13 +77,13 @@ public class QuestionServiceImpl implements QuestionService {
     public SearchQuestionResponse getQuestion(Integer questionIdx) {
         Question question = questionJpaRepository.findByIdAndState(questionIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
-
+        SearchSemesterResponse searchSemesterResponse = semesterMapper.semesterToSearchSemesterResponse(question.getSemester());
         SearchUserResponse searchUserResponse = questionMapper.userToSearchUserResponse(question.getUser());
         List<SearchFieldResponse> searchFieldResponses = questionFieldJpaRepository.findByQuestion(question)
                 .stream()
                 .map(questionField -> questionMapper.projectFieldToSearchFieldResponse(questionField.getField()))
                 .toList();
-        return questionMapper.questionToSearchQuestionResponse(question, searchFieldResponses, searchUserResponse);
+        return questionMapper.questionToSearchQuestionResponse(question, searchFieldResponses, searchUserResponse, searchSemesterResponse);
     }
 
 
@@ -90,7 +97,9 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     @Transactional
     public QuestionResponse createQuestion(User user, CreateQuestionRequest createQuestionRequest) {
-        Question question = questionMapper.createQuestionRequestToQuestion(createQuestionRequest, user);
+        Semester semester = semesterJpaRepository.findByIdAndState(createQuestionRequest.semesterIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
+        Question question = questionMapper.createQuestionRequestToQuestion(createQuestionRequest, user, semester);
         Question saveQuestion = questionJpaRepository.save(question);
 
         List<QuestionField> questionFields = createAndSaveQuestionFields(createQuestionRequest.fieldIdxList(), saveQuestion);
@@ -115,7 +124,9 @@ public class QuestionServiceImpl implements QuestionService {
         if (!question.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
             throw new BaseException(QUESTION_NOT_AUTHORIZED);
         }
-        questionMapper.updateQuestionRequestToQuestion(updateQuestionRequest, question);
+        Semester semester = semesterJpaRepository.findByIdAndState(updateQuestionRequest.semesterIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
+        questionMapper.updateQuestionRequestToQuestion(updateQuestionRequest, question, semester);
         Question savedQuestion = questionJpaRepository.save(question);
         questionFieldJpaRepository.deleteByQuestion(savedQuestion);
 

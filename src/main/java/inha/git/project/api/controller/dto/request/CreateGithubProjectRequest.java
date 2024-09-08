@@ -28,6 +28,12 @@ public record CreateGithubProjectRequest(
         @NotEmpty
         @Size(min = 1, max = 100)
         @Schema(description = "깃허브 레포지토리 이름", example = "inha-git-project")
-        String repoName
+        String repoName,
+
+        @NotNull
+        @Schema(description = "학기 인덱스", example = "1")
+        Integer semesterIdx
+
+
 ) {
 }

@@ -2,6 +2,7 @@ package inha.git.project.domain;
 
 import inha.git.common.BaseEntity;
 import inha.git.mapping.domain.ProjectField;
+import inha.git.semester.domain.Semester;
 import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -57,6 +58,11 @@ public class Project extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "semester_id")
+    private Semester semester;
 
     @Builder.Default
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)

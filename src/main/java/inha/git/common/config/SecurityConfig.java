@@ -39,6 +39,7 @@ public class SecurityConfig {
     private static final String[] GET_ONLY_WHITE_LIST_URL = {
             "/api/v1/departments",
             "/api/v1/colleges",
+            "/api/v1/semesters",
             "/api/v1/fields",
             "/api/v1/banners",
             "/banner/**",

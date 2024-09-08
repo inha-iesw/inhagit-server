@@ -1,6 +1,5 @@
 package inha.git.semester.controller;
 
-import inha.git.college.controller.dto.request.CreateCollegeRequest;
 import inha.git.common.BaseResponse;
 import inha.git.semester.controller.dto.request.CreateSemesterRequest;
 import inha.git.semester.controller.dto.request.UpdateSemesterRequest;
@@ -31,6 +30,18 @@ public class SemesterController {
     private final SemesterService semesterService;
 
     /**
+     * 학기 전체 조회 API
+     *
+     * @return 학기 전체
+     */
+    @GetMapping
+    @Operation(summary = "학기 전체 조회 API", description = "학기 전체를 조회합니다.")
+    public BaseResponse<List<SearchSemesterResponse>> getSemesters() {
+        return BaseResponse.of(SEMESTER_SEARCH_OK, semesterService.getSemesters());
+    }
+
+
+    /**
      * 학기 생성 API
      *
      * @param createDepartmentRequest 학기 생성 요청
@@ -56,5 +67,17 @@ public class SemesterController {
     public BaseResponse<String> updateSemester(@PathVariable("semesterIdx") Integer semesterIdx,
                                                @Validated @RequestBody UpdateSemesterRequest updateSemesterRequest) {
         return BaseResponse.of(SEMESTER_UPDATE_OK, semesterService.updateSemesterName(semesterIdx, updateSemesterRequest));
+    }
+
+    /**
+     * 학기 목록 조회 API
+     *
+     * @return 학기 목록
+     */
+    @DeleteMapping("/{semesterIdx}")
+    @PreAuthorize("hasAuthority('admin:delete')")
+    @Operation(summary = "학기 삭제(관리자 전용) API", description = "학기를 삭제합니다.(관리자 전용)")
+    public BaseResponse<String> deleteSemester(@PathVariable("semesterIdx") Integer semesterIdx) {
+        return BaseResponse.of(SEMESTER_DELETE_OK, semesterService.deleteSemester(semesterIdx));
     }
 }

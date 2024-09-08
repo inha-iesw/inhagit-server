@@ -1,7 +1,9 @@
 package inha.git.semester.domain;
 
 import inha.git.common.BaseEntity;
-import inha.git.department.domain.Department;
+import inha.git.problem.domain.Problem;
+import inha.git.project.domain.Project;
+import inha.git.question.domain.Question;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,6 +31,12 @@ public class Semester extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String name;
 
+
+    @OneToMany(mappedBy = "semester", fetch = FetchType.LAZY)
+    private List<Project> projects = new ArrayList<>();
+
+    @OneToMany(mappedBy = "semester", fetch = FetchType.LAZY)
+    private List<Question> questions = new ArrayList<>();
 
 
     public void setName(String name) {
