@@ -6,7 +6,6 @@ import inha.git.mapping.domain.UserDepartment;
 import inha.git.mapping.domain.repository.UserDepartmentJpaRepository;
 import inha.git.statistics.api.controller.dto.response.*;
 import inha.git.statistics.api.mapper.StatisticsMapper;
-import inha.git.statistics.domain.CollegeStatistics;
 import inha.git.statistics.domain.DepartmentStatistics;
 import inha.git.statistics.domain.UserCountStatistics;
 import inha.git.statistics.domain.UserStatistics;
