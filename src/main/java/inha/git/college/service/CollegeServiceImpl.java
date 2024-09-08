@@ -7,6 +7,11 @@ import inha.git.college.domain.College;
 import inha.git.college.domain.repository.CollegeJpaRepository;
 import inha.git.college.mapper.CollegeMapper;
 import inha.git.common.exceptions.BaseException;
+import inha.git.field.domain.Field;
+import inha.git.field.domain.repository.FieldJpaRepository;
+import inha.git.semester.domain.Semester;
+import inha.git.semester.domain.repository.SemesterJpaRepository;
+import inha.git.statistics.domain.CollegeStatistics;
 import inha.git.statistics.domain.repository.CollegeStatisticsJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +35,8 @@ public class CollegeServiceImpl implements CollegeService {
 
     private final CollegeJpaRepository collegeJpaRepository;
     private final CollegeStatisticsJpaRepository collegeStatisticsJpaRepository;
+    private final SemesterJpaRepository semesterJpaRepository;
+    private final FieldJpaRepository fieldJpaRepository;
     private final CollegeMapper collegeMapper;
 
     /**
@@ -53,7 +60,15 @@ public class CollegeServiceImpl implements CollegeService {
     public String createCollege(CreateCollegeRequest createDepartmentRequest) {
         College college = collegeJpaRepository.save
                 (collegeMapper.createCollegeRequestToCollege(createDepartmentRequest));
-        collegeStatisticsJpaRepository.save(collegeMapper.toCollegeStatistics(college.getId()));
+        List<Semester> semesters = semesterJpaRepository.findAllByState(ACTIVE);
+        List<Field> fields = fieldJpaRepository.findAllByState(ACTIVE);
+
+        for (Semester semester : semesters) {
+            for (Field field : fields) {
+                CollegeStatistics collegeStatistics = collegeMapper.createCollegeStatistics(college, semester, field);
+                collegeStatisticsJpaRepository.save(collegeStatistics);
+            }
+        }
         return college.getName() + " 단과대가 생성되었습니다.";
     }
 

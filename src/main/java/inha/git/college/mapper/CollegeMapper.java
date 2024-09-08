@@ -3,7 +3,10 @@ package inha.git.college.mapper;
 import inha.git.college.controller.dto.request.CreateCollegeRequest;
 import inha.git.college.controller.dto.response.SearchCollegeResponse;
 import inha.git.college.domain.College;
+import inha.git.field.domain.Field;
+import inha.git.semester.domain.Semester;
 import inha.git.statistics.domain.CollegeStatistics;
+import inha.git.statistics.domain.id.CollegeStatisticsStatisticsId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -46,6 +49,12 @@ public interface CollegeMapper {
     @Mapping(target = "problemUserCount", constant = "0")
     @Mapping(target = "problemParticipationCount", constant = "0")
     CollegeStatistics toCollegeStatistics(Integer id);
+
+    default CollegeStatistics createCollegeStatistics(College college, Semester semester, Field field) {
+        return new CollegeStatistics(
+                new CollegeStatisticsStatisticsId(college.getId(), semester.getId(), field.getId()), college, semester, field, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    }
+
 
     @Mapping(source = "college.id", target = "idx")
     SearchCollegeResponse collegeToSearchCollegeResponse(College college);

@@ -145,10 +145,12 @@ public interface UserMapper {
      * User 엔티티를 SearchNonCompanyUserResponse로 변환하는 메서드 정의
      *
      * @param user User 엔티티
-     * @param userStatistics UserStatistics 엔티티
-     * @param departmentList Department 엔티티 목록
-     * @param position User의 직책
-     * @param githubTokenState 깃허브 토큰 등록 유무
+     * @param totalProjectCount 사용자의 총 프로젝트 수
+     * @param totalQuestionCount 사용자의 총 질문 수
+     * @param totalTeamCount 사용자의 총 팀 수
+     * @param departmentList 사용자의 소속 부서 목록
+     * @param position 사용자의 직책
+     * @param githubTokenState 사용자의 깃허브 토큰 상태
      * @return SearchNonCompanyUserResponse
      */
     @Mapping(source = "user.id", target = "idx")
