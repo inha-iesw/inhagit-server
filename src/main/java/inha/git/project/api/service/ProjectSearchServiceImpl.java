@@ -169,7 +169,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
     private String extractFileContent(Path filePath) throws IOException {
         String contentType = Files.probeContentType(filePath);
 
-        if (contentType != null && (contentType.startsWith("text") || contentType.contains("json"))) {
+        if ((contentType != null && (contentType.startsWith("text") || contentType.contains("json") || contentType.contains("javascript")))) {
             // text 혹은 json 파일 처리
             return Files.readString(filePath);
         } else if (contentType != null && contentType.startsWith("image")) {
