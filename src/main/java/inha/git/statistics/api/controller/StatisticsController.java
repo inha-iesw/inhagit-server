@@ -30,11 +30,11 @@ public class StatisticsController {
      *
      * @return BaseResponse<List<HomeStatisticsResponse>>
      */
-    @GetMapping
-    @Operation(summary = "학과별 전체 통계 조회 API", description = "학과별 전체 통계를 조회합니다.")
-    public BaseResponse<List<HomeStatisticsResponse>> getStatistics() {
-        return BaseResponse.of(DEPARTMENT_STATISTICS_SEARCH_OK, statisticsService.getStatistics());
-    }
+//    @GetMapping
+//    @Operation(summary = "학과별 전체 통계 조회 API", description = "학과별 전체 통계를 조회합니다.")
+//    public BaseResponse<List<HomeStatisticsResponse>> getStatistics() {
+//        return BaseResponse.of(DEPARTMENT_STATISTICS_SEARCH_OK, statisticsService.getStatistics());
+//    }
 
 
     /**
@@ -61,15 +61,15 @@ public class StatisticsController {
         return BaseResponse.of(QUESTION_STATISTICS_SEARCH_OK, statisticsService.getQuestionStatistics(searchCond));
     }
 
-    @GetMapping("/team")
-    @Operation(summary = "팀 통계 조회 API", description = "팀 통계를 조회합니다.")
-    public BaseResponse<TeamStatisticsResponse> getTeamStatistics(@RequestParam(value = "idx", required = false) Integer idx) {
-        return BaseResponse.of(TEAM_STATISTICS_SEARCH_OK, statisticsService.getTeamStatistics(idx));
-    }
-
-    @GetMapping("/problem")
-    @Operation(summary = "문제 통계 조회 API", description = "문제 통계를 조회합니다.")
-    public BaseResponse<ProblemStatisticsResponse> getProblemStatistics(@RequestParam(value = "idx", required = false) Integer idx) {
-        return BaseResponse.of(PROBLEM_STATISTICS_SEARCH_OK, statisticsService.getProblemStatistics(idx));
-    }
+//    @GetMapping("/team")
+//    @Operation(summary = "팀 통계 조회 API", description = "팀 통계를 조회합니다.")
+//    public BaseResponse<TeamStatisticsResponse> getTeamStatistics(@RequestParam(value = "idx", required = false) Integer idx) {
+//        return BaseResponse.of(TEAM_STATISTICS_SEARCH_OK, statisticsService.getTeamStatistics(idx));
+//    }
+//
+//    @GetMapping("/problem")
+//    @Operation(summary = "문제 통계 조회 API", description = "문제 통계를 조회합니다.")
+//    public BaseResponse<ProblemStatisticsResponse> getProblemStatistics(@RequestParam(value = "idx", required = false) Integer idx) {
+//        return BaseResponse.of(PROBLEM_STATISTICS_SEARCH_OK, statisticsService.getProblemStatistics(idx));
+//    }
 }
