@@ -40,18 +40,23 @@ public class Constant {
     public final static String PROBLEM = "problem";
     public final static String PROBLEM_ZIP = "problem-zip";
     public final static String ZIP = ".zip";
+
     public final static String EVIDENCE = "evidence";
     public final static String BANNER = "banner";
     public final static String PROJECT_UPLOAD = "/project/";
     public final static String PROBLEM_FILE = "problem-file";
 
     public final static String GIT = ".git";
+    //.pyc
+    public final static String PYC = ".pyc";
     public final static String GITHUB = "https://github.com/";
     public final static String DS_STORE = ".DS_Store";
     public final static String DIRECTORY = "directory";
     public final static String FILE = "file";
     public final static String UNDERBAR = "._";
     public final static String MACOSX = "__MACOSX";
+    //__pycache__
+    public final static String PYCACHE = "__pycache__";
 
     public final static String ACCESS_KEY = "&accessKey=";
 
