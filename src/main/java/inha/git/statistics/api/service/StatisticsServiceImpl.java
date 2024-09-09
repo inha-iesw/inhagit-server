@@ -6,6 +6,7 @@ import inha.git.field.domain.Field;
 import inha.git.mapping.domain.UserDepartment;
 import inha.git.mapping.domain.repository.UserDepartmentJpaRepository;
 import inha.git.semester.domain.Semester;
+import inha.git.statistics.api.controller.dto.request.ProjectSearchCond;
 import inha.git.statistics.api.controller.dto.response.*;
 import inha.git.statistics.api.mapper.StatisticsMapper;
 import inha.git.statistics.domain.UserCountStatistics;
@@ -14,10 +15,7 @@ import inha.git.statistics.domain.id.CollegeStatisticsStatisticsId;
 import inha.git.statistics.domain.id.DepartmentStatisticsId;
 import inha.git.statistics.domain.id.UserCountStatisticsId;
 import inha.git.statistics.domain.id.UserStatisticsId;
-import inha.git.statistics.domain.repository.CollegeStatisticsJpaRepository;
-import inha.git.statistics.domain.repository.DepartmentStatisticsJpaRepository;
-import inha.git.statistics.domain.repository.UserCountStatisticsJpaRepository;
-import inha.git.statistics.domain.repository.UserStatisticsJpaRepository;
+import inha.git.statistics.domain.repository.*;
 import inha.git.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,8 +41,10 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final UserDepartmentJpaRepository userDepartmentJpaRepository;
     private final UserCountStatisticsJpaRepository userCountStatisticsJpaRepository;
     private final CollegeStatisticsJpaRepository collegeStatisticsJpaRepository;
+    private final ProjectStatisticsQueryRepository projectStatisticsQueryRepository;
     private final DepartmentJpaRepository departmentJpaRepository;
     private final StatisticsMapper statisticsMapper;
+
 
 
     /**
@@ -388,26 +388,13 @@ public class StatisticsServiceImpl implements StatisticsService {
     /**
      * 프로젝트 통계 정보를 조회한다.
      *
-     * @param idx Integer
+     * @param searchCond ProjectSearchCond
      * @return ProjectStatisticsResponse
      */
     @Override
     @Transactional(readOnly = true)
-    public ProjectStatisticsResponse getProjectStatistics(Integer idx) {
-//        if (idx != null) {
-//            return departmentJpaRepository.findByIdAndState(idx, ACTIVE)
-//                    .map(department -> {
-//                        DepartmentStatistics departmentStatistics = departmentStatisticsJpaRepository.findById(department.getId())
-//                                .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND));
-//                        return statisticsMapper.toProjectStatisticsResponse(departmentStatistics.getProjectCount(), departmentStatistics.getProjectUserCount());
-//                    })
-//                    .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
-//        }
-//        UserCountStatistics userCountStatistics = userCountStatisticsJpaRepository.findById(1)
-//                .orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
-//        return statisticsMapper.toProjectStatisticsResponse(userCountStatistics.getTotalProjectCount(), userCountStatistics.getUserProjectCount());
-//    }
-        return null;
+    public ProjectStatisticsResponse getProjectStatistics(ProjectSearchCond searchCond) {
+        return projectStatisticsQueryRepository.getProjectStatistics(searchCond);
     }
 
     /**

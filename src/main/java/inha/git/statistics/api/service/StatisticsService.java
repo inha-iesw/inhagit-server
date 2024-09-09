@@ -2,6 +2,7 @@ package inha.git.statistics.api.service;
 
 import inha.git.field.domain.Field;
 import inha.git.semester.domain.Semester;
+import inha.git.statistics.api.controller.dto.request.ProjectSearchCond;
 import inha.git.statistics.api.controller.dto.response.*;
 import inha.git.user.domain.User;
 
@@ -14,7 +15,7 @@ public interface StatisticsService {
     void decreaseCount(User user, List<Field> fields, Semester semester, Integer type);
 
     List<HomeStatisticsResponse> getStatistics();
-    ProjectStatisticsResponse getProjectStatistics(Integer idx);
+    ProjectStatisticsResponse getProjectStatistics(ProjectSearchCond projectSearchCond);
     QuestionStatisticsResponse getQuestionStatistics(Integer idx);
     TeamStatisticsResponse getTeamStatistics(Integer idx);
     ProblemStatisticsResponse getProblemStatistics(Integer idx);
