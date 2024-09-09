@@ -34,12 +34,14 @@ public class DepartmentController {
      *
      * <p>학과 전체를 조회합니다.</p>
      *
+     * @param collegeIdx 대학 인덱스
+     *
      * @return 학과 전체 조회 결과를 포함하는 BaseResponse<List<SearchDepartmentResponse>>
      */
     @GetMapping
     @Operation(summary = "학과 전체 조회 API", description = "학과 전체를 조회합니다.")
-    public BaseResponse<List<SearchDepartmentResponse>> getDepartments() {
-        return BaseResponse.of(DEPARTMENT_SEARCH_OK, departmentService.getDepartments());
+    public BaseResponse<List<SearchDepartmentResponse>> getDepartments(@RequestParam(value = "collegeIdx", required = false) Integer collegeIdx) {
+        return BaseResponse.of(DEPARTMENT_SEARCH_OK, departmentService.getDepartments(collegeIdx));
     }
 
     /**
