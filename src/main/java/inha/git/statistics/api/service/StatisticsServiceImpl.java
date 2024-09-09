@@ -1,12 +1,16 @@
 package inha.git.statistics.api.service;
 
+import inha.git.college.domain.repository.CollegeJpaRepository;
 import inha.git.common.exceptions.BaseException;
+import inha.git.department.domain.Department;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
 import inha.git.field.domain.Field;
+import inha.git.field.domain.repository.FieldJpaRepository;
 import inha.git.mapping.domain.UserDepartment;
 import inha.git.mapping.domain.repository.UserDepartmentJpaRepository;
 import inha.git.semester.domain.Semester;
-import inha.git.statistics.api.controller.dto.request.ProjectSearchCond;
+import inha.git.semester.domain.repository.SemesterJpaRepository;
+import inha.git.statistics.api.controller.dto.request.SearchCond;
 import inha.git.statistics.api.controller.dto.response.*;
 import inha.git.statistics.api.mapper.StatisticsMapper;
 import inha.git.statistics.domain.UserCountStatistics;
@@ -24,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 
@@ -42,7 +47,11 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final UserCountStatisticsJpaRepository userCountStatisticsJpaRepository;
     private final CollegeStatisticsJpaRepository collegeStatisticsJpaRepository;
     private final ProjectStatisticsQueryRepository projectStatisticsQueryRepository;
+    private final QuestionStatisticsQueryRepository questionStatisticsQueryRepository;
     private final DepartmentJpaRepository departmentJpaRepository;
+    private final CollegeJpaRepository collegeJpaRepository;
+    private final FieldJpaRepository fieldJpaRepository;
+    private final SemesterJpaRepository semesterJpaRepository;
     private final StatisticsMapper statisticsMapper;
 
 
@@ -393,32 +402,23 @@ public class StatisticsServiceImpl implements StatisticsService {
      */
     @Override
     @Transactional(readOnly = true)
-    public ProjectStatisticsResponse getProjectStatistics(ProjectSearchCond searchCond) {
+    public ProjectStatisticsResponse getProjectStatistics(SearchCond searchCond) {
+        validateSearchCond(searchCond);
         return projectStatisticsQueryRepository.getProjectStatistics(searchCond);
     }
+
+
 
     /**
      * 질문 통계 정보를 조회한다.
      *
-     * @param idx Integer
+     * @param searchCond SearchCond
      * @return QuestionStatisticsResponse
      */
     @Override
-    public QuestionStatisticsResponse getQuestionStatistics(Integer idx) {
-//        if (idx != null) {
-//            return departmentJpaRepository.findByIdAndState(idx, ACTIVE)
-//                    .map(department -> {
-//                        DepartmentStatistics departmentStatistics = departmentStatisticsJpaRepository.findById(department.getId())
-//                                .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND));
-//                        return statisticsMapper.toQuestionStatisticsResponse(departmentStatistics.getQuestionCount(), departmentStatistics.getQuestionUserCount());
-//                    })
-//                    .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
-//        }
-//        UserCountStatistics userCountStatistics = userCountStatisticsJpaRepository.findById(1)
-//                .orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
-//        return statisticsMapper.toQuestionStatisticsResponse(userCountStatistics.getTotalQuestionCount(), userCountStatistics.getUserQuestionCount());
-//    }
-        return null;
+    public QuestionStatisticsResponse getQuestionStatistics(SearchCond searchCond) {
+        validateSearchCond(searchCond);
+        return questionStatisticsQueryRepository.getQuestionStatistics(searchCond);
     }
 
     @Override
@@ -453,5 +453,27 @@ public class StatisticsServiceImpl implements StatisticsService {
 //                .orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
 //        return statisticsMapper.toProblemStatisticsResponse(userCountStatistics.getTotalProblemCount(), userCountStatistics.getUserProblemCount());
         return null;
+    }
+
+    private void validateSearchCond(SearchCond searchCond) {
+        if(searchCond.collegeIdx() != null) {
+            collegeJpaRepository.findByIdAndState(searchCond.collegeIdx(), ACTIVE)
+                    .orElseThrow(() -> new BaseException(COLLEGE_NOT_FOUND));
+        }
+        if(searchCond.departmentIdx() != null) {
+            Department department = departmentJpaRepository.findByIdAndState(searchCond.departmentIdx(), ACTIVE)
+                    .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
+            if(searchCond.collegeIdx() != null && !department.getCollege().getId().equals(searchCond.collegeIdx())) {
+                throw new BaseException(DEPARTMENT_NOT_BELONG_TO_COLLEGE);
+            }
+        }
+        if(searchCond.fieldIdx() != null) {
+            fieldJpaRepository.findByIdAndState(searchCond.fieldIdx(), ACTIVE)
+                    .orElseThrow(() -> new BaseException(FIELD_NOT_FOUND));
+        }
+        if(searchCond.semesterIdx() != null) {
+            semesterJpaRepository.findByIdAndState(searchCond.semesterIdx(), ACTIVE)
+                    .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
+        }
     }
 }

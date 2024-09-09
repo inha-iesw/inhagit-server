@@ -1,7 +1,7 @@
 package inha.git.statistics.api.controller;
 
 import inha.git.common.BaseResponse;
-import inha.git.statistics.api.controller.dto.request.ProjectSearchCond;
+import inha.git.statistics.api.controller.dto.request.SearchCond;
 import inha.git.statistics.api.controller.dto.response.*;
 import inha.git.statistics.api.service.StatisticsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,19 +40,25 @@ public class StatisticsController {
     /**
      * 프로젝트 통계 조회 API
      *
-     * @param projectSearchCond 프로젝트 검색 조건
+     * @param searchCond 프로젝트 검색 조건
      * @return BaseResponse<ProjectStatisticsResponse>
      */
     @GetMapping("/project")
     @Operation(summary = "프로젝트 통계 조회 API", description = "프로젝트 통계를 조회합니다.")
-    public BaseResponse<ProjectStatisticsResponse> getProjectStatistics(@Validated @ModelAttribute ProjectSearchCond projectSearchCond) {
-        return BaseResponse.of(PROJECT_STATISTICS_SEARCH_OK, statisticsService.getProjectStatistics(projectSearchCond));
+    public BaseResponse<ProjectStatisticsResponse> getProjectStatistics(@Validated @ModelAttribute SearchCond searchCond) {
+        return BaseResponse.of(PROJECT_STATISTICS_SEARCH_OK, statisticsService.getProjectStatistics(searchCond));
     }
 
+    /**
+     * 질문 통계 조회 API
+     *
+     * @param searchCond 질문 검색 조건
+     * @return BaseResponse<QuestionStatisticsResponse>
+     */
     @GetMapping("/question")
     @Operation(summary = "질문 통계 조회 API", description = "질문 통계를 조회합니다.")
-    public BaseResponse<QuestionStatisticsResponse> getQuestionStatistics(@RequestParam(value = "idx", required = false) Integer idx) {
-        return BaseResponse.of(QUESTION_STATISTICS_SEARCH_OK, statisticsService.getQuestionStatistics(idx));
+    public BaseResponse<QuestionStatisticsResponse> getQuestionStatistics(@Validated @ModelAttribute SearchCond searchCond) {
+        return BaseResponse.of(QUESTION_STATISTICS_SEARCH_OK, statisticsService.getQuestionStatistics(searchCond));
     }
 
     @GetMapping("/team")

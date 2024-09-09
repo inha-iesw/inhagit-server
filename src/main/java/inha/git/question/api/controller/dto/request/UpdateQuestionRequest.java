@@ -20,7 +20,7 @@ public record UpdateQuestionRequest(
         @Schema(description = "질문 주제 수정", example = "질문 주제 수정")
         String subject,
         @NotNull(message = "분야를 선택해주세요.")
-        @Schema(description = "분야 인덱스 리스트", example = "[1, 2]")
+        @Size(min = 1, max = 1, message = "하나의 분야만 선택해야 합니다.")
         List<Integer> fieldIdxList,
 
         @NotNull
