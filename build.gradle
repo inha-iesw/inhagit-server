@@ -85,6 +85,10 @@ dependencies {
 	implementation 'org.kohsuke:github-api:1.301'
 	implementation 'org.eclipse.jgit:org.eclipse.jgit:6.5.0.202303070854-r'
 
+	// spring boot actuator
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
 }
 
 tasks.named('test') {

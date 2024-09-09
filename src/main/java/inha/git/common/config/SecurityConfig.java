@@ -37,6 +37,8 @@ public class SecurityConfig {
     private static final String COMPANY_URL = "/api/v1/company/**";
 
     private static final String[] GET_ONLY_WHITE_LIST_URL = {
+            "/prometheus/**",
+            "/actuator/**",
             "/api/v1/departments",
             "/api/v1/colleges",
             "/api/v1/semesters",
