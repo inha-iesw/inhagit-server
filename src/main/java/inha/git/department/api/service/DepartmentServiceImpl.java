@@ -24,7 +24,7 @@ import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
-import static inha.git.common.code.status.ErrorStatus.DEPARTMENT_NOT_FOUND;
+import static inha.git.common.code.status.ErrorStatus.*;
 
 /**
  * DepartmentServiceImpl는 DepartmentService 인터페이스를 구현하는 클래스.
@@ -44,11 +44,17 @@ public class DepartmentServiceImpl implements DepartmentService{
     /**
      * 학과 전체 조회
      *
+     * @param collegeIdx 대학 인덱스
      * @return 학과 전체 조회 결과
      */
     @Override
-    public List<SearchDepartmentResponse> getDepartments() {
-        return departmentMapper.departmentsToSearchDepartmentResponses(departmentJpaRepository.findAllByState(ACTIVE));
+    public List<SearchDepartmentResponse> getDepartments(Integer collegeIdx) {
+        if(collegeIdx == null) {
+            return departmentMapper.departmentsToSearchDepartmentResponses(departmentJpaRepository.findAllByState(ACTIVE));
+        }
+        College college = collegeJpaRepository.findByIdAndState(collegeIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(COLLEGE_NOT_FOUND));
+        return departmentMapper.departmentsToSearchDepartmentResponses(departmentJpaRepository.findAllByCollegeAndState(college, ACTIVE));
     }
 
     /**
@@ -63,6 +69,9 @@ public class DepartmentServiceImpl implements DepartmentService{
         College college = collegeJpaRepository.findByIdAndState(createDepartmentRequest.collegeIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
         Department department = departmentMapper.createDepartmentRequestToDepartment(createDepartmentRequest, college);
+        if(!department.getCollege().getId().equals(college.getId())) {
+                throw new BaseException(DEPARTMENT_NOT_BELONG_TO_COLLEGE);
+        }
         Department savedDepartment = departmentJpaRepository.save(department);
 
         List<Semester> semesters = semesterJpaRepository.findAllByState(ACTIVE);

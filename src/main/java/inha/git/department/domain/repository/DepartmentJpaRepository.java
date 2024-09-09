@@ -1,6 +1,7 @@
 package inha.git.department.domain.repository;
 
 
+import inha.git.college.domain.College;
 import inha.git.common.BaseEntity;
 import inha.git.common.BaseEntity.State;
 import inha.git.department.domain.Department;
@@ -25,4 +26,6 @@ public interface DepartmentJpaRepository extends JpaRepository<Department, Integ
     boolean existsByNameAndState(String name, State state);
 
     Optional<Department> findByName(String name);
+
+    List<Department> findAllByCollegeAndState(College college, State state);
 }
