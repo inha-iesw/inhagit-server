@@ -9,6 +9,10 @@ import inha.git.department.api.controller.dto.request.UpdateDepartmentRequest;
 import inha.git.department.api.mapper.DepartmentMapper;
 import inha.git.department.domain.Department;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
+import inha.git.field.domain.Field;
+import inha.git.field.domain.repository.FieldJpaRepository;
+import inha.git.semester.domain.Semester;
+import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.domain.DepartmentStatistics;
 import inha.git.statistics.domain.repository.DepartmentStatisticsJpaRepository;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +37,8 @@ public class DepartmentServiceImpl implements DepartmentService{
     private final DepartmentJpaRepository departmentJpaRepository;
     private final DepartmentMapper departmentMapper;
     private final DepartmentStatisticsJpaRepository departmentStatisticsJpaRepository;
+    private final SemesterJpaRepository semesterJpaRepository;
+    private final FieldJpaRepository fieldJpaRepository;
     private final CollegeJpaRepository collegeJpaRepository;
 
     /**
@@ -58,8 +64,16 @@ public class DepartmentServiceImpl implements DepartmentService{
                 .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
         Department department = departmentMapper.createDepartmentRequestToDepartment(createDepartmentRequest, college);
         Department savedDepartment = departmentJpaRepository.save(department);
-        DepartmentStatistics departmentStatistics = departmentMapper.toDepartmentStatistics(savedDepartment.getId());
-        departmentStatisticsJpaRepository.save(departmentStatistics);
+
+        List<Semester> semesters = semesterJpaRepository.findAllByState(ACTIVE);
+        List<Field> fields = fieldJpaRepository.findAllByState(ACTIVE);
+
+        for (Semester semester : semesters) {
+            for (Field field : fields) {
+                DepartmentStatistics departmentStatistics = departmentMapper.createDepartmentStatistics(department, semester, field);
+                departmentStatisticsJpaRepository.save(departmentStatistics);
+            }
+        }
         return savedDepartment.getName() + " 학과가 생성되었습니다.";
     }
 

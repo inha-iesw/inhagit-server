@@ -39,7 +39,7 @@ public record StudentSignupRequest(
         String userNumber,
 
         @NotNull(message = "학과 목록은 필수 입력 항목입니다.")
-        @Size(min = 1, message = "최소 한 개의 학과를 선택해야 합니다.")
+        @Size(min = 1, max = 1, message = "하나의 학과만 선택해야 합니다.")
         @Schema(description = "학과 ID 목록", example = "[1]")
         List<Integer> departmentIdList
 ) {

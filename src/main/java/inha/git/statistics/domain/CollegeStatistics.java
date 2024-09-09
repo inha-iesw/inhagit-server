@@ -1,9 +1,10 @@
 package inha.git.statistics.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import inha.git.college.domain.College;
+import inha.git.field.domain.Field;
+import inha.git.semester.domain.Semester;
+import inha.git.statistics.domain.id.CollegeStatisticsStatisticsId;
+import jakarta.persistence.*;
 import lombok.*;
 
 /**
@@ -18,12 +19,29 @@ import lombok.*;
 @Table(name = "college_statistics_tb")
 public class CollegeStatistics {
 
-    @Id
-    @Column(name = "college_id", nullable = false)
-    private Integer collegeId;
+    @EmbeddedId
+    private CollegeStatisticsStatisticsId id;
+
+    @MapsId("collegeId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "college_id", nullable = false)
+    private College college;
+
+    @MapsId("semesterId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "semester_id", nullable = false)
+    private Semester semester;
+
+    @MapsId("fieldId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "field_id", nullable = false)
+    private Field field;
 
     @Column(name = "project_count", nullable = false)
     private Integer projectCount = 0;
+
+    @Column(name = "github_project_count", nullable = false)
+    private Integer githubProjectCount = 0;
 
     @Column(name = "question_count", nullable = false)
     private Integer questionCount = 0;
@@ -142,6 +160,14 @@ public class CollegeStatistics {
 
     public void decreaseProblemParticipationCount() {
         problemParticipationCount--;
+    }
+
+    public void increaseGithubProjectCount() {
+        githubProjectCount++;
+    }
+
+    public void decreaseGithubProjectCount() {
+        githubProjectCount--;
     }
 
 }

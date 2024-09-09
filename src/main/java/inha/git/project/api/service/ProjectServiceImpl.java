@@ -87,7 +87,9 @@ public class ProjectServiceImpl implements ProjectService {
         List<ProjectField> projectFields = createAndSaveProjectFields(createProjectRequest.fieldIdxList(), savedProject);
         projectFieldJpaRepository.saveAll(projectFields);
 
-        statisticsService.increaseCount(user, 1);
+        List<Field> fields = fieldJpaRepository.findAllById(createProjectRequest.fieldIdxList());
+
+        statisticsService.increaseCount(user, fields, semester,  1);
         return projectMapper.projectToProjectResponse(savedProject);
     }
 
@@ -108,7 +110,8 @@ public class ProjectServiceImpl implements ProjectService {
 
         List<ProjectField> projectFields = createAndSaveProjectFields(createGithubProjectRequest.fieldIdxList(), savedProject);
         projectFieldJpaRepository.saveAll(projectFields);
-        statisticsService.increaseCount(user, 1);
+        List<Field> fields = fieldJpaRepository.findAllById(createGithubProjectRequest.fieldIdxList());
+        statisticsService.increaseCount(user, fields, semester,  8);
         return projectMapper.projectToProjectResponse(savedProject);
     }
 
@@ -186,8 +189,15 @@ public class ProjectServiceImpl implements ProjectService {
         project.setDeletedAt();
         project.setState(INACTIVE);
         projectJpaRepository.save(project);
-
-        statisticsService.decreaseCount(project.getUser(), 1);
+        List<Field> fields = project.getProjectFields().stream()
+                .map(ProjectField::getField)
+                .toList();
+        if(project.getRepoName() == null) {
+            statisticsService.decreaseCount(project.getUser(), fields, project.getSemester(), 1);
+        }
+        else {
+            statisticsService.decreaseCount(project.getUser(), fields, project.getSemester(), 8);
+        }
         return projectMapper.projectToProjectResponse(project);
 
 

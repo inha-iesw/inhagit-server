@@ -6,6 +6,7 @@ import inha.git.semester.domain.Semester;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,4 +21,7 @@ public interface SemesterJpaRepository extends JpaRepository<Semester, Integer> 
     Optional<Semester> findByIdAndState(Integer semesterIdx, State state);
 
     List<Semester> findAllByState(State state, Sort sort);
+    List<Semester> findAllByState(State state);
+
+    Optional<Semester> findByNameAndState(String name, State state);
 }

@@ -47,7 +47,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(length = 8,name = "user_number")
     private String userNumber;
 
-    @Column(length = 50, name = "github_token")
+    @Column(length = 150, name = "github_token")
     private String githubToken;
 
     @Column(name = "blocked_at")

@@ -23,7 +23,6 @@ import inha.git.semester.mapper.SemesterMapper;
 import inha.git.statistics.api.service.StatisticsService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -104,7 +103,8 @@ public class QuestionServiceImpl implements QuestionService {
 
         List<QuestionField> questionFields = createAndSaveQuestionFields(createQuestionRequest.fieldIdxList(), saveQuestion);
         questionFieldJpaRepository.saveAll(questionFields);
-        statisticsService.increaseCount(user, 2);
+        List<Field> fields = fieldJpaRepository.findAllById(createQuestionRequest.fieldIdxList());
+        statisticsService.increaseCount(user, fields, semester, 2);
         return questionMapper.questionToQuestionResponse(saveQuestion);
     }
 
@@ -153,7 +153,10 @@ public class QuestionServiceImpl implements QuestionService {
         question.setDeletedAt();
         question.setState(INACTIVE);
         questionJpaRepository.save(question);
-        statisticsService.decreaseCount(question.getUser(), 2);
+        List<Field> fields = question.getQuestionFields().stream()
+                .map(QuestionField::getField)
+                .toList();
+        statisticsService.decreaseCount(question.getUser(), fields, question.getSemester(), 2);
         return questionMapper.questionToQuestionResponse(question);
     }
 

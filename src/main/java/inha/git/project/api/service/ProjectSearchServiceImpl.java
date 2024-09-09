@@ -129,7 +129,9 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
                             .filter(f -> !f.getFileName().toString().equals(GIT) &&
                                     !f.getFileName().toString().equals(DS_STORE) &&
                                     !f.getFileName().toString().startsWith(UNDERBAR) &&
-                                    !f.getFileName().toString().startsWith(MACOSX))
+                                    !f.getFileName().toString().startsWith(MACOSX) &&
+                                    !f.getFileName().toString().equals(PYCACHE) &&
+                                    !f.getFileName().toString().endsWith(PYC))
                             .map(this::mapToFileResponse)
                             .toList();
                     return fileList;

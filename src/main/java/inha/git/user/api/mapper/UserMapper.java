@@ -5,7 +5,10 @@ import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.department.domain.Department;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
+import inha.git.field.domain.Field;
+import inha.git.semester.domain.Semester;
 import inha.git.statistics.domain.UserStatistics;
+import inha.git.statistics.domain.id.UserStatisticsId;
 import inha.git.user.api.controller.dto.request.CompanySignupRequest;
 import inha.git.user.api.controller.dto.request.ProfessorSignupRequest;
 import inha.git.user.api.controller.dto.request.StudentSignupRequest;
@@ -116,19 +119,9 @@ public interface UserMapper {
     CompanySignupResponse userToCompanySignupResponse(User user);
 
 
-    /**
-     * User 엔티티를 SearchNonCompanyUserResponse로 변환하는 메서드 정의
-     *
-     * @param id User 엔티티의 id
-     * @return SearchNonCompanyUserResponse
-     */
-    @Mapping(source = "id", target = "userId")
-    @Mapping(target = "projectCount", constant = "0")
-    @Mapping(target = "questionCount", constant = "0")
-    @Mapping(target = "teamCount", constant = "0")
-    @Mapping(target = "patentCount", constant = "0")
-    @Mapping(target = "problemCount", constant = "0")
-    UserStatistics toUserStatistics(Integer id);
+    default UserStatistics createUserStatistics(User user, Semester semester, Field field) {
+        return new UserStatistics(new UserStatisticsId(user.getId(), semester.getId(), field.getId()), user, semester, field, 0, 0, 0, 0, 0, 0);
+    }
 
     /**
      * Department 엔티티를 SearchDepartmentResponse로 변환하는 메서드 정의
@@ -152,17 +145,19 @@ public interface UserMapper {
      * User 엔티티를 SearchNonCompanyUserResponse로 변환하는 메서드 정의
      *
      * @param user User 엔티티
-     * @param userStatistics UserStatistics 엔티티
-     * @param departmentList Department 엔티티 목록
-     * @param position User의 직책
-     * @param githubTokenState 깃허브 토큰 등록 유무
+     * @param totalProjectCount 사용자의 총 프로젝트 수
+     * @param totalQuestionCount 사용자의 총 질문 수
+     * @param totalTeamCount 사용자의 총 팀 수
+     * @param departmentList 사용자의 소속 부서 목록
+     * @param position 사용자의 직책
+     * @param githubTokenState 사용자의 깃허브 토큰 상태
      * @return SearchNonCompanyUserResponse
      */
     @Mapping(source = "user.id", target = "idx")
-    @Mapping(source = "userStatistics.projectCount", target = "projectNumber")
-    @Mapping(source = "userStatistics.questionCount", target = "questionCommentNumber")
-    @Mapping(source = "userStatistics.teamCount", target = "belongTeamNumber")
-    SearchNonCompanyUserResponse toSearchNonCompanyUserResponse(User user, UserStatistics userStatistics, List<SearchDepartmentResponse> departmentList, Integer position, Boolean githubTokenState);
+    @Mapping(source = "totalProjectCount", target = "projectNumber")
+    @Mapping(source = "totalQuestionCount", target = "questionCommentNumber")
+    @Mapping(source = "totalTeamCount", target = "belongTeamNumber")
+    SearchNonCompanyUserResponse toSearchNonCompanyUserResponse(User user, Integer totalProjectCount, Integer totalQuestionCount, Integer totalTeamCount, List<SearchDepartmentResponse> departmentList, Integer position, Boolean githubTokenState);
 
 
     /**

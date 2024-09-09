@@ -4,7 +4,10 @@ import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
 import inha.git.college.domain.College;
 import inha.git.department.api.controller.dto.request.CreateDepartmentRequest;
 import inha.git.department.domain.Department;
+import inha.git.field.domain.Field;
+import inha.git.semester.domain.Semester;
 import inha.git.statistics.domain.DepartmentStatistics;
+import inha.git.statistics.domain.id.DepartmentStatisticsId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -33,23 +36,16 @@ public interface DepartmentMapper {
     SearchDepartmentResponse departmentToSearchDepartmentResponse(Department department);
     List<SearchDepartmentResponse> departmentsToSearchDepartmentResponses(List<Department> departmentList);
 
+
     /**
      * Department 엔티티를 DepartmentStatistics 엔티티로 변환
      *
-     * @param id 학과 id
+     * @param department Department 엔티티
+     * @param semester Semester 엔티티
+     * @param field Field 엔티티
      * @return DepartmentStatistics 엔티티
      */
-    @Mapping(source = "id", target = "departmentId")
-    @Mapping(target = "projectCount", constant = "0")
-    @Mapping(target = "questionCount", constant = "0")
-    @Mapping(target = "teamCount", constant = "0")
-    @Mapping(target = "problemCount", constant = "0")
-    @Mapping(target = "patentCount", constant = "0")
-    @Mapping(target = "projectUserCount", constant = "0")
-    @Mapping(target = "questionUserCount", constant = "0")
-    @Mapping(target = "teamUserCount", constant = "0")
-    @Mapping(target = "patentUserCount", constant = "0")
-    @Mapping(target = "problemUserCount", constant = "0")
-    @Mapping(target = "problemParticipationCount", constant = "0")
-    DepartmentStatistics toDepartmentStatistics(Integer id);
+    default DepartmentStatistics createDepartmentStatistics(Department department, Semester semester, Field field) {
+        return new DepartmentStatistics(new DepartmentStatisticsId(department.getId(), semester.getId(), field.getId()), department, semester, field, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    }
 }

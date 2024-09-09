@@ -5,6 +5,7 @@ import inha.git.common.BaseEntity;
 import inha.git.field.domain.Field;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,4 +21,6 @@ public interface FieldJpaRepository extends JpaRepository<Field, Integer> {
     boolean existsByNameAndState(String name, State state);
 
     List<Field> findAllByState(State state);
+
+    Optional<Field> findByNameAndState(String name, State state);
 }
