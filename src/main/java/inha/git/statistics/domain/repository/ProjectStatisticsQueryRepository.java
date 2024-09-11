@@ -213,7 +213,7 @@ public class ProjectStatisticsQueryRepository {
                     .fetchOne();
         } else {
             return queryFactory
-                    .select(userCountStatistics.userProjectCount.sum())
+                    .select(userCountStatistics.totalProjectCount.sum())
                     .from(userCountStatistics)
                     .where(applyFilters(searchCond))
                     .fetchOne();
