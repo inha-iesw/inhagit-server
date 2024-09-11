@@ -133,10 +133,10 @@ public class GithubServiceImpl implements GithubService {
         String url = "https://api.github.com/repos/" + project.getRepoName() + "/contents/" + path;
 
         HttpHeaders headers = new HttpHeaders();
-        if (!isValidGithubToken(project.getUser().getGithubToken())) {
-            throw new BaseException(INVALID_GITHUB_TOKEN);
-        }
-        headers.set("Authorization", "token " + project.getUser().getGithubToken());
+        String githubToken = project.getUser().getGithubToken();
+        log.info("!!!!!!!!!!!!!!!! token: {}", githubToken);
+        log.info("!!!!!!!!!!!!!!!!여기 통과? token: {}", githubToken);
+        headers.set("Authorization", "token " + githubToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         ResponseEntity<List<GithubItemDTO>> response;
@@ -149,7 +149,7 @@ public class GithubServiceImpl implements GithubService {
             );
         } catch (Exception e) {
             // If it's not a list, it might be a single file
-            return List.of(getGithubFileContent(user, project.getRepoName(), path));
+            return List.of(getGithubFileContent(project.getUser(), project.getRepoName(), path));
         }
 
         List<GithubItemDTO> items = response.getBody();
