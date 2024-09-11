@@ -70,7 +70,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             UserCountStatistics userCountStatistics= userCountStatisticsJpaRepository.findById(new UserCountStatisticsId(semester.getId(), field.getId())).orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
             if(type == 1){
                 userCountStatistics.increaseTotalProjectCount();
-                if (userStatistics.getProjectCount() == 0 && userStatistics.getGithubProjectCount() == 0) {
+                if (userStatistics.getProjectCount() == 0 || userStatistics.getGithubProjectCount() == 0) {
                     userCountStatistics.increaseUserProjectCount();
                     userDepartments.forEach(userDepartment -> {
                         departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId()))
@@ -191,7 +191,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                         });
             } else if(type == 8) {
                 userCountStatistics.increaseTotalGithubProjectCount();
-                if (userStatistics.getProjectCount() == 0 && userStatistics.getGithubProjectCount() == 0) {
+                if (userStatistics.getProjectCount() == 0 || userStatistics.getGithubProjectCount() == 0) {
                     userCountStatistics.increaseUserProjectCount();
                     userDepartments.forEach(userDepartment -> {
                         departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId()))
@@ -229,7 +229,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             UserCountStatistics userCountStatistics = userCountStatisticsJpaRepository.findById(new UserCountStatisticsId(semester.getId(), field.getId())).orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
             if(type == 1) {
                 userCountStatistics.decreaseTotalProjectCount();
-                if(userStatistics.getProjectCount() == 1) {
+                if(userStatistics.getProjectCount() == 1 && userStatistics.getGithubProjectCount() == 0) {
                     userCountStatistics.decreaseUserProjectCount();
                     userDepartments
                             .forEach(userDepartment -> {
@@ -352,7 +352,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                         });
             } else if(type == 8) {
                 userCountStatistics.decreaseTotalGithubProjectCount();
-                if(userStatistics.getProjectCount() == 1) {
+                if(userStatistics.getProjectCount() == 0 && userStatistics.getGithubProjectCount() == 1) {
                     userCountStatistics.decreaseUserProjectCount();
                     userDepartments
                             .forEach(userDepartment -> {
