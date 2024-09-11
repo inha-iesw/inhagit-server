@@ -1,6 +1,7 @@
 package inha.git.search.api.service;
 
 import inha.git.search.api.controller.dto.response.SearchResponse;
+import inha.git.search.domain.enums.TableType;
 import inha.git.search.domain.repository.SearchQueryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +33,9 @@ public class SearchServiceImpl implements SearchService {
      * @return 검색 결과
      */
     @Override
-    public Page<SearchResponse> search(String search, Integer page) {
+    public Page<SearchResponse> search(String search, Integer page, TableType type) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
-        return searchQueryRepository.search(search, pageable);
+        return searchQueryRepository.search(search, pageable, type);
     }
+
 }

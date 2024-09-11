@@ -201,6 +201,7 @@ public enum ErrorStatus implements BaseErrorCode {
     PATENT_API_SAX_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PATENT5004", "특허 API와의 통신 중 SAX 에러가 발생하였습니다."),
 
     INVALID_SEARCH_QUERY(HttpStatus.BAD_REQUEST, "SEARCH4000", "검색어가 유효하지 않습니다."),
+    INVALID_SEARCH_TYPE(HttpStatus.BAD_REQUEST, "SEARCH4001", "검색 타입이 유효하지 않습니다."),
 
     /**
      * 500 :  Database, Server 오류

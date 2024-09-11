@@ -4,12 +4,10 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.notice.domain.QNotice;
 import inha.git.problem.domain.QProblem;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
-import inha.git.project.domain.QProject;
 import inha.git.question.domain.QQuestion;
 import inha.git.search.api.controller.dto.response.SearchResponse;
 import inha.git.search.domain.enums.TableType;
 import inha.git.team.domain.QTeamPost;
-import inha.git.user.domain.QUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -18,6 +16,9 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.stream.Stream;
+
+import static inha.git.project.domain.QProject.project;
+import static inha.git.user.domain.QUser.user;
 
 /**
  * SearchQueryRepository는 검색 쿼리를 처리하는 레포지토리.
@@ -33,13 +34,59 @@ public class SearchQueryRepository {
      *
      * @param search   검색어
      * @param pageable 페이지 정보
+     * @param type     검색할 테이블 타입 (null일 경우 전체 검색)
      * @return 검색 결과
      */
-    public Page<SearchResponse> search(String search, Pageable pageable) {
+    public Page<SearchResponse> search(String search, Pageable pageable, TableType type) {
+        List<SearchResponse> results;
 
-        QProject project = QProject.project;
-        QUser user = QUser.user;
-        List<SearchResponse> projectResults = queryFactory
+        if (type == null) {
+            // type이 null일 경우 전체 조회
+            results = getAllResults(search, pageable);
+        } else {
+            // type이 지정된 경우 해당 type만 조회
+            results = getResultsByType(search, pageable, type);
+        }
+
+        return new PageImpl<>(results, pageable, results.size());
+    }
+
+    /**
+     * 전체 결과 조회
+     */
+    private List<SearchResponse> getAllResults(String search, Pageable pageable) {
+        // 각 타입별로 조회한 결과를 모두 합침
+        List<SearchResponse> projectResults = getProjectResults(search, pageable);
+        List<SearchResponse> problemResults = getProblemResults(search, pageable);
+        List<SearchResponse> questionResults = getQuestionResults(search, pageable);
+        List<SearchResponse> teamResults = getTeamResults(search, pageable);
+        List<SearchResponse> noticeResults = getNoticeResults(search, pageable);
+
+        return Stream.of(projectResults, problemResults, questionResults, teamResults, noticeResults)
+                .flatMap(List::stream)
+                .sorted((a, b) -> b.createdAt().compareTo(a.createdAt()))  // 날짜 기준 내림차순 정렬
+                .limit(pageable.getPageSize())
+                .toList();
+    }
+
+    /**
+     * 특정 type에 해당하는 결과만 조회
+     */
+    private List<SearchResponse> getResultsByType(String search, Pageable pageable, TableType type) {
+        return switch (type) {
+            case I_FOSS -> getProjectResults(search, pageable);
+            case PROBLEM -> getProblemResults(search, pageable);
+            case ISSS -> getQuestionResults(search, pageable);
+            case TEAM -> getTeamResults(search, pageable);
+            case NOTICE -> getNoticeResults(search, pageable);
+        };
+    }
+
+    /**
+     * 프로젝트 검색 결과
+     */
+    private List<SearchResponse> getProjectResults(String search, Pageable pageable) {
+        return queryFactory
                 .selectFrom(project)
                 .join(project.user, user)
                 .where(
@@ -59,10 +106,14 @@ public class SearchQueryRepository {
                         new SearchUserResponse(p.getUser().getId(), p.getUser().getName()),
                         TableType.I_FOSS.getValue()))
                 .toList();
+    }
 
-        // Problem 검색
+    /**
+     * 문제 검색 결과
+     */
+    private List<SearchResponse> getProblemResults(String search, Pageable pageable) {
         QProblem problem = QProblem.problem;
-        List<SearchResponse> problemResults = queryFactory
+        return queryFactory
                 .selectFrom(problem)
                 .join(problem.user, user)
                 .where(
@@ -82,10 +133,14 @@ public class SearchQueryRepository {
                         new SearchUserResponse(p.getUser().getId(), p.getUser().getName()),
                         TableType.PROBLEM.getValue()))
                 .toList();
+    }
 
-        // Question 검색
+    /**
+     * 질문 검색 결과
+     */
+    private List<SearchResponse> getQuestionResults(String search, Pageable pageable) {
         QQuestion question = QQuestion.question;
-        List<SearchResponse> questionResults = queryFactory
+        return queryFactory
                 .selectFrom(question)
                 .join(question.user, user)
                 .where(
@@ -105,10 +160,14 @@ public class SearchQueryRepository {
                         new SearchUserResponse(q.getUser().getId(), q.getUser().getName()),
                         TableType.ISSS.getValue()))
                 .toList();
+    }
 
-        // Team Post 검색
+    /**
+     * 팀 포스트 검색 결과
+     */
+    private List<SearchResponse> getTeamResults(String search, Pageable pageable) {
         QTeamPost teamPost = QTeamPost.teamPost;
-        List<SearchResponse> teamResults = queryFactory
+        return queryFactory
                 .selectFrom(teamPost)
                 .join(teamPost.team.user, user)
                 .where(
@@ -128,10 +187,14 @@ public class SearchQueryRepository {
                         new SearchUserResponse(t.getTeam().getUser().getId(), t.getTeam().getUser().getName()),
                         TableType.TEAM.getValue()))
                 .toList();
+    }
 
-        // Notice 검색
+    /**
+     * 공지 검색 결과
+     */
+    private List<SearchResponse> getNoticeResults(String search, Pageable pageable) {
         QNotice notice = QNotice.notice;
-        List<SearchResponse> noticeResults = queryFactory
+        return queryFactory
                 .selectFrom(notice)
                 .join(notice.user, user)
                 .where(
@@ -151,13 +214,5 @@ public class SearchQueryRepository {
                         new SearchUserResponse(n.getUser().getId(), n.getUser().getName()),
                         TableType.NOTICE.getValue()))
                 .toList();
-
-        List<SearchResponse> allResults = Stream.of(projectResults, problemResults, questionResults, teamResults, noticeResults)
-                .flatMap(List::stream)
-                .sorted((a, b) -> b.createdAt().compareTo(a.createdAt()))  // 날짜 기준 내림차순 정렬
-                .limit(pageable.getPageSize())
-                .toList();
-
-        return new PageImpl<>(allResults, pageable, allResults.size());
     }
 }
