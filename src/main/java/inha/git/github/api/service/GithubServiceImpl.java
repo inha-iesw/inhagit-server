@@ -133,7 +133,10 @@ public class GithubServiceImpl implements GithubService {
         String url = "https://api.github.com/repos/" + project.getRepoName() + "/contents/" + path;
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "token " + user.getGithubToken());
+        if (!isValidGithubToken(project.getUser().getGithubToken())) {
+            throw new BaseException(INVALID_GITHUB_TOKEN);
+        }
+        headers.set("Authorization", "token " + project.getUser().getGithubToken());
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         ResponseEntity<List<GithubItemDTO>> response;
