@@ -22,7 +22,8 @@ public record CreateGithubProjectRequest(
         @Schema(description = "프로젝트 주제", example = "프로젝트 주제")
         String subject,
         @NotNull(message = "분야를 선택해주세요.")
-        @Schema(description = "분야 인덱스 리스트", example = "[1, 2]")
+        @Size(min = 1, max = 1, message = "하나의 분야만 선택해야 합니다.")
+        @Schema(description = "분야 인덱스 리스트", example = "[1]")
         List<Integer> fieldIdxList,
 
         @NotEmpty
