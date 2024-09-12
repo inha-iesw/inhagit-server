@@ -19,7 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -175,6 +178,14 @@ public class GithubServiceImpl implements GithubService {
         }
     }
 
+    /**
+     * Github 파일의 내용을 조회합니다.
+     *
+     * @param user     사용자 정보
+     * @param repoName 레포지토리 이름
+     * @param path     파일 경로
+     * @return Github 파일 내용
+     */
     public SearchFileDetailResponse getGithubFileContent(User user, String repoName, String path) {
         String url = "https://api.github.com/repos/" + repoName + "/contents/" + path;
 
@@ -189,18 +200,17 @@ public class GithubServiceImpl implements GithubService {
             throw new BaseException(FILE_NOT_FOUND);
         }
 
+        String fileName = fileContent.getName();
         String content;
-        if ("base64".equals(fileContent.getEncoding())) {
-            try {
-                byte[] decodedBytes = Base64.getDecoder().decode(fileContent.getContent().replaceAll("\n", ""));
-                content = new String(decodedBytes, StandardCharsets.UTF_8);
-            } catch (IllegalArgumentException e) {
-                log.error("Base64 디코딩 중 오류 발생: " + e.getMessage());
-                throw new BaseException(FILE_CONVERT);
-            }
+
+        if (fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") || fileName.endsWith(".gif") || fileName.endsWith(".svg") || fileName.endsWith(".ico") || fileName.endsWith(".bmp") || fileName.endsWith(".webp")) {
+            content = fileContent.getContent();
+        } else if (fileName.endsWith(".json")) {
+            byte[] decodedBytes = Base64.getDecoder().decode(fileContent.getContent().replaceAll("\n", ""));
+            content = new String(decodedBytes, StandardCharsets.UTF_8);
         } else {
-            log.warn("파일이 Base64로 인코딩되지 않음. 인코딩 형식: " + fileContent.getEncoding());
-            content = "파일이 Base64로 인코딩되지 않았습니다.";
+            byte[] decodedBytes = Base64.getDecoder().decode(fileContent.getContent().replaceAll("\n", ""));
+            content = new String(decodedBytes, StandardCharsets.UTF_8);  // 텍스트 파일 처리
         }
         return new SearchFileDetailResponse(fileContent.getName(), "file", content);
     }
