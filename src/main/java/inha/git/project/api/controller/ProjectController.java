@@ -113,6 +113,7 @@ public class ProjectController {
             throw new BaseException(COMPANY_CANNOT_CREATE_PROJECT);
         }
         ValidFile.validateAndProcessZipFile(file);
+        log.info("!!!!file: {}", file.getOriginalFilename());
         return BaseResponse.of(PROJECT_CREATE_OK, projectService.createProject(user, createProjectRequest, file));
     }
 
