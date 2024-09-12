@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -19,6 +20,7 @@ import static inha.git.common.code.status.ErrorStatus.*;
 /**
  * ValidFile 클래스는 파일 유효성 검사 기능을 제공하는 클래스
  */
+
 
 @Slf4j
 public class ValidFile {
@@ -38,7 +40,7 @@ public class ValidFile {
     }
 
     /**
-     * zip 파일 유효성 검사
+     * zip 파일 유효성 검사 및 처리
      *
      * @param file zip 파일
      */
@@ -60,13 +62,14 @@ public class ValidFile {
             throw new BaseException(FILE_PROCESS_ERROR);
         }
 
-        try (ZipFile zipFile = new ZipFile(convertMultiPartToFile(file));
+        // Zip 파일 처리 로직
+        try (ZipFile zipFile = createZipFileWithFallback(convertMultiPartToFile(file));
              ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(processedZipFile))) {
 
-            int fileCount = 0;  // 파일 개수를 카운트
+            int fileCount = 0;
             long totalSize = 0;
 
-            for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements();) {
+            for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements(); ) {
                 ZipEntry entry = entries.nextElement();
                 String fileName = entry.getName();
 
@@ -84,6 +87,7 @@ public class ValidFile {
                 fileCount++;  // 파일 개수 카운트
                 long entrySize = copyAndCountBytes(zipFile.getInputStream(entry), zos);
                 totalSize += entrySize;
+
                 if (totalSize > MAX_SIZE_BYTES) {
                     throw new BaseException(FILE_MAX_SIZE);
                 }
@@ -100,6 +104,17 @@ public class ValidFile {
         return processedZipFile;
     }
 
+    // ZipFile을 생성할 때, UTF-8 또는 CP-949로 처리
+    private static ZipFile createZipFileWithFallback(File file) throws IOException {
+        try {
+            return new ZipFile(file, StandardCharsets.UTF_8);  // UTF-8로 시도
+        } catch (IOException e) {
+            log.warn("Failed to unzip with UTF-8 encoding. Retrying with CP-949...");
+            return new ZipFile(file, Charset.forName("CP949"));  // 실패하면 CP-949로 다시 시도
+        }
+    }
+
+    // MultipartFile을 File로 변환
     private static File convertMultiPartToFile(MultipartFile file) throws IOException {
         File convFile = File.createTempFile("temp", ".zip");
         try (FileOutputStream fos = new FileOutputStream(convFile)) {
@@ -108,6 +123,7 @@ public class ValidFile {
         return convFile;
     }
 
+    // 파일명을 처리하는 메서드 (공백을 언더스코어로 변경)
     private static String processFileName(String fileName) {
         // 공백을 언더스코어로 변경
         String processed = fileName.replaceAll("\\s", "_");
@@ -120,6 +136,7 @@ public class ValidFile {
         return processed;
     }
 
+    // InputStream에서 데이터를 읽고 OutputStream에 쓰는 메서드
     private static long copyAndCountBytes(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[8192];
         long count = 0;
@@ -133,6 +150,7 @@ public class ValidFile {
 
 
 
+    // JPG, PNG, PDF, ZIP 파일 유효성 검사
     private static final long MAX_SIZE_BYTES_2 = MAX_SIZE_MB * 1024 * 1024;
 
     private static final Set<String> ALLOWED_CONTENT_TYPES_2 = new HashSet<>();
@@ -151,11 +169,6 @@ public class ValidFile {
         ALLOWED_CONTENT_TYPES_2.add("application/x-zip");
     }
 
-    /**
-     * JPG, PNG, PDF, ZIP 파일 유효성 검사
-     *
-     * @param file 업로드할 파일
-     */
     public static void validateImagePdfZipFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new BaseException(FILE_NOT_FOUND);
