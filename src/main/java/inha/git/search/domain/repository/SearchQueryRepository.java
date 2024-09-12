@@ -104,7 +104,9 @@ public class SearchQueryRepository {
                         p.getTitle(),
                         p.getCreatedAt(),
                         new SearchUserResponse(p.getUser().getId(), p.getUser().getName()),
-                        TableType.I_FOSS.getValue()))
+                        TableType.I_FOSS.getValue(),
+                        p.getRepoName() != null)
+                )
                 .toList();
     }
 
@@ -131,7 +133,8 @@ public class SearchQueryRepository {
                         p.getTitle(),
                         p.getCreatedAt(),
                         new SearchUserResponse(p.getUser().getId(), p.getUser().getName()),
-                        TableType.PROBLEM.getValue()))
+                        TableType.PROBLEM.getValue(),
+                        null))
                 .toList();
     }
 
@@ -158,7 +161,8 @@ public class SearchQueryRepository {
                         q.getTitle(),
                         q.getCreatedAt(),
                         new SearchUserResponse(q.getUser().getId(), q.getUser().getName()),
-                        TableType.ISSS.getValue()))
+                        TableType.ISSS.getValue(),
+                        null))
                 .toList();
     }
 
@@ -185,7 +189,8 @@ public class SearchQueryRepository {
                         t.getTitle(),
                         t.getCreatedAt(),
                         new SearchUserResponse(t.getTeam().getUser().getId(), t.getTeam().getUser().getName()),
-                        TableType.TEAM.getValue()))
+                        TableType.TEAM.getValue(),
+                        null))
                 .toList();
     }
 
@@ -212,7 +217,8 @@ public class SearchQueryRepository {
                         n.getTitle(),
                         n.getCreatedAt(),
                         new SearchUserResponse(n.getUser().getId(), n.getUser().getName()),
-                        TableType.NOTICE.getValue()))
+                        TableType.NOTICE.getValue(),
+                        null))
                 .toList();
     }
 }

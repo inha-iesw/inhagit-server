@@ -26,6 +26,9 @@ public record SearchResponse(
 
         @NotNull
         @Schema(description = "게시글 타입", example = "팀")
-        String tableName
+        String tableName,
+
+        @Schema(description = "깃허브 유무", example = "true")
+        Boolean isRepo
 ) {
 }
