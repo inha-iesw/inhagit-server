@@ -1,6 +1,7 @@
 package inha.git.project.api.controller;
 
 import inha.git.common.BaseResponse;
+import inha.git.project.api.controller.dto.request.CreatePatentRequest;
 import inha.git.project.api.controller.dto.response.PatentResponse;
 import inha.git.project.api.controller.dto.response.SearchPatentResponse;
 import inha.git.project.api.service.ProjectPatentService;
@@ -10,7 +11,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import static inha.git.common.code.status.SuccessStatus.*;
 
@@ -92,5 +95,14 @@ public class ProjectPatentController {
     public BaseResponse<PatentResponse> deletePatent(@AuthenticationPrincipal User user,
                                            @PathVariable("projectIdx") Integer projectIdx) {
         return BaseResponse.of(PATENT_DELETE_SUCCESS, projectPatentService.deletePatent(user, projectIdx));
+    }
+
+    @PostMapping("/{projectIdx}/manual")
+    @Operation(summary = "직접 특허 등록 API", description = "직접 특허를 등록합니다.")
+    public BaseResponse<PatentResponse> registerManualPatent(@AuthenticationPrincipal User user,
+                                                             @PathVariable("projectIdx") Integer projectIdx,
+                                                             @Validated @RequestPart CreatePatentRequest createPatentRequest,
+                                                             @RequestPart("file") MultipartFile file) {
+        return BaseResponse.of(PATENT_REGISTER_SUCCESS, projectPatentService.registerManualPatent(user, projectIdx, createPatentRequest, file));
     }
 }

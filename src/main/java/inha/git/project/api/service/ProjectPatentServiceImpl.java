@@ -1,6 +1,7 @@
 package inha.git.project.api.service;
 
 import inha.git.common.exceptions.BaseException;
+import inha.git.project.api.controller.dto.request.CreatePatentRequest;
 import inha.git.project.api.controller.dto.response.PatentResponse;
 import inha.git.project.api.controller.dto.response.SearchInventorResponse;
 import inha.git.project.api.controller.dto.response.SearchPatentResponse;
@@ -11,13 +12,16 @@ import inha.git.project.domain.ProjectPatentInventor;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentInventorJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentJpaRepository;
+import inha.git.user.domain.Company;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
+import inha.git.utils.file.FilePath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -174,6 +178,24 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
         project.setProjectPatentId(null);
         return projectMapper.toPatentResponse(projectPatent);
+    }
+
+    @Override
+    public PatentResponse registerManualPatent(User user, Integer projectIdx, CreatePatentRequest createPatentRequest, MultipartFile file) {
+//        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
+//                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+//        if(user.getId() != project.getUser().getId()) {
+//            throw new BaseException(USER_NOT_PROJECT_OWNER);
+//        }
+//        if(project.getProjectPatentId() != null) {
+//            throw new BaseException(ALREADY_REGISTERED_PATENT);
+//        }
+//        ProjectPatent savePatent = projectPatentJpaRepository.save(projectMapper.toProjectPatent(createPatentRequest, FilePath.storeFile(file, EVIDENCE)));
+//        List<ProjectPatentInventor> inventors = projectMapper.createToPatentInventor(createPatentRequest.inventors(), savePatent);
+//        inventors.forEach(projectPatentInventorJpaRepository::save);
+//        project.setProjectPatentId(savePatent.getId());
+//        return projectMapper.toPatentResponse(savePatent);
+        return null;
     }
 
 
