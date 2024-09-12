@@ -23,16 +23,12 @@ import inha.git.utils.file.FilePath;
 import inha.git.utils.file.UnZip;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
@@ -128,7 +124,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     public ProjectResponse updateProject(User user, Integer projectIdx, UpdateProjectRequest updateProjectRequest, MultipartFile file) {
-
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         if(!project.getUser().getId().equals(user.getId()) && !user.getRole().equals(Role.ADMIN)) {
@@ -136,37 +131,54 @@ public class ProjectServiceImpl implements ProjectService {
         }
         Semester semester = semesterJpaRepository.findByIdAndState(updateProjectRequest.semesterIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
-        ProjectUpload findProjectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
-                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-
-        String directoryName = findProjectUpload.getDirectoryName();
-        String zipDirectoryName = findProjectUpload.getZipDirectoryName();
 
         projectMapper.updateProjectRequestToProject(updateProjectRequest, project, semester);
         Project savedProject = projectJpaRepository.saveAndFlush(project);
-
         projectFieldJpaRepository.deleteByProject(savedProject);
+        List<Field> originFields = savedProject.getProjectFields().stream()
+                .map(ProjectField::getField)
+                .toList();
+        if(project.getRepoName() != null) {
+            statisticsService.decreaseCount(user, originFields, semester,  8);
+        }
+        else {
+            statisticsService.decreaseCount(user, originFields, semester,  1);
+        }
 
         List<ProjectField> projectFields = createAndSaveProjectFields(updateProjectRequest.fieldIdxList(), savedProject);
-        projectFieldJpaRepository.saveAll(projectFields);
+        List<Field> fields = projectFieldJpaRepository.saveAll(projectFields).stream()
+                .map(ProjectField::getField) // ProjectField에서 Field 객체만 추출
+                .toList();
 
-        if (file != null) {
-            String[] paths = storeAndUnzipFile(file);
-            String zipFilePath = paths[0];
-            String folderName = paths[1];
+        if(project.getRepoName() == null) {
+            ProjectUpload findProjectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
+                    .orElseThrow(() -> new BaseException(PROJECT_UPLOAD_NOT_FOUND));
 
-            registerRollbackCleanup(zipFilePath, folderName);
+            String directoryName = findProjectUpload.getDirectoryName();
+            String zipDirectoryName = findProjectUpload.getZipDirectoryName();
+            if (file != null) {
+                String[] paths = storeAndUnzipFile(file);
+                String zipFilePath = paths[0];
+                String folderName = paths[1];
 
-            projectMapper.updateProjectUpload(PROJECT_UPLOAD + folderName, zipFilePath, findProjectUpload);
-            projectUploadJpaRepository.save(findProjectUpload);
+                registerRollbackCleanup(zipFilePath, folderName);
 
-            boolean isFileDeleted = FilePath.deleteFile(BASE_DIR_SOURCE_2 + zipDirectoryName);
-            boolean isDirDeleted = FilePath.deleteDirectory(BASE_DIR_SOURCE_2 + directoryName);
-            if (isFileDeleted && isDirDeleted) {
-                log.info("기존 파일과 디렉토리가 성공적으로 삭제되었습니다.");
-            } else {
-                log.error("기존 파일 또는 디렉토리 삭제에 실패했습니다.");
+                projectMapper.updateProjectUpload(PROJECT_UPLOAD + folderName, zipFilePath, findProjectUpload);
+                projectUploadJpaRepository.save(findProjectUpload);
+                boolean isFileDeleted = FilePath.deleteFile(BASE_DIR_SOURCE_2 + zipDirectoryName);
+                boolean isDirDeleted = FilePath.deleteDirectory(BASE_DIR_SOURCE_2 + directoryName);
+                if (isFileDeleted && isDirDeleted) {
+                    log.info("기존 파일과 디렉토리가 성공적으로 삭제되었습니다.");
+                } else {
+                    log.error("기존 파일 또는 디렉토리 삭제에 실패했습니다.");
+                }
             }
+        }
+        if(project.getRepoName() != null) {
+            statisticsService.increaseCount(user, fields, semester,  8);
+        }
+        else {
+            statisticsService.increaseCount(user, fields, semester,  1);
         }
         return projectMapper.projectToProjectResponse(savedProject);
     }

@@ -43,6 +43,9 @@ public class ProjectPatent extends BaseEntity {
     @Column(name = "applicant_english_name")
     private String applicantEnglishName; // 출원인 영문 이름
 
+    @Column(name = "evidence")
+    private String evidence; // 증빙 파일
+
     @OneToMany(mappedBy = "projectPatent", fetch = FetchType.LAZY)
     private List<ProjectPatentInventor> projectPatentInventors = new ArrayList<>();
 
