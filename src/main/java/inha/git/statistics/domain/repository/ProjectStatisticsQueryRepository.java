@@ -282,7 +282,7 @@ public class ProjectStatisticsQueryRepository {
                     .fetchOne();
         } else {
             return queryFactory
-                    .select(userCountStatistics.userProjectCount.sum())
+                    .select(userCountStatistics.userProjectCount.max())
                     .from(userCountStatistics)
                     .where(applyFilters(searchCond))
                     .fetchOne();
@@ -305,7 +305,7 @@ public class ProjectStatisticsQueryRepository {
                     .fetchOne();
         } else {
             return queryFactory
-                    .select(userCountStatistics.userPatentCount.sum())
+                    .select(userCountStatistics.userPatentCount.max())
                     .from(userCountStatistics)
                     .where(applyFilters(searchCond))
                     .fetchOne();
