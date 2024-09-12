@@ -24,7 +24,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.MalformedInputException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -141,6 +144,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
                 return List.of(new SearchFileDetailResponse(filePath.getFileName().toString(), "file", content));
             }
         } catch (IOException e) {
+            log.error("Error reading file: " + e.getMessage(), e);
             throw new BaseException(FILE_CONVERT);
         }
     }
@@ -171,22 +175,41 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
     private String extractFileContent(Path filePath) throws IOException {
         String contentType = Files.probeContentType(filePath);
 
-        if ((contentType != null && (contentType.startsWith("text") || contentType.contains("json") || contentType.contains("javascript")))) {
-            // text 혹은 json 파일 처리
-            return Files.readString(filePath);
+        // 파일 MIME 타입에 따른 처리
+        if (contentType != null && contentType.equals("text/csv")) {
+            log.info("CSV 파일 처리 중: {}", filePath);
+
+            // UTF-8 시도 후 실패하면 CP-949로 시도
+            try {
+                return Files.readString(filePath);  // 기본적으로 UTF-8로 시도
+            } catch (MalformedInputException e) {
+                log.info("UTF-8로 읽기 실패, MS949로 다시 시도합니다.");
+                try (BufferedReader reader = Files.newBufferedReader(filePath, Charset.forName("MS949"))) {
+                    StringBuilder content = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        content.append(line).append("\n");
+                    }
+                    return content.toString();
+                }
+            }
         } else if (contentType != null && contentType.startsWith("image")) {
             // 이미지 파일 처리
             byte[] imageBytes = Files.readAllBytes(filePath);
             return Base64.getEncoder().encodeToString(imageBytes);
+        } else if (contentType != null && (contentType.startsWith("text") || contentType.contains("json") || contentType.contains("javascript"))) {
+            // 텍스트 또는 JSON, JavaScript 파일 처리
+            return Files.readString(filePath);
         }
 
-        // 특정한 MIME 타입이 없을 때, 기본적으로 텍스트 파일로 처리
-        if (contentType == null) {
-            return Files.readString(filePath);  // MIME 타입이 없을 경우, 기본적으로 텍스트 파일로 처리
+        // MIME 타입을 확인할 수 없을 때 기본적으로 텍스트 파일로 처리
+        if (contentType == null || contentType.startsWith("text")) {
+            return Files.readString(filePath);
         }
 
         return null;
     }
+
 
     /**
      * 프로젝트 업로드 정보 조회
