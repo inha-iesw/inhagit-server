@@ -159,7 +159,7 @@ public class QuestionStatisticsQueryRepository {
                     .fetchOne();
         } else {
             return queryFactory
-                    .select(userCountStatistics.userQuestionCount.sum())
+                    .select(userCountStatistics.userQuestionCount.max())
                     .from(userCountStatistics)
                     .where(applyFilters(searchCond))
                     .fetchOne();
