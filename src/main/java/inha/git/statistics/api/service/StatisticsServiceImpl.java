@@ -91,6 +91,19 @@ public class StatisticsServiceImpl implements StatisticsService {
                         TotalCollegeStatistics::increaseTotalGithubProjectCount);
             }
         }
+
+        if (type == 2 ) {
+            if (!hasUploadedAnyQuestion(user)) {
+                totalUserStatistics.increaseUserQuestionCount();
+                updateDepartmentAndCollegeStatistics(user,
+                        TotalDepartmentStatistics::increaseUserQuestionCount,
+                        TotalCollegeStatistics::increaseUserQuestionCount);
+            }
+            updateTotalStatistics(totalUserStatistics, type);
+            updateDepartmentAndCollegeStatistics(user,
+                    TotalDepartmentStatistics::increaseTotalQuestionCount,
+                    TotalCollegeStatistics::increaseTotalQuestionCount);
+        }
         for(Field field: fields) {
             UserStatistics userStatistics = userStatisticsJpaRepository.findById(new UserStatisticsId(user.getId(), semester.getId(), field.getId()))
                     .orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
@@ -535,7 +548,11 @@ public class StatisticsServiceImpl implements StatisticsService {
     private void updateTotalStatistics(TotalUserStatistics totalUserStatistics, int type) {
         if(type == 1) {
             totalUserStatistics.increaseTotalProjectCount(); // 전체 프로젝트 카운트 증가
-        } else if(type == 8) {
+        }
+        else if(type ==2 ) {
+            totalUserStatistics.increaseTotalQuestionCount(); // 전체 질문 카운트 증가
+        }
+        else if(type == 8) {
             totalUserStatistics.increaseTotalGithubProjectCount(); // 전체 깃허브 프로젝트 카운트 증가
         }
     }
@@ -545,5 +562,9 @@ public class StatisticsServiceImpl implements StatisticsService {
         boolean hasUploadedGeneralProject = userStatisticsJpaRepository.countByUserIdAndProjectCountGreaterThan(user.getId(), 0) > 0;
         boolean hasUploadedGithubProject = userStatisticsJpaRepository.countByUserIdAndGithubProjectCountGreaterThan(user.getId(), 0) > 0;
         return hasUploadedGeneralProject || hasUploadedGithubProject;
+    }
+
+    private boolean hasUploadedAnyQuestion(User user) {
+        return userStatisticsJpaRepository.countByUserIdAndQuestionCountGreaterThan(user.getId(), 0) > 0;
     }
 }
