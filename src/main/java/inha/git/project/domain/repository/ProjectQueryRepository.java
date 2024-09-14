@@ -1,8 +1,10 @@
 package inha.git.project.domain.repository;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.mapping.domain.QProjectField;
+import inha.git.project.api.controller.dto.request.SearchProjectCond;
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
@@ -16,6 +18,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
+import static inha.git.college.domain.QCollege.college;
+import static inha.git.department.domain.QDepartment.department;
+import static inha.git.mapping.domain.QProjectField.projectField;
+import static inha.git.mapping.domain.QUserDepartment.userDepartment;
+import static inha.git.project.domain.QProject.project;
+import static inha.git.semester.domain.QSemester.semester;
+import static inha.git.user.domain.QUser.user;
 
 /**
  * 프로젝트 조회 관련 레포지토리
@@ -118,6 +128,82 @@ public class ProjectQueryRepository {
                         )
                 ))
                 .toList();
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    /**
+     * 조건에 따른 프로젝트 목록 조회
+     *
+     * @param searchProjectCond 검색 조건
+     * @param pageable          페이지 정보
+     * @return 프로젝트 페이지
+     */
+    public Page<SearchProjectsResponse> getCondProjects(SearchProjectCond searchProjectCond, Pageable pageable) {
+
+        // 동적 조건 생성
+        BooleanExpression condition = project.state.eq(Project.State.ACTIVE);
+
+        // User와 Department 매핑을 통한 조건 추가
+        if (searchProjectCond.collegeIdx() != null) {
+            condition = condition.and(userDepartment.department.college.id.eq(searchProjectCond.collegeIdx()));
+        }
+
+        if (searchProjectCond.departmentIdx() != null) {
+            condition = condition.and(userDepartment.department.id.eq(searchProjectCond.departmentIdx()));
+        }
+
+        if (searchProjectCond.semesterIdx() != null) {
+            condition = condition.and(project.semester.id.eq(searchProjectCond.semesterIdx()));
+        }
+
+        if (searchProjectCond.fieldIdx() != null) {
+            condition = condition.and(projectField.field.id.eq(searchProjectCond.fieldIdx()));
+        }
+
+        if (searchProjectCond.subject() != null) {
+            // 과목명 조건: LIKE '%subject%'
+            condition = condition.and(project.subjectName.containsIgnoreCase(searchProjectCond.subject()));
+        }
+
+        // 프로젝트 목록 조회 쿼리
+        JPAQuery<Project> query = queryFactory
+                .select(project)
+                .from(project)
+                .leftJoin(project.user, user)
+                .leftJoin(user.userDepartments, userDepartment) // User와 Department를 통해 매핑
+                .leftJoin(project.projectFields, projectField)
+                .leftJoin(userDepartment.department, department)
+                .leftJoin(department.college, college)
+                .leftJoin(project.semester, semester)
+                .where(condition)
+                .orderBy(project.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        // 결과 리스트 및 총 개수 가져오기
+        List<Project> projects = query.fetch();
+        long total = query.fetchCount();
+
+        // SearchProjectsResponse 변환
+        List<SearchProjectsResponse> content = projects.stream()
+                .map(p -> new SearchProjectsResponse(
+                        p.getId(),
+                        p.getTitle(),
+                        p.getCreatedAt(),
+                        p.getRepoName() != null,
+                        p.getProjectFields().stream()
+                                .map(f -> new SearchFieldResponse(
+                                        f.getField().getId(),
+                                        f.getField().getName()
+                                ))
+                                .toList(),
+                        new SearchUserResponse(
+                                p.getUser().getId(),
+                                p.getUser().getName()
+                        )
+                ))
+                .toList();
+
         return new PageImpl<>(content, pageable, total);
     }
 }

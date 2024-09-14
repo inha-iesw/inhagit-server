@@ -5,6 +5,7 @@ import inha.git.mapping.domain.repository.FoundingRecommendJpaRepository;
 import inha.git.mapping.domain.repository.PatentRecommendJpaRepository;
 import inha.git.mapping.domain.repository.ProjectFieldJpaRepository;
 import inha.git.mapping.domain.repository.RegistrationRecommendJpaRepository;
+import inha.git.project.api.controller.dto.request.SearchProjectCond;
 import inha.git.project.api.controller.dto.response.*;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
@@ -68,6 +69,19 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
     public Page<SearchProjectsResponse> getProjects(Integer page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return projectQueryRepository.getProjects(pageable);
+    }
+
+    /**
+     * 프로젝트 조건 조회
+     *
+     * @param searchProjectCond 검색 조건
+     * @param page              페이지 번호
+     * @return 검색된 프로젝트 정보 페이지
+     */
+    @Override
+    public Page<SearchProjectsResponse> getCondProjects(SearchProjectCond searchProjectCond, Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return projectQueryRepository.getCondProjects(searchProjectCond, pageable);
     }
 
     /**
