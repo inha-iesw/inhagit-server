@@ -18,6 +18,9 @@ import static inha.git.field.domain.QField.field;
 import static inha.git.semester.domain.QSemester.semester;
 import static inha.git.statistics.domain.QCollegeStatistics.collegeStatistics;
 import static inha.git.statistics.domain.QDepartmentStatistics.departmentStatistics;
+import static inha.git.statistics.domain.QTotalCollegeStatistics.totalCollegeStatistics;
+import static inha.git.statistics.domain.QTotalDepartmentStatistics.totalDepartmentStatistics;
+import static inha.git.statistics.domain.QTotalUserStatistics.totalUserStatistics;
 import static inha.git.statistics.domain.QUserCountStatistics.userCountStatistics;
 
 /**
@@ -122,6 +125,24 @@ public class QuestionStatisticsQueryRepository {
 
     // 질문 수 계산
     private Integer getQuestionCount(SearchCond searchCond) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+            if (searchCond.departmentIdx() != null) {
+                return queryFactory
+                        .select(totalDepartmentStatistics.totalQuestionCount)
+                        .from(totalDepartmentStatistics)
+                        .fetchOne();
+            } else if (searchCond.collegeIdx() != null) {
+                return queryFactory
+                        .select(totalCollegeStatistics.totalQuestionCount)
+                        .from(totalCollegeStatistics)
+                        .fetchOne();
+            } else {
+                return queryFactory
+                        .select(totalUserStatistics.totalQuestionCount)
+                        .from(totalUserStatistics)
+                        .fetchOne();
+            }
+        }
         if (searchCond.departmentIdx() != null) {
             return queryFactory
                     .select(departmentStatistics.questionCount.sum())
@@ -145,6 +166,24 @@ public class QuestionStatisticsQueryRepository {
 
     // 멘토링 참여 인원 수 계산
     private Integer getUserCount(SearchCond searchCond) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+            if (searchCond.departmentIdx() != null) {
+                return queryFactory
+                        .select(totalDepartmentStatistics.userQuestionCount)
+                        .from(totalDepartmentStatistics)
+                        .fetchOne();
+            } else if (searchCond.collegeIdx() != null) {
+                return queryFactory
+                        .select(totalCollegeStatistics.userQuestionCount)
+                        .from(totalCollegeStatistics)
+                        .fetchOne();
+            } else {
+                return queryFactory
+                        .select(totalUserStatistics.userQuestionCount)
+                        .from(totalUserStatistics)
+                        .fetchOne();
+            }
+        }
         if (searchCond.departmentIdx() != null) {
             return queryFactory
                     .select(departmentStatistics.questionUserCount.sum())
