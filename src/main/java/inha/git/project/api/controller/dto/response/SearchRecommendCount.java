@@ -9,8 +9,8 @@ public record SearchRecommendCount(
        Integer founding,
 
        @NotNull
-       @Schema(description = "patent 카운트", example = "1")
-       Integer patent,
+       @Schema(description = "like 카운트", example = "1")
+       Integer like,
 
        @NotNull
        @Schema(description = "registration 카운트", example = "1")

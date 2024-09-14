@@ -43,19 +43,19 @@ public class ProjectRecommendController {
     }
 
     /**
-     * 프로젝트 특허 추천 API
+     * 프로젝트 좋아요 API
      *
-     * <p>특정 프로젝트에 특허 추천을 합니다.</p>
+     * <p>특정 프로젝트에 좋아요를 합니다.</p>
      *
      * @param user 로그인한 사용자 정보
-     * @param recommendRequest 추천할 프로젝트 정보
-     * @return 추천 성공 메시지를 포함하는 BaseResponse<String>
+     * @param recommendRequest 좋아요할 프로젝트 정보
+     * @return 좋아요 성공 메시지를 포함하는 BaseResponse<String>
      */
-    @PostMapping("/patent")
-    @Operation(summary = "프로젝트 특허 추천 API", description = "특정 프로젝트에 특허 추천을 합니다.")
+    @PostMapping("/like")
+    @Operation(summary = "프로젝트 좋아요 API", description = "특정 프로젝트에 좋아요를 합니다.")
     public BaseResponse<String> recommendPatent(@AuthenticationPrincipal User user,
                                                 @RequestBody @Valid RecommendRequest recommendRequest) {
-        return BaseResponse.of(PATENT_RECOMMEND_SUCCESS, projectRecommendService.createProjectPatentRecommend(user,recommendRequest));
+        return BaseResponse.of(LIKE_SUCCESS, projectRecommendService.createProjectLike(user,recommendRequest));
     }
 
     /**
@@ -91,19 +91,19 @@ public class ProjectRecommendController {
     }
 
     /**
-     * 프로젝트 특허 추천 취소 API
+     * 프로젝트 좋아요 취소 API
      *
-     * <p>특정 프로젝트에 특허 추천을 취소합니다.</p>
+     * <p>특정 프로젝트에 좋아요를 취소합니다.</p>
      *
      * @param user 로그인한 사용자 정보
-     * @param recommendRequest 추천할 프로젝트 정보
-     * @return 추천 취소 성공 메시지를 포함하는 BaseResponse<String>
+     * @param recommendRequest 좋아요 취소할 프로젝트 정보
+     * @return 좋아요 취소 성공 메시지를 포함하는 BaseResponse<String>
      */
-    @DeleteMapping("/patent")
-    @Operation(summary = "프로젝트 특허 추천 취소 API", description = "특정 프로젝트에 특허 추천을 취소합니다.")
+    @DeleteMapping("/like")
+    @Operation(summary = "프로젝트 좋아요 취소 API", description = "특정 프로젝트에 좋아요를 취소합니다.")
     public BaseResponse<String> cancelPatentRecommend(@AuthenticationPrincipal User user,
                                                       @RequestBody @Valid RecommendRequest recommendRequest) {
-        return BaseResponse.of(PATENT_RECOMMEND_CANCEL_SUCCESS, projectRecommendService.cancelProjectPatentRecommend(user,recommendRequest));
+        return BaseResponse.of(PATENT_LIKE_CANCEL_SUCCESS, projectRecommendService.cancelProjectLike(user,recommendRequest));
     }
 
     /**

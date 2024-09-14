@@ -9,14 +9,14 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 
 /**
- * PatentRecommedId PatentRecommed 엔티티의 복합키를 나타냄.
+ * ProjectLikeId ProjectLike 엔티티의 복합키를 나타냄.
  */
 @Embeddable
 @Getter
 @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
-public class PatentRecommedId implements Serializable {
+public class ProjectLikeId implements Serializable {
 
     private Integer projectId;
     private Integer userId;

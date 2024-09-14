@@ -1,6 +1,6 @@
 package inha.git.mapping.domain;
 
-import inha.git.mapping.domain.id.PatentRecommedId;
+import inha.git.mapping.domain.id.ProjectLikeId;
 import inha.git.project.domain.Project;
 import inha.git.user.domain.User;
 import jakarta.persistence.*;
@@ -15,11 +15,11 @@ import lombok.*;
 @Getter
 @Builder
 @Entity
-@Table(name = "patent_recommend_tb")
-public class PatentRecommend {
+@Table(name = "project_like_tb")
+public class ProjectLike {
 
     @EmbeddedId
-    private PatentRecommedId id;
+    private ProjectLikeId id;
 
     @MapsId("projectId")
     @ManyToOne
