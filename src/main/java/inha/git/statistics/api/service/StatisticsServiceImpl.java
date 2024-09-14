@@ -7,7 +7,9 @@ import inha.git.department.domain.repository.DepartmentJpaRepository;
 import inha.git.field.domain.Field;
 import inha.git.field.domain.repository.FieldJpaRepository;
 import inha.git.mapping.domain.UserDepartment;
+import inha.git.mapping.domain.repository.ProjectFieldJpaRepository;
 import inha.git.mapping.domain.repository.UserDepartmentJpaRepository;
+import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
@@ -47,6 +49,8 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final DepartmentStatisticsJpaRepository departmentStatisticsJpaRepository;
     private final UserDepartmentJpaRepository userDepartmentJpaRepository;
     private final UserCountStatisticsJpaRepository userCountStatisticsJpaRepository;
+    private final ProjectFieldJpaRepository projectFieldJpaRepository;
+    private final ProjectJpaRepository projectJpaRepository;
     private final CollegeStatisticsJpaRepository collegeStatisticsJpaRepository;
     private final ProjectStatisticsQueryRepository projectStatisticsQueryRepository;
     private final QuestionStatisticsQueryRepository questionStatisticsQueryRepository;
@@ -95,7 +99,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
             if(type == 1){
                 userCountStatistics.increaseTotalProjectCount();
-                if (userStatistics.getProjectCount() == 0 && userStatistics.getGithubProjectCount() == 0) {
+                if (projectJpaRepository.countByUserAndSemesterAndProjectFields_Field(user, semester, field) == 1) {
                     userCountStatistics.increaseUserProjectCount();
                     userDepartments.forEach(userDepartment -> {
                         departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId()))
@@ -216,7 +220,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                         });
             } else if(type == 8) {
                 userCountStatistics.increaseTotalGithubProjectCount();
-                if (userStatistics.getProjectCount() == 0 && userStatistics.getGithubProjectCount() == 0) {
+                if (projectJpaRepository.countByUserAndSemesterAndProjectFields_Field(user, semester, field) == 1) {
                     userCountStatistics.increaseUserProjectCount();
                     userDepartments.forEach(userDepartment -> {
                         departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId()))

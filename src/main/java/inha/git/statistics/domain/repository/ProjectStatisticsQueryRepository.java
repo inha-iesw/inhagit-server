@@ -10,6 +10,7 @@ import inha.git.field.api.controller.dto.response.SearchFieldResponse;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
+import inha.git.statistics.domain.QUserCountStatistics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -19,6 +20,9 @@ import static inha.git.field.domain.QField.field;
 import static inha.git.semester.domain.QSemester.semester;
 import static inha.git.statistics.domain.QCollegeStatistics.collegeStatistics;
 import static inha.git.statistics.domain.QDepartmentStatistics.departmentStatistics;
+import static inha.git.statistics.domain.QTotalCollegeStatistics.totalCollegeStatistics;
+import static inha.git.statistics.domain.QTotalDepartmentStatistics.totalDepartmentStatistics;
+import static inha.git.statistics.domain.QTotalUserStatistics.totalUserStatistics;
 import static inha.git.statistics.domain.QUserCountStatistics.userCountStatistics;
 
 /**
@@ -139,32 +143,38 @@ public class ProjectStatisticsQueryRepository {
                 .fetchOne();
     }
 
-    // 질문 수 계산
-    private Integer getQuestionCount(SearchCond searchCond) {
-        if (searchCond.departmentIdx() != null) {
-            return queryFactory
-                    .select(departmentStatistics.questionCount.sum())
-                    .from(departmentStatistics)
-                    .where(applyFilters(searchCond))
-                    .fetchOne();
-        } else if (searchCond.collegeIdx() != null) {
-            return queryFactory
-                    .select(collegeStatistics.questionCount.sum())
-                    .from(collegeStatistics)
-                    .where(applyFilters(searchCond))
-                    .fetchOne();
-        } else {
-            return queryFactory
-                    .select(userCountStatistics.totalQuestionCount.sum())
-                    .from(userCountStatistics)
-                    .where(applyFilters(searchCond))
-                    .fetchOne();
-        }
-    }
 
 
     // 전체 프로젝트 수 계산
     private Integer getTotalProjectCount(SearchCond searchCond) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+            if (searchCond.departmentIdx() != null) {
+                return queryFactory
+                        .select(Expressions.numberTemplate(Integer.class,
+                                "{0} + {1}",
+                                totalDepartmentStatistics.totalProjectCount,
+                                totalDepartmentStatistics.totalGithubProjectCount))
+                        .from(totalDepartmentStatistics)
+                        .fetchOne();
+            } else if (searchCond.collegeIdx() != null) {
+                return queryFactory
+                        .select(Expressions.numberTemplate(Integer.class,
+                        "{0} + {1}",
+                                totalCollegeStatistics.totalProjectCount,
+                                totalCollegeStatistics.totalGithubProjectCount))
+                        .from(totalCollegeStatistics)
+                        .fetchOne();
+            } else {
+                return queryFactory
+                        .select(Expressions.numberTemplate(Integer.class,
+                                "SUM({0}) + SUM({1})",
+                                userCountStatistics.totalProjectCount,
+                                userCountStatistics.totalGithubProjectCount))
+                        .from(userCountStatistics)
+                        .where(applyFilters(searchCond))
+                        .fetchOne();
+            }
+        }
         if (searchCond.departmentIdx() != null) {
             return queryFactory
                     .select(Expressions.numberTemplate(Integer.class,
@@ -266,6 +276,24 @@ public class ProjectStatisticsQueryRepository {
 
     // 프로젝트 등록한 유저 수 계산
     private Integer getProjectUserCount(SearchCond searchCond) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+            if (searchCond.departmentIdx() != null) {
+                return queryFactory
+                        .select(totalDepartmentStatistics.userProjectCount)
+                        .from(totalDepartmentStatistics)
+                        .fetchOne();
+            } else if (searchCond.collegeIdx() != null) {
+                return queryFactory
+                        .select(totalCollegeStatistics.userProjectCount)
+                        .from(totalCollegeStatistics)
+                        .fetchOne();
+            } else {
+                return queryFactory
+                        .select(totalUserStatistics.userProjectCount)
+                        .from(totalUserStatistics)
+                        .fetchOne();
+            }
+        }
         if (searchCond.departmentIdx() != null) {
             return queryFactory
                     .select(departmentStatistics.projectUserCount.sum())
@@ -280,7 +308,7 @@ public class ProjectStatisticsQueryRepository {
                     .fetchOne();
         } else {
             return queryFactory
-                    .select(userCountStatistics.userProjectCount.max())
+                    .select(userCountStatistics.userProjectCount.sum())
                     .from(userCountStatistics)
                     .where(applyFilters(searchCond))
                     .fetchOne();
@@ -289,6 +317,24 @@ public class ProjectStatisticsQueryRepository {
 
     // 특허 등록한 유저 수 계산
     private Integer getPatentUserCount(SearchCond searchCond) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+            if (searchCond.departmentIdx() != null) {
+                return queryFactory
+                        .select(totalDepartmentStatistics.userPatentCount)
+                        .from(totalDepartmentStatistics)
+                        .fetchOne();
+            } else if (searchCond.collegeIdx() != null) {
+                return queryFactory
+                        .select(totalCollegeStatistics.userPatentCount)
+                        .from(totalCollegeStatistics)
+                        .fetchOne();
+            } else {
+                return queryFactory
+                        .select(totalUserStatistics.userPatentCount)
+                        .from(totalUserStatistics)
+                        .fetchOne();
+            }
+        }
         if (searchCond.departmentIdx() != null) {
             return queryFactory
                     .select(departmentStatistics.patentUserCount.sum())
