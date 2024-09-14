@@ -75,6 +75,7 @@ public enum SuccessStatus implements BaseCode {
     PROJECT_SEARCH_OK(HttpStatus.OK, "PROJECT2000", "프로젝트 전체 조회 성공"),
     PROJECT_DETAIL_OK(HttpStatus.OK, "PROJECT2003", "프로젝트 상세 조회 성공"),
     FILE_SEARCH_OK(HttpStatus.OK, "PROJECT2004", "프로젝트 파일 조회 성공"),
+    PROJECT_SEARCH_CONDITION_OK(HttpStatus.OK, "PROJECT2005", "프로젝트 조건 검색 성공"),
     FOUNDING_RECOMMEND_SUCCESS(HttpStatus.CREATED, "PROJECT2011", "창업 추천 성공"),
     PATENT_RECOMMEND_SUCCESS(HttpStatus.CREATED, "PROJECT2012", "특허 추천 성공"),
     REGISTRATION_RECOMMEND_SUCCESS(HttpStatus.CREATED, "PROJECT2013", "등록 추천 성공"),
@@ -88,6 +89,7 @@ public enum SuccessStatus implements BaseCode {
     PROJECT_COMMENT_REPLY_CREATE_OK(HttpStatus.CREATED, "PROJECT2021", "프로젝트 대댓글 생성 성공"),
     PROJECT_COMMENT_REPLY_DELETE_OK(HttpStatus.OK, "PROJECT2022", "프로젝트 대댓글 삭제 성공"),
     PROJECT_COMMENT_REPLY_UPDATE_OK(HttpStatus.OK, "PROJECT2023", "프로젝트 대댓글 수정 성공"),
+
 
     GITHUB_TOKEN_REFRESH_OK(HttpStatus.OK, "GITHUB2000", "깃허브 토큰 갱신 성공"),
     GITHUB_REPOSITORIES_OK(HttpStatus.OK, "GITHUB2001", "깃허브 레포지토리 조회 성공"),

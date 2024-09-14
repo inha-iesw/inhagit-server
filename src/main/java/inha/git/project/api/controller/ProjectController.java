@@ -4,6 +4,7 @@ import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.project.api.controller.dto.request.CreateGithubProjectRequest;
 import inha.git.project.api.controller.dto.request.CreateProjectRequest;
+import inha.git.project.api.controller.dto.request.SearchProjectCond;
 import inha.git.project.api.controller.dto.request.UpdateProjectRequest;
 import inha.git.project.api.controller.dto.response.ProjectResponse;
 import inha.git.project.api.controller.dto.response.SearchFileResponse;
@@ -27,7 +28,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-import static inha.git.common.code.status.ErrorStatus.*;
+import static inha.git.common.code.status.ErrorStatus.COMPANY_CANNOT_CREATE_PROJECT;
+import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
@@ -61,6 +63,26 @@ public class ProjectController {
         }
         return BaseResponse.of(PROJECT_SEARCH_OK, projectSearchService.getProjects(page - 1));
     }
+
+    /**
+     * 프로젝트 조건 조회 API
+     *
+     * <p>프로젝트 조건에 맞게 조회합니다.</p>
+     *
+     * @param searchProjectCond 프로젝트 검색 조건
+     * @param page              페이지 번호
+     * @return 검색된 프로젝트 정보를 포함하는 BaseResponse<Page<SearchProjectsResponse>>
+     */
+    @GetMapping("/cond")
+    @Operation(summary = "프로젝트 조건 조회 API", description = "프로젝트 조건에 맞게 조회합니다.")
+    public BaseResponse<Page<SearchProjectsResponse>> getCondProjects(@Validated @ModelAttribute SearchProjectCond searchProjectCond,
+                                                                      @RequestParam("page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(PROJECT_SEARCH_CONDITION_OK, projectSearchService.getCondProjects(searchProjectCond, page - 1));
+    }
+
 
     /**
      * 프로젝트 상세 조회 API

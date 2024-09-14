@@ -3,6 +3,7 @@ package inha.git.question.api.controller;
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.question.api.controller.dto.request.CreateQuestionRequest;
+import inha.git.question.api.controller.dto.request.SearchQuestionCond;
 import inha.git.question.api.controller.dto.response.SearchQuestionResponse;
 import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
 import inha.git.question.api.controller.dto.request.UpdateQuestionRequest;
@@ -50,6 +51,24 @@ public class QuestionController {
             throw new BaseException(INVALID_PAGE);
         }
         return BaseResponse.of(QUESTION_SEARCH_OK, questionService.getQuestions(page - 1));
+    }
+
+    /**
+     * 질문 조건 조회 API
+     *
+     * <p>질문 조건에 맞게 조회합니다.</p>
+     *
+     * @param page Integer
+     * @param searchQuestionCond SearchQuestionCond
+     * @return 검색된 질문 정보를 포함하는 BaseResponse<Page<SearchQuestionsResponse>>
+     */
+    @GetMapping("/cond")
+    @Operation(summary = "질문 조건 조회 API", description = "질문 조건에 맞게 조회합니다.")
+    public BaseResponse<Page<SearchQuestionsResponse>> getCondQuestions(@RequestParam("page") Integer page, SearchQuestionCond searchQuestionCond) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(QUESTION_SEARCH_OK, questionService.getCondQuestions(searchQuestionCond, page - 1));
     }
 
     /**
