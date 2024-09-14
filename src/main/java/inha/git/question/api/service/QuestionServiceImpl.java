@@ -8,6 +8,7 @@ import inha.git.mapping.domain.repository.QuestionFieldJpaRepository;
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.question.api.controller.dto.request.CreateQuestionRequest;
+import inha.git.question.api.controller.dto.request.SearchQuestionCond;
 import inha.git.question.api.controller.dto.request.UpdateQuestionRequest;
 import inha.git.question.api.controller.dto.response.QuestionResponse;
 import inha.git.question.api.controller.dto.response.SearchQuestionResponse;
@@ -64,6 +65,12 @@ public class QuestionServiceImpl implements QuestionService {
     public Page<SearchQuestionsResponse> getQuestions(Integer page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return questionQueryRepository.getQuestions(pageable);
+    }
+
+    @Override
+    public Page<SearchQuestionsResponse> getCondQuestions(SearchQuestionCond searchQuestionCond, Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return questionQueryRepository.getCondQuestions(searchQuestionCond, pageable);
     }
 
     /**

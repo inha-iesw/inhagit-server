@@ -50,6 +50,7 @@ public class SecurityConfig {
             "/project/**",
             "project-zip/**",
             "/api/v1/questions",
+            "/api/v1/questions/cond",
             "/api/v1/notices",
             "/api/v1/teams/posts",
             "/api/v1/statistics/**",
