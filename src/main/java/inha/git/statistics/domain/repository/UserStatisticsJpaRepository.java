@@ -13,4 +13,8 @@ import java.util.Optional;
  */
 public interface UserStatisticsJpaRepository extends JpaRepository<UserStatistics, UserStatisticsId> {
     Optional<List<UserStatistics>> findByUser(User user);
+
+    int countByUserIdAndProjectCountGreaterThan(Integer id, int i);
+
+    int countByUserIdAndGithubProjectCountGreaterThan(Integer id, int i);
 }

@@ -6,7 +6,6 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
 import inha.git.college.controller.dto.response.SearchCollegeResponse;
-import inha.git.department.domain.QDepartment;
 import inha.git.field.api.controller.dto.response.SearchFieldResponse;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
@@ -15,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import static inha.git.college.domain.QCollege.college;
-import static inha.git.department.domain.QDepartment.*;
 import static inha.git.department.domain.QDepartment.department;
 import static inha.git.field.domain.QField.field;
 import static inha.git.semester.domain.QSemester.semester;

@@ -12,9 +12,7 @@ import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
 import inha.git.statistics.api.controller.dto.response.*;
-import inha.git.statistics.api.mapper.StatisticsMapper;
-import inha.git.statistics.domain.UserCountStatistics;
-import inha.git.statistics.domain.UserStatistics;
+import inha.git.statistics.domain.*;
 import inha.git.statistics.domain.id.CollegeStatisticsStatisticsId;
 import inha.git.statistics.domain.id.DepartmentStatisticsId;
 import inha.git.statistics.domain.id.UserCountStatisticsId;
@@ -27,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
@@ -41,6 +40,9 @@ import static inha.git.common.code.status.ErrorStatus.*;
 @Transactional
 public class StatisticsServiceImpl implements StatisticsService {
 
+    private final TotalUserStatisticsJpaRepository totalUserStatisticsJpaRepository;
+    private final TotalDepartmentStatisticsJpaRepository totalDepartmentStatisticsJpaRepository;
+    private final TotalCollegeStatisticsJpaRepository totalCollegeStatisticsJpaRepository;
     private final UserStatisticsJpaRepository userStatisticsJpaRepository;
     private final DepartmentStatisticsJpaRepository departmentStatisticsJpaRepository;
     private final UserDepartmentJpaRepository userDepartmentJpaRepository;
@@ -52,7 +54,6 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final CollegeJpaRepository collegeJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
-    private final StatisticsMapper statisticsMapper;
 
 
 
@@ -63,14 +64,38 @@ public class StatisticsServiceImpl implements StatisticsService {
      * @param type Integer
      */
     public void increaseCount(User user, List<Field> fields, Semester semester, Integer type) {
+        TotalUserStatistics totalUserStatistics = totalUserStatisticsJpaRepository.findById(1) // 예시로 ID 1번 TotalStatistics 조회
+                .orElseThrow(() -> new BaseException(TOTAL_STATISTICS_NOT_FOUND));
+        if (type == 1 || type == 8) {
+            if (!hasUploadedAnyProject(user)) {
+                totalUserStatistics.increaseUserProjectCount(); // 사용자 프로젝트 카운트 증가
+                updateDepartmentAndCollegeStatistics(user,
+                        TotalDepartmentStatistics::increaseUserProjectCount,
+                        TotalCollegeStatistics::increaseUserProjectCount); // 학과 및 단과대 통계 업데이트
+            }
+            // 전체 통계 업데이트
+            updateTotalStatistics(totalUserStatistics, type);
+            if (type == 1) {
+                // 일반 프로젝트 통계 업데이트
+                updateDepartmentAndCollegeStatistics(user,
+                        TotalDepartmentStatistics::increaseTotalProjectCount,
+                        TotalCollegeStatistics::increaseTotalProjectCount);
+            } else {
+                // 깃허브 프로젝트 통계 업데이트
+                updateDepartmentAndCollegeStatistics(user,
+                        TotalDepartmentStatistics::increaseTotalGithubProjectCount,
+                        TotalCollegeStatistics::increaseTotalGithubProjectCount);
+            }
+        }
         for(Field field: fields) {
             UserStatistics userStatistics = userStatisticsJpaRepository.findById(new UserStatisticsId(user.getId(), semester.getId(), field.getId()))
                     .orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
             List<UserDepartment> userDepartments = userDepartmentJpaRepository.findByUserId(user.getId()).orElseThrow(() -> new BaseException(USER_DEPARTMENT_NOT_FOUND));
             UserCountStatistics userCountStatistics= userCountStatisticsJpaRepository.findById(new UserCountStatisticsId(semester.getId(), field.getId())).orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
+
             if(type == 1){
                 userCountStatistics.increaseTotalProjectCount();
-                if (userStatistics.getProjectCount() == 0 || userStatistics.getGithubProjectCount() == 0) {
+                if (userStatistics.getProjectCount() == 0 && userStatistics.getGithubProjectCount() == 0) {
                     userCountStatistics.increaseUserProjectCount();
                     userDepartments.forEach(userDepartment -> {
                         departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId()))
@@ -191,7 +216,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                         });
             } else if(type == 8) {
                 userCountStatistics.increaseTotalGithubProjectCount();
-                if (userStatistics.getProjectCount() == 0 || userStatistics.getGithubProjectCount() == 0) {
+                if (userStatistics.getProjectCount() == 0 && userStatistics.getGithubProjectCount() == 0) {
                     userCountStatistics.increaseUserProjectCount();
                     userDepartments.forEach(userDepartment -> {
                         departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId()))
@@ -475,5 +500,46 @@ public class StatisticsServiceImpl implements StatisticsService {
             semesterJpaRepository.findByIdAndState(searchCond.semesterIdx(), ACTIVE)
                     .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
         }
+    }
+
+    // 학과 및 단과대 통계 업데이트
+    private void updateDepartmentAndCollegeStatistics(User user, Consumer<TotalDepartmentStatistics> departmentUpdater, Consumer<TotalCollegeStatistics> collegeUpdater) {
+        log.info("여기 문제다!!!!!!!!");
+        List<UserDepartment> userDepartments = userDepartmentJpaRepository.findByUserId(user.getId()).orElseThrow(() -> new BaseException(USER_DEPARTMENT_NOT_FOUND));
+        userDepartments.stream()
+                .map(userDepartment -> userDepartment.getDepartment())  // Department 객체 추출
+                .peek(department -> {
+                    // 학과 통계 업데이트
+                    totalDepartmentStatisticsJpaRepository.findById(department.getId())
+                            .ifPresentOrElse(
+                                    departmentUpdater,
+                                    () -> { throw new BaseException(TOTAL_DEPARTMENT_STATISTICS_NOT_FOUND); }
+                            );
+                })
+                .map(department -> department.getCollege().getId())  // Department에서 CollegeId 추출
+                .forEach(collegeId -> {
+                    // 단과대 통계 업데이트
+                    totalCollegeStatisticsJpaRepository.findById(collegeId)
+                            .ifPresentOrElse(
+                                    collegeUpdater,
+                                    () -> { throw new BaseException(TOTAL_COLLEGE_STATISTICS_NOT_FOUND); }
+                            );
+                });
+    }
+
+    // 전체 통계 업데이트
+    private void updateTotalStatistics(TotalUserStatistics totalUserStatistics, int type) {
+        if(type == 1) {
+            totalUserStatistics.increaseTotalProjectCount(); // 전체 프로젝트 카운트 증가
+        } else if(type == 8) {
+            totalUserStatistics.increaseTotalGithubProjectCount(); // 전체 깃허브 프로젝트 카운트 증가
+        }
+    }
+
+    // 유저가 프로젝트를 올린 적이 있는지 확인
+    private boolean hasUploadedAnyProject(User user) {
+        boolean hasUploadedGeneralProject = userStatisticsJpaRepository.countByUserIdAndProjectCountGreaterThan(user.getId(), 0) > 0;
+        boolean hasUploadedGithubProject = userStatisticsJpaRepository.countByUserIdAndGithubProjectCountGreaterThan(user.getId(), 0) > 0;
+        return hasUploadedGeneralProject || hasUploadedGithubProject;
     }
 }
