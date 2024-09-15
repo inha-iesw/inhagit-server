@@ -9,10 +9,12 @@ import java.util.List;
 public interface CollegeService {
 
     List<SearchCollegeResponse> getColleges();
+    SearchCollegeResponse getCollege(Integer departmentIdx);
     String createCollege(CreateCollegeRequest createDepartmentRequest);
     String updateCollegeName(Integer collegeIdx, UpdateCollegeRequest updateCollegeRequest);
 
     String deleteCollege(Integer collegeIdx);
+
 
 
 

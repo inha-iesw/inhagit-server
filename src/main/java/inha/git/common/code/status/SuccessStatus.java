@@ -57,6 +57,7 @@ public enum SuccessStatus implements BaseCode {
     COLLEGE_SEARCH_OK(HttpStatus.OK, "COLLEGE2000", "단과대 전체 조회 성공"),
     COLLEGE_UPDATE_OK(HttpStatus.OK, "COLLEGE2001", "단과대 수정 성공"),
     COLLEGE_DELETE_OK(HttpStatus.OK, "COLLEGE2002", "단과대 삭제 성공"),
+    COLLEGE_DETAIL_OK(HttpStatus.OK, "COLLEGE2003", "단과대 상세 조회 성공"),
 
     SEMESTER_CREATE_OK(HttpStatus.CREATED, "SEMESTER2010", "학기 생성 성공"),
     SEMESTER_SEARCH_OK(HttpStatus.OK, "SEMESTER2000", "학기 전체 조회 성공"),

@@ -43,6 +43,18 @@ public class CollegeController {
     }
 
     /**
+     * 단과대 조회 API
+     *
+     * @param departmentIdx 단과대 인덱스
+     * @return 단과대 조회 결과
+     */
+    @GetMapping("/{departmentIdx}")
+    @Operation(summary = "단과대 조회 API", description = "단과대를 조회합니다.")
+    public BaseResponse<SearchCollegeResponse> getCollege(@PathVariable("departmentIdx") Integer departmentIdx) {
+        return BaseResponse.of(COLLEGE_DETAIL_OK, collegeService.getCollege(departmentIdx));
+    }
+
+    /**
      * 단과대 생성 API
      *
      * @param createDepartmentRequest 단과대 생성 요청
@@ -54,6 +66,7 @@ public class CollegeController {
     public BaseResponse<String> createCollege(@Validated @RequestBody CreateCollegeRequest createDepartmentRequest) {
         return BaseResponse.of(COLLEGE_CREATE_OK, collegeService.createCollege(createDepartmentRequest));
     }
+
 
     /**
      * 단과대 수정 API
