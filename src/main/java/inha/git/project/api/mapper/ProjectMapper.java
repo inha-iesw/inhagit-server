@@ -227,6 +227,7 @@ public interface ProjectMapper {
     @Mapping(target = "contents", source = "createReplyCommentRequest.contents")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", source = "user")
+    @Mapping(target = "likeCount", constant = "0")
     @Mapping(target = "projectComment", source = "projectComment")
     ProjectReplyComment toProjectReplyComment(CreateReplyCommentRequest createReplyCommentRequest, User user, ProjectComment projectComment);
 
@@ -344,4 +345,9 @@ public interface ProjectMapper {
     default ProjectCommentLike createProjectCommentLike(User user, ProjectComment projectComment) {
         return new ProjectCommentLike(new ProjectCommentLikeId(user.getId(), projectComment.getId()), projectComment, user);
     }
+
+    default ProjectReplyCommentLike createProjectReplyCommentLike(User user, ProjectReplyComment projectReplyComment) {
+        return new ProjectReplyCommentLike(new ProjectReplyCommentLikeId(user.getId(), projectReplyComment.getId()), projectReplyComment, user);
+    }
+
 }

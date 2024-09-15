@@ -25,6 +25,10 @@ public class ProjectReplyComment extends BaseEntity {
     @Column(nullable = false, length = 255)
     private String contents;
 
+    @Column(nullable = false, name = "like_count")
+    private Integer likeCount;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -35,5 +39,9 @@ public class ProjectReplyComment extends BaseEntity {
 
     public void setContents(String contents) {
         this.contents = contents;
+    }
+
+    public void setLikeCount(int likeCount) {
+        this.likeCount = likeCount;
     }
 }
