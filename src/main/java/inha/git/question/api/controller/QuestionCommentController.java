@@ -177,4 +177,18 @@ public class QuestionCommentController {
                                                         @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
         return BaseResponse.of(LIKE_SUCCESS, questionCommentService.questionReplyCommentLike(user,commentLikeRequest));
     }
+
+    /**
+     * 질문 대댓글 좋아요 취소 API
+     *
+     * @param user 사용자 정보
+     * @param commentLikeRequest 댓글 좋아요 취소 요청
+     * @return BaseResponse<String>
+     */
+    @DeleteMapping("/reply/like")
+    @Operation(summary = "질문 대댓글 좋아요 취소 API", description = "특정 질문 대댓글에 좋아요를 취소합니다.")
+    public BaseResponse<String> questionReplyCommentLikeCancel(@AuthenticationPrincipal User user,
+                                                              @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
+        return BaseResponse.of(LIKE_CANCEL_SUCCESS, questionCommentService.questionReplyCommentLikeCancel(user,commentLikeRequest));
+    }
 }

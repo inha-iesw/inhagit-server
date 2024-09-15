@@ -215,6 +215,24 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         return commentLikeRequest.idx() + "번 질문 대댓글 좋아요 완료";
     }
 
+    /**
+     * 질문 대댓글 좋아요 취소
+     *
+     * @param user 사용자 정보
+     * @param commentLikeRequest 대댓글 좋아요 정보
+     * @return String
+     */
+    @Override
+    public String questionReplyCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest) {
+        QuestionReplyComment questionReplyComment = questionReplyCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(QUESTION_COMMENT_REPLY_NOT_FOUND));
+        boolean commentLikeJpaRepository = questionReplyCommentLikeJpaRepository.existsByUserAndQuestionReplyComment(user, questionReplyComment);
+        validReplyLikeCancel(questionReplyComment, user, commentLikeJpaRepository);
+        questionReplyCommentLikeJpaRepository.deleteByUserAndQuestionReplyComment(user, questionReplyComment);
+        questionReplyComment.setLikeCount(questionReplyComment.getLikeCount() - 1);
+        return commentLikeRequest.idx() + "번 질문 대댓글 좋아요 취소 완료";
+    }
+
 
     /**
      * 댓글 좋아요 정보 유효성 검사
