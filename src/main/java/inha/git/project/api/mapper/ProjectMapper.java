@@ -2,14 +2,8 @@ package inha.git.project.api.mapper;
 
 import inha.git.common.BaseEntity;
 import inha.git.field.domain.Field;
-import inha.git.mapping.domain.FoundingRecommend;
-import inha.git.mapping.domain.ProjectLike;
-import inha.git.mapping.domain.ProjectField;
-import inha.git.mapping.domain.RegistrationRecommend;
-import inha.git.mapping.domain.id.FoundingRecommendId;
-import inha.git.mapping.domain.id.ProjectLikeId;
-import inha.git.mapping.domain.id.ProjectFieldId;
-import inha.git.mapping.domain.id.RegistrationRecommendId;
+import inha.git.mapping.domain.*;
+import inha.git.mapping.domain.id.*;
 import inha.git.project.api.controller.dto.request.*;
 import inha.git.project.api.controller.dto.response.*;
 import inha.git.project.domain.*;
@@ -208,6 +202,7 @@ public interface ProjectMapper {
      */
     @Mapping(target = "contents", source = "createCommentRequest.contents")
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "likeCount", constant = "0")
     @Mapping(target = "user", source = "user")
     @Mapping(target = "project", source = "project")
     ProjectComment toProjectComment(CreateCommentRequest createCommentRequest, User user, Project project);
@@ -345,4 +340,8 @@ public interface ProjectMapper {
 
     @Mapping(target = "idx", source = "projectPatent.id")
     PatentResponse toPatentResponse(ProjectPatent projectPatent);
+
+    default ProjectCommentLike createProjectCommentLike(User user, ProjectComment projectComment) {
+        return new ProjectCommentLike(new ProjectCommentLikeId(user.getId(), projectComment.getId()), projectComment, user);
+    }
 }

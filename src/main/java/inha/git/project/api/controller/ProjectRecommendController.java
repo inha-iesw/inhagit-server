@@ -53,7 +53,7 @@ public class ProjectRecommendController {
      */
     @PostMapping("/like")
     @Operation(summary = "프로젝트 좋아요 API", description = "특정 프로젝트에 좋아요를 합니다.")
-    public BaseResponse<String> recommendPatent(@AuthenticationPrincipal User user,
+    public BaseResponse<String> projectLike(@AuthenticationPrincipal User user,
                                                 @RequestBody @Valid RecommendRequest recommendRequest) {
         return BaseResponse.of(LIKE_SUCCESS, projectRecommendService.createProjectLike(user,recommendRequest));
     }

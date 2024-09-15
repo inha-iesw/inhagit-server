@@ -1,9 +1,9 @@
 package inha.git.project.api.service;
 
 import inha.git.common.exceptions.BaseException;
-import inha.git.project.api.controller.dto.request.CreateCommentRequest;
-import inha.git.project.api.controller.dto.request.CreateReplyCommentRequest;
-import inha.git.project.api.controller.dto.request.UpdateCommentRequest;
+import inha.git.mapping.domain.repository.ProjectCommentLikeJpaRepository;
+import inha.git.mapping.domain.repository.ProjectReplyCommentLikeJpaRepository;
+import inha.git.project.api.controller.dto.request.*;
 import inha.git.project.api.controller.dto.response.CommentResponse;
 import inha.git.project.api.controller.dto.response.CommentWithRepliesResponse;
 import inha.git.project.api.controller.dto.response.ReplyCommentResponse;
@@ -36,6 +36,8 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
     private final ProjectJpaRepository projectJpaRepository;
     private final ProjectCommentJpaRepository projectCommentJpaRepository;
     private final ProjectReplyCommentJpaRepository projectReplyCommentJpaRepository;
+    private final ProjectCommentLikeJpaRepository projectCommentLikeJpaRepository;
+    private final ProjectReplyCommentLikeJpaRepository projectReplyCommentLikeJpaRepository;
     private final ProjectMapper projectMapper;
 
     /**
@@ -163,5 +165,30 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         projectReplyComment.setState(INACTIVE);
         projectReplyCommentJpaRepository.save(projectReplyComment);
         return projectMapper.toReplyCommentResponse(projectReplyComment);
+    }
+
+    @Override
+    public String projectCommentLike(User user, CommentLikeRequest commentLikeRequest) {
+        ProjectComment projectComment = getProjectComment(commentLikeRequest);
+        validLike(projectComment, user, projectCommentLikeJpaRepository.existsByUserAndProjectComment(user, projectComment));
+        projectCommentLikeJpaRepository.save(projectMapper.createProjectCommentLike(user, projectComment));
+        projectComment.setLikeCount(projectComment.getLikeCount() + 1);
+        return commentLikeRequest.idx() + "번 프로젝트 댓글 좋아요 완료";
+    }
+
+
+
+    private void validLike(ProjectComment projectComment, User user, boolean commentLikeJpaRepository) {
+        if (projectComment.getUser().getId().equals(user.getId())) {
+            throw new BaseException(MY_COMMENT_LIKE);
+        }
+        if (commentLikeJpaRepository) {
+            throw new BaseException(ALREADY_LIKE);
+        }
+    }
+
+    private ProjectComment getProjectComment(CommentLikeRequest commentLikeRequest) {
+        return projectCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
     }
 }

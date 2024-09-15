@@ -1,5 +1,6 @@
 package inha.git.project.api.service;
 
+import inha.git.project.api.controller.dto.request.CommentLikeRequest;
 import inha.git.project.api.controller.dto.request.CreateCommentRequest;
 import inha.git.project.api.controller.dto.request.CreateReplyCommentRequest;
 import inha.git.project.api.controller.dto.request.UpdateCommentRequest;
@@ -22,5 +23,8 @@ public interface ProjectCommentService {
     ReplyCommentResponse updateReply(User user, Integer replyCommentIdx, UpdateCommentRequest updateCommentRequest);
 
     ReplyCommentResponse deleteReply(User user, Integer replyCommentIdx);
+
+    String projectCommentLike(User user, CommentLikeRequest commentLikeRequest);
+
 }
 
