@@ -167,6 +167,13 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         return projectMapper.toReplyCommentResponse(projectReplyComment);
     }
 
+    /**
+     * 댓글 좋아요
+     *
+     * @param user 사용자 정보
+     * @param commentLikeRequest 댓글 좋아요 정보
+     * @return 댓글 좋아요 완료 메시지
+     */
     @Override
     public String projectCommentLike(User user, CommentLikeRequest commentLikeRequest) {
         ProjectComment projectComment = getProjectComment(commentLikeRequest);
@@ -176,8 +183,29 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         return commentLikeRequest.idx() + "번 프로젝트 댓글 좋아요 완료";
     }
 
+    /**
+     * 댓글 좋아요 취소
+     *
+     * @param user 사용자 정보
+     * @param commentLikeRequest 댓글 좋아요 정보
+     * @return 댓글 좋아요 취소 완료 메시지
+     */
+    @Override
+    public String projectCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest) {
+        ProjectComment projectComment = getProjectComment(commentLikeRequest);
+        validLikeCancel(projectComment, user, projectCommentLikeJpaRepository.existsByUserAndProjectComment(user, projectComment));
+        projectCommentLikeJpaRepository.deleteByUserAndProjectComment(user, projectComment);
+        projectComment.setLikeCount(projectComment.getLikeCount() - 1);
+        return commentLikeRequest.idx() + "번 프로젝트 댓글 좋아요 취소 완료";
+    }
 
-
+    /**
+     * 댓글 좋아요 정보 유효성 검사
+     *
+     * @param projectComment 댓글 정보
+     * @param user 사용자 정보
+     * @param commentLikeJpaRepository 댓글 좋아요 레포지토리
+     */
     private void validLike(ProjectComment projectComment, User user, boolean commentLikeJpaRepository) {
         if (projectComment.getUser().getId().equals(user.getId())) {
             throw new BaseException(MY_COMMENT_LIKE);
@@ -187,6 +215,27 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         }
     }
 
+    /**
+     * 댓글 좋아요 취소
+     *
+     * @param user 사용자 정보
+     * @param projectComment 좋아요 취소할 댓글 정보
+     * @param commentLikeJpaRepository 댓글 좋아요 레포지토리
+     */
+    private void validLikeCancel(ProjectComment projectComment, User user, boolean commentLikeJpaRepository) {
+        if (projectComment.getUser().getId().equals(user.getId())) {
+            throw new BaseException(MY_COMMENT_LIKE);
+        }
+        if (!commentLikeJpaRepository) {
+            throw new BaseException(NOT_LIKE);
+        }
+    }
+    /**
+     * 댓글 좋아요 정보 조회
+     *
+     * @param commentLikeRequest 댓글 좋아요 정보
+     * @return 댓글 좋아요 정보
+     */
     private ProjectComment getProjectComment(CommentLikeRequest commentLikeRequest) {
         return projectCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));

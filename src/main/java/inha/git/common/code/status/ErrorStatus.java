@@ -99,6 +99,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     ALREADY_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4017", "이미 좋아요한 댓글입니다."),
     MY_COMMENT_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4018", "자신의 댓글에는 좋아요를 누를 수 없습니다."),
+    NOT_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4019", "좋아요하지 않은 댓글입니다."),
 
 
 

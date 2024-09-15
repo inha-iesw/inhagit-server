@@ -111,7 +111,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         validRecommendCancel(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
         projectLikeJpaRepository.deleteByUserAndProject(user, project);
         project.setLikeCount(project.getLikeCount() - 1);
-        return recommendRequest.idx() + "번 프로젝트 특허 추천 취소 완료";
+        return recommendRequest.idx() + "번 프로젝트 좋아요 취소 완료";
     }
 
     /**
