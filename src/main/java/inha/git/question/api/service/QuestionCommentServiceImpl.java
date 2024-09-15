@@ -165,6 +165,13 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         return questionMapper.toReplyCommentResponse(questionReplyComment);
     }
 
+    /**
+     * 질문 댓글 좋아요
+     *
+     * @param user 사용자 정보
+     * @param commentLikeRequest 댓글 좋아요 정보
+     * @return String
+     */
     @Override
     public String questionCommentLike(User user, CommentLikeRequest commentLikeRequest) {
         QuestionComment questionComment = getQuestionComment(commentLikeRequest);
@@ -172,6 +179,23 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         questionCommentLikeJpaRepository.save(questionMapper.createQuestionCommentLike(user, questionComment));
         questionComment.setLikeCount(questionComment.getLikeCount() + 1);
         return commentLikeRequest.idx() + "번 질문 댓글 좋아요 완료";
+    }
+
+    /**
+     * 질문 댓글 좋아요 취소
+     *
+     * @param user 사용자 정보
+     * @param commentLikeRequest 댓글 좋아요 정보
+     * @return String
+     */
+    @Override
+    public String questionCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest) {
+        QuestionComment questionComment = getQuestionComment(commentLikeRequest);
+        boolean commentLikeJpaRepository = questionCommentLikeJpaRepository.existsByUserAndQuestionComment(user, questionComment);
+        validLikeCancel(questionComment, user, commentLikeJpaRepository);
+        questionCommentLikeJpaRepository.deleteByUserAndQuestionComment(user, questionComment);
+        questionComment.setLikeCount(questionComment.getLikeCount() - 1);
+        return commentLikeRequest.idx() + "번 질문 댓글 좋아요 취소 완료";
     }
 
 

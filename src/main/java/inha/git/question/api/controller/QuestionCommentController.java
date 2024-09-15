@@ -136,10 +136,24 @@ public class QuestionCommentController {
     }
 
 
+    /**
+     * 질문 댓글 좋아요 API
+     *
+     * @param user 사용자 정보
+     * @param commentLikeRequest 댓글 좋아요 요청
+     * @return BaseResponse<String>
+     */
     @PostMapping("/like")
     @Operation(summary = "질문 댓글 좋아요 API", description = "특정 질문 댓글에 좋아요를 합니다.")
     public BaseResponse<String> questionCommentLike(@AuthenticationPrincipal User user,
                                                    @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
         return BaseResponse.of(LIKE_SUCCESS, questionCommentService.questionCommentLike(user,commentLikeRequest));
+    }
+
+    @DeleteMapping("/like")
+    @Operation(summary = "질문 댓글 좋아요 취소 API", description = "특정 질문 댓글에 좋아요를 취소합니다.")
+    public BaseResponse<String> questionCommentLikeCancel(@AuthenticationPrincipal User user,
+                                                         @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
+        return BaseResponse.of(LIKE_CANCEL_SUCCESS, questionCommentService.questionCommentLikeCancel(user, commentLikeRequest));
     }
 }

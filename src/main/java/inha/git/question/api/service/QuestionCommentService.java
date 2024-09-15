@@ -19,4 +19,6 @@ public interface QuestionCommentService {
     ReplyCommentResponse deleteReplyComment(User user, Integer replyCommentIdx);
 
     String questionCommentLike(User user, CommentLikeRequest commentLikeRequest);
+    String questionCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest);
+
 }
