@@ -2,14 +2,13 @@ package inha.git.question.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
-import inha.git.project.api.controller.dto.request.RecommendRequest;
 import inha.git.question.api.controller.dto.request.CreateQuestionRequest;
 import inha.git.question.api.controller.dto.request.LikeRequest;
 import inha.git.question.api.controller.dto.request.SearchQuestionCond;
-import inha.git.question.api.controller.dto.response.SearchQuestionResponse;
-import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
 import inha.git.question.api.controller.dto.request.UpdateQuestionRequest;
 import inha.git.question.api.controller.dto.response.QuestionResponse;
+import inha.git.question.api.controller.dto.response.SearchQuestionResponse;
+import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
 import inha.git.question.api.service.QuestionService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
@@ -157,6 +156,22 @@ public class QuestionController {
     public BaseResponse<String> questionLike(@AuthenticationPrincipal User user,
                                             @RequestBody @Valid LikeRequest likeRequest) {
         return BaseResponse.of(LIKE_SUCCESS, questionService.createQuestionLike(user,likeRequest));
+    }
+
+    /**
+     * 질문 좋아요 취소 API
+     *
+     * <p>특정 질문에 좋아요를 취소합니다.</p>
+     *
+     * @param user       로그인한 사용자 정보
+     * @param likeRequest 좋아요할 질문 정보
+     * @return 좋아요 취소 성공 메시지를 포함하는 BaseResponse<String>
+     */
+    @DeleteMapping("/like")
+    @Operation(summary = "질문 좋아요 취소 API", description = "특정 질문에 좋아요를 취소합니다.")
+    public BaseResponse<String> questionLikeCancel(@AuthenticationPrincipal User user,
+                                                      @RequestBody @Valid LikeRequest likeRequest) {
+        return BaseResponse.of(LIKE_CANCEL_SUCCESS, questionService.questionLikeCancel(user,likeRequest));
     }
 
 }

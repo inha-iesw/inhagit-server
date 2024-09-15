@@ -168,6 +168,7 @@ public enum ErrorStatus implements BaseErrorCode {
     QUESTION_COMMENT_REPLY_DELETE_NOT_AUTHORIZED(HttpStatus.FORBIDDEN, "QUESTION4009", "대댓글을 삭제할 권한이 없습니다."),
     MY_QUESTION_LIKE(HttpStatus.BAD_REQUEST, "QUESTION4010", "자신의 질문에는 좋아요를 누를 수 없습니다."),
     QUESTION_ALREADY_LIKE(HttpStatus.BAD_REQUEST, "QUESTION4011", "이미 좋아요한 질문입니다."),
+    QUESTION_NOT_LIKE(HttpStatus.BAD_REQUEST, "QUESTION4012", "좋아요하지 않은 질문입니다."),
 
     COMPANY_CANNOT_CREATE_TEAM(HttpStatus.BAD_REQUEST, "TEAM4000", "기업 회원은 팀을 생성할 수 없습니다."),
     TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM4001", "팀을 찾을 수 없습니다."),

@@ -188,6 +188,24 @@ public class QuestionServiceImpl implements QuestionService {
         return likeRequest.idx() + "번 질문 좋아요 완료";
     }
 
+    /**
+     * 질문 좋아요 취소
+     *
+     * @param user        User
+     * @param likeRequest LikeRequest
+     * @return String
+     */
+    @Override
+    @Transactional
+    public String questionLikeCancel(User user, LikeRequest likeRequest) {
+        Question question = questionJpaRepository.findByIdAndState(likeRequest.idx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
+        validLikeCancel(question, user, questionLikeJpaRepository.existsByUserAndQuestion(user, question));
+        questionLikeJpaRepository.deleteByUserAndQuestion(user, question);
+        question.setLikeCount(question.getLikeCount() - 1);
+        return likeRequest.idx() + "번 프로젝트 좋아요 취소 완료";
+    }
+
 
     /**
      * 질문 생성시 필드 생성
@@ -218,6 +236,15 @@ public class QuestionServiceImpl implements QuestionService {
         }
         if (questionLikeJpaRepository) {
             throw new BaseException(QUESTION_ALREADY_LIKE);
+        }
+    }
+
+    private void validLikeCancel(Question question, User user, boolean questionLikeJpaRepository) {
+        if (question.getUser().getId().equals(user.getId())) {
+            throw new BaseException(MY_QUESTION_LIKE);
+        }
+        if (!questionLikeJpaRepository) {
+            throw new BaseException(QUESTION_NOT_LIKE);
         }
     }
 }

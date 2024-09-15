@@ -20,4 +20,5 @@ public interface QuestionService {
 
     String createQuestionLike(User user, LikeRequest likeRequest);
 
+    String questionLikeCancel(User user, LikeRequest likeRequest);
 }

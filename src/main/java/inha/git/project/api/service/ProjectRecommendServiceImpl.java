@@ -99,11 +99,11 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     }
 
     /**
-     * 프로젝트 특허 추천 취소
+     * 프로젝트 좋아요 취소
      *
      * @param user 로그인한 사용자 정보
-     * @param recommendRequest 추천할 프로젝트 정보
-     * @return 추천 취소 성공 메시지
+     * @param recommendRequest 좋아요할 프로젝트 정보
+     * @return 좋아요 취소 성공 메시지
      */
     @Override
     public String cancelProjectLike(User user, RecommendRequest recommendRequest) {
