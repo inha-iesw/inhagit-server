@@ -1,5 +1,8 @@
 package inha.git.utils.jwt;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import inha.git.common.code.ErrorReasonDTO;
+import inha.git.common.exceptions.BaseException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,15 +36,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final UserDetailsService userDetailsService;
 
-    /**
-     * 필터 체인 내부에서 실제 필터링 로직을 수행.
-     *
-     * @param request  HTTP 요청 객체
-     * @param response HTTP 응답 객체
-     * @param filterChain 필터 체인 객체
-     * @throws ServletException 서블릿 예외
-     * @throws IOException 입출력 예외
-     */
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
@@ -53,33 +47,52 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+
         final String authHeader = request.getHeader(HEADER_AUTHORIZATION);
         final String jwt;
         final String username;
 
-        // 헤더에 토큰이 없거나 Bearer 로 시작하지 않으면 통과
-        if (authHeader == null ||!authHeader.startsWith(TOKEN_PREFIX)) {
+        // 헤더에 토큰이 없거나 Bearer 로 시작하지 않으면 필터 통과
+        if (authHeader == null || !authHeader.startsWith(TOKEN_PREFIX)) {
             filterChain.doFilter(request, response);
             return;
         }
+
         jwt = authHeader.substring(7);
-        username = jwtProvider.extractUsername(jwt);
-        // 토큰이 유효하고 만료되지 않았다면 SecurityContext에 인증 정보를 저장
-        // 토큰이 만료되지 않았는지는 JwtService에서 확인
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-            if (jwtProvider.isTokenValid(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+
+        try {
+            // JWT에서 username 추출
+            username = jwtProvider.extractUsername(jwt);
+
+            // 토큰이 유효하고 인증이 아직 이루어지지 않은 경우
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+
+                // 토큰이 유효한지 확인
+                if (jwtProvider.isTokenValid(jwt, userDetails)) {
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
             }
+        } catch (BaseException e) {
+            // JWT 예외 발생 시 정의한 에러 메시지와 함께 JSON 응답 반환
+            log.error("JWT 인증 실패: {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+
+            // ErrorReasonDTO를 JSON으로 변환
+            ObjectMapper objectMapper = new ObjectMapper();
+            ErrorReasonDTO errorReasonDTO = e.getErrorReasonHttpStatus();
+
+            // JSON으로 변환 후 응답으로 반환
+            objectMapper.writeValue(response.getOutputStream(), errorReasonDTO);
+            return; // 예외 발생 시 필터 체인 중단
         }
+
+        // 필터 체인 계속 진행
         filterChain.doFilter(request, response);
     }
 }
