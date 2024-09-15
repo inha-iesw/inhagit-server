@@ -25,6 +25,10 @@ public record SearchQuestionResponse(
         LocalDateTime createdAt,
 
         @NotNull
+        @Schema(description = "질문 좋아요 개수", example = "1")
+        Integer likeCount,
+
+        @NotNull
         @Schema(description = "질문 주제", example = "질문 주제")
         String subject,
         @NotNull

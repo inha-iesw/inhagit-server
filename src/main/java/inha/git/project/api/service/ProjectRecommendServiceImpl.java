@@ -3,7 +3,7 @@ package inha.git.project.api.service;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.repository.FoundingRecommendJpaRepository;
-import inha.git.mapping.domain.repository.PatentRecommendJpaRepository;
+import inha.git.mapping.domain.repository.ProjectLikeJpaRepository;
 import inha.git.mapping.domain.repository.RegistrationRecommendJpaRepository;
 import inha.git.project.api.controller.dto.request.RecommendRequest;
 import inha.git.project.api.mapper.ProjectMapper;
@@ -29,7 +29,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
 
     private final ProjectJpaRepository projectJpaRepository;
     private final ProjectMapper projectMapper;
-    private final PatentRecommendJpaRepository patentRecommendJpaRepository;
+    private final ProjectLikeJpaRepository projectLikeJpaRepository;
     private final FoundingRecommendJpaRepository foundingRecommendJpaRepository;
     private final RegistrationRecommendJpaRepository registrationRecommendJpaRepository;
 
@@ -51,19 +51,19 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     }
 
     /**
-     * 프로젝트 특허 추천
+     * 프로젝트 좋아요 추천
      *
      * @param user 로그인한 사용자 정보
-     * @param recommendRequest 추천할 프로젝트 정보
-     * @return 추천 성공 메시지
+     * @param recommendRequest 좋아요할 프로젝트 정보
+     * @return 좋아요 성공 메시지
      */
     @Override
-    public String createProjectPatentRecommend(User user, RecommendRequest recommendRequest) {
+    public String createProjectLike(User user, RecommendRequest recommendRequest) {
         Project project = getProject(recommendRequest);
-        validRecommend(project, user, patentRecommendJpaRepository.existsByUserAndProject(user, project));
-        patentRecommendJpaRepository.save(projectMapper.createProjectPatentRecommend(user, project));
-        project.setPatentRecommendCount(project.getPatentRecommendCount() + 1);
-        return recommendRequest.idx() + "번 프로젝트 특허 추천 완료";
+        validRecommend(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
+        projectLikeJpaRepository.save(projectMapper.createProjectLike(user, project));
+        project.setLikeCount(project.getLikeCount() + 1);
+        return recommendRequest.idx() + "번 프로젝트 좋아요 완료";
     }
 
     /**
@@ -99,19 +99,19 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     }
 
     /**
-     * 프로젝트 특허 추천 취소
+     * 프로젝트 좋아요 취소
      *
      * @param user 로그인한 사용자 정보
-     * @param recommendRequest 추천할 프로젝트 정보
-     * @return 추천 취소 성공 메시지
+     * @param recommendRequest 좋아요할 프로젝트 정보
+     * @return 좋아요 취소 성공 메시지
      */
     @Override
-    public String cancelProjectPatentRecommend(User user, RecommendRequest recommendRequest) {
+    public String cancelProjectLike(User user, RecommendRequest recommendRequest) {
         Project project = getProject(recommendRequest);
-        validRecommendCancel(project, user, patentRecommendJpaRepository.existsByUserAndProject(user, project));
-        patentRecommendJpaRepository.deleteByUserAndProject(user, project);
-        project.setPatentRecommendCount(project.getPatentRecommendCount() - 1);
-        return recommendRequest.idx() + "번 프로젝트 특허 추천 취소 완료";
+        validRecommendCancel(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
+        projectLikeJpaRepository.deleteByUserAndProject(user, project);
+        project.setLikeCount(project.getLikeCount() - 1);
+        return recommendRequest.idx() + "번 프로젝트 좋아요 취소 완료";
     }
 
     /**

@@ -9,13 +9,13 @@ public interface ProjectRecommendService {
 
     String createProjectFoundingRecommend(User user, RecommendRequest recommendRequest);
 
-    String createProjectPatentRecommend(User user, RecommendRequest recommendRequest);
+    String createProjectLike(User user, RecommendRequest recommendRequest);
 
     String createProjectRegistrationRecommend(User user, RecommendRequest recommendRequest);
 
     String cancelProjectFoundingRecommend(User user, RecommendRequest recommendRequest);
 
-    String cancelProjectPatentRecommend(User user, RecommendRequest recommendRequest);
+    String cancelProjectLike(User user, RecommendRequest recommendRequest);
 
     String cancelProjectRegistrationRecommend(User user, RecommendRequest recommendRequest);
 

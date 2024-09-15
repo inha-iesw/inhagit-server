@@ -1,6 +1,7 @@
 package inha.git.project.api.controller;
 
 import inha.git.common.BaseResponse;
+import inha.git.project.api.controller.dto.request.CommentLikeRequest;
 import inha.git.project.api.controller.dto.request.CreateCommentRequest;
 import inha.git.project.api.controller.dto.request.CreateReplyCommentRequest;
 import inha.git.project.api.controller.dto.request.UpdateCommentRequest;
@@ -11,6 +12,7 @@ import inha.git.project.api.service.ProjectCommentService;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -137,4 +139,68 @@ public class ProjectCommentController {
         return BaseResponse.of(PROJECT_COMMENT_REPLY_DELETE_OK, projectCommentService.deleteReply(user, replyCommentIdx));
     }
 
+    /**
+     * 프로젝트 댓글 좋아요 API
+     *
+     * <p>특정 프로젝트 댓글에 좋아요를 합니다.</p>
+     *
+     * @param user 로그인한 사용자 정보
+     * @param commentLikeRequest 좋아요할 프로젝트 댓글 정보
+     * @return 좋아요 성공 메시지를 포함하는 BaseResponse<String>
+     */
+    @PostMapping("/like")
+    @Operation(summary = "프로젝트 댓글 좋아요 API", description = "특정 프로젝트 댓글에 좋아요를 합니다.")
+    public BaseResponse<String> projectCommentLike(@AuthenticationPrincipal User user,
+                                                @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
+        return BaseResponse.of(LIKE_SUCCESS, projectCommentService.projectCommentLike(user,commentLikeRequest));
+    }
+
+
+    /**
+     * 프로젝트 댓글 좋아요 취소 API
+     *
+     * <p>특정 프로젝트 댓글에 좋아요를 취소합니다.</p>
+     *
+     * @param user 로그인한 사용자 정보
+     * @param commentLikeRequest 좋아요할 프로젝트 댓글 정보
+     * @return 좋아요 취소 성공 메시지를 포함하는 BaseResponse<String>
+     */
+    @DeleteMapping("/like")
+    @Operation(summary = "프로젝트 댓글 좋아요 취소 API", description = "특정 프로젝트 댓글에 좋아요를 취소합니다.")
+    public BaseResponse<String> projectCommentLikeCancel(@AuthenticationPrincipal User user,
+                                                      @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
+        return BaseResponse.of(LIKE_CANCEL_SUCCESS, projectCommentService.projectCommentLikeCancel(user,commentLikeRequest));
+    }
+
+    /**
+     * 프로젝트 대댓글 좋아요 API
+     *
+     * <p>특정 프로젝트 대댓글에 좋아요를 합니다.</p>
+     *
+     * @param user 로그인한 사용자 정보
+     * @param commentLikeRequest 좋아요할 프로젝트 대댓글 정보
+     * @return 좋아요 성공 메시지를 포함하는 BaseResponse<String>
+     */
+    @PostMapping("/reply/like")
+    @Operation(summary = "프로젝트 대댓글 좋아요 API", description = "특정 프로젝트 대댓글에 좋아요를 합니다.")
+    public BaseResponse<String> projectReplyCommentLike(@AuthenticationPrincipal User user,
+                                                   @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
+        return BaseResponse.of(LIKE_SUCCESS, projectCommentService.projectReplyCommentLike(user,commentLikeRequest));
+    }
+
+    /**
+     * 프로젝트 대댓글 좋아요 취소 API
+     *
+     * <p>특정 프로젝트 대댓글에 좋아요를 취소합니다.</p>
+     *
+     * @param user 로그인한 사용자 정보
+     * @param commentLikeRequest 좋아요할 프로젝트 대댓글 정보
+     * @return 좋아요 취소 성공 메시지를 포함하는 BaseResponse<String>
+     */
+    @DeleteMapping("/reply/like")
+    @Operation(summary = "프로젝트 대댓글 좋아요 취소 API", description = "특정 프로젝트 대댓글에 좋아요를 취소합니다.")
+    public BaseResponse<String> projectReplyCommentLikeCancel(@AuthenticationPrincipal User user,
+                                                         @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
+        return BaseResponse.of(LIKE_CANCEL_SUCCESS, projectCommentService.projectReplyCommentLikeCancel(user,commentLikeRequest));
+    }
 }

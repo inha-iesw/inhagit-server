@@ -2,14 +2,8 @@ package inha.git.project.api.mapper;
 
 import inha.git.common.BaseEntity;
 import inha.git.field.domain.Field;
-import inha.git.mapping.domain.FoundingRecommend;
-import inha.git.mapping.domain.PatentRecommend;
-import inha.git.mapping.domain.ProjectField;
-import inha.git.mapping.domain.RegistrationRecommend;
-import inha.git.mapping.domain.id.FoundingRecommendId;
-import inha.git.mapping.domain.id.PatentRecommedId;
-import inha.git.mapping.domain.id.ProjectFieldId;
-import inha.git.mapping.domain.id.RegistrationRecommendId;
+import inha.git.mapping.domain.*;
+import inha.git.mapping.domain.id.*;
 import inha.git.project.api.controller.dto.request.*;
 import inha.git.project.api.controller.dto.response.*;
 import inha.git.project.domain.*;
@@ -20,8 +14,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-
-import org.w3c.dom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +31,7 @@ public interface ProjectMapper {
      * @param user                 사용자 정보
      * @return Project 엔티티
      */
-    @Mapping(target = "patentRecommendCount", constant = "0")
+    @Mapping(target = "likeCount", constant = "0")
     @Mapping(target = "foundingRecommendCount", constant = "0")
     @Mapping(target = "registrationRecommendCount", constant = "0")
     @Mapping(target = "subjectName", source = "createProjectRequest.subject")
@@ -118,7 +110,7 @@ public interface ProjectMapper {
      * @param project 프로젝트 엔티티
      * @return SearchProjectResponse
      */
-    @Mapping(target = "patent", source = "patentRecommendCount")
+    @Mapping(target = "like", source = "likeCount")
     @Mapping(target = "founding", source = "foundingRecommendCount")
     @Mapping(target = "registration", source = "registrationRecommendCount")
     SearchRecommendCount projectToSearchRecommendCountResponse(Project project);
@@ -136,15 +128,15 @@ public interface ProjectMapper {
     /**
      * Boolean 값을 SearchRecommendState로 변환
      *
-     * @param isRecommendPatent      특허 추천 여부
+     * @param isLike      좋아요 여부
      * @param isRecommendFounding    창업 추천 여부
      * @param isRecommendRegistration 등록 추천 여부
      * @return SearchRecommendState
      */
-    @Mapping(target = "patent", source = "isRecommendPatent")
+    @Mapping(target = "like", source = "isLike")
     @Mapping(target = "founding", source = "isRecommendFounding")
     @Mapping(target = "registration", source = "isRecommendRegistration")
-    SearchRecommendState projectToSearchRecommendState(Boolean isRecommendPatent, Boolean isRecommendFounding, Boolean isRecommendRegistration);
+    SearchRecommendState projectToSearchRecommendState(Boolean isLike, Boolean isRecommendFounding, Boolean isRecommendRegistration);
 
     /**
      * Project 엔티티를 SearchProjectResponse로 변환
@@ -179,14 +171,14 @@ public interface ProjectMapper {
     }
 
     /**
-     * 특허 추천 엔티티 생성
+     * 좋아요 엔티티 생성
      *
      * @param user    사용자 정보
      * @param project 프로젝트 정보
      * @return 특허 추천 엔티티
      */
-    default PatentRecommend createProjectPatentRecommend(User user, Project project) {
-        return new PatentRecommend(new PatentRecommedId(user.getId(), project.getId()), project, user);
+    default ProjectLike createProjectLike(User user, Project project) {
+        return new ProjectLike(new ProjectLikeId(user.getId(), project.getId()), project, user);
     }
 
     /**
@@ -210,6 +202,7 @@ public interface ProjectMapper {
      */
     @Mapping(target = "contents", source = "createCommentRequest.contents")
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "likeCount", constant = "0")
     @Mapping(target = "user", source = "user")
     @Mapping(target = "project", source = "project")
     ProjectComment toProjectComment(CreateCommentRequest createCommentRequest, User user, Project project);
@@ -234,6 +227,7 @@ public interface ProjectMapper {
     @Mapping(target = "contents", source = "createReplyCommentRequest.contents")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", source = "user")
+    @Mapping(target = "likeCount", constant = "0")
     @Mapping(target = "projectComment", source = "projectComment")
     ProjectReplyComment toProjectReplyComment(CreateReplyCommentRequest createReplyCommentRequest, User user, ProjectComment projectComment);
 
@@ -256,6 +250,7 @@ public interface ProjectMapper {
     @Mapping(target = "author", source = "projectComment.user")
     @Mapping(target = "createdAt", source = "projectComment.createdAt")
     @Mapping(target = "contents", source = "projectComment.contents")
+    @Mapping(target = "likeCount", source = "projectComment.likeCount")
     @Mapping(target = "replies", expression = "java(filterActiveReplies(projectComment.getReplies()))")
     CommentWithRepliesResponse toCommentWithRepliesResponse(ProjectComment projectComment);
 
@@ -280,6 +275,7 @@ public interface ProjectMapper {
     @Mapping(target = "idx", source = "projectReplyComment.id")
     @Mapping(target = "contents", source = "projectReplyComment.contents")
     @Mapping(target = "author", source = "projectReplyComment.user")
+    @Mapping(target = "likeCount", source = "projectReplyComment.likeCount")
     @Mapping(target = "createdAt", source = "projectReplyComment.createdAt")
     SearchReplyCommentResponse toSearchReplyCommentResponse(ProjectReplyComment projectReplyComment);
 
@@ -300,7 +296,7 @@ public interface ProjectMapper {
      * @return Project 엔티티
      */
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "patentRecommendCount", constant = "0")
+    @Mapping(target = "likeCount", constant = "0")
     @Mapping(target = "foundingRecommendCount", constant = "0")
     @Mapping(target = "registrationRecommendCount", constant = "0")
     @Mapping(target = "subjectName", source = "createGithubProjectRequest.subject")
@@ -347,4 +343,13 @@ public interface ProjectMapper {
 
     @Mapping(target = "idx", source = "projectPatent.id")
     PatentResponse toPatentResponse(ProjectPatent projectPatent);
+
+    default ProjectCommentLike createProjectCommentLike(User user, ProjectComment projectComment) {
+        return new ProjectCommentLike(new ProjectCommentLikeId(user.getId(), projectComment.getId()), projectComment, user);
+    }
+
+    default ProjectReplyCommentLike createProjectReplyCommentLike(User user, ProjectReplyComment projectReplyComment) {
+        return new ProjectReplyCommentLike(new ProjectReplyCommentLikeId(user.getId(), projectReplyComment.getId()), projectReplyComment, user);
+    }
+
 }

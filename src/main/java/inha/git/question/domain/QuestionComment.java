@@ -32,6 +32,9 @@ public class QuestionComment extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @Column(nullable = false, name = "like_count")
+    private Integer likeCount;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
     private Question question;
@@ -42,4 +45,8 @@ public class QuestionComment extends BaseEntity {
 
     @OneToMany(mappedBy = "questionComment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionReplyComment> replies;
+
+    public void setLikeCount(Integer likeCount) {
+        this.likeCount = likeCount;
+    }
 }

@@ -1,6 +1,7 @@
 package inha.git.question.api.service;
 
 import inha.git.question.api.controller.dto.request.CreateQuestionRequest;
+import inha.git.question.api.controller.dto.request.LikeRequest;
 import inha.git.question.api.controller.dto.request.SearchQuestionCond;
 import inha.git.question.api.controller.dto.response.SearchQuestionResponse;
 import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
@@ -17,5 +18,7 @@ public interface QuestionService {
     QuestionResponse updateQuestion(User user, Integer questionIdx, UpdateQuestionRequest updateQuestionRequest);
     QuestionResponse deleteQuestion(User user, Integer questionIdx);
 
+    String createQuestionLike(User user, LikeRequest likeRequest);
 
+    String questionLikeCancel(User user, LikeRequest likeRequest);
 }

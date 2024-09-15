@@ -1,9 +1,6 @@
 package inha.git.question.api.service;
 
-import inha.git.question.api.controller.dto.request.CommentWithRepliesResponse;
-import inha.git.question.api.controller.dto.request.CreateCommentRequest;
-import inha.git.question.api.controller.dto.request.CreateReplyCommentRequest;
-import inha.git.question.api.controller.dto.request.UpdateCommentRequest;
+import inha.git.question.api.controller.dto.request.*;
 import inha.git.question.api.controller.dto.response.CommentResponse;
 import inha.git.question.api.controller.dto.response.ReplyCommentResponse;
 import inha.git.user.domain.User;
@@ -21,4 +18,8 @@ public interface QuestionCommentService {
     ReplyCommentResponse updateReplyComment(User user, Integer replyCommentIdx, UpdateCommentRequest updateCommentRequest);
     ReplyCommentResponse deleteReplyComment(User user, Integer replyCommentIdx);
 
+    String questionCommentLike(User user, CommentLikeRequest commentLikeRequest);
+    String questionCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest);
+    String questionReplyCommentLike(User user, CommentLikeRequest commentLikeRequest);
+    String questionReplyCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest);
 }

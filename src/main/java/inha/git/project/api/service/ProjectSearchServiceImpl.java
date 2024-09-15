@@ -2,7 +2,7 @@ package inha.git.project.api.service;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.repository.FoundingRecommendJpaRepository;
-import inha.git.mapping.domain.repository.PatentRecommendJpaRepository;
+import inha.git.mapping.domain.repository.ProjectLikeJpaRepository;
 import inha.git.mapping.domain.repository.ProjectFieldJpaRepository;
 import inha.git.mapping.domain.repository.RegistrationRecommendJpaRepository;
 import inha.git.project.api.controller.dto.request.SearchProjectCond;
@@ -55,7 +55,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
     private final ProjectMapper projectMapper;
     private final SemesterMapper semesterMapper;
     private final ProjectQueryRepository projectQueryRepository;
-    private final PatentRecommendJpaRepository patentRecommendJpaRepository;
+    private final ProjectLikeJpaRepository projectLikeJpaRepository;
     private final FoundingRecommendJpaRepository foundingRecommendJpaRepository;
     private final RegistrationRecommendJpaRepository registrationRecommendJpaRepository;
 
@@ -110,12 +110,12 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
         SearchRecommendCount searchRecommendCountResponse = projectMapper.projectToSearchRecommendCountResponse(project);
         SearchUserResponse searchUserResponse = projectMapper.userToSearchUserResponse(project.getUser());
 
-        boolean isRecommendPatent = patentRecommendJpaRepository.existsByUserAndProject(user, project);
+        boolean isLike = projectLikeJpaRepository.existsByUserAndProject(user, project);
         boolean isRecommendRegistration = registrationRecommendJpaRepository.existsByUserAndProject(user, project);
         boolean isRecommendFounding = foundingRecommendJpaRepository.existsByUserAndProject(user, project);
 
         SearchRecommendState searchRecommendState = projectMapper.projectToSearchRecommendState
-                (isRecommendPatent, isRecommendFounding, isRecommendRegistration);
+                (isLike, isRecommendFounding, isRecommendRegistration);
 
         return projectMapper.projectToSearchProjectResponse(
                 project, projectUpload, searchFieldResponses, searchRecommendCountResponse, searchUserResponse, searchRecommendState, searchSemesterResponse

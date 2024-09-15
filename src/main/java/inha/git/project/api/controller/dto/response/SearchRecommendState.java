@@ -9,8 +9,8 @@ public record SearchRecommendState(
        Boolean founding,
 
        @NotNull
-       @Schema(description = "patent 상태", example = "fasle")
-       Boolean patent,
+       @Schema(description = "like 상태", example = "fasle")
+       Boolean like,
 
        @NotNull
        @Schema(description = "registration 상태", example = "true")

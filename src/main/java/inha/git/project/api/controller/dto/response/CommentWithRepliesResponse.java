@@ -24,6 +24,10 @@ public record CommentWithRepliesResponse(
         LocalDateTime createdAt,
 
         @NotNull
+        @Schema(description = "댓글 좋아요 개수", example = "1")
+        Integer likeCount,
+
+        @NotNull
         @Schema(description = "답글 목록")
         List<SearchReplyCommentResponse> replies
 ) {}

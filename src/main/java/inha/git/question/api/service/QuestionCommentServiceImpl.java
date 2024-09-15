@@ -1,10 +1,9 @@
 package inha.git.question.api.service;
 
 import inha.git.common.exceptions.BaseException;
-import inha.git.question.api.controller.dto.request.CommentWithRepliesResponse;
-import inha.git.question.api.controller.dto.request.CreateCommentRequest;
-import inha.git.question.api.controller.dto.request.CreateReplyCommentRequest;
-import inha.git.question.api.controller.dto.request.UpdateCommentRequest;
+import inha.git.mapping.domain.repository.QuestionCommentLikeJpaRepository;
+import inha.git.mapping.domain.repository.QuestionReplyCommentLikeJpaRepository;
+import inha.git.question.api.controller.dto.request.*;
 import inha.git.question.api.controller.dto.response.CommentResponse;
 import inha.git.question.api.controller.dto.response.ReplyCommentResponse;
 import inha.git.question.api.mapper.QuestionMapper;
@@ -36,6 +35,8 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
     private final QuestionJpaRepository questionJpaRepository;
     private final QuestionCommentJpaRepository questionCommentJpaRepository;
     private final QuestionReplyCommentJpaRepository questionReplyCommentJpaRepository;
+    private final QuestionCommentLikeJpaRepository questionCommentLikeJpaRepository;
+    private final QuestionReplyCommentLikeJpaRepository questionReplyCommentLikeJpaRepository;
     private final QuestionMapper questionMapper;
 
     /**
@@ -164,5 +165,148 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         return questionMapper.toReplyCommentResponse(questionReplyComment);
     }
 
+    /**
+     * 질문 댓글 좋아요
+     *
+     * @param user 사용자 정보
+     * @param commentLikeRequest 댓글 좋아요 정보
+     * @return String
+     */
+    @Override
+    public String questionCommentLike(User user, CommentLikeRequest commentLikeRequest) {
+        QuestionComment questionComment = getQuestionComment(commentLikeRequest);
+        validLike(questionComment, user, questionCommentLikeJpaRepository.existsByUserAndQuestionComment(user, questionComment));
+        questionCommentLikeJpaRepository.save(questionMapper.createQuestionCommentLike(user, questionComment));
+        questionComment.setLikeCount(questionComment.getLikeCount() + 1);
+        return commentLikeRequest.idx() + "번 질문 댓글 좋아요 완료";
+    }
 
+    /**
+     * 질문 댓글 좋아요 취소
+     *
+     * @param user 사용자 정보
+     * @param commentLikeRequest 댓글 좋아요 정보
+     * @return String
+     */
+    @Override
+    public String questionCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest) {
+        QuestionComment questionComment = getQuestionComment(commentLikeRequest);
+        boolean commentLikeJpaRepository = questionCommentLikeJpaRepository.existsByUserAndQuestionComment(user, questionComment);
+        validLikeCancel(questionComment, user, commentLikeJpaRepository);
+        questionCommentLikeJpaRepository.deleteByUserAndQuestionComment(user, questionComment);
+        questionComment.setLikeCount(questionComment.getLikeCount() - 1);
+        return commentLikeRequest.idx() + "번 질문 댓글 좋아요 취소 완료";
+    }
+
+    /**
+     * 질문 대댓글 좋아요
+     *
+     * @param user 사용자 정보
+     * @param commentLikeRequest 대댓글 좋아요 정보
+     * @return String
+     */
+    @Override
+    public String questionReplyCommentLike(User user, CommentLikeRequest commentLikeRequest) {
+        QuestionReplyComment questionReplyComment = questionReplyCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(QUESTION_COMMENT_REPLY_NOT_FOUND));
+        validReplyLike(questionReplyComment, user, questionReplyCommentLikeJpaRepository.existsByUserAndQuestionReplyComment(user, questionReplyComment));
+        questionReplyCommentLikeJpaRepository.save(questionMapper.createQuestionReplyCommentLike(user, questionReplyComment));
+        questionReplyComment.setLikeCount(questionReplyComment.getLikeCount() + 1);
+        return commentLikeRequest.idx() + "번 질문 대댓글 좋아요 완료";
+    }
+
+    /**
+     * 질문 대댓글 좋아요 취소
+     *
+     * @param user 사용자 정보
+     * @param commentLikeRequest 대댓글 좋아요 정보
+     * @return String
+     */
+    @Override
+    public String questionReplyCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest) {
+        QuestionReplyComment questionReplyComment = questionReplyCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(QUESTION_COMMENT_REPLY_NOT_FOUND));
+        boolean commentLikeJpaRepository = questionReplyCommentLikeJpaRepository.existsByUserAndQuestionReplyComment(user, questionReplyComment);
+        validReplyLikeCancel(questionReplyComment, user, commentLikeJpaRepository);
+        questionReplyCommentLikeJpaRepository.deleteByUserAndQuestionReplyComment(user, questionReplyComment);
+        questionReplyComment.setLikeCount(questionReplyComment.getLikeCount() - 1);
+        return commentLikeRequest.idx() + "번 질문 대댓글 좋아요 취소 완료";
+    }
+
+
+    /**
+     * 댓글 좋아요 정보 유효성 검사
+     *
+     * @param questionComment 댓글 정보
+     * @param user 사용자 정보
+     * @param commentLikeJpaRepository 댓글 좋아요 레포지토리
+     */
+    private void validLike(QuestionComment questionComment, User user, boolean commentLikeJpaRepository) {
+        if (questionComment.getUser().getId().equals(user.getId())) {
+            throw new BaseException(MY_COMMENT_LIKE);
+        }
+        if (commentLikeJpaRepository) {
+            throw new BaseException(ALREADY_LIKE);
+        }
+    }
+
+    /**
+     * 대댓글 좋아요 정보 유효성 검사
+     *
+     * @param questionReplyComment 대댓글 정보
+     * @param user 사용자 정보
+     * @param commentLikeJpaRepository 대댓글 좋아요 레포지토리
+     */
+    private void validReplyLike(QuestionReplyComment questionReplyComment, User user, boolean commentLikeJpaRepository) {
+        if (questionReplyComment.getUser().getId().equals(user.getId())) {
+            throw new BaseException(MY_COMMENT_LIKE);
+        }
+        if (commentLikeJpaRepository) {
+            throw new BaseException(ALREADY_LIKE);
+        }
+    }
+
+    /**
+     * 댓글 좋아요 취소
+     *
+     * @param user 사용자 정보
+     * @param questionComment 좋아요 취소할 댓글 정보
+     * @param commentLikeJpaRepository 댓글 좋아요 레포지토리
+     */
+    private void validLikeCancel(QuestionComment questionComment, User user, boolean commentLikeJpaRepository) {
+        if (questionComment.getUser().getId().equals(user.getId())) {
+            throw new BaseException(MY_COMMENT_LIKE);
+        }
+        if (!commentLikeJpaRepository) {
+            throw new BaseException(NOT_LIKE);
+        }
+    }
+
+    /**
+     * 대댓글 좋아요 취소
+     *
+     * @param user 사용자 정보
+     * @param questionReplyComment 좋아요 취소할 대댓글 정보
+     * @param commentLikeJpaRepository 대댓글 좋아요 레포지토리
+     */
+    private void validReplyLikeCancel(QuestionReplyComment questionReplyComment, User user, boolean commentLikeJpaRepository) {
+        if (questionReplyComment.getUser().getId().equals(user.getId())) {
+            throw new BaseException(MY_COMMENT_LIKE);
+        }
+        if (!commentLikeJpaRepository) {
+            throw new BaseException(NOT_LIKE);
+        }
+
+    }
+    /**
+     * 댓글 좋아요 정보 조회
+     *
+     * @param commentLikeRequest 댓글 좋아요 정보
+     * @return 댓글 좋아요 정보
+     */
+    private QuestionComment getQuestionComment(CommentLikeRequest commentLikeRequest) {
+        return questionCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(QUESTION_COMMENT_NOT_FOUND));
+    }
 }
+

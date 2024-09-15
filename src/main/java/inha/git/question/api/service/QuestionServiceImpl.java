@@ -5,9 +5,11 @@ import inha.git.field.domain.Field;
 import inha.git.field.domain.repository.FieldJpaRepository;
 import inha.git.mapping.domain.QuestionField;
 import inha.git.mapping.domain.repository.QuestionFieldJpaRepository;
+import inha.git.mapping.domain.repository.QuestionLikeJpaRepository;
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.question.api.controller.dto.request.CreateQuestionRequest;
+import inha.git.question.api.controller.dto.request.LikeRequest;
 import inha.git.question.api.controller.dto.request.SearchQuestionCond;
 import inha.git.question.api.controller.dto.request.UpdateQuestionRequest;
 import inha.git.question.api.controller.dto.response.QuestionResponse;
@@ -50,6 +52,7 @@ public class QuestionServiceImpl implements QuestionService {
     private final QuestionMapper questionMapper;
     private final SemesterMapper semesterMapper;
     private final QuestionFieldJpaRepository questionFieldJpaRepository;
+    private final QuestionLikeJpaRepository questionLikeJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
     private final QuestionQueryRepository questionQueryRepository;
@@ -167,6 +170,42 @@ public class QuestionServiceImpl implements QuestionService {
         return questionMapper.questionToQuestionResponse(question);
     }
 
+    /**
+     * 질문 좋아요 생성
+     *
+     * @param user        User
+     * @param likeRequest LikeRequest
+     * @return String
+     */
+    @Override
+    @Transactional
+    public String createQuestionLike(User user, LikeRequest likeRequest) {
+        Question question = questionJpaRepository.findByIdAndState(likeRequest.idx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
+        validLike(question, user, questionLikeJpaRepository.existsByUserAndQuestion(user, question));
+        questionLikeJpaRepository.save(questionMapper.createQuestionLike(user, question));
+        question.setLikeCount(question.getLikeCount() + 1);
+        return likeRequest.idx() + "번 질문 좋아요 완료";
+    }
+
+    /**
+     * 질문 좋아요 취소
+     *
+     * @param user        User
+     * @param likeRequest LikeRequest
+     * @return String
+     */
+    @Override
+    @Transactional
+    public String questionLikeCancel(User user, LikeRequest likeRequest) {
+        Question question = questionJpaRepository.findByIdAndState(likeRequest.idx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
+        validLikeCancel(question, user, questionLikeJpaRepository.existsByUserAndQuestion(user, question));
+        questionLikeJpaRepository.deleteByUserAndQuestion(user, question);
+        question.setLikeCount(question.getLikeCount() - 1);
+        return likeRequest.idx() + "번 프로젝트 좋아요 취소 완료";
+    }
+
 
     /**
      * 질문 생성시 필드 생성
@@ -182,5 +221,30 @@ public class QuestionServiceImpl implements QuestionService {
                             .orElseThrow(() -> new BaseException(FIELD_NOT_FOUND));
                     return questionMapper.createQuestionField(question, field);
                 }).toList();
+    }
+
+    /**
+     * 좋아요 유효성 검사
+     *
+     * @param question Question
+     * @param user     User
+     * @param questionLikeJpaRepository 질문 좋아요 레포지토리
+     */
+    private void validLike(Question question, User user, boolean questionLikeJpaRepository) {
+        if (question.getUser().getId().equals(user.getId())) {
+            throw new BaseException(MY_QUESTION_LIKE);
+        }
+        if (questionLikeJpaRepository) {
+            throw new BaseException(QUESTION_ALREADY_LIKE);
+        }
+    }
+
+    private void validLikeCancel(Question question, User user, boolean questionLikeJpaRepository) {
+        if (question.getUser().getId().equals(user.getId())) {
+            throw new BaseException(MY_QUESTION_LIKE);
+        }
+        if (!questionLikeJpaRepository) {
+            throw new BaseException(QUESTION_NOT_LIKE);
+        }
     }
 }

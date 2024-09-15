@@ -43,8 +43,8 @@ public class Project extends BaseEntity {
     @Column(nullable = false, length = 50, name = "subject_name")
     private String subjectName;
 
-    @Column(nullable = false, name = "patent_recommend_count")
-    private Integer patentRecommendCount = 0;
+    @Column(nullable = false, name = "like_count")
+    private Integer likeCount = 0;
 
     @Column(nullable = false, name = "founding_recommend_count")
     private Integer foundingRecommendCount = 0;
@@ -77,8 +77,8 @@ public class Project extends BaseEntity {
         this.foundingRecommendCount = foundingRecommendCount;
     }
 
-    public void setPatentRecommendCount(int patentRecommendCount) {
-        this.patentRecommendCount = patentRecommendCount;
+    public void setLikeCount(int likeCount) {
+        this.likeCount = likeCount;
     }
 
     public void setRegistrationRecommendCount(int registrationRecommendCount) {

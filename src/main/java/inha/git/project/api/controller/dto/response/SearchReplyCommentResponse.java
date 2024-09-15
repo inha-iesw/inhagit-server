@@ -15,6 +15,10 @@ public record SearchReplyCommentResponse(
         String contents,
 
         @NotNull
+        @Schema(description = "답글 좋아요 개수", example = "1")
+        Integer likeCount,
+
+        @NotNull
         @Schema(description = "작성자 정보")
         SearchUserResponse author,
 
