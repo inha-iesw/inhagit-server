@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static inha.git.common.Constant.SIGN_UP_TYPE;
+import static inha.git.common.Constant.*;
 
 
 @Service
@@ -30,6 +30,7 @@ public class ProfessorServiceImpl implements ProfessorService{
     private final ProfessorJpaRepository professorJpaRepository;
     private final UserMapper userMapper;
     private final MailService mailService;
+    private final EmailDomainService emailDomainService;
     /**
      * 교수 회원가입
      *
@@ -39,7 +40,8 @@ public class ProfessorServiceImpl implements ProfessorService{
     @Transactional
     @Override
     public ProfessorSignupResponse professorSignup(ProfessorSignupRequest professorSignupRequest) {
-        mailService.emailAuth(professorSignupRequest.email(), SIGN_UP_TYPE);
+        emailDomainService.validateEmailDomain(professorSignupRequest.email(), PROFESSOR_TYPE);
+        mailService.emailAuth(professorSignupRequest.email(), PROFESSOR_SIGN_UP_TYPE);
         User user = userMapper.professorSignupRequestToUser(professorSignupRequest);
         userMapper.mapDepartmentsToUser(user, professorSignupRequest.departmentIdList(), departmentRepository);
         user.setPassword(passwordEncoder.encode(professorSignupRequest.pw()));

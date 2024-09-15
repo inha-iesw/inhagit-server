@@ -17,7 +17,8 @@ public record ProfessorSignupRequest(
         @EmailUnique
         @Email
         @ValidEmail
-        @Schema(description = "유저 이메일", example = "ghkdrbgur13@inha.edu")
+        @ValidInhaEmail
+        @Schema(description = "유저 이메일", example = "ghkdrbgur13@inha.ac.kr")
         String email,
 
         @NotEmpty(message = "이름은 필수 입력 항목입니다.")

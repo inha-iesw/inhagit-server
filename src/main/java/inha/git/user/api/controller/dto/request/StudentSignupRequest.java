@@ -19,6 +19,7 @@ public record StudentSignupRequest(
         @EmailUnique
         @Email
         @ValidEmail
+        @ValidInhaEmail
         @Schema(description = "유저 이메일", example = "ghkdrbgur13@inha.edu")
         String email,
 
