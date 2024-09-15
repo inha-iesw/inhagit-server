@@ -1,5 +1,6 @@
 package inha.git.project.api.controller.dto.response;
 
+import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
@@ -21,6 +22,17 @@ public record SearchProjectsResponse(
         @NotNull
         @Schema(description = "true면 깃허브 false면 사용자 업로드 프로젝트", example = "true")
         Boolean isRepo,
+
+        @NotNull
+        SearchSemesterResponse semester,
+        @NotNull
+        @Schema(description = "과목", example = "클라우드컴퓨팅")
+        String subject,
+
+        @NotNull
+        @Schema(description = "좋아요 수", example = "1")
+        Integer likeCount,
+
 
         @NotNull
         List<SearchFieldResponse> fieldList,

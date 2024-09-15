@@ -10,6 +10,7 @@ import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.QProject;
+import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.user.domain.QUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -68,6 +69,11 @@ public class ProjectQueryRepository {
                         p.getTitle(),
                         p.getCreatedAt(),
                         p.getRepoName() != null,
+                        new SearchSemesterResponse(
+                                p.getSemester().getId(),
+                                p.getSemester().getName()),
+                        p.getSubjectName(),
+                        p.getLikeCount(),
                         p.getProjectFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),
@@ -77,6 +83,7 @@ public class ProjectQueryRepository {
                         new SearchUserResponse(
                                 p.getUser().getId(),
                                 p.getUser().getName()
+
                         )
                 ))
                 .toList();
@@ -116,6 +123,11 @@ public class ProjectQueryRepository {
                         p.getTitle(),
                         p.getCreatedAt(),
                         p.getRepoName() != null,
+                        new SearchSemesterResponse(
+                                p.getSemester().getId(),
+                                p.getSemester().getName()),
+                        p.getSubjectName(),
+                        p.getLikeCount(),
                         p.getProjectFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),
@@ -191,6 +203,11 @@ public class ProjectQueryRepository {
                         p.getTitle(),
                         p.getCreatedAt(),
                         p.getRepoName() != null,
+                        new SearchSemesterResponse(
+                                p.getSemester().getId(),
+                                p.getSemester().getName()),
+                        p.getSubjectName(),
+                        p.getLikeCount(),
                         p.getProjectFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),
