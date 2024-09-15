@@ -27,6 +27,10 @@ public class QuestionReplyComment extends BaseEntity {
     @Column(nullable = false, length = 255)
     private String contents;
 
+    @Column(nullable = false, name = "like_count")
+    private Integer likeCount;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_comment_id")
     private QuestionComment questionComment;

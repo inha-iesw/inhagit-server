@@ -139,9 +139,6 @@ public class ProjectCommentController {
         return BaseResponse.of(PROJECT_COMMENT_REPLY_DELETE_OK, projectCommentService.deleteReply(user, replyCommentIdx));
     }
 
-
-
-
     /**
      * 프로젝트 댓글 좋아요 API
      *

@@ -1,10 +1,13 @@
 package inha.git.question.api.mapper;
 
-import inha.git.common.BaseEntity;
 import inha.git.common.BaseEntity.State;
 import inha.git.field.domain.Field;
+import inha.git.mapping.domain.QuestionCommentLike;
 import inha.git.mapping.domain.QuestionField;
+import inha.git.mapping.domain.QuestionReplyCommentLike;
+import inha.git.mapping.domain.id.QuestionCommentLikeId;
 import inha.git.mapping.domain.id.QuestionFieldId;
+import inha.git.mapping.domain.id.QuestionReplyCommentLikeId;
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.question.api.controller.dto.request.*;
@@ -123,6 +126,7 @@ public interface QuestionMapper {
     @Mapping(target = "contents", source = "createCommentRequest.contents")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", source = "user")
+    @Mapping(target = "likeCount", constant = "0")
     @Mapping(target = "question", source = "question")
     QuestionComment toQuestionComment(CreateCommentRequest createCommentRequest, User user, Question question);
 
@@ -146,6 +150,7 @@ public interface QuestionMapper {
     @Mapping(target = "contents", source = "createReplyCommentRequest.contents")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", source = "user")
+    @Mapping(target = "likeCount", constant = "0")
     @Mapping(target = "questionComment", source = "questionComment")
     QuestionReplyComment toQuestionReplyComment(CreateReplyCommentRequest createReplyCommentRequest, User user, QuestionComment questionComment);
 
@@ -168,6 +173,7 @@ public interface QuestionMapper {
     @Mapping(target = "author", source = "questionComment.user")
     @Mapping(target = "createdAt", source = "questionComment.createdAt")
     @Mapping(target = "contents", source = "questionComment.contents")
+    @Mapping(target = "likeCount", source = "questionComment.likeCount")
     @Mapping(target = "replies", expression = "java(filterActiveReplies(questionComment.getReplies()))")
     CommentWithRepliesResponse toCommentWithRepliesResponse(QuestionComment questionComment);
 
@@ -192,6 +198,7 @@ public interface QuestionMapper {
     @Mapping(target = "idx", source = "questionReplyComment.id")
     @Mapping(target = "author", source = "questionReplyComment.user")
     @Mapping(target = "createdAt", source = "questionReplyComment.createdAt")
+    @Mapping(target = "likeCount", source = "questionReplyComment.likeCount")
     @Mapping(target = "contents", source = "questionReplyComment.contents")
     SearchReplyCommentResponse toSearchReplyCommentResponse(QuestionReplyComment questionReplyComment);
 
@@ -203,4 +210,14 @@ public interface QuestionMapper {
      * @return List<CommentWithRepliesResponse>
      */
     List<CommentWithRepliesResponse> toCommentWithRepliesResponseList(List<QuestionComment> comments);
-   }
+
+
+    default QuestionCommentLike createQuestionCommentLike(User user, QuestionComment questionComment) {
+        return new QuestionCommentLike(new QuestionCommentLikeId(user.getId(), questionComment.getId()), questionComment, user);
+    }
+
+    default QuestionReplyCommentLike createQuestionReplyCommentLike(User user, QuestionReplyComment questionReplyComment) {
+        return new QuestionReplyCommentLike(new QuestionReplyCommentLikeId(user.getId(), questionReplyComment.getId()), questionReplyComment, user);
+    }
+
+}

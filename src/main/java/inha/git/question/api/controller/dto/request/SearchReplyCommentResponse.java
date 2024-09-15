@@ -20,6 +20,9 @@ public record SearchReplyCommentResponse(
         SearchUserResponse author,
 
         @NotNull
+        @Schema(description = "좋아요 수", example = "1")
+        Integer likeCount,
+        @NotNull
         @Schema(description = "답글 생성 날짜", example = "2024-08-16T00:10:02.967995")
         LocalDateTime createdAt
 ) {
