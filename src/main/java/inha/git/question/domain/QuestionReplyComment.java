@@ -42,4 +42,8 @@ public class QuestionReplyComment extends BaseEntity {
     public void setContents(String contents) {
         this.contents = contents;
     }
+
+    public void setLikeCount(Integer likeCount) {
+        this.likeCount = likeCount;
+    }
 }
