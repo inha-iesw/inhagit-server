@@ -3,6 +3,7 @@ package inha.git.auth.api.service;
 import inha.git.auth.api.controller.dto.request.EmailCheckRequest;
 import inha.git.auth.api.controller.dto.request.EmailRequest;
 import inha.git.common.exceptions.BaseException;
+import inha.git.user.api.service.EmailDomainService;
 import inha.git.utils.RedisProvider;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -16,8 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 
-import static inha.git.common.Constant.EMAIL_CONTENT;
-import static inha.git.common.Constant.EMAIL_TITLE;
+import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 /**
@@ -31,6 +31,7 @@ public class MailServiceImpl implements MailService {
 
     private final RedisProvider redisProvider;
     private final JavaMailSender mailSender;
+    private final EmailDomainService emailDomainService;
 
     @Value("${spring.mail.username}")
     private String username;
@@ -46,6 +47,9 @@ public class MailServiceImpl implements MailService {
      */
 
     public String mailSend(EmailRequest emailRequest) {
+        if(emailRequest.type() == 1 || emailRequest.type() == 3) {
+            emailDomainService.validateEmailDomain(emailRequest.email(), emailRequest.type());
+        }
         String oldAuthNum = redisProvider.getValueOps(emailRequest.email() + "-" + emailRequest.type());
         if (oldAuthNum != null) {
             log.info("기존 인증번호 삭제 : {}", oldAuthNum);
@@ -66,6 +70,9 @@ public class MailServiceImpl implements MailService {
      */
     @Override
     public Boolean mailSendCheck(EmailCheckRequest emailCheckRequest) {
+        if(emailCheckRequest.type() == 1 || emailCheckRequest.type() == 3) {
+            emailDomainService.validateEmailDomain(emailCheckRequest.email(), emailCheckRequest.type());
+        }
         String storedAuthNum = redisProvider.getValueOps(emailCheckRequest.email() + "-" + emailCheckRequest.type());
         if(storedAuthNum == null) {
             throw new BaseException(EMAIL_AUTH_EXPIRED);

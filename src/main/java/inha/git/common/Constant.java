@@ -27,7 +27,11 @@ public class Constant {
             "인증번호를 제대로 입력해주세요";
 
 
-    public final static String SIGN_UP_TYPE = "1";
+    public final static String STUDENT_SIGN_UP_TYPE = "1";
+
+    public final static String PROFESSOR_SIGN_UP_TYPE = "3";
+
+    public final static String COMPANY_SIGN_UP_TYPE = "4";
     public final static Integer STUDENT_TYPE = 1;
     public final static Integer ASSISTANT_TYPE = 2;
     public final static Integer PROFESSOR_TYPE = 3;

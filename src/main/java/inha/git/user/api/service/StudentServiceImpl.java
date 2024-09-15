@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
-import static inha.git.common.Constant.SIGN_UP_TYPE;
+import static inha.git.common.Constant.*;
 
 
 /**
@@ -42,6 +42,7 @@ public class StudentServiceImpl implements StudentService{
     private final FieldJpaRepository fieldJpaRepository;
     private final UserMapper userMapper;
     private final MailService mailService;
+    private final EmailDomainService emailDomainService;
 
 
     /**
@@ -53,7 +54,8 @@ public class StudentServiceImpl implements StudentService{
     @Transactional
     @Override
     public StudentSignupResponse studentSignup(StudentSignupRequest studentSignupRequest) {
-        mailService.emailAuth(studentSignupRequest.email(), SIGN_UP_TYPE);
+        emailDomainService.validateEmailDomain(studentSignupRequest.email(), STUDENT_TYPE);
+        mailService.emailAuth(studentSignupRequest.email(), STUDENT_SIGN_UP_TYPE);
         User user = userMapper.studentSignupRequestToUser(studentSignupRequest);
         userMapper.mapDepartmentsToUser(user, studentSignupRequest.departmentIdList(), departmentRepository);
         user.setPassword(passwordEncoder.encode(studentSignupRequest.pw()));

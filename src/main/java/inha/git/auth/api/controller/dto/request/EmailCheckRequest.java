@@ -1,11 +1,17 @@
 package inha.git.auth.api.controller.dto.request;
 
+import inha.git.common.validation.annotation.EmailUnique;
+import inha.git.common.validation.annotation.ValidEmail;
+import inha.git.common.validation.annotation.ValidInhaEmail;
 import inha.git.common.validation.annotation.ValidNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
 public record EmailCheckRequest(
+        @EmailUnique
         @Email
+        @ValidEmail
+        @ValidInhaEmail
         @NotEmpty(message = "이메일을 입력해 주세요")
         @Schema(description = "유저 이메일", example = "ghkdrbgur13@inha.edu")
         String email,

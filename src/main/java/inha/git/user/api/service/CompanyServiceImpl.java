@@ -16,8 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import static inha.git.common.Constant.EVIDENCE;
-import static inha.git.common.Constant.SIGN_UP_TYPE;
+import static inha.git.common.Constant.*;
 
 
 @Service
@@ -42,7 +41,7 @@ public class CompanyServiceImpl implements CompanyService{
     @Transactional
     @Override
     public CompanySignupResponse companySignup(CompanySignupRequest companySignupRequest, MultipartFile evidence) {
-        mailService.emailAuth(companySignupRequest.email(), SIGN_UP_TYPE);
+        mailService.emailAuth(companySignupRequest.email(), COMPANY_SIGN_UP_TYPE);
         User user = userMapper.companySignupRequestToUser(companySignupRequest);
         user.setPassword(passwordEncoder.encode(companySignupRequest.pw()));
         User savedUser = userJpaRepository.save(user);

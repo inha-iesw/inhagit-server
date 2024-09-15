@@ -7,6 +7,7 @@ import inha.git.college.domain.College;
 import inha.git.college.domain.repository.CollegeJpaRepository;
 import inha.git.college.mapper.CollegeMapper;
 import inha.git.common.exceptions.BaseException;
+import inha.git.department.domain.repository.DepartmentJpaRepository;
 import inha.git.field.domain.Field;
 import inha.git.field.domain.repository.FieldJpaRepository;
 import inha.git.semester.domain.Semester;
@@ -23,6 +24,7 @@ import java.util.List;
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.COLLEGE_NOT_FOUND;
+import static inha.git.common.code.status.ErrorStatus.DEPARTMENT_NOT_FOUND;
 
 /**
  * CollegeServiceImpl는 CollegeService 인터페이스를 구현하는 클래스.
@@ -37,6 +39,7 @@ public class CollegeServiceImpl implements CollegeService {
     private final CollegeStatisticsJpaRepository collegeStatisticsJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
+    private final DepartmentJpaRepository departmentJpaRepository;
     private final CollegeMapper collegeMapper;
 
     /**
@@ -47,6 +50,22 @@ public class CollegeServiceImpl implements CollegeService {
     @Override
     public List<SearchCollegeResponse> getColleges() {
         return collegeMapper.collegesToSearchCollegeResponses(collegeJpaRepository.findAllByState(ACTIVE));
+    }
+
+
+    /**
+     * 단과대 조회
+     *
+     * @param departmentIdx 단과대 인덱스
+     * @return 단과대 조회 결과
+     */
+    @Override
+    public SearchCollegeResponse getCollege(Integer departmentIdx) {
+        departmentJpaRepository.findByIdAndState(departmentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
+        College college = collegeJpaRepository.findByDepartments_IdAndState(departmentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(COLLEGE_NOT_FOUND));
+        return collegeMapper.collegeToSearchCollegeResponse(college);
     }
 
     /**
