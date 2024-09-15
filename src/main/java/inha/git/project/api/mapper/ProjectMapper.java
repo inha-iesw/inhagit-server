@@ -250,6 +250,7 @@ public interface ProjectMapper {
     @Mapping(target = "author", source = "projectComment.user")
     @Mapping(target = "createdAt", source = "projectComment.createdAt")
     @Mapping(target = "contents", source = "projectComment.contents")
+    @Mapping(target = "likeCount", source = "projectComment.likeCount")
     @Mapping(target = "replies", expression = "java(filterActiveReplies(projectComment.getReplies()))")
     CommentWithRepliesResponse toCommentWithRepliesResponse(ProjectComment projectComment);
 
@@ -274,6 +275,7 @@ public interface ProjectMapper {
     @Mapping(target = "idx", source = "projectReplyComment.id")
     @Mapping(target = "contents", source = "projectReplyComment.contents")
     @Mapping(target = "author", source = "projectReplyComment.user")
+    @Mapping(target = "likeCount", source = "projectReplyComment.likeCount")
     @Mapping(target = "createdAt", source = "projectReplyComment.createdAt")
     SearchReplyCommentResponse toSearchReplyCommentResponse(ProjectReplyComment projectReplyComment);
 
