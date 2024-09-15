@@ -8,6 +8,7 @@ import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.question.api.controller.dto.request.SearchQuestionCond;
 import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
 import inha.git.question.domain.Question;
+import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -56,6 +57,11 @@ public class QuestionQueryRepository {
                         q.getTitle(),
                         q.getCreatedAt(),
                         q.getSubjectName(),
+                        new SearchSemesterResponse(
+                                q.getSemester().getId(),
+                                q.getSemester().getName()
+                        ),
+                        q.getLikeCount(),
                         q.getQuestionFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),
@@ -99,6 +105,11 @@ public class QuestionQueryRepository {
                         q.getTitle(),
                         q.getCreatedAt(),
                         q.getSubjectName(),
+                        new SearchSemesterResponse(
+                                q.getSemester().getId(),
+                                q.getSemester().getName()
+                        ),
+                        q.getLikeCount(),
                         q.getQuestionFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),
@@ -172,6 +183,11 @@ public class QuestionQueryRepository {
                         q.getTitle(),
                         q.getCreatedAt(),
                         q.getSubjectName(),
+                        new SearchSemesterResponse(
+                                q.getSemester().getId(),
+                                q.getSemester().getName()
+                        ),
+                        q.getLikeCount(),
                         q.getQuestionFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),

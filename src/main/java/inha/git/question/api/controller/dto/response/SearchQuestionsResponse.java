@@ -2,6 +2,7 @@ package inha.git.question.api.controller.dto.response;
 
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
+import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
@@ -23,6 +24,13 @@ public record SearchQuestionsResponse(
         @NotNull
         @Schema(description = "질문 주제", example = "질문 주제")
         String subject,
+
+        @NotNull
+        SearchSemesterResponse semester,
+
+        @NotNull
+        @Schema(description = "좋아요 수", example = "1")
+        Integer likeCount,
         @NotNull
         List<SearchFieldResponse> fieldList,
         @NotNull
