@@ -39,6 +39,9 @@ public class Question extends BaseEntity {
     @Column(nullable = false, length = 50, name = "subject_name")
     private String subjectName;
 
+    @Column(nullable = false, name = "like_count")
+    private Integer likeCount = 0;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -51,4 +54,7 @@ public class Question extends BaseEntity {
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionField> questionFields;
 
+    public void setLikeCount(int likeCount) {
+        this.likeCount = likeCount;
+    }
 }

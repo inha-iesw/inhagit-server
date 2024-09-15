@@ -2,7 +2,9 @@ package inha.git.question.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
+import inha.git.project.api.controller.dto.request.RecommendRequest;
 import inha.git.question.api.controller.dto.request.CreateQuestionRequest;
+import inha.git.question.api.controller.dto.request.LikeRequest;
 import inha.git.question.api.controller.dto.request.SearchQuestionCond;
 import inha.git.question.api.controller.dto.response.SearchQuestionResponse;
 import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
@@ -13,6 +15,7 @@ import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -138,6 +141,22 @@ public class QuestionController {
             @AuthenticationPrincipal User user,
             @PathVariable("questionIdx") Integer questionIdx) {
         return BaseResponse.of(QUESTION_DELETE_OK, questionService.deleteQuestion(user, questionIdx));
+    }
+
+    /**
+     * 질문 좋아요 API
+     *
+     * <p>특정 질문에 좋아요를 합니다.</p>
+     *
+     * @param user       로그인한 사용자 정보
+     * @param likeRequest 좋아요할 질문 정보
+     * @return 좋아요 성공 메시지를 포함하는 BaseResponse<String>
+     */
+    @PostMapping("/like")
+    @Operation(summary = "질문 좋아요 API", description = "특정 질문에 좋아요를 합니다.")
+    public BaseResponse<String> questionLike(@AuthenticationPrincipal User user,
+                                            @RequestBody @Valid LikeRequest likeRequest) {
+        return BaseResponse.of(LIKE_SUCCESS, questionService.createQuestionLike(user,likeRequest));
     }
 
 }

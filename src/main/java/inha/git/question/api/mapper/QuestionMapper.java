@@ -2,14 +2,11 @@ package inha.git.question.api.mapper;
 
 import inha.git.common.BaseEntity.State;
 import inha.git.field.domain.Field;
-import inha.git.mapping.domain.QuestionCommentLike;
-import inha.git.mapping.domain.QuestionField;
-import inha.git.mapping.domain.QuestionReplyCommentLike;
-import inha.git.mapping.domain.id.QuestionCommentLikeId;
-import inha.git.mapping.domain.id.QuestionFieldId;
-import inha.git.mapping.domain.id.QuestionReplyCommentLikeId;
+import inha.git.mapping.domain.*;
+import inha.git.mapping.domain.id.*;
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
+import inha.git.project.domain.Project;
 import inha.git.question.api.controller.dto.request.*;
 import inha.git.question.api.controller.dto.response.CommentResponse;
 import inha.git.question.api.controller.dto.response.QuestionResponse;
@@ -45,6 +42,7 @@ public interface QuestionMapper {
     @Mapping(target = "subjectName", source = "createQuestionRequest.subject")
     @Mapping(target = "user", source = "user")
     @Mapping(target = "semester", source = "semester")
+    @Mapping(target = "likeCount", constant = "0")
     Question createQuestionRequestToQuestion(CreateQuestionRequest createQuestionRequest, User user, Semester semester);
 
     /**
@@ -103,6 +101,7 @@ public interface QuestionMapper {
     @Mapping(target = "subject", source = "question.subjectName")
     @Mapping(target = "createdAt", source = "question.createdAt")
     @Mapping(target = "semester", source = "semester")
+    @Mapping(target = "likeCount", source = "question.likeCount")
     SearchQuestionResponse questionToSearchQuestionResponse(Question question, List<SearchFieldResponse> fieldList, SearchUserResponse author, SearchSemesterResponse semester);
 
     /**
@@ -216,8 +215,27 @@ public interface QuestionMapper {
         return new QuestionCommentLike(new QuestionCommentLikeId(user.getId(), questionComment.getId()), questionComment, user);
     }
 
+    /**
+     * QuestionReplyCommentLike를 생성합니다.
+     *
+     * @param user               User
+     * @param questionReplyComment QuestionReplyComment
+     * @return QuestionReplyCommentLike
+     */
     default QuestionReplyCommentLike createQuestionReplyCommentLike(User user, QuestionReplyComment questionReplyComment) {
         return new QuestionReplyCommentLike(new QuestionReplyCommentLikeId(user.getId(), questionReplyComment.getId()), questionReplyComment, user);
     }
+
+    /**
+     * QuestionLike를 생성합니다.
+     *
+     * @param user     User
+     * @param question Question
+     * @return QuestionLike
+     */
+    default QuestionLike createQuestionLike(User user, Question question) {
+        return new QuestionLike(new QuestionLikeId(user.getId(), question.getId()), question, user);
+    }
+
 
 }
