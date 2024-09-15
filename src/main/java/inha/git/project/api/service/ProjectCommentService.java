@@ -28,5 +28,7 @@ public interface ProjectCommentService {
     String projectCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest);
 
     String projectReplyCommentLike(User user, CommentLikeRequest commentLikeRequest);
+
+    String projectReplyCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest);
 }
 

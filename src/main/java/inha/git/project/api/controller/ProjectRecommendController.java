@@ -103,7 +103,7 @@ public class ProjectRecommendController {
     @Operation(summary = "프로젝트 좋아요 취소 API", description = "특정 프로젝트에 좋아요를 취소합니다.")
     public BaseResponse<String> cancelPatentRecommend(@AuthenticationPrincipal User user,
                                                       @RequestBody @Valid RecommendRequest recommendRequest) {
-        return BaseResponse.of(PATENT_LIKE_CANCEL_SUCCESS, projectRecommendService.cancelProjectLike(user,recommendRequest));
+        return BaseResponse.of(LIKE_CANCEL_SUCCESS, projectRecommendService.cancelProjectLike(user,recommendRequest));
     }
 
     /**

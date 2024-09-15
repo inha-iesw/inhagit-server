@@ -216,6 +216,23 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         return commentLikeRequest.idx() + "번 프로젝트 대댓글 좋아요 완료";
     }
 
+    /**
+     * 대댓글 좋아요 취소
+     *
+     * @param user 사용자 정보
+     * @param commentLikeRequest 대댓글 좋아요 정보
+     * @return 대댓글 좋아요 취소 완료 메시지
+     */
+    @Override
+    public String projectReplyCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest) {
+        ProjectReplyComment projectReplyComment = projectReplyCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_COMMENT_REPLY_NOT_FOUND));
+        validReplyLikeCancel(projectReplyComment, user, projectReplyCommentLikeJpaRepository.existsByUserAndProjectReplyComment(user, projectReplyComment));
+        projectReplyCommentLikeJpaRepository.deleteByUserAndProjectReplyComment(user, projectReplyComment);
+        projectReplyComment.setLikeCount(projectReplyComment.getLikeCount() - 1);
+        return commentLikeRequest.idx() + "번 프로젝트 대댓글 좋아요 취소 완료";
+    }
+
 
 
 
@@ -265,6 +282,16 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         if (!commentLikeJpaRepository) {
             throw new BaseException(NOT_LIKE);
         }
+    }
+
+    private void validReplyLikeCancel(ProjectReplyComment projectReplyComment, User user, boolean commentLikeJpaRepository) {
+        if (projectReplyComment.getUser().getId().equals(user.getId())) {
+            throw new BaseException(MY_COMMENT_LIKE);
+        }
+        if (!commentLikeJpaRepository) {
+            throw new BaseException(NOT_LIKE);
+        }
+
     }
     /**
      * 댓글 좋아요 정보 조회
