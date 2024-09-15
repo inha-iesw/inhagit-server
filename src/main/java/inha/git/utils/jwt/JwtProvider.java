@@ -1,5 +1,6 @@
 package inha.git.utils.jwt;
 
+import inha.git.common.code.status.ErrorStatus;
 import inha.git.common.exceptions.BaseException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
@@ -17,8 +18,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-
-import static inha.git.common.code.status.ErrorStatus.INVALID_JWT;
 
 
 /**
@@ -46,11 +45,18 @@ public class JwtProvider {
   public String extractUsername(String token) {
     try {
       return extractClaim(token, Claims::getSubject);
-    } catch (io.jsonwebtoken.ExpiredJwtException | io.jsonwebtoken.MalformedJwtException | io.jsonwebtoken.security.SecurityException e) {
+    } catch (io.jsonwebtoken.ExpiredJwtException e) {
+      log.error("JWT 토큰이 만료되었습니다.");
+      throw new BaseException(ErrorStatus.INVALID_JWT_EXPIRED); // 만료된 토큰
+    } catch (io.jsonwebtoken.security.SecurityException e) {
+      log.error("JWT 서명이 유효하지 않습니다.");
+      throw new BaseException(ErrorStatus.INVALID_JWT_SIGNATURE); // 서명 오류
+    } catch (Exception e) {
       log.error("JWT 토큰이 유효하지 않습니다.");
-      throw new BaseException(INVALID_JWT);
+      throw new BaseException(ErrorStatus.INVALID_JWT); // 기타 오류
     }
   }
+
 
   /**
    * 토큰에서 특정 클레임을 추출.
@@ -123,9 +129,15 @@ public class JwtProvider {
     try {
       final String username = extractUsername(token);
       return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
-    } catch (io.jsonwebtoken.ExpiredJwtException | io.jsonwebtoken.MalformedJwtException | io.jsonwebtoken.security.SecurityException e) {
+    } catch (io.jsonwebtoken.ExpiredJwtException e) {
+      log.error("JWT 토큰이 만료되었습니다.");
+      throw new BaseException(ErrorStatus.INVALID_JWT_EXPIRED); // 만료된 토큰
+    } catch (io.jsonwebtoken.security.SecurityException e) {
+      log.error("JWT 서명이 유효하지 않습니다.");
+      throw new BaseException(ErrorStatus.INVALID_JWT_SIGNATURE); // 서명 오류
+    } catch (Exception e) {
       log.error("JWT 토큰이 유효하지 않습니다.");
-      throw new BaseException(INVALID_JWT);
+      throw new BaseException(ErrorStatus.INVALID_JWT); // 기타 오류
     }
   }
 
