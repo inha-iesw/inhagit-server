@@ -24,6 +24,7 @@ import java.util.List;
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.COLLEGE_NOT_FOUND;
+import static inha.git.common.code.status.ErrorStatus.DEPARTMENT_NOT_FOUND;
 
 /**
  * CollegeServiceImpl는 CollegeService 인터페이스를 구현하는 클래스.
@@ -61,7 +62,7 @@ public class CollegeServiceImpl implements CollegeService {
     @Override
     public SearchCollegeResponse getCollege(Integer departmentIdx) {
         departmentJpaRepository.findByIdAndState(departmentIdx, ACTIVE)
-                .orElseThrow(() -> new BaseException(COLLEGE_NOT_FOUND));
+                .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
         College college = collegeJpaRepository.findByDepartments_IdAndState(departmentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(COLLEGE_NOT_FOUND));
         return collegeMapper.collegeToSearchCollegeResponse(college);
