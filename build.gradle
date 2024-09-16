@@ -59,8 +59,8 @@ dependencies {
 	implementation 'com.corundumstudio.socketio:netty-socketio:2.0.9'
 
 	// P6Spy
-	implementation 'p6spy:p6spy:3.9.1'
-	implementation 'com.github.gavlyukovskiy:datasource-decorator-spring-boot-autoconfigure:1.9.0'
+	//implementation 'p6spy:p6spy:3.9.1'
+	//implementation 'com.github.gavlyukovskiy:datasource-decorator-spring-boot-autoconfigure:1.9.0'
 
 	// mapstruct
 	// https://mvnrepository.com/artifact/org.mapstruct/mapstruct-processor
