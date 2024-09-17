@@ -12,5 +12,6 @@ public interface AdminApproveService {
     String cancelCompany(CompanyCancelRequest companyCancelRequest);
     String promotionStudent(AssistantPromotionRequest assistantPromotionRequest);
     String demotionStudent(AssistantDemotionRequest assistantDemotionRequest);
-
+    String blockUser(UserBlockRequest userBlockRequest);
+    String unblockUser(UserUnblockRequest userUnblockRequest);
 }

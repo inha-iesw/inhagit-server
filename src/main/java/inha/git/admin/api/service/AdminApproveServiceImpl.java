@@ -176,6 +176,41 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         return assistantDemotionRequest.userIdx() + ": 조교 승격 취소 완료";
     }
 
+    /**
+     * 유저 차단
+     *
+     * @param userBlockRequest 유저 차단 요청
+     * @return 성공 메시지
+     */
+    @Override
+    public String blockUser(UserBlockRequest userBlockRequest) {
+        User user = getUser(userBlockRequest.userIdx());
+        if(user.getRole() == Role.ADMIN) {
+            throw new BaseException(CANNOT_BLOCK_ADMIN);
+        }
+        if(user.getBlockedAt() != null) {
+            throw new BaseException(ALREADY_BLOCKED_USER);
+        }
+        user.setBlockedAt(LocalDateTime.now());
+        return userBlockRequest.userIdx() + ": 유저 차단 완료";
+    }
+
+    /**
+     * 유저 차단 해제
+     *
+     * @param userUnblockRequest 유저 차단 해제 요청
+     * @return 성공 메시지
+     */
+    @Override
+    public String unblockUser(UserUnblockRequest userUnblockRequest) {
+        User user = getUser(userUnblockRequest.userIdx());
+        if(user.getBlockedAt() == null) {
+            throw new BaseException(NOT_BLOCKED_USER);
+        }
+        user.setBlockedAt(null);
+        return userUnblockRequest.userIdx() + ": 유저 차단 해제 완료";
+    }
+
 
     /**
      * 유저 조회
