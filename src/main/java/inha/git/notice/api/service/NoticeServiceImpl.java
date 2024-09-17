@@ -72,6 +72,7 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     public String createNotice(User user, CreateNoticeRequest createNoticeRequest) {
         Notice notice = noticeMapper.createNoticeRequestToNotice(user, createNoticeRequest);
+        log.info("공지 생성 성공 - 사용자: {} 공지 제목: {}", user.getName(), notice.getTitle());
         return noticeJpaRepository.save(notice).getTitle() + " 공지가 생성되었습니다.";
     }
 
@@ -90,6 +91,7 @@ public class NoticeServiceImpl implements NoticeService {
         Notice notice = findNotice(noticeIdx);
         validateUserAuthorization(user, notice);
         notice.updateNotice(updateNoticeRequest.title(), updateNoticeRequest.contents());
+        log.info("공지 수정 성공 - 사용자: {} 공지 제목: {}", user.getName(), notice.getTitle());
         return noticeJpaRepository.save(notice).getTitle() + " 공지가 수정되었습니다.";
     }
 
@@ -108,6 +110,7 @@ public class NoticeServiceImpl implements NoticeService {
         validateUserAuthorization(user, notice);
         notice.setState(INACTIVE);
         notice.setDeletedAt();
+        log.info("공지 삭제 성공 - 사용자: {} 공지 제목: {}", user.getName(), notice.getTitle());
         return noticeJpaRepository.save(notice).getTitle() + " 공지가 삭제되었습니다.";
     }
 
@@ -121,6 +124,7 @@ public class NoticeServiceImpl implements NoticeService {
      */
     private static void validateUserAuthorization(User user, Notice notice) {
         if(user.getRole() != Role.ADMIN && !notice.getUser().getId().equals(user.getId())) {
+            log.error("공지 수정 실패 {} {} - 권한이 없습니다.", user.getName(), notice.getTitle());
             throw new BaseException(NOTICE_NOT_AUTHORIZED);
         }
     }
