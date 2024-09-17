@@ -5,11 +5,13 @@ import inha.git.field.api.controller.dto.request.CreateFieldRequest;
 import inha.git.field.api.controller.dto.request.UpdateFieldRequest;
 import inha.git.field.api.controller.dto.response.SearchFieldResponse;
 import inha.git.field.api.service.FieldService;
+import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,8 +56,10 @@ public class FieldController {
     @PostMapping
     @PreAuthorize("hasAuthority('admin:create')")
     @Operation(summary = "분야 생성(관리자 전용) API", description = "분야를 생성합니다.")
-    public BaseResponse<String> createField(@Validated @RequestBody CreateFieldRequest createFieldRequest) {
-        return BaseResponse.of(FIELD_CREATE_OK, fieldService.createField(createFieldRequest));
+    public BaseResponse<String> createField(@AuthenticationPrincipal User user,
+                                            @Validated @RequestBody CreateFieldRequest createFieldRequest) {
+        log.info("분야 생성 - 관리자: {} 분야명: {}", user.getName(), createFieldRequest.name());
+        return BaseResponse.of(FIELD_CREATE_OK, fieldService.createField(user, createFieldRequest));
     }
 
     /**
@@ -71,16 +75,20 @@ public class FieldController {
     @PutMapping("/{fieldIdx}")
     @PreAuthorize("hasAuthority('admin:update')")
     @Operation(summary = "분야 수정(관리자 전용) API", description = "분야를 수정합니다.")
-    public BaseResponse<String> updateField(@PathVariable("fieldIdx") Integer fieldIdx,
+    public BaseResponse<String> updateField(@AuthenticationPrincipal User user,
+                                            @PathVariable("fieldIdx") Integer fieldIdx,
                                             @Validated @RequestBody UpdateFieldRequest updateFieldRequest) {
-        return BaseResponse.of(FIELD_UPDATE_OK, fieldService.updateField(fieldIdx, updateFieldRequest));
+        log.info("분야 수정 - 관리자: {} 분야명: {}", user.getName(), updateFieldRequest.name());
+        return BaseResponse.of(FIELD_UPDATE_OK, fieldService.updateField(user, fieldIdx, updateFieldRequest));
     }
 
     @DeleteMapping("/{fieldIdx}")
     @PreAuthorize("hasAuthority('admin:delete')")
     @Operation(summary = "분야 삭제(관리자 전용) API", description = "분야를 삭제합니다.")
-    public BaseResponse<String> deleteField(@PathVariable("fieldIdx") Integer fieldIdx) {
-        return BaseResponse.of(FIELD_DELETE_OK, fieldService.deleteField(fieldIdx));
+    public BaseResponse<String> deleteField(@AuthenticationPrincipal User user,
+                                            @PathVariable("fieldIdx") Integer fieldIdx) {
+        log.info("분야 삭제 - 관리자: {} 분야명: {}", user.getName(), fieldIdx);
+        return BaseResponse.of(FIELD_DELETE_OK, fieldService.deleteField(user, fieldIdx));
     }
 
 
