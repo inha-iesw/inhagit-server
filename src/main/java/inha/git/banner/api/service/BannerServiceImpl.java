@@ -51,6 +51,7 @@ public class BannerServiceImpl implements BannerService{
     public String createBanner(User user, CreateBannerRequest createBannerRequest) {
         Banner banner = bannerMapper.bannerPathToBanner(user, FilePath.storeFile(createBannerRequest.file(), BANNER));
         bannerJpaRepository.save(banner);
+        log.info("배너 생성 성공 - 관리자: {}", user.getName());
         return "배너가 등록되었습니다.";
     }
 

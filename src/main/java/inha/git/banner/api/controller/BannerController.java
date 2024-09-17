@@ -56,6 +56,7 @@ public class BannerController {
     public BaseResponse<String> createBanner(
             @AuthenticationPrincipal User user,
             @Validated @ModelAttribute CreateBannerRequest createBannerRequest) {
+        log.info("배너 생성 - 관리자: {}", user.getName());
         return BaseResponse.of(BANNER_CREATED_OK,  bannerService.createBanner(user, createBannerRequest));
     }
 }
