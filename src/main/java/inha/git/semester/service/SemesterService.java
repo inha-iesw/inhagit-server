@@ -3,15 +3,16 @@ package inha.git.semester.service;
 import inha.git.semester.controller.dto.request.CreateSemesterRequest;
 import inha.git.semester.controller.dto.request.UpdateSemesterRequest;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
+import inha.git.user.domain.User;
 
 import java.util.List;
 
 public interface SemesterService {
 
     List<SearchSemesterResponse> getSemesters();
-    String createSemester(CreateSemesterRequest createDepartmentRequest);
-    String updateSemesterName(Integer semesterIdx, UpdateSemesterRequest updateSemesterRequest);
-    String deleteSemester(Integer semesterIdx);
+    String createSemester(User admin, CreateSemesterRequest createDepartmentRequest);
+    String updateSemesterName(User admin, Integer semesterIdx, UpdateSemesterRequest updateSemesterRequest);
+    String deleteSemester(User admin, Integer semesterIdx);
 
 
 

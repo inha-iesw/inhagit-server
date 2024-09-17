@@ -5,11 +5,13 @@ import inha.git.semester.controller.dto.request.CreateSemesterRequest;
 import inha.git.semester.controller.dto.request.UpdateSemesterRequest;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.semester.service.SemesterService;
+import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,8 +52,10 @@ public class SemesterController {
     @PostMapping
     @PreAuthorize("hasAuthority('admin:create')")
     @Operation(summary = "학기 생성(관리자 전용) API", description = "학기를 생성합니다.(관리자 전용)")
-    public BaseResponse<String> createSemester(@Validated @RequestBody CreateSemesterRequest createDepartmentRequest) {
-        return BaseResponse.of(SEMESTER_CREATE_OK, semesterService.createSemester(createDepartmentRequest));
+    public BaseResponse<String> createSemester(@AuthenticationPrincipal User user,
+                                               @Validated @RequestBody CreateSemesterRequest createDepartmentRequest) {
+        log.info("학기 생성 - 관리자: {} 학기명: {}", user.getName(), createDepartmentRequest.name());
+        return BaseResponse.of(SEMESTER_CREATE_OK, semesterService.createSemester(user, createDepartmentRequest));
     }
 
     /**
@@ -64,9 +68,11 @@ public class SemesterController {
     @PutMapping("/{semesterIdx}")
     @PreAuthorize("hasAuthority('admin:update')")
     @Operation(summary = "학기 수정(관리자 전용) API", description = "학기를 수정합니다.(관리자 전용)")
-    public BaseResponse<String> updateSemester(@PathVariable("semesterIdx") Integer semesterIdx,
+    public BaseResponse<String> updateSemester(@AuthenticationPrincipal User user,
+                                               @PathVariable("semesterIdx") Integer semesterIdx,
                                                @Validated @RequestBody UpdateSemesterRequest updateSemesterRequest) {
-        return BaseResponse.of(SEMESTER_UPDATE_OK, semesterService.updateSemesterName(semesterIdx, updateSemesterRequest));
+        log.info("학기 수정 - 관리자: {} 학기명: {}", user.getName(), updateSemesterRequest.name());
+        return BaseResponse.of(SEMESTER_UPDATE_OK, semesterService.updateSemesterName(user, semesterIdx, updateSemesterRequest));
     }
 
     /**
@@ -77,7 +83,9 @@ public class SemesterController {
     @DeleteMapping("/{semesterIdx}")
     @PreAuthorize("hasAuthority('admin:delete')")
     @Operation(summary = "학기 삭제(관리자 전용) API", description = "학기를 삭제합니다.(관리자 전용)")
-    public BaseResponse<String> deleteSemester(@PathVariable("semesterIdx") Integer semesterIdx) {
-        return BaseResponse.of(SEMESTER_DELETE_OK, semesterService.deleteSemester(semesterIdx));
+    public BaseResponse<String> deleteSemester(@AuthenticationPrincipal User user,
+                                               @PathVariable("semesterIdx") Integer semesterIdx) {
+        log.info("학기 삭제 - 관리자: {} 학기명: {}", user.getName(), semesterIdx);
+        return BaseResponse.of(SEMESTER_DELETE_OK, semesterService.deleteSemester(user, semesterIdx));
     }
 }

@@ -8,6 +8,7 @@ import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.semester.mapper.SemesterMapper;
+import inha.git.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -52,8 +53,9 @@ public class SemesterServiceImpl implements SemesterService {
      */
     @Override
     @Transactional
-    public String createSemester(CreateSemesterRequest createDepartmentRequest) {
+    public String createSemester(User admin, CreateSemesterRequest createDepartmentRequest) {
         Semester semester = semesterJpaRepository.save(semesterMapper.createSemesterRequestToSemester(createDepartmentRequest));
+        log.info("학기 생성 성공 - 관리자: {} 학기명: {}", admin.getName(), createDepartmentRequest.name());
         return semester.getName() + " 학기가 생성되었습니다.";
     }
 
@@ -66,11 +68,12 @@ public class SemesterServiceImpl implements SemesterService {
      */
     @Override
     @Transactional
-    public String updateSemesterName(Integer semesterIdx, UpdateSemesterRequest updateSemesterRequest) {
+    public String updateSemesterName(User admin, Integer semesterIdx, UpdateSemesterRequest updateSemesterRequest) {
         log.info("semesterIdx {}", semesterIdx);
         Semester semester = semesterJpaRepository.findByIdAndState(semesterIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
         semester.setName(updateSemesterRequest.name());
+        log.info("학기 이름 수정 성공 - 관리자: {} 학기명: {}", admin.getName(), updateSemesterRequest.name());
         return semester.getName() + " 학기 이름이 수정되었습니다.";
     }
 
@@ -82,13 +85,12 @@ public class SemesterServiceImpl implements SemesterService {
      */
     @Override
     @Transactional
-    public String deleteSemester(Integer semesterIdx) {
+    public String deleteSemester(User admin, Integer semesterIdx) {
         Semester semester = semesterJpaRepository.findByIdAndState(semesterIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
         semester.setState(INACTIVE);
         semester.setDeletedAt();
+        log.info("학기 삭제 성공 - 관리자: {} 학기명: {}", admin.getName(), semester.getName());
         return semester.getName() + " 학기가 삭제되었습니다.";
     }
-
-
 }
