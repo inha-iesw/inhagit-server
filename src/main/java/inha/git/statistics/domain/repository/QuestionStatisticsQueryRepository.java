@@ -10,6 +10,7 @@ import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
 import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import static inha.git.college.domain.QCollege.college;
@@ -27,6 +28,7 @@ import static inha.git.statistics.domain.QUserCountStatistics.userCountStatistic
  * 질문 통계 조회 Repository
  */
 @Repository
+@Slf4j
 @RequiredArgsConstructor
 public class QuestionStatisticsQueryRepository {
 
@@ -41,7 +43,7 @@ public class QuestionStatisticsQueryRepository {
     public QuestionStatisticsResponse getQuestionStatistics(SearchCond searchCond) {
         // 전체 질문 수 계산
         Integer questionCount = getQuestionCount(searchCond);
-
+        log.info("여기는!!?!?? {}" , questionCount);
         // 멘토링 참여 인원 수 계산
         Integer userCount = getUserCount(searchCond);
 
@@ -125,16 +127,19 @@ public class QuestionStatisticsQueryRepository {
 
     // 질문 수 계산
     private Integer getQuestionCount(SearchCond searchCond) {
+        log.info("여기 1242ㄱㄷㄹㄴㅁㄴㅇ!!!?");
         if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
             if (searchCond.departmentIdx() != null) {
                 return queryFactory
                         .select(totalDepartmentStatistics.totalQuestionCount)
                         .from(totalDepartmentStatistics)
+                        .where(totalDepartmentStatistics.departmentId.eq(searchCond.departmentIdx()))
                         .fetchOne();
             } else if (searchCond.collegeIdx() != null) {
                 return queryFactory
                         .select(totalCollegeStatistics.totalQuestionCount)
                         .from(totalCollegeStatistics)
+                        .where(totalCollegeStatistics.collegeId.eq(searchCond.collegeIdx()))
                         .fetchOne();
             } else {
                 return queryFactory
@@ -171,11 +176,13 @@ public class QuestionStatisticsQueryRepository {
                 return queryFactory
                         .select(totalDepartmentStatistics.userQuestionCount)
                         .from(totalDepartmentStatistics)
+                        .where(totalDepartmentStatistics.departmentId.eq(searchCond.departmentIdx()))
                         .fetchOne();
             } else if (searchCond.collegeIdx() != null) {
                 return queryFactory
                         .select(totalCollegeStatistics.userQuestionCount)
                         .from(totalCollegeStatistics)
+                        .where(totalCollegeStatistics.collegeId.eq(searchCond.collegeIdx()))
                         .fetchOne();
             } else {
                 return queryFactory

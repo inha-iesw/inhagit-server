@@ -36,13 +36,14 @@ public class AdminApproveServiceImpl implements AdminApproveService {
      * @return 성공 메시지
      */
     @Override
-    public String promotion(AdminPromotionRequest adminPromotionRequest) {
+    public String promotion(User admin, AdminPromotionRequest adminPromotionRequest) {
         User user = getUser(adminPromotionRequest.userIdx());
         if(user.getRole() == Role.ADMIN) {
+            log.error("이미 관리자입니다. - 관리자: {}, 승격할 유저: {}", user.getName(), adminPromotionRequest.userIdx());
             throw new BaseException(ALREADY_ADMIN);
         }
-
         user.setRole(Role.ADMIN);
+        log.info("관리자로 승격 성공 - 관리자: {}, 승격할 유저: {}", admin.getName(), adminPromotionRequest.userIdx());
         return adminPromotionRequest.userIdx() + ": 관리자 권한 부여 완료";
     }
 

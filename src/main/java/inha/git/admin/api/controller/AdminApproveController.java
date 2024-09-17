@@ -3,10 +3,12 @@ package inha.git.admin.api.controller;
 import inha.git.admin.api.controller.dto.request.*;
 import inha.git.admin.api.service.AdminApproveService;
 import inha.git.common.BaseResponse;
+import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,8 +39,10 @@ public class AdminApproveController {
      */
     @PostMapping("/promotion")
     @Operation(summary = "관리자로 승격 API(관리자 전용)", description = "유저를 관리자로 승격합니다.")
-    public BaseResponse<String> promotion(@Validated @RequestBody AdminPromotionRequest adminPromotionRequest) {
-        return BaseResponse.of(PROMOTION_CREATED, adminApproveService.promotion(adminPromotionRequest));
+    public BaseResponse<String> promotion(@AuthenticationPrincipal User user,
+                                          @Validated @RequestBody AdminPromotionRequest adminPromotionRequest) {
+        log.info("관리자로 승격 - 관리자: {}, 승격할 유저: {}", user.getName(), adminPromotionRequest.userIdx());
+        return BaseResponse.of(PROMOTION_CREATED, adminApproveService.promotion(user, adminPromotionRequest));
     }
 
     /**
@@ -51,7 +55,9 @@ public class AdminApproveController {
      */
     @PostMapping("/demotion")
     @Operation(summary = "관리자 승격 취소 API(관리자 전용)", description = "관리자 승격을 취소합니다.")
-    public BaseResponse<String> demotion(@Validated @RequestBody AdminDemotionRequest adminDemotionRequest) {
+    public BaseResponse<String> demotion(@AuthenticationPrincipal User user,
+                                         @Validated @RequestBody AdminDemotionRequest adminDemotionRequest) {
+        log.info("관리자 승격 취소 - 관리자: {}, 승격할 유저: {}", user.getName(), adminDemotionRequest.userIdx());
         return BaseResponse.of(DEMOTION_CREATED, adminApproveService.demotion(adminDemotionRequest));
     }
 
@@ -65,7 +71,9 @@ public class AdminApproveController {
      */
     @PostMapping("/professor/accept")
     @Operation(summary = "교수 승인 API(관리자 전용)", description = "교수 승인을 합니다.")
-    public BaseResponse<String> acceptProfessor(@Validated @RequestBody ProfessorAcceptRequest professorAcceptRequest) {
+    public BaseResponse<String> acceptProfessor(@AuthenticationPrincipal User user,
+                                                @Validated @RequestBody ProfessorAcceptRequest professorAcceptRequest) {
+        log.info("교수 승인 - 관리자: {}, 교수: {}", user.getName(), professorAcceptRequest.userIdx());
         return BaseResponse.of(PROFESSOR_ACCEPT_OK, adminApproveService.acceptProfessor(professorAcceptRequest));
     }
 
@@ -79,7 +87,9 @@ public class AdminApproveController {
      */
     @PostMapping("/professor/cancel")
     @Operation(summary = "교수 승인 취소 API(관리자 전용)", description = "교수 승인을 취소합니다.")
-    public BaseResponse<String> cancelProfessor(@Validated @RequestBody ProfessorCancelRequest professorCancelRequest) {
+    public BaseResponse<String> cancelProfessor(@AuthenticationPrincipal User user,
+                                                @Validated @RequestBody ProfessorCancelRequest professorCancelRequest) {
+        log.info("교수 승인 취소 - 관리자: {}, 교수: {}", user.getName(), professorCancelRequest.userIdx());
         return BaseResponse.of(PROFESSOR_CANCEL_OK, adminApproveService.cancelProfessor(professorCancelRequest));
     }
 
@@ -93,7 +103,9 @@ public class AdminApproveController {
      */
     @PostMapping("/block")
     @Operation(summary = "유저 차단 API(관리자 전용)", description = "유저를 차단합니다.")
-    public BaseResponse<String> blockUser(@Validated @RequestBody UserBlockRequest userBlockRequest) {
+    public BaseResponse<String> blockUser(@AuthenticationPrincipal User user,
+                                          @Validated @RequestBody UserBlockRequest userBlockRequest) {
+        log.info("유저 차단 - 관리자: {}, 차단할 유저: {}", user.getName(), userBlockRequest.userIdx());
         return BaseResponse.of(USER_BLOCK_OK, adminApproveService.blockUser(userBlockRequest));
     }
 
@@ -107,7 +119,9 @@ public class AdminApproveController {
      */
     @PostMapping("/unblock")
     @Operation(summary = "유저 차단 해제 API(관리자 전용)", description = "유저 차단을 해제합니다.")
-    public BaseResponse<String> unblockUser(@Validated @RequestBody UserUnblockRequest userUnblockRequest) {
+    public BaseResponse<String> unblockUser(@AuthenticationPrincipal User user,
+                                            @Validated @RequestBody UserUnblockRequest userUnblockRequest) {
+        log.info("유저 차단 해제 - 관리자: {}, 차단 해제할 유저: {}", user.getName(), userUnblockRequest.userIdx());
         return BaseResponse.of(USER_UNBLOCK_OK, adminApproveService.unblockUser(userUnblockRequest));
     }
 }

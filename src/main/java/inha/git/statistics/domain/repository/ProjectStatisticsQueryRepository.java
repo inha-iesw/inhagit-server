@@ -155,6 +155,7 @@ public class ProjectStatisticsQueryRepository {
                                 totalDepartmentStatistics.totalProjectCount,
                                 totalDepartmentStatistics.totalGithubProjectCount))
                         .from(totalDepartmentStatistics)
+                        .where(totalDepartmentStatistics.departmentId.eq(searchCond.departmentIdx()))
                         .fetchOne();
             } else if (searchCond.collegeIdx() != null) {
                 return queryFactory
@@ -163,6 +164,7 @@ public class ProjectStatisticsQueryRepository {
                                 totalCollegeStatistics.totalProjectCount,
                                 totalCollegeStatistics.totalGithubProjectCount))
                         .from(totalCollegeStatistics)
+                        .where(totalCollegeStatistics.collegeId.eq(searchCond.collegeIdx()))
                         .fetchOne();
             } else {
                 return queryFactory
@@ -281,11 +283,13 @@ public class ProjectStatisticsQueryRepository {
                 return queryFactory
                         .select(totalDepartmentStatistics.userProjectCount)
                         .from(totalDepartmentStatistics)
+                        .where(totalDepartmentStatistics.departmentId.eq(searchCond.departmentIdx()))
                         .fetchOne();
             } else if (searchCond.collegeIdx() != null) {
                 return queryFactory
                         .select(totalCollegeStatistics.userProjectCount)
                         .from(totalCollegeStatistics)
+                        .where(totalCollegeStatistics.collegeId.eq(searchCond.collegeIdx()))
                         .fetchOne();
             } else {
                 return queryFactory
@@ -322,11 +326,13 @@ public class ProjectStatisticsQueryRepository {
                 return queryFactory
                         .select(totalDepartmentStatistics.userPatentCount)
                         .from(totalDepartmentStatistics)
+                        .where(totalDepartmentStatistics.departmentId.eq(searchCond.departmentIdx()))
                         .fetchOne();
             } else if (searchCond.collegeIdx() != null) {
                 return queryFactory
                         .select(totalCollegeStatistics.userPatentCount)
                         .from(totalCollegeStatistics)
+                        .where(totalCollegeStatistics.collegeId.eq(searchCond.collegeIdx()))
                         .fetchOne();
             } else {
                 return queryFactory

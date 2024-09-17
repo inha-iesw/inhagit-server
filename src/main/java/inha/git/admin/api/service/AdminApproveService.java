@@ -2,9 +2,10 @@ package inha.git.admin.api.service;
 
 
 import inha.git.admin.api.controller.dto.request.*;
+import inha.git.user.domain.User;
 
 public interface AdminApproveService {
-    String promotion(AdminPromotionRequest adminPromotionRequest);
+    String promotion(User admin, AdminPromotionRequest adminPromotionRequest);
     String demotion(AdminDemotionRequest adminDemotionRequest);
     String acceptProfessor(ProfessorAcceptRequest professorAcceptRequest);
     String cancelProfessor(ProfessorCancelRequest professorCancelRequest);
