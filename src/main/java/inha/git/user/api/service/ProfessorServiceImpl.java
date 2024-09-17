@@ -48,6 +48,7 @@ public class ProfessorServiceImpl implements ProfessorService{
         Professor professor = userMapper.professorSignupRequestToProfessor(professorSignupRequest);
         professor.setUser(user);
         professorJpaRepository.save(professor);
+        log.info("교수 회원가입 성공 - 이메일: {}", professorSignupRequest.email());
         return userMapper.userToProfessorSignupResponse(userJpaRepository.save(user));
     }
 }

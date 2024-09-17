@@ -159,6 +159,7 @@ public class UserServiceImpl implements UserService {
         User user = userJpaRepository.findByIdAndState(id, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_FIND_USER));
         user.setPassword(passwordEncoder.encode(updatePwRequest.pw()));
+        log.info("비밀번호 변경 성공 - 이메일: {}", user.getEmail());
         return userMapper.toUserResponse(user);
     }
 
@@ -166,6 +167,7 @@ public class UserServiceImpl implements UserService {
         User findUser = userJpaRepository.findByIdAndState(userIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_FIND_USER));
         if(!user.getId().equals(findUser.getId()) && !user.getRole().equals(Role.ADMIN) && !user.getRole().equals(Role.PROFESSOR) && !user.getRole().equals(Role.ASSISTANT)){
+            log.error("사용자 권한 없음 - 이메일: {}", user.getEmail());
             throw new BaseException(NOT_AUTHORIZED_USER);
         }
         return findUser;
