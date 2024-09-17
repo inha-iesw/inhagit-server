@@ -40,6 +40,8 @@ public enum SuccessStatus implements BaseCode {
     COMPANY_CANCEL_OK(HttpStatus.CREATED, "ADMIN2015", "기업 승인 취소 성공"),
     ASSISTANT_PROMOTION_OK(HttpStatus.CREATED, "ADMIN2016", "조교 승격 성공"),
     ASSISTANT_PROMOTION_CANCEL_OK(HttpStatus.CREATED, "ADMIN2017", "조교 승격 취소 성공"),
+    USER_BLOCK_OK(HttpStatus.CREATED, "ADMIN2018", "유저 차단 성공"),
+    USER_UNBLOCK_OK(HttpStatus.CREATED, "ADMIN2019", "유저 차단 해제 성공"),
 
 
     DEPARTMENT_CREATE_OK(HttpStatus.CREATED, "DEPARTMENT2010", "학과 생성 성공"),

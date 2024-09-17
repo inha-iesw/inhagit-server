@@ -149,4 +149,7 @@ public class User extends BaseEntity implements UserDetails {
         this.githubToken = githubToken;
     }
 
+    public void setBlockedAt(LocalDateTime blockedAt) {
+        this.blockedAt = blockedAt;
+    }
 }

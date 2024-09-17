@@ -83,4 +83,31 @@ public class AdminApproveController {
         return BaseResponse.of(PROFESSOR_CANCEL_OK, adminApproveService.cancelProfessor(professorCancelRequest));
     }
 
+    /**
+     * 유저 차단 API
+     *
+     * <p>유저를 차단합니다.</p>
+     *
+     * @param userBlockRequest 차단할 유저 인덱스
+     * @return 차단된 유저 정보를 포함하는 BaseResponse<String>
+     */
+    @PostMapping("/block")
+    @Operation(summary = "유저 차단 API(관리자 전용)", description = "유저를 차단합니다.")
+    public BaseResponse<String> blockUser(@Validated @RequestBody UserBlockRequest userBlockRequest) {
+        return BaseResponse.of(USER_BLOCK_OK, adminApproveService.blockUser(userBlockRequest));
+    }
+
+    /**
+     * 유저 차단 해제 API
+     *
+     * <p>유저 차단을 해제합니다.</p>
+     *
+     * @param userUnblockRequest 차단 해제할 유저 인덱스
+     * @return 차단 해제된 유저 정보를 포함하는 BaseResponse<String>
+     */
+    @PostMapping("/unblock")
+    @Operation(summary = "유저 차단 해제 API(관리자 전용)", description = "유저 차단을 해제합니다.")
+    public BaseResponse<String> unblockUser(@Validated @RequestBody UserUnblockRequest userUnblockRequest) {
+        return BaseResponse.of(USER_UNBLOCK_OK, adminApproveService.unblockUser(userUnblockRequest));
+    }
 }

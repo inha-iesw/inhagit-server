@@ -41,6 +41,14 @@ public class AuthServiceImpl implements AuthService {
     private final ProfessorJpaRepository professorJpaRepository;
     private final CompanyJpaRepository companyJpaRepository;
 
+    /**
+     * 로그인 API
+     *
+     * <p>로그인을 처리합니다.</p>
+     *
+     * @param loginRequest 로그인 요청 정보
+     * @return 로그인 결과를 포함하는 LoginResponse
+     */
     @Override
     public LoginResponse login(LoginRequest loginRequest) {
         User findUser = userJpaRepository.findByEmailAndState(loginRequest.email(), ACTIVE)
@@ -49,23 +57,32 @@ public class AuthServiceImpl implements AuthService {
             authenticationManager.authenticate
                     (new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password()));
         } catch (BadCredentialsException e) {
+            log.error("로그인 실패 - 사용자: {}", loginRequest.email());
             throw new BaseException(FAILED_TO_LOGIN);
+        }
+        if(findUser.getBlockedAt() != null) {
+            log.error("차단된 사용자 로그인 시도 - 사용자: {}", loginRequest.email());
+            throw new BaseException(BLOCKED_USER);
         }
         Role role = findUser.getRole();
         if(role == Role.PROFESSOR) {
             Professor professor = professorJpaRepository.findByUserId(findUser.getId())
                     .orElseThrow(() -> new BaseException(NOT_FIND_USER));
             if(professor.getAcceptedAt() == null) {
+                log.error("승인되지 않은 교수 로그인 시도 - 사용자: {}", loginRequest.email());
                 throw new BaseException(NOT_APPROVED_USER);
             }
         }
         else if(role == Role.COMPANY) {
             Company company = companyJpaRepository.findByUserId(findUser.getId())
                     .orElseThrow(() -> new BaseException(NOT_FIND_USER));
-            if(company.getAcceptedAt() == null)
+            if(company.getAcceptedAt() == null) {
+                log.error("승인되지 않은 기업 로그인 시도 - 사용자: {}", loginRequest.email());
                 throw new BaseException(NOT_APPROVED_USER);
+            }
         }
         String accessToken = jwtProvider.generateToken(findUser);
+        log.info("사용자 {} 로그인 성공", findUser.getEmail());
         return authMapper.userToLoginResponse(findUser, TOKEN_PREFIX + accessToken);
     }
 }
