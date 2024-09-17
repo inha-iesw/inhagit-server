@@ -135,6 +135,7 @@ public enum ErrorStatus implements BaseErrorCode {
     ALREADY_BLOCKED_USER(HttpStatus.BAD_REQUEST, "ADMIN4010", "이미 차단된 사용자입니다."),
     NOT_BLOCKED_USER(HttpStatus.BAD_REQUEST, "ADMIN4011", "차단되지 않은 사용자입니다."),
     CANNOT_BLOCK_ADMIN(HttpStatus.BAD_REQUEST, "ADMIN4012", "관리자 계정은 차단할 수 없습니다."),
+    BLOCKED_USER(HttpStatus.BAD_REQUEST, "ADMIN4013", "차단된 사용자입니다."),
 
     NOT_EXIST_PROBLEM(HttpStatus.BAD_REQUEST, "PROBLEM4000", "해당 문제가 존재하지 않습니다."),
     NOT_AUTHORIZED_PROBLEM(HttpStatus.BAD_REQUEST, "PROBLEM4001", "문제를 수정할 권한이 없습니다."),
