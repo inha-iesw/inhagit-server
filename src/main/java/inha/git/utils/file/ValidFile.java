@@ -25,7 +25,6 @@ import static inha.git.common.code.status.ErrorStatus.*;
 @Slf4j
 public class ValidFile {
 
-    private static final int MAX_FILES = 100;
     private static final long MAX_SIZE_MB = 200;
     private static final long MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
     private static final Set<String> ALLOWED_CONTENT_TYPES = new HashSet<>();
@@ -46,11 +45,13 @@ public class ValidFile {
      */
     public static File validateAndProcessZipFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
+            log.error("파일이 없습니다.");
             throw new BaseException(FILE_NOT_FOUND);
         }
 
         String contentType = file.getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES.contains(contentType)) {
+            log.error("유효하지 않은 파일 형식입니다.");
             throw new BaseException(FILE_NOT_ZIP);
         }
 
@@ -171,15 +172,18 @@ public class ValidFile {
 
     public static void validateImagePdfZipFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
+            log.error("파일이 없습니다.");
             throw new BaseException(FILE_NOT_FOUND);
         }
 
         String contentType = file.getContentType();
         if (contentType == null || !ALLOWED_CONTENT_TYPES_2.contains(contentType)) {
+            log.error("유효하지 않은 파일 형식입니다: {}", contentType);
             throw new BaseException(FILE_INVALID_TYPE);
         }
 
         if (file.getSize() > MAX_SIZE_BYTES_2) {
+            log.error("파일 크기 초과: {}", file.getSize());
             throw new BaseException(FILE_MAX_SIZE);
         }
     }

@@ -53,8 +53,8 @@ public class ProjectCommentController {
     @Operation(summary = "프로젝트 댓글 생성 API", description = "프로젝트 댓글을 생성합니다.")
     public BaseResponse<CommentResponse> createComment(
             @AuthenticationPrincipal User user,
-            @Validated @RequestBody CreateCommentRequest createCommentRequest
-    ) {
+            @Validated @RequestBody CreateCommentRequest createCommentRequest) {
+        log.info("프로젝트 댓글 생성 - 사용자: {} 프로젝트 댓글 내용: {}", user.getName(), createCommentRequest.contents());
         return BaseResponse.of(PROJECT_COMMENT_CREATE_OK, projectCommentService.createComment(user, createCommentRequest));
     }
 
@@ -71,8 +71,8 @@ public class ProjectCommentController {
     public BaseResponse<CommentResponse> updateComment(
             @AuthenticationPrincipal User user,
             @PathVariable("commentIdx") Integer commentIdx,
-            @Validated @RequestBody UpdateCommentRequest updateCommentRequest
-    ) {
+            @Validated @RequestBody UpdateCommentRequest updateCommentRequest) {
+        log.info("프로젝트 댓글 수정 - 사용자: {} 프로젝트 댓글 내용: {}", user.getName(), updateCommentRequest.contents());
         return BaseResponse.of(PROJECT_COMMENT_UPDATE_OK, projectCommentService.updateComment(user, commentIdx, updateCommentRequest));
     }
 
@@ -88,6 +88,7 @@ public class ProjectCommentController {
     public BaseResponse<CommentResponse> deleteComment(
             @AuthenticationPrincipal User user,
             @PathVariable("commentIdx") Integer commentIdx) {
+        log.info("프로젝트 댓글 삭제 - 사용자: {} 프로젝트 댓글 식별자: {}", user.getName(), commentIdx);
         return BaseResponse.of(PROJECT_COMMENT_DELETE_OK, projectCommentService.deleteComment(user, commentIdx));
     }
 
@@ -103,6 +104,7 @@ public class ProjectCommentController {
     public BaseResponse<ReplyCommentResponse> createReply(
             @AuthenticationPrincipal User user,
             @Validated @RequestBody CreateReplyCommentRequest createReplyCommentRequest) {
+        log.info("프로젝트 댓글 답글 생성 - 사용자: {} 프로젝트 댓글 답글 내용: {}", user.getName(), createReplyCommentRequest.contents());
         return BaseResponse.of(PROJECT_COMMENT_REPLY_CREATE_OK, projectCommentService.createReply(user, createReplyCommentRequest));
     }
 
@@ -119,8 +121,8 @@ public class ProjectCommentController {
     public BaseResponse<ReplyCommentResponse> updateReply(
             @AuthenticationPrincipal User user,
             @PathVariable("replyCommentIdx") Integer replyCommentIdx,
-            @Validated @RequestBody UpdateCommentRequest updateCommentRequest
-    ) {
+            @Validated @RequestBody UpdateCommentRequest updateCommentRequest) {
+        log.info("프로젝트 댓글 답글 수정 - 사용자: {} 프로젝트 댓글 답글 내용: {}", user.getName(), updateCommentRequest.contents());
         return BaseResponse.of(PROJECT_COMMENT_REPLY_UPDATE_OK, projectCommentService.updateReply(user, replyCommentIdx, updateCommentRequest));
     }
 
@@ -136,6 +138,7 @@ public class ProjectCommentController {
     public BaseResponse<ReplyCommentResponse> deleteReply(
             @AuthenticationPrincipal User user,
             @PathVariable("replyCommentIdx") Integer replyCommentIdx) {
+        log.info("프로젝트 댓글 답글 삭제 - 사용자: {} 프로젝트 댓글 답글 식별자: {}", user.getName(), replyCommentIdx);
         return BaseResponse.of(PROJECT_COMMENT_REPLY_DELETE_OK, projectCommentService.deleteReply(user, replyCommentIdx));
     }
 
@@ -152,6 +155,7 @@ public class ProjectCommentController {
     @Operation(summary = "프로젝트 댓글 좋아요 API", description = "특정 프로젝트 댓글에 좋아요를 합니다.")
     public BaseResponse<String> projectCommentLike(@AuthenticationPrincipal User user,
                                                 @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
+        log.info("프로젝트 댓글 좋아요 - 사용자: {} 프로젝트 댓글 식별자: {}", user.getName(), commentLikeRequest.idx());
         return BaseResponse.of(LIKE_SUCCESS, projectCommentService.projectCommentLike(user,commentLikeRequest));
     }
 
@@ -169,6 +173,7 @@ public class ProjectCommentController {
     @Operation(summary = "프로젝트 댓글 좋아요 취소 API", description = "특정 프로젝트 댓글에 좋아요를 취소합니다.")
     public BaseResponse<String> projectCommentLikeCancel(@AuthenticationPrincipal User user,
                                                       @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
+        log.info("프로젝트 댓글 좋아요 취소 - 사용자: {} 프로젝트 댓글 식별자: {}", user.getName(), commentLikeRequest.idx());
         return BaseResponse.of(LIKE_CANCEL_SUCCESS, projectCommentService.projectCommentLikeCancel(user,commentLikeRequest));
     }
 
@@ -185,6 +190,7 @@ public class ProjectCommentController {
     @Operation(summary = "프로젝트 대댓글 좋아요 API", description = "특정 프로젝트 대댓글에 좋아요를 합니다.")
     public BaseResponse<String> projectReplyCommentLike(@AuthenticationPrincipal User user,
                                                    @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
+        log.info("프로젝트 대댓글 좋아요 - 사용자: {} 프로젝트 대댓글 식별자: {}", user.getName(), commentLikeRequest.idx());
         return BaseResponse.of(LIKE_SUCCESS, projectCommentService.projectReplyCommentLike(user,commentLikeRequest));
     }
 
@@ -201,6 +207,7 @@ public class ProjectCommentController {
     @Operation(summary = "프로젝트 대댓글 좋아요 취소 API", description = "특정 프로젝트 대댓글에 좋아요를 취소합니다.")
     public BaseResponse<String> projectReplyCommentLikeCancel(@AuthenticationPrincipal User user,
                                                          @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
+        log.info("프로젝트 대댓글 좋아요 취소 - 사용자: {} 프로젝트 대댓글 식별자: {}", user.getName(), commentLikeRequest.idx());
         return BaseResponse.of(LIKE_CANCEL_SUCCESS, projectCommentService.projectReplyCommentLikeCancel(user,commentLikeRequest));
     }
 }

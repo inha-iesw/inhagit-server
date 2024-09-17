@@ -132,10 +132,11 @@ public class ProjectController {
             @Validated @RequestPart("createProjectRequest") CreateProjectRequest createProjectRequest,
             @RequestPart(value = "file") MultipartFile file) {
         if (user.getRole() == Role.COMPANY) {
+            log.error("기업은 프로젝트를 생성할 수 없습니다. - 사용자: {}", user.getName());
             throw new BaseException(COMPANY_CANNOT_CREATE_PROJECT);
         }
         ValidFile.validateAndProcessZipFile(file);
-        log.info("!!!!file: {}", file.getOriginalFilename());
+        log.info("프로젝트 생성 - 사용자: {} 프로젝트 이름: {}", user.getName(), createProjectRequest.title());
         return BaseResponse.of(PROJECT_CREATE_OK, projectService.createProject(user, createProjectRequest, file));
     }
 
@@ -151,8 +152,10 @@ public class ProjectController {
     public BaseResponse<ProjectResponse> createGithubProject(@AuthenticationPrincipal User user,
                                                         @Validated @RequestBody CreateGithubProjectRequest createGithubProjectRequest) {
         if (user.getRole() == Role.COMPANY) {
+            log.error("기업은 프로젝트를 생성할 수 없습니다. - 사용자: {}", user.getName());
             throw new BaseException(COMPANY_CANNOT_CREATE_PROJECT);
         }
+        log.info("GitHub 프로젝트 생성 - 사용자: {} 프로젝트 이름: {}", user.getName(), createGithubProjectRequest.title());
         return BaseResponse.of(PROJECT_CREATE_OK, projectService.createGithubProject(user, createGithubProjectRequest));
     }
 
@@ -176,6 +179,7 @@ public class ProjectController {
         if (file != null) {
             ValidFile.validateAndProcessZipFile(file);
         }
+        log.info("프로젝트 수정 - 사용자: {} 프로젝트 이름: {}", user.getName(), updateProjectRequest.title());
         return BaseResponse.of(PROJECT_UPDATE_OK, projectService.updateProject(user, projectIdx, updateProjectRequest, file));
     }
 
@@ -191,6 +195,7 @@ public class ProjectController {
     public BaseResponse<ProjectResponse> deleteProject(
             @AuthenticationPrincipal User user,
             @PathVariable("projectIdx") Integer projectIdx) {
+        log.info("프로젝트 삭제 - 사용자: {} 프로젝트 ID: {}", user.getName(), projectIdx);
         return BaseResponse.of(PROJECT_DELETE_OK, projectService.deleteProject(user, projectIdx));
     }
 

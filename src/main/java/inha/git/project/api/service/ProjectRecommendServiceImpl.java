@@ -47,6 +47,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         validRecommend(project, user, foundingRecommendJpaRepository.existsByUserAndProject(user, project));
         foundingRecommendJpaRepository.save(projectMapper.createProjectFoundingRecommend(user, project));
         project.setFoundRecommendCount(project.getFoundingRecommendCount() + 1);
+        log.info("프로젝트 창업 추천 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
         return recommendRequest.idx() + "번 프로젝트 창업 추천 완료";
     }
 
@@ -63,6 +64,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         validRecommend(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
         projectLikeJpaRepository.save(projectMapper.createProjectLike(user, project));
         project.setLikeCount(project.getLikeCount() + 1);
+        log.info("프로젝트 좋아요 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
         return recommendRequest.idx() + "번 프로젝트 좋아요 완료";
     }
 
@@ -79,6 +81,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         validRecommend(project, user, registrationRecommendJpaRepository.existsByUserAndProject(user, project));
         registrationRecommendJpaRepository.save(projectMapper.createProjectRegistrationRecommend(user, project));
         project.setRegistrationRecommendCount(project.getRegistrationRecommendCount() + 1);
+        log.info("프로젝트 등록 추천 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
         return recommendRequest.idx() + "번 프로젝트 등록 추천 완료";
     }
 
@@ -95,6 +98,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         validRecommendCancel(project, user, foundingRecommendJpaRepository.existsByUserAndProject(user, project));
         foundingRecommendJpaRepository.deleteByUserAndProject(user, project);
         project.setFoundRecommendCount(project.getFoundingRecommendCount() - 1);
+        log.info("프로젝트 창업 추천 취소 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
         return recommendRequest.idx() + "번 프로젝트 창업 추천 취소 완료";
     }
 
@@ -111,6 +115,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         validRecommendCancel(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
         projectLikeJpaRepository.deleteByUserAndProject(user, project);
         project.setLikeCount(project.getLikeCount() - 1);
+        log.info("프로젝트 좋아요 취소 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
         return recommendRequest.idx() + "번 프로젝트 좋아요 취소 완료";
     }
 
@@ -127,6 +132,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         validRecommendCancel(project, user, registrationRecommendJpaRepository.existsByUserAndProject(user, project));
         registrationRecommendJpaRepository.deleteByUserAndProject(user, project);
         project.setRegistrationRecommendCount(project.getRegistrationRecommendCount() - 1);
+        log.info("프로젝트 등록 추천 취소 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
         return recommendRequest.idx() + "번 프로젝트 등록 추천 취소 완료";
     }
 
@@ -142,9 +148,11 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
      */
     private void validRecommend(Project project, User user, boolean patentRecommendJpaRepository) {
         if (project.getUser().getId().equals(user.getId())) {
+            log.error("내 프로젝트는 추천할 수 없습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
             throw new BaseException(MY_PROJECT_RECOMMEND);
         }
         if (patentRecommendJpaRepository) {
+            log.error("이미 추천한 프로젝트입니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
             throw new BaseException(PROJECT_ALREADY_RECOMMEND);
         }
     }
@@ -158,9 +166,11 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
      */
     private void validRecommendCancel(Project project, User user, boolean patentRecommendJpaRepository) {
         if (project.getUser().getId().equals(user.getId())) {
+            log.error("내 프로젝트는 추천할 수 없습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
             throw new BaseException(MY_PROJECT_RECOMMEND);
         }
         if (!patentRecommendJpaRepository) {
+            log.error("추천하지 않은 프로젝트입니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
             throw new BaseException(PROJECT_NOT_RECOMMEND);
         }
     }

@@ -64,12 +64,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     public ProjectResponse createProject(User user, CreateProjectRequest createProjectRequest, MultipartFile file) {
-        log.info("프로젝트 생성 요청");
         String[] paths = storeAndUnzipFile(file);
         String zipFilePath = paths[0];
         String folderName = paths[1];
-
-
         registerRollbackCleanup(zipFilePath, folderName);
 
         Semester semester = semesterJpaRepository.findByIdAndState(createProjectRequest.semesterIdx(), ACTIVE)
@@ -86,6 +83,7 @@ public class ProjectServiceImpl implements ProjectService {
         List<Field> fields = fieldJpaRepository.findAllById(createProjectRequest.fieldIdxList());
 
         statisticsService.increaseCount(user, fields, semester,  1);
+        log.info("프로젝트 생성 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), savedProject.getId());
         return projectMapper.projectToProjectResponse(savedProject);
     }
 
@@ -108,6 +106,7 @@ public class ProjectServiceImpl implements ProjectService {
         projectFieldJpaRepository.saveAll(projectFields);
         List<Field> fields = fieldJpaRepository.findAllById(createGithubProjectRequest.fieldIdxList());
         statisticsService.increaseCount(user, fields, semester,  8);
+        log.info("깃허브 프로젝트 생성 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), savedProject.getId());
         return projectMapper.projectToProjectResponse(savedProject);
     }
 
@@ -127,6 +126,7 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         if(!project.getUser().getId().equals(user.getId()) && !user.getRole().equals(Role.ADMIN)) {
+            log.error("프로젝트 수정 권한이 없습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
             throw new BaseException(PROJECT_NOT_AUTHORIZED);
         }
         Semester semester = semesterJpaRepository.findByIdAndState(updateProjectRequest.semesterIdx(), ACTIVE)
@@ -180,6 +180,7 @@ public class ProjectServiceImpl implements ProjectService {
         else {
             statisticsService.increaseCount(user, fields, semester,  1);
         }
+        log.info("프로젝트 수정 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), savedProject.getId());
         return projectMapper.projectToProjectResponse(savedProject);
     }
 
@@ -196,6 +197,7 @@ public class ProjectServiceImpl implements ProjectService {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         if(!project.getUser().getId().equals(user.getId()) && !user.getRole().equals(Role.ADMIN)) {
+            log.error("프로젝트 삭제 권한이 없습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
             throw new BaseException(PROJECT_DELETE_NOT_AUTHORIZED);
         }
         project.setDeletedAt();
@@ -210,6 +212,7 @@ public class ProjectServiceImpl implements ProjectService {
         else {
             statisticsService.decreaseCount(project.getUser(), fields, project.getSemester(), 8);
         }
+        log.info("프로젝트 삭제 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
         return projectMapper.projectToProjectResponse(project);
 
 
@@ -221,10 +224,9 @@ public class ProjectServiceImpl implements ProjectService {
      * @return 압축 해제된 폴더명
      */
     private String[] storeAndUnzipFile(MultipartFile file) {
+        log.info("파일 저장 및 압축 해제");
         String zipFilePath = FilePath.storeFile(file, PROJECT_ZIP);
         String folderName = zipFilePath.substring(zipFilePath.lastIndexOf("/") + 1, zipFilePath.lastIndexOf(".zip"));
-        log.info("zipFilePath: {}", zipFilePath);
-        log.info("folderName: {}", folderName);
         UnZip.unzipFile(BASE_DIR_SOURCE + zipFilePath, BASE_DIR_SOURCE + PROJECT + '/' + folderName);
         return new String[] { zipFilePath, folderName };
     }

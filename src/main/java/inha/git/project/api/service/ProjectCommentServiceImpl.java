@@ -68,6 +68,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         ProjectComment projectComment = projectMapper.toProjectComment(createCommentRequest, user, project);
         projectCommentJpaRepository.save(projectComment);
+        log.info("프로젝트 댓글 생성 성공 - 사용자: {} 프로젝트 댓글 내용: {}", user.getName(), createCommentRequest.contents());
         return projectMapper.toCommentResponse(projectComment);
     }
 
@@ -84,10 +85,12 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         ProjectComment projectComment = projectCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_COMMENT_NOT_FOUND));
         if(!projectComment.getUser().getId().equals(user.getId())) {
+            log.error("프로젝트 댓글 수정 실패 - 사용자: {} 권한이 없습니다.", user.getName());
             throw new BaseException(PROJECT_COMMENT_UPDATE_NOT_AUTHORIZED);
         }
         projectComment.setContents(updateCommentRequest.contents());
         projectCommentJpaRepository.save(projectComment);
+        log.info("프로젝트 댓글 수정 성공 - 사용자: {} 프로젝트 댓글 내용: {}", user.getName(), updateCommentRequest.contents());
         return projectMapper.toCommentResponse(projectComment);
     }
 
@@ -103,11 +106,13 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         ProjectComment projectComment = projectCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_COMMENT_NOT_FOUND));
         if(!projectComment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            log.error("프로젝트 댓글 삭제 실패 - 사용자: {} 권한이 없습니다.", user.getName());
             throw new BaseException(PROJECT_COMMENT_DELETE_NOT_AUTHORIZED);
         }
         projectComment.setDeletedAt();
         projectComment.setState(INACTIVE);
         projectCommentJpaRepository.save(projectComment);
+        log.info("프로젝트 댓글 삭제 성공 - 사용자: {} 프로젝트 댓글 내용: {}", user.getName(), projectComment.getContents());
         return projectMapper.toCommentResponse(projectComment);
     }
 
@@ -124,6 +129,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
                 .orElseThrow(() -> new BaseException(PROJECT_COMMENT_NOT_FOUND));
         ProjectReplyComment projectReplyComment = projectMapper.toProjectReplyComment(createReplyCommentRequest, user, projectComment);
         projectReplyCommentJpaRepository.save(projectReplyComment);
+        log.info("프로젝트 대댓글 생성 성공 - 사용자: {} 프로젝트 대댓글 내용: {}", user.getName(), createReplyCommentRequest.contents());
         return projectMapper.toReplyCommentResponse(projectReplyComment);
     }
 
@@ -140,10 +146,12 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         ProjectReplyComment projectReplyComment = projectReplyCommentJpaRepository.findByIdAndState(replyCommentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_COMMENT_REPLY_NOT_FOUND));
         if(!projectReplyComment.getUser().getId().equals(user.getId())) {
+            log.error("프로젝트 대댓글 수정 실패 - 사용자: {} 권한이 없습니다.", user.getName());
             throw new BaseException(PROJECT_COMMENT_REPLY_UPDATE_NOT_AUTHORIZED);
         }
         projectReplyComment.setContents(updateCommentRequest.contents());
         projectReplyCommentJpaRepository.save(projectReplyComment);
+        log.info("프로젝트 대댓글 수정 성공 - 사용자: {} 프로젝트 대댓글 내용: {}", user.getName(), updateCommentRequest.contents());
         return projectMapper.toReplyCommentResponse(projectReplyComment);
     }
 
@@ -159,11 +167,13 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         ProjectReplyComment projectReplyComment = projectReplyCommentJpaRepository.findByIdAndState(replyCommentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_COMMENT_REPLY_NOT_FOUND));
         if(!projectReplyComment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            log.error("프로젝트 대댓글 삭제 실패 - 사용자: {} 권한이 없습니다.", user.getName());
             throw new BaseException(PROJECT_COMMENT_REPLY_UPDATE_NOT_AUTHORIZED);
         }
         projectReplyComment.setDeletedAt();
         projectReplyComment.setState(INACTIVE);
         projectReplyCommentJpaRepository.save(projectReplyComment);
+        log.info("프로젝트 대댓글 삭제 성공 - 사용자: {} 프로젝트 대댓글 내용: {}", user.getName(), projectReplyComment.getContents());
         return projectMapper.toReplyCommentResponse(projectReplyComment);
     }
 
@@ -180,6 +190,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         validLike(projectComment, user, projectCommentLikeJpaRepository.existsByUserAndProjectComment(user, projectComment));
         projectCommentLikeJpaRepository.save(projectMapper.createProjectCommentLike(user, projectComment));
         projectComment.setLikeCount(projectComment.getLikeCount() + 1);
+        log.info("프로젝트 댓글 좋아요 완료 - 사용자: {} 프로젝트 댓글 식별자: {}", user.getName(), commentLikeRequest.idx());
         return commentLikeRequest.idx() + "번 프로젝트 댓글 좋아요 완료";
     }
 
@@ -196,6 +207,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         validLikeCancel(projectComment, user, projectCommentLikeJpaRepository.existsByUserAndProjectComment(user, projectComment));
         projectCommentLikeJpaRepository.deleteByUserAndProjectComment(user, projectComment);
         projectComment.setLikeCount(projectComment.getLikeCount() - 1);
+        log.info("프로젝트 댓글 좋아요 취소 완료 - 사용자: {} 프로젝트 댓글 식별자: {}", user.getName(), commentLikeRequest.idx());
         return commentLikeRequest.idx() + "번 프로젝트 댓글 좋아요 취소 완료";
     }
 
@@ -213,6 +225,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         validReplyLike(projectReplyComment, user, projectReplyCommentLikeJpaRepository.existsByUserAndProjectReplyComment(user, projectReplyComment));
         projectReplyCommentLikeJpaRepository.save(projectMapper.createProjectReplyCommentLike(user, projectReplyComment));
         projectReplyComment.setLikeCount(projectReplyComment.getLikeCount() + 1);
+        log.info("프로젝트 대댓글 좋아요 완료 - 사용자: {} 프로젝트 대댓글 식별자: {}", user.getName(), commentLikeRequest.idx());
         return commentLikeRequest.idx() + "번 프로젝트 대댓글 좋아요 완료";
     }
 
@@ -230,6 +243,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         validReplyLikeCancel(projectReplyComment, user, projectReplyCommentLikeJpaRepository.existsByUserAndProjectReplyComment(user, projectReplyComment));
         projectReplyCommentLikeJpaRepository.deleteByUserAndProjectReplyComment(user, projectReplyComment);
         projectReplyComment.setLikeCount(projectReplyComment.getLikeCount() - 1);
+        log.info("프로젝트 대댓글 좋아요 취소 완료 - 사용자: {} 프로젝트 대댓글 식별자: {}", user.getName(), commentLikeRequest.idx());
         return commentLikeRequest.idx() + "번 프로젝트 대댓글 좋아요 취소 완료";
     }
 
@@ -245,9 +259,11 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
      */
     private void validLike(ProjectComment projectComment, User user, boolean commentLikeJpaRepository) {
         if (projectComment.getUser().getId().equals(user.getId())) {
+            log.error("프로젝트 댓글 좋아요 실패 - 사용자: {} 자신의 댓글에 좋아요를 할 수 없습니다.", user.getName());
             throw new BaseException(MY_COMMENT_LIKE);
         }
         if (commentLikeJpaRepository) {
+            log.error("프로젝트 댓글 좋아요 실패 - 사용자: {} 이미 좋아요를 누른 댓글입니다.", user.getName());
             throw new BaseException(ALREADY_LIKE);
         }
     }
@@ -261,9 +277,11 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
      */
     private void validReplyLike(ProjectReplyComment projectReplyComment, User user, boolean commentLikeJpaRepository) {
         if (projectReplyComment.getUser().getId().equals(user.getId())) {
+            log.error("프로젝트 대댓글 좋아요 실패 - 사용자: {} 자신의 대댓글에 좋아요를 할 수 없습니다.", user.getName());
             throw new BaseException(MY_COMMENT_LIKE);
         }
         if (commentLikeJpaRepository) {
+            log.error("프로젝트 대댓글 좋아요 실패 - 사용자: {} 이미 좋아요를 누른 대댓글입니다.", user.getName());
             throw new BaseException(ALREADY_LIKE);
         }
     }
@@ -277,18 +295,22 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
      */
     private void validLikeCancel(ProjectComment projectComment, User user, boolean commentLikeJpaRepository) {
         if (projectComment.getUser().getId().equals(user.getId())) {
+            log.error("프로젝트 댓글 좋아요 취소 실패 - 사용자: {} 자신의 댓글에 좋아요를 취소할 수 없습니다.", user.getName());
             throw new BaseException(MY_COMMENT_LIKE);
         }
         if (!commentLikeJpaRepository) {
+            log.error("프로젝트 댓글 좋아요 취소 실패 - 사용자: {} 좋아요를 누르지 않은 댓글입니다.", user.getName());
             throw new BaseException(NOT_LIKE);
         }
     }
 
     private void validReplyLikeCancel(ProjectReplyComment projectReplyComment, User user, boolean commentLikeJpaRepository) {
         if (projectReplyComment.getUser().getId().equals(user.getId())) {
+            log.error("프로젝트 대댓글 좋아요 취소 실패 - 사용자: {} 자신의 대댓글에 좋아요를 취소할 수 없습니다.", user.getName());
             throw new BaseException(MY_COMMENT_LIKE);
         }
         if (!commentLikeJpaRepository) {
+            log.error("프로젝트 대댓글 좋아요 취소 실패 - 사용자: {} 좋아요를 누르지 않은 대댓글입니다.", user.getName());
             throw new BaseException(NOT_LIKE);
         }
 

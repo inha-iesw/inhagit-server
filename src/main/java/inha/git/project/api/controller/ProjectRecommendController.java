@@ -39,6 +39,7 @@ public class ProjectRecommendController {
     @Operation(summary = "프로젝트 창업 추천 API", description = "특정 프로젝트에 창업 추천을 합니다.")
     public BaseResponse<String> recommendFounding(@AuthenticationPrincipal User user,
                                                   @RequestBody @Valid RecommendRequest recommendRequest) {
+        log.info("프로젝트 창업 추천 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
         return BaseResponse.of(FOUNDING_RECOMMEND_SUCCESS, projectRecommendService.createProjectFoundingRecommend(user,recommendRequest));
     }
 
@@ -55,6 +56,7 @@ public class ProjectRecommendController {
     @Operation(summary = "프로젝트 좋아요 API", description = "특정 프로젝트에 좋아요를 합니다.")
     public BaseResponse<String> projectLike(@AuthenticationPrincipal User user,
                                                 @RequestBody @Valid RecommendRequest recommendRequest) {
+        log.info("프로젝트 좋아요 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
         return BaseResponse.of(LIKE_SUCCESS, projectRecommendService.createProjectLike(user,recommendRequest));
     }
 
@@ -71,6 +73,7 @@ public class ProjectRecommendController {
     @Operation(summary = "프로젝트 등록 추천 API", description = "특정 프로젝트에 등록 추천을 합니다.")
     public BaseResponse<String> recommendRegistration(@AuthenticationPrincipal User user,
                                                       @RequestBody @Valid RecommendRequest recommendRequest) {
+        log.info("프로젝트 등록 추천 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
         return BaseResponse.of(REGISTRATION_RECOMMEND_SUCCESS, projectRecommendService.createProjectRegistrationRecommend(user,recommendRequest));
     }
 
@@ -87,6 +90,7 @@ public class ProjectRecommendController {
     @Operation(summary = "프로젝트 창업 추천 취소 API", description = "특정 프로젝트에 창업 추천을 취소합니다.")
     public BaseResponse<String> cancelFoundingRecommend(@AuthenticationPrincipal User user,
                                                         @RequestBody @Valid RecommendRequest recommendRequest) {
+        log.info("프로젝트 창업 추천 취소 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
         return BaseResponse.of(FOUNDING_RECOMMEND_CANCEL_SUCCESS, projectRecommendService.cancelProjectFoundingRecommend(user,recommendRequest));
     }
 
@@ -103,6 +107,7 @@ public class ProjectRecommendController {
     @Operation(summary = "프로젝트 좋아요 취소 API", description = "특정 프로젝트에 좋아요를 취소합니다.")
     public BaseResponse<String> cancelPatentRecommend(@AuthenticationPrincipal User user,
                                                       @RequestBody @Valid RecommendRequest recommendRequest) {
+        log.info("프로젝트 좋아요 취소 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
         return BaseResponse.of(LIKE_CANCEL_SUCCESS, projectRecommendService.cancelProjectLike(user,recommendRequest));
     }
 
@@ -119,6 +124,7 @@ public class ProjectRecommendController {
     @Operation(summary = "프로젝트 등록 추천 취소 API", description = "특정 프로젝트에 등록 추천을 취소합니다.")
     public BaseResponse<String> cancelRegistrationRecommend(@AuthenticationPrincipal User user,
                                                             @RequestBody @Valid RecommendRequest recommendRequest) {
+        log.info("프로젝트 등록 추천 취소 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
         return BaseResponse.of(REGISTRATION_RECOMMEND_CANCEL_SUCCESS, projectRecommendService.cancelProjectRegistrationRecommend(user,recommendRequest));
     }
 
