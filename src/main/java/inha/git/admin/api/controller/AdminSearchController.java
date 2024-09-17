@@ -7,11 +7,13 @@ import inha.git.admin.api.controller.dto.response.SearchUserResponse;
 import inha.git.admin.api.service.AdminSearchService;
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
+import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
@@ -42,11 +44,13 @@ public class AdminSearchController {
     @GetMapping("/users")
     @Operation(summary = "유저 검색 API(관리자 전용)", description = "관리자 전용 유저 검색 API입니다")
     public BaseResponse<Page<SearchUserResponse>> getAdminUsers(
+            @AuthenticationPrincipal User user,
             @RequestParam(value = "search", required = false) String search,
             @RequestParam("page") Integer page) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
+        log.info("{} 관리자 유저 검색 - 검색어: {}, 페이지: {}", user.getName(), search, page);
         return BaseResponse.of(USER_SEARCH_OK, adminSearchService.getAdminUsers(search, page - 1));
     }
     /**
@@ -61,11 +65,13 @@ public class AdminSearchController {
     @GetMapping("/students")
     @Operation(summary = "학생 검색 API(관리자 전용)", description = "관리자 전용 학생 검색 API입니다")
     public BaseResponse<Page<SearchStudentResponse>> getAdminStudents(
+            @AuthenticationPrincipal User user,
             @RequestParam(value = "search", required = false) String search,
             @RequestParam("page") Integer page) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
+        log.info("{} 관리자 학생 검색 - 검색어: {}, 페이지: {}", user.getName(), search, page);
         return BaseResponse.of(STUDENT_SEARCH_OK, adminSearchService.getAdminStudents(search, page - 1));
     }
     /**
@@ -80,11 +86,13 @@ public class AdminSearchController {
     @GetMapping("/professors")
     @Operation(summary = "교수 검색 API(관리자 전용)", description = "관리자 전용 교수 검색 API입니다")
     public BaseResponse<Page<SearchProfessorResponse>> getAdminProfessors(
+            @AuthenticationPrincipal User user,
             @RequestParam(value = "search", required = false) String search,
             @RequestParam("page") Integer page) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
+        log.info("{} 관리자 교수 검색 - 검색어: {}, 페이지: {}", user.getName(), search, page);
         return BaseResponse.of(PROFESSOR_SEARCH_OK, adminSearchService.getAdminProfessors(search, page - 1));
     }
 
@@ -100,11 +108,13 @@ public class AdminSearchController {
     @GetMapping("/companies")
     @Operation(summary = "기업 검색 API(관리자 전용)", description = "관리자 전용 회사 검색 API입니다")
     public BaseResponse<Page<SearchCompanyResponse>> getAdminCompanies(
+            @AuthenticationPrincipal User user,
             @RequestParam(value = "search", required = false) String search,
             @RequestParam("page") Integer page) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
+        log.info("{} 관리자 회사 검색 - 검색어: {}, 페이지: {}", user.getName(), search, page);
         return BaseResponse.of(COMPANY_SEARCH_OK, adminSearchService.getAdminCompanies(search, page - 1));
     }
 
@@ -120,7 +130,9 @@ public class AdminSearchController {
     @GetMapping("/users/{userIdx}")
     @Operation(summary = "특정 유저 조회(관리자 전용) API", description = "특정 유저를 조회합니다.")
     public BaseResponse<inha.git.user.api.controller.dto.response.SearchUserResponse> getAdminUser(
+            @AuthenticationPrincipal User user,
             @PathVariable("userIdx") Integer userIdx) {
+        log.info("{} 관리자 유저 조회 - 조회할 유저: {}", user.getName(), userIdx);
         return BaseResponse.of(USER_DETAIL_OK, adminSearchService.getAdminUser(userIdx));
     }
 }
