@@ -51,8 +51,8 @@ public class QuestionCommentController {
     @Operation(summary = "질문 댓글 생성 API", description = "질문 댓글을 생성합니다.")
     public BaseResponse<CommentResponse> createComment(
             @AuthenticationPrincipal User user,
-            @Validated @RequestBody CreateCommentRequest createCommentRequest
-    ) {
+            @Validated @RequestBody CreateCommentRequest createCommentRequest) {
+        log.info("질문 댓글 생성 - 사용자: {} 질문 ID: {}", user.getName(), createCommentRequest.questionIdx());
         return BaseResponse.of(QUESTION_COMMENT_CREATE_OK, questionCommentService.createComment(user, createCommentRequest));
     }
 
@@ -70,6 +70,7 @@ public class QuestionCommentController {
             @AuthenticationPrincipal User user,
             @PathVariable("commentIdx") Integer commentIdx,
             @Validated @RequestBody UpdateCommentRequest updateCommentRequest) {
+        log.info("질문 댓글 수정 - 사용자: {} 댓글 ID: {}", user.getName(), commentIdx);
         return BaseResponse.of(QUESTION_COMMENT_UPDATE_OK, questionCommentService.updateComment(user, commentIdx, updateCommentRequest));
     }
 
@@ -85,6 +86,7 @@ public class QuestionCommentController {
     public BaseResponse<CommentResponse> deleteComment(
             @AuthenticationPrincipal User user,
             @PathVariable("commentIdx") Integer commentIdx) {
+        log.info("질문 댓글 삭제 - 사용자: {} 댓글 ID: {}", user.getName(), commentIdx);
         return BaseResponse.of(QUESTION_COMMENT_DELETE_OK, questionCommentService.deleteComment(user, commentIdx));
     }
 
@@ -100,6 +102,7 @@ public class QuestionCommentController {
     public BaseResponse<ReplyCommentResponse> createReplyComment(
             @AuthenticationPrincipal User user,
             @Validated @RequestBody CreateReplyCommentRequest createReplyCommentRequest) {
+        log.info("질문 댓글 답글 생성 - 사용자: {} 댓글 ID: {}", user.getName(), createReplyCommentRequest.commentIdx());
         return BaseResponse.of(QUESTION_COMMENT_REPLY_CREATE_OK, questionCommentService.createReplyComment(user, createReplyCommentRequest));
     }
 
@@ -117,6 +120,7 @@ public class QuestionCommentController {
             @AuthenticationPrincipal User user,
             @PathVariable("replyCommentIdx") Integer replyCommentIdx,
             @Validated @RequestBody UpdateCommentRequest updateCommentRequest) {
+        log.info("질문 댓글 답글 수정 - 사용자: {} 댓글 ID: {}", user.getName(), replyCommentIdx);
         return BaseResponse.of(QUESTION_COMMENT_REPLY_UPDATE_OK, questionCommentService.updateReplyComment(user, replyCommentIdx, updateCommentRequest));
     }
 
@@ -132,6 +136,7 @@ public class QuestionCommentController {
     public BaseResponse<ReplyCommentResponse> deleteReplyComment(
             @AuthenticationPrincipal User user,
             @PathVariable("replyCommentIdx") Integer replyCommentIdx) {
+        log.info("질문 댓글 답글 삭제 - 사용자: {} 댓글 ID: {}", user.getName(), replyCommentIdx);
         return BaseResponse.of(QUESTION_COMMENT_REPLY_DELETE_OK, questionCommentService.deleteReplyComment(user, replyCommentIdx));
     }
 
@@ -147,6 +152,7 @@ public class QuestionCommentController {
     @Operation(summary = "질문 댓글 좋아요 API", description = "특정 질문 댓글에 좋아요를 합니다.")
     public BaseResponse<String> questionCommentLike(@AuthenticationPrincipal User user,
                                                    @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
+        log.info("질문 댓글 좋아요 - 사용자: {} 댓글 ID: {}", user.getName(), commentLikeRequest.idx());
         return BaseResponse.of(LIKE_SUCCESS, questionCommentService.questionCommentLike(user,commentLikeRequest));
     }
 
@@ -161,6 +167,7 @@ public class QuestionCommentController {
     @Operation(summary = "질문 댓글 좋아요 취소 API", description = "특정 질문 댓글에 좋아요를 취소합니다.")
     public BaseResponse<String> questionCommentLikeCancel(@AuthenticationPrincipal User user,
                                                          @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
+        log.info("질문 댓글 좋아요 취소 - 사용자: {} 댓글 ID: {}", user.getName(), commentLikeRequest.idx());
         return BaseResponse.of(LIKE_CANCEL_SUCCESS, questionCommentService.questionCommentLikeCancel(user, commentLikeRequest));
     }
 
@@ -175,6 +182,7 @@ public class QuestionCommentController {
     @Operation(summary = "질문 대댓글 좋아요 API", description = "특정 질문 대댓글에 좋아요를 합니다.")
     public BaseResponse<String> questionReplyCommentLike(@AuthenticationPrincipal User user,
                                                         @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
+        log.info("질문 대댓글 좋아요 - 사용자: {} 댓글 ID: {}", user.getName(), commentLikeRequest.idx());
         return BaseResponse.of(LIKE_SUCCESS, questionCommentService.questionReplyCommentLike(user,commentLikeRequest));
     }
 
@@ -189,6 +197,7 @@ public class QuestionCommentController {
     @Operation(summary = "질문 대댓글 좋아요 취소 API", description = "특정 질문 대댓글에 좋아요를 취소합니다.")
     public BaseResponse<String> questionReplyCommentLikeCancel(@AuthenticationPrincipal User user,
                                                               @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
+        log.info("질문 대댓글 좋아요 취소 - 사용자: {} 댓글 ID: {}", user.getName(), commentLikeRequest.idx());
         return BaseResponse.of(LIKE_CANCEL_SUCCESS, questionCommentService.questionReplyCommentLikeCancel(user,commentLikeRequest));
     }
 }

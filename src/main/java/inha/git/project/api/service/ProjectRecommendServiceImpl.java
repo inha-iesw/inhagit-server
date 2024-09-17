@@ -47,7 +47,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         validRecommend(project, user, foundingRecommendJpaRepository.existsByUserAndProject(user, project));
         foundingRecommendJpaRepository.save(projectMapper.createProjectFoundingRecommend(user, project));
         project.setFoundRecommendCount(project.getFoundingRecommendCount() + 1);
-        log.info("프로젝트 창업 추천 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
+        log.info("프로젝트 창업 추천 - 사용자: {} 프로젝트 ID: {} 추천 개수: {}", user.getName(), recommendRequest.idx(), project.getFoundingRecommendCount());
         return recommendRequest.idx() + "번 프로젝트 창업 추천 완료";
     }
 
@@ -64,7 +64,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         validRecommend(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
         projectLikeJpaRepository.save(projectMapper.createProjectLike(user, project));
         project.setLikeCount(project.getLikeCount() + 1);
-        log.info("프로젝트 좋아요 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
+        log.info("프로젝트 좋아요 - 사용자: {} 프로젝트 ID: {} 좋아요 개수: {}", user.getName(), recommendRequest.idx(), project.getLikeCount());
         return recommendRequest.idx() + "번 프로젝트 좋아요 완료";
     }
 
@@ -81,7 +81,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         validRecommend(project, user, registrationRecommendJpaRepository.existsByUserAndProject(user, project));
         registrationRecommendJpaRepository.save(projectMapper.createProjectRegistrationRecommend(user, project));
         project.setRegistrationRecommendCount(project.getRegistrationRecommendCount() + 1);
-        log.info("프로젝트 등록 추천 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
+        log.info("프로젝트 등록 추천 - 사용자: {} 프로젝트 ID: {} 추천 개수: {}", user.getName(), recommendRequest.idx(), project.getRegistrationRecommendCount());
         return recommendRequest.idx() + "번 프로젝트 등록 추천 완료";
     }
 
@@ -98,7 +98,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         validRecommendCancel(project, user, foundingRecommendJpaRepository.existsByUserAndProject(user, project));
         foundingRecommendJpaRepository.deleteByUserAndProject(user, project);
         project.setFoundRecommendCount(project.getFoundingRecommendCount() - 1);
-        log.info("프로젝트 창업 추천 취소 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
+        log.info("프로젝트 창업 추천 취소 - 사용자: {} 프로젝트 ID: {} 추천 개수: {}", user.getName(), recommendRequest.idx(), project.getFoundingRecommendCount());
         return recommendRequest.idx() + "번 프로젝트 창업 추천 취소 완료";
     }
 
@@ -115,7 +115,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         validRecommendCancel(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
         projectLikeJpaRepository.deleteByUserAndProject(user, project);
         project.setLikeCount(project.getLikeCount() - 1);
-        log.info("프로젝트 좋아요 취소 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
+        log.info("프로젝트 좋아요 취소 - 사용자: {} 프로젝트 ID: {} 좋아요 개수: {}", user.getName(), recommendRequest.idx(), project.getLikeCount());
         return recommendRequest.idx() + "번 프로젝트 좋아요 취소 완료";
     }
 
@@ -132,7 +132,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         validRecommendCancel(project, user, registrationRecommendJpaRepository.existsByUserAndProject(user, project));
         registrationRecommendJpaRepository.deleteByUserAndProject(user, project);
         project.setRegistrationRecommendCount(project.getRegistrationRecommendCount() - 1);
-        log.info("프로젝트 등록 추천 취소 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
+        log.info("프로젝트 등록 추천 취소 - 사용자: {} 프로젝트 ID: {} 추천 개수: {}", user.getName(), recommendRequest.idx(), project.getRegistrationRecommendCount());
         return recommendRequest.idx() + "번 프로젝트 등록 추천 취소 완료";
     }
 

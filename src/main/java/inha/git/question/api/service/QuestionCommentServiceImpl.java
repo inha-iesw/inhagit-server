@@ -65,6 +65,7 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
                 .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
         QuestionComment questionComment = questionMapper.toQuestionComment(createCommentRequest, user, question);
         questionCommentJpaRepository.save(questionComment);
+        log.info("질문 댓글 생성 성공 - 사용자: {} 질문 ID: {}", user.getName(), createCommentRequest.questionIdx());
         return questionMapper.toCommentResponse(questionComment);
     }
 
@@ -82,10 +83,12 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         QuestionComment questionComment = questionCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_COMMENT_NOT_FOUND));
         if(!questionComment.getUser().getId().equals(user.getId())) {
+            log.error("질문 댓글 수정 권한 없음 - 사용자: {} 댓글 ID: {}", user.getName(), commentIdx);
             throw new BaseException(QUESTION_COMMENT_UPDATE_NOT_AUTHORIZED);
         }
         questionComment.setContents(updateCommentRequest.contents());
         questionCommentJpaRepository.save(questionComment);
+        log.info("질문 댓글 수정 성공 - 사용자: {} 댓글 ID: {}", user.getName(), commentIdx);
         return questionMapper.toCommentResponse(questionComment);
     }
 
@@ -101,11 +104,13 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         QuestionComment questionComment = questionCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_COMMENT_NOT_FOUND));
         if(!questionComment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            log.error("질문 댓글 삭제 권한 없음 - 사용자: {} 댓글 ID: {}", user.getName(), commentIdx);
             throw new BaseException(QUESTION_COMMENT_DELETE_NOT_AUTHORIZED);
         }
         questionComment.setState(INACTIVE);
         questionComment.setDeletedAt();
         questionCommentJpaRepository.save(questionComment);
+        log.info("질문 댓글 삭제 성공 - 사용자: {} 댓글 ID: {}", user.getName(), commentIdx);
         return questionMapper.toCommentResponse(questionComment);
     }
 
@@ -122,6 +127,7 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
                 .orElseThrow(() -> new BaseException(QUESTION_COMMENT_NOT_FOUND));
         QuestionReplyComment questionReplyComment = questionMapper.toQuestionReplyComment(createReplyCommentRequest, user, questionComment);
         questionReplyCommentJpaRepository.save(questionReplyComment);
+        log.info("질문 대댓글 생성 성공 - 사용자: {} 댓글 ID: {}", user.getName(), createReplyCommentRequest.commentIdx());
         return questionMapper.toReplyCommentResponse(questionReplyComment);
     }
 
@@ -138,10 +144,12 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         QuestionReplyComment questionReplyComment = questionReplyCommentJpaRepository.findByIdAndState(replyCommentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_COMMENT_REPLY_NOT_FOUND));
         if(!questionReplyComment.getUser().getId().equals(user.getId())) {
+            log.error("질문 대댓글 수정 권한 없음 - 사용자: {} 댓글 ID: {}", user.getName(), replyCommentIdx);
             throw new BaseException(QUESTION_COMMENT_REPLY_UPDATE_NOT_AUTHORIZED);
         }
         questionReplyComment.setContents(updateCommentRequest.contents());
         questionReplyCommentJpaRepository.save(questionReplyComment);
+        log.info("질문 대댓글 수정 성공 - 사용자: {} 댓글 ID: {}", user.getName(), replyCommentIdx);
         return questionMapper.toReplyCommentResponse(questionReplyComment);
     }
 
@@ -157,11 +165,13 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         QuestionReplyComment questionReplyComment = questionReplyCommentJpaRepository.findByIdAndState(replyCommentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_COMMENT_REPLY_NOT_FOUND));
         if(!questionReplyComment.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            log.error("질문 대댓글 삭제 권한 없음 - 사용자: {} 댓글 ID: {}", user.getName(), replyCommentIdx);
             throw new BaseException(QUESTION_COMMENT_REPLY_DELETE_NOT_AUTHORIZED);
         }
         questionReplyComment.setState(INACTIVE);
         questionReplyComment.setDeletedAt();
         questionReplyCommentJpaRepository.save(questionReplyComment);
+        log.info("질문 대댓글 삭제 성공 - 사용자: {} 댓글 ID: {}", user.getName(), replyCommentIdx);
         return questionMapper.toReplyCommentResponse(questionReplyComment);
     }
 
@@ -178,6 +188,7 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         validLike(questionComment, user, questionCommentLikeJpaRepository.existsByUserAndQuestionComment(user, questionComment));
         questionCommentLikeJpaRepository.save(questionMapper.createQuestionCommentLike(user, questionComment));
         questionComment.setLikeCount(questionComment.getLikeCount() + 1);
+        log.info("질문 댓글 좋아요 성공 - 사용자: {} 댓글 ID: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), questionComment.getLikeCount());
         return commentLikeRequest.idx() + "번 질문 댓글 좋아요 완료";
     }
 
@@ -195,6 +206,7 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         validLikeCancel(questionComment, user, commentLikeJpaRepository);
         questionCommentLikeJpaRepository.deleteByUserAndQuestionComment(user, questionComment);
         questionComment.setLikeCount(questionComment.getLikeCount() - 1);
+        log.info("질문 댓글 좋아요 취소 성공 - 사용자: {} 댓글 ID: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), questionComment.getLikeCount());
         return commentLikeRequest.idx() + "번 질문 댓글 좋아요 취소 완료";
     }
 
@@ -212,6 +224,7 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         validReplyLike(questionReplyComment, user, questionReplyCommentLikeJpaRepository.existsByUserAndQuestionReplyComment(user, questionReplyComment));
         questionReplyCommentLikeJpaRepository.save(questionMapper.createQuestionReplyCommentLike(user, questionReplyComment));
         questionReplyComment.setLikeCount(questionReplyComment.getLikeCount() + 1);
+        log.info("질문 대댓글 좋아요 성공 - 사용자: {} 댓글 ID: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), questionReplyComment.getLikeCount());
         return commentLikeRequest.idx() + "번 질문 대댓글 좋아요 완료";
     }
 
@@ -230,6 +243,7 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         validReplyLikeCancel(questionReplyComment, user, commentLikeJpaRepository);
         questionReplyCommentLikeJpaRepository.deleteByUserAndQuestionReplyComment(user, questionReplyComment);
         questionReplyComment.setLikeCount(questionReplyComment.getLikeCount() - 1);
+        log.info("질문 대댓글 좋아요 취소 성공 - 사용자: {} 댓글 ID: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), questionReplyComment.getLikeCount());
         return commentLikeRequest.idx() + "번 질문 대댓글 좋아요 취소 완료";
     }
 
@@ -243,9 +257,11 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      */
     private void validLike(QuestionComment questionComment, User user, boolean commentLikeJpaRepository) {
         if (questionComment.getUser().getId().equals(user.getId())) {
+            log.error("내 댓글은 좋아요할 수 없습니다. - 사용자: {} 댓글 ID: {}", user.getName(), questionComment.getId());
             throw new BaseException(MY_COMMENT_LIKE);
         }
         if (commentLikeJpaRepository) {
+            log.error("이미 좋아요한 댓글입니다. - 사용자: {} 댓글 ID: {}", user.getName(), questionComment.getId());
             throw new BaseException(ALREADY_LIKE);
         }
     }
@@ -259,9 +275,11 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      */
     private void validReplyLike(QuestionReplyComment questionReplyComment, User user, boolean commentLikeJpaRepository) {
         if (questionReplyComment.getUser().getId().equals(user.getId())) {
+            log.error("내 대댓글은 좋아요할 수 없습니다. - 사용자: {} 댓글 ID: {}", user.getName(), questionReplyComment.getId());
             throw new BaseException(MY_COMMENT_LIKE);
         }
         if (commentLikeJpaRepository) {
+            log.error("이미 좋아요한 대댓글입니다. - 사용자: {} 댓글 ID: {}", user.getName(), questionReplyComment.getId());
             throw new BaseException(ALREADY_LIKE);
         }
     }
@@ -275,9 +293,11 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      */
     private void validLikeCancel(QuestionComment questionComment, User user, boolean commentLikeJpaRepository) {
         if (questionComment.getUser().getId().equals(user.getId())) {
+            log.error("내 댓글은 좋아요할 수 없습니다. - 사용자: {} 댓글 ID: {}", user.getName(), questionComment.getId());
             throw new BaseException(MY_COMMENT_LIKE);
         }
         if (!commentLikeJpaRepository) {
+            log.error("좋아요하지 않은 댓글입니다. - 사용자: {} 댓글 ID: {}", user.getName(), questionComment.getId());
             throw new BaseException(NOT_LIKE);
         }
     }
@@ -291,9 +311,11 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      */
     private void validReplyLikeCancel(QuestionReplyComment questionReplyComment, User user, boolean commentLikeJpaRepository) {
         if (questionReplyComment.getUser().getId().equals(user.getId())) {
+            log.error("내 대댓글은 좋아요할 수 없습니다. - 사용자: {} 댓글 ID: {}", user.getName(), questionReplyComment.getId());
             throw new BaseException(MY_COMMENT_LIKE);
         }
         if (!commentLikeJpaRepository) {
+            log.error("좋아요하지 않은 대댓글입니다. - 사용자: {} 댓글 ID: {}", user.getName(), questionReplyComment.getId());
             throw new BaseException(NOT_LIKE);
         }
 

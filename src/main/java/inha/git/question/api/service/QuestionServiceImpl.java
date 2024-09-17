@@ -42,6 +42,9 @@ import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.Constant.CREATE_AT;
 import static inha.git.common.code.status.ErrorStatus.*;
 
+/**
+ * QuestionServiceImpl은 question 관련 비즈니스 로직을 처리.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -70,6 +73,13 @@ public class QuestionServiceImpl implements QuestionService {
         return questionQueryRepository.getQuestions(pageable);
     }
 
+    /**
+     * 질문 조건 조회
+     *
+     * @param searchQuestionCond SearchQuestionCond
+     * @param page               Integer
+     * @return Page<SearchQuestionsResponse>
+     */
     @Override
     public Page<SearchQuestionsResponse> getCondQuestions(SearchQuestionCond searchQuestionCond, Integer page) {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
@@ -115,6 +125,7 @@ public class QuestionServiceImpl implements QuestionService {
         questionFieldJpaRepository.saveAll(questionFields);
         List<Field> fields = fieldJpaRepository.findAllById(createQuestionRequest.fieldIdxList());
         statisticsService.increaseCount(user, fields, semester, 2);
+        log.info("질문 생성 성공 - 사용자: {} 질문 ID: {}", user.getName(), saveQuestion.getId());
         return questionMapper.questionToQuestionResponse(saveQuestion);
     }
 
@@ -132,6 +143,7 @@ public class QuestionServiceImpl implements QuestionService {
         Question question = questionJpaRepository.findByIdAndState(questionIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
         if (!question.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            log.error("질문 수정 권한 없음 - 사용자: {} 질문 ID: {}", user.getName(), questionIdx);
             throw new BaseException(QUESTION_NOT_AUTHORIZED);
         }
         Semester semester = semesterJpaRepository.findByIdAndState(updateQuestionRequest.semesterIdx(), ACTIVE)
@@ -142,6 +154,7 @@ public class QuestionServiceImpl implements QuestionService {
 
         List<QuestionField> questionFields = createAndSaveQuestionFields(updateQuestionRequest.fieldIdxList(), savedQuestion);
         questionFieldJpaRepository.saveAll(questionFields);
+        log.info("질문 수정 성공 - 사용자: {} 질문 ID: {}", user.getName(), savedQuestion.getId());
         return questionMapper.questionToQuestionResponse(savedQuestion);
     }
 
@@ -158,6 +171,7 @@ public class QuestionServiceImpl implements QuestionService {
         Question question = questionJpaRepository.findByIdAndState(questionIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
         if (!question.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            log.error("질문 삭제 권한 없음 - 사용자: {} 질문 ID: {}", user.getName(), questionIdx);
             throw new BaseException(QUESTION_DELETE_NOT_AUTHORIZED);
         }
         question.setDeletedAt();
@@ -167,6 +181,7 @@ public class QuestionServiceImpl implements QuestionService {
                 .map(QuestionField::getField)
                 .toList();
         statisticsService.decreaseCount(question.getUser(), fields, question.getSemester(), 2);
+        log.info("질문 삭제 성공 - 사용자: {} 질문 ID: {}", user.getName(), questionIdx);
         return questionMapper.questionToQuestionResponse(question);
     }
 
@@ -185,6 +200,7 @@ public class QuestionServiceImpl implements QuestionService {
         validLike(question, user, questionLikeJpaRepository.existsByUserAndQuestion(user, question));
         questionLikeJpaRepository.save(questionMapper.createQuestionLike(user, question));
         question.setLikeCount(question.getLikeCount() + 1);
+        log.info("질문 좋아요 성공 - 사용자: {} 질문 ID: {} 좋아요 개수 : {}", user.getName(), likeRequest.idx(), question.getLikeCount());
         return likeRequest.idx() + "번 질문 좋아요 완료";
     }
 
@@ -203,6 +219,7 @@ public class QuestionServiceImpl implements QuestionService {
         validLikeCancel(question, user, questionLikeJpaRepository.existsByUserAndQuestion(user, question));
         questionLikeJpaRepository.deleteByUserAndQuestion(user, question);
         question.setLikeCount(question.getLikeCount() - 1);
+        log.info("질문 좋아요 취소 성공 - 사용자: {} 질문 ID: {} 좋아요 개수 : {}", user.getName(), likeRequest.idx(), question.getLikeCount());
         return likeRequest.idx() + "번 프로젝트 좋아요 취소 완료";
     }
 
@@ -232,18 +249,22 @@ public class QuestionServiceImpl implements QuestionService {
      */
     private void validLike(Question question, User user, boolean questionLikeJpaRepository) {
         if (question.getUser().getId().equals(user.getId())) {
+            log.error("내 질문은 좋아요할 수 없습니다. - 사용자: {} 질문 ID: {}", user.getName(), question.getId());
             throw new BaseException(MY_QUESTION_LIKE);
         }
         if (questionLikeJpaRepository) {
+            log.error("이미 좋아요한 질문입니다. - 사용자: {} 질문 ID: {}", user.getName(), question.getId());
             throw new BaseException(QUESTION_ALREADY_LIKE);
         }
     }
 
     private void validLikeCancel(Question question, User user, boolean questionLikeJpaRepository) {
         if (question.getUser().getId().equals(user.getId())) {
+            log.error("내 질문은 좋아요할 수 없습니다. - 사용자: {} 질문 ID: {}", user.getName(), question.getId());
             throw new BaseException(MY_QUESTION_LIKE);
         }
         if (!questionLikeJpaRepository) {
+            log.error("좋아요하지 않은 질문입니다. - 사용자: {} 질문 ID: {}", user.getName(), question.getId());
             throw new BaseException(QUESTION_NOT_LIKE);
         }
     }
