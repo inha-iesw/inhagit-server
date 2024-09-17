@@ -15,6 +15,7 @@ import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.domain.DepartmentStatistics;
 import inha.git.statistics.domain.repository.DepartmentStatisticsJpaRepository;
+import inha.git.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -65,11 +66,12 @@ public class DepartmentServiceImpl implements DepartmentService{
      */
     @Override
     @Transactional
-    public String createDepartment(CreateDepartmentRequest createDepartmentRequest) {
+    public String createDepartment(User admin, CreateDepartmentRequest createDepartmentRequest) {
         College college = collegeJpaRepository.findByIdAndState(createDepartmentRequest.collegeIdx(), ACTIVE)
-                .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
+                .orElseThrow(() -> new BaseException(COLLEGE_NOT_FOUND));
         Department department = departmentMapper.createDepartmentRequestToDepartment(createDepartmentRequest, college);
         if(!department.getCollege().getId().equals(college.getId())) {
+            log.error("학과 생성 실패 {} {} - 대학과 학과가 일치하지 않습니다.", admin.getName(), createDepartmentRequest.name());
                 throw new BaseException(DEPARTMENT_NOT_BELONG_TO_COLLEGE);
         }
         Department savedDepartment = departmentJpaRepository.save(department);
@@ -83,6 +85,7 @@ public class DepartmentServiceImpl implements DepartmentService{
                 departmentStatisticsJpaRepository.save(departmentStatistics);
             }
         }
+        log.info("학과 생성 성공 - 관리자: {} 학과명: {}", admin.getName(), savedDepartment.getName());
         return savedDepartment.getName() + " 학과가 생성되었습니다.";
     }
 
@@ -95,20 +98,22 @@ public class DepartmentServiceImpl implements DepartmentService{
      */
     @Override
     @Transactional
-    public String updateDepartmentName(Integer departmentIdx, UpdateDepartmentRequest updateDepartmentRequest) {
+    public String updateDepartmentName(User admin, Integer departmentIdx, UpdateDepartmentRequest updateDepartmentRequest) {
         Department department = departmentJpaRepository.findByIdAndState(departmentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
         department.setName(updateDepartmentRequest.name());
+        log.info("학과 이름 수정 성공 - 관리자: {} 학과명: {}", admin.getName(), department.getName());
         return department.getName() + " 학과 이름이 변경되었습니다.";
     }
 
     @Override
     @Transactional
-    public String deleteDepartment(Integer departmentIdx) {
+    public String deleteDepartment(User admin, Integer departmentIdx) {
         Department department = departmentJpaRepository.findByIdAndState(departmentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
         department.setState(INACTIVE);
         department.setDeletedAt();
+        log.info("학과 삭제 성공 - 관리자: {} 학과명: {}", admin.getName(), department.getName());
         return department.getName() + " 학과가 삭제되었습니다.";
     }
 
