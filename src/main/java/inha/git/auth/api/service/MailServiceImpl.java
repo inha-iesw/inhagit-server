@@ -17,7 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 
-import static inha.git.common.Constant.*;
+import static inha.git.common.Constant.EMAIL_CONTENT;
+import static inha.git.common.Constant.EMAIL_TITLE;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 /**
@@ -48,6 +49,7 @@ public class MailServiceImpl implements MailService {
 
     public String mailSend(EmailRequest emailRequest) {
         if(emailRequest.type() == 1 || emailRequest.type() == 3) {
+            log.info("이메일 도메인 검증 : {}", emailRequest.email());
             emailDomainService.validateEmailDomain(emailRequest.email(), emailRequest.type());
         }
         String oldAuthNum = redisProvider.getValueOps(emailRequest.email() + "-" + emailRequest.type());
@@ -58,6 +60,7 @@ public class MailServiceImpl implements MailService {
         int authNumber = makeRandomNumber();
         String emailContent = String.format(EMAIL_CONTENT, authNumber);
         postMailSend(username, emailRequest.email(), EMAIL_TITLE, emailContent, authNumber, emailRequest.type());
+        log.info("이메일 전송 완료");
         return "이메일 전송 완료";
     }
 
@@ -71,10 +74,12 @@ public class MailServiceImpl implements MailService {
     @Override
     public Boolean mailSendCheck(EmailCheckRequest emailCheckRequest) {
         if(emailCheckRequest.type() == 1 || emailCheckRequest.type() == 3) {
+            log.info("이메일 도메인 검증 : {}", emailCheckRequest.email());
             emailDomainService.validateEmailDomain(emailCheckRequest.email(), emailCheckRequest.type());
         }
         String storedAuthNum = redisProvider.getValueOps(emailCheckRequest.email() + "-" + emailCheckRequest.type());
         if(storedAuthNum == null) {
+            log.info("이메일 인증 만료");
             throw new BaseException(EMAIL_AUTH_EXPIRED);
         }
         if (storedAuthNum.equals(emailCheckRequest.number())) {
@@ -104,6 +109,7 @@ public class MailServiceImpl implements MailService {
             helper.setText(content, true);
             mailSender.send(message);
         } catch (MessagingException e) {
+            log.error("이메일 전송 실패 - 수신자: {}", toMail);
             throw new BaseException(EMAIL_SEND_FAIL);
         }
         redisProvider.setDataExpire(toMail + "-" + type, Integer.toString(authNumber), 60*3L);
@@ -125,6 +131,7 @@ public class MailServiceImpl implements MailService {
         String verificationKey = "verification-" + email + "-" + userPosition;
         String verificationStatus = redisProvider.getValueOps(verificationKey);
         if (verificationStatus == null || !verificationStatus.equals(userPosition)) {
+            log.error("이메일 인증 실패 - 이메일: {}", email);
             throw new BaseException(EMAIL_AUTH_NOT_FOUND);
         }
     }
