@@ -171,6 +171,7 @@ public class UserController {
     @PostMapping("/student")
     @Operation(summary = "학생 회원가입 API", description = "학생 회원가입을 처리합니다.")
     public BaseResponse<StudentSignupResponse> studentSignup(@Validated @RequestBody StudentSignupRequest studentSignupRequest) {
+        log.info("학생 회원가입 - 이메일: {} 이름: {} 학번: {}", studentSignupRequest.email(), studentSignupRequest.name(), studentSignupRequest.userNumber());
         return BaseResponse.of(STUDENT_SIGN_UP_OK, studentService.studentSignup(studentSignupRequest));
     }
 
@@ -186,6 +187,7 @@ public class UserController {
     @PostMapping("/professor")
     @Operation(summary = "교수 회원가입 API", description = "교수 회원가입을 처리합니다.")
     public BaseResponse<ProfessorSignupResponse> professorSignup(@Validated @RequestBody ProfessorSignupRequest professorSignupRequest) {
+        log.info("교수 회원가입 - 이메일: {} 이름: {} 사번: {}", professorSignupRequest.email(), professorSignupRequest.name(), professorSignupRequest.userNumber());
         return BaseResponse.of(PROFESSOR_SIGN_UP_OK, professorService.professorSignup(professorSignupRequest));
     }
 
@@ -204,12 +206,14 @@ public class UserController {
             @Validated @RequestPart("company") CompanySignupRequest companySignupRequest,
             @Validated @NotNull(message = "evidence 파일을 첨부해주세요.")
             @RequestPart(value = "evidence" ) MultipartFile evidence) {
+        log.info("기업 회원가입 - 이메일: {} 이름: {} 소속: {}", companySignupRequest.email(), companySignupRequest.name(), companySignupRequest.affiliation());
         return BaseResponse.of(COMPANY_SIGN_UP_OK, companyService.companySignup(companySignupRequest, evidence));
     }
 
     @PutMapping("/pw")
     @Operation(summary = "비밀번호 변경 API", description = "비밀번호를 변경합니다.")
     public BaseResponse<UserResponse> changePassword(@AuthenticationPrincipal User user, @Validated @RequestBody UpdatePwRequest updatePwRequest) {
+        log.info("비밀번호 변경 - 이메일: {}", user.getEmail());
         return BaseResponse.of(PW_CHANGE_OK, userService.changePassword(user.getId(), updatePwRequest));
     }
 }

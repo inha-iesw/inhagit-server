@@ -7,6 +7,7 @@ import inha.git.field.api.controller.dto.response.SearchFieldResponse;
 import inha.git.field.api.mapper.FieldMapper;
 import inha.git.field.domain.Field;
 import inha.git.field.domain.repository.FieldJpaRepository;
+import inha.git.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -48,8 +49,9 @@ public class FieldServiceImpl implements FieldService {
      */
     @Override
     @Transactional
-    public String createField(CreateFieldRequest createFieldRequest) {
+    public String createField(User admin, CreateFieldRequest createFieldRequest) {
         Field field = fieldMapper.createFieldRequestToField(createFieldRequest);
+        log.info("분야 생성 성공 - 관리자: {} 분야명: {}", admin.getName(), field.getName());
         return fieldJpaRepository.save(field).getName() + " 분야가 생성되었습니다.";
     }
 
@@ -61,10 +63,11 @@ public class FieldServiceImpl implements FieldService {
      * @return 변경된 분야 이름
      */
     @Override
-    public String updateField(Integer fieldIdx, UpdateFieldRequest updateFieldRequest) {
+    public String updateField(User admin, Integer fieldIdx, UpdateFieldRequest updateFieldRequest) {
         Field field = fieldJpaRepository.findByIdAndState(fieldIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(FIELD_NOT_FOUND));
         field.setName(updateFieldRequest.name());
+        log.info("분야 수정 성공 - 관리자: {} 분야명: {}", admin.getName(), field.getName());
         return field.getName() + " 분야가 수정되었습니다.";
     }
 
@@ -76,11 +79,12 @@ public class FieldServiceImpl implements FieldService {
      */
     @Override
     @Transactional
-    public String deleteField(Integer fieldIdx) {
+    public String deleteField(User admin, Integer fieldIdx) {
         Field field = fieldJpaRepository.findByIdAndState(fieldIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(FIELD_NOT_FOUND));
         field.setState(INACTIVE);
         field.setDeletedAt();
+        log.info("분야 삭제 성공 - 관리자: {} 분야명: {}", admin.getName(), field.getName());
         return field.getName() + " 분야가 삭제되었습니다.";
     }
 }

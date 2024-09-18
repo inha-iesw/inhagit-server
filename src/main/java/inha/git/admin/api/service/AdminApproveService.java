@@ -6,13 +6,13 @@ import inha.git.user.domain.User;
 
 public interface AdminApproveService {
     String promotion(User admin, AdminPromotionRequest adminPromotionRequest);
-    String demotion(AdminDemotionRequest adminDemotionRequest);
-    String acceptProfessor(ProfessorAcceptRequest professorAcceptRequest);
-    String cancelProfessor(ProfessorCancelRequest professorCancelRequest);
-    String acceptCompany(CompanyAcceptRequest companyAcceptRequest);
-    String cancelCompany(CompanyCancelRequest companyCancelRequest);
-    String promotionStudent(AssistantPromotionRequest assistantPromotionRequest);
-    String demotionStudent(AssistantDemotionRequest assistantDemotionRequest);
-    String blockUser(UserBlockRequest userBlockRequest);
-    String unblockUser(UserUnblockRequest userUnblockRequest);
+    String demotion(User admin, AdminDemotionRequest adminDemotionRequest);
+    String acceptProfessor(User admin, ProfessorAcceptRequest professorAcceptRequest);
+    String cancelProfessor(User admin, ProfessorCancelRequest professorCancelRequest);
+    String acceptCompany(User admin, CompanyAcceptRequest companyAcceptRequest);
+    String cancelCompany(User admin, CompanyCancelRequest companyCancelRequest);
+    String promotionStudent(User admin, AssistantPromotionRequest assistantPromotionRequest);
+    String demotionStudent(User admin, AssistantDemotionRequest assistantDemotionRequest);
+    String blockUser(User admin, UserBlockRequest userBlockRequest);
+    String unblockUser(User admin, UserUnblockRequest userUnblockRequest);
 }

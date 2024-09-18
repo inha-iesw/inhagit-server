@@ -14,6 +14,7 @@ import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.domain.CollegeStatistics;
 import inha.git.statistics.domain.repository.CollegeStatisticsJpaRepository;
+import inha.git.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -76,18 +77,18 @@ public class CollegeServiceImpl implements CollegeService {
      */
     @Override
     @Transactional
-    public String createCollege(CreateCollegeRequest createDepartmentRequest) {
+    public String createCollege(User admin, CreateCollegeRequest createDepartmentRequest) {
         College college = collegeJpaRepository.save
                 (collegeMapper.createCollegeRequestToCollege(createDepartmentRequest));
         List<Semester> semesters = semesterJpaRepository.findAllByState(ACTIVE);
         List<Field> fields = fieldJpaRepository.findAllByState(ACTIVE);
-
         for (Semester semester : semesters) {
             for (Field field : fields) {
                 CollegeStatistics collegeStatistics = collegeMapper.createCollegeStatistics(college, semester, field);
                 collegeStatisticsJpaRepository.save(collegeStatistics);
             }
         }
+        log.info("단과대 생성 성공 - 관리자: {} 단과대 이름: {}", admin.getName(), college.getName());
         return college.getName() + " 단과대가 생성되었습니다.";
     }
 
@@ -101,10 +102,11 @@ public class CollegeServiceImpl implements CollegeService {
      */
     @Override
     @Transactional
-    public String updateCollegeName(Integer collegeIdx ,UpdateCollegeRequest updateCollegeRequest) {
+    public String updateCollegeName(User admin, Integer collegeIdx ,UpdateCollegeRequest updateCollegeRequest) {
         College college = collegeJpaRepository.findByIdAndState(collegeIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(COLLEGE_NOT_FOUND));
         college.setName(updateCollegeRequest.name());
+        log.info("단과대 이름 수정 성공 - 관리자: {} 단과대 이름: {}", admin.getName(), college.getName());
         return college.getName() + " 단과대 이름이 변경되었습니다.";
     }
 
@@ -116,11 +118,12 @@ public class CollegeServiceImpl implements CollegeService {
      */
     @Override
     @Transactional
-    public String deleteCollege(Integer collegeIdx) {
+    public String deleteCollege(User admin, Integer collegeIdx) {
         College college = collegeJpaRepository.findByIdAndState(collegeIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(COLLEGE_NOT_FOUND));
         college.setState(INACTIVE);
         college.setDeletedAt();
+        log.info("단과대 삭제 성공 - 관리자: {} 단과대 이름: {}", admin.getName(), college.getName());
         return college.getName() + " 단과대가 삭제되었습니다.";
     }
 }

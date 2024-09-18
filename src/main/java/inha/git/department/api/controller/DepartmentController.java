@@ -5,11 +5,13 @@ import inha.git.common.BaseResponse;
 import inha.git.department.api.controller.dto.request.CreateDepartmentRequest;
 import inha.git.department.api.controller.dto.request.UpdateDepartmentRequest;
 import inha.git.department.api.service.DepartmentService;
+import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,8 +58,10 @@ public class DepartmentController {
     @PostMapping
     @PreAuthorize("hasAuthority('admin:create')")
     @Operation(summary = "학과 생성(관리자 전용) API", description = "학과를 생성합니다.(관리자 전용)")
-    public BaseResponse<String> createDepartment(@Validated @RequestBody CreateDepartmentRequest createDepartmentRequest) {
-        return BaseResponse.of(DEPARTMENT_CREATE_OK, departmentService.createDepartment(createDepartmentRequest));
+    public BaseResponse<String> createDepartment(@AuthenticationPrincipal User user,
+                                                 @Validated @RequestBody CreateDepartmentRequest createDepartmentRequest) {
+        log.info("학과 생성 - 관리자: {} 학과명: {}", user.getName(), createDepartmentRequest.name());
+        return BaseResponse.of(DEPARTMENT_CREATE_OK, departmentService.createDepartment(user, createDepartmentRequest));
     }
 
     /**
@@ -73,15 +77,19 @@ public class DepartmentController {
     @PutMapping("/{departmentIdx}")
     @PreAuthorize("hasAuthority('admin:update')")
     @Operation(summary = "학과명 수정(관리자 전용) API", description = "학과명을 수정합니다.(관리자 전용)")
-    public BaseResponse<String> updateDepartmentName(@PathVariable("departmentIdx") Integer departmentIdx,
+    public BaseResponse<String> updateDepartmentName(@AuthenticationPrincipal User user,
+                                                     @PathVariable("departmentIdx") Integer departmentIdx,
                                                      @Validated @RequestBody UpdateDepartmentRequest updateDepartmentRequest) {
-        return BaseResponse.of(DEPARTMENT_UPDATE_OK, departmentService.updateDepartmentName(departmentIdx, updateDepartmentRequest));
+        log.info("학과명 수정 - 관리자: {} 학과명: {}", user.getName(), updateDepartmentRequest.name());
+        return BaseResponse.of(DEPARTMENT_UPDATE_OK, departmentService.updateDepartmentName(user, departmentIdx, updateDepartmentRequest));
     }
 
     @DeleteMapping("/{departmentIdx}")
     @PreAuthorize("hasAuthority('admin:delete')")
     @Operation(summary = "학과 삭제(관리자 전용) API", description = "학과를 soft 삭제합니다.(관리자 전용)")
-    public BaseResponse<String> deleteDepartment(@PathVariable("departmentIdx") Integer departmentIdx) {
-        return BaseResponse.of(DEPARTMENT_DELETE_OK, departmentService.deleteDepartment(departmentIdx));
+    public BaseResponse<String> deleteDepartment(@AuthenticationPrincipal User user,
+                                                 @PathVariable("departmentIdx") Integer departmentIdx) {
+        log.info("학과 삭제 - 관리자: {} 학과 인덱스: {}", user.getName(), departmentIdx);
+        return BaseResponse.of(DEPARTMENT_DELETE_OK, departmentService.deleteDepartment(user, departmentIdx));
     }
 }

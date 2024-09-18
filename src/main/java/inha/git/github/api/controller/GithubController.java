@@ -42,6 +42,7 @@ public class GithubController {
     @Operation(summary = "Github Token 갱신 API", description = "Github Token을 갱신합니다.")
     public BaseResponse<String> updateGithubToken(@AuthenticationPrincipal User user,
                                                   @Validated @RequestBody GitubTokenResquest gitubTokenResquest) {
+        log.info("Github Token 갱신 - 사용자: {}", user.getName());
         return BaseResponse.of(GITHUB_TOKEN_REFRESH_OK, githubService.updateGithubToken(user, gitubTokenResquest));
     }
 
@@ -54,6 +55,7 @@ public class GithubController {
     @GetMapping("/repositories")
     @Operation(summary = "GitHub 레포지토리 목록 조회 API", description = "사용자의 GitHub 레포지토리 목록을 조회합니다.")
     public BaseResponse<List<GithubRepositoryResponse>> getGithubRepositories(@AuthenticationPrincipal User user) {
+        log.info("GitHub 레포지토리 목록 조회 - 사용자: {}", user.getName());
         return BaseResponse.of(GITHUB_REPOSITORIES_OK, githubService.getGithubRepositories(user));
     }
 
@@ -70,6 +72,7 @@ public class GithubController {
     public BaseResponse<List<SearchFileResponse>> getRepositoryContents(@AuthenticationPrincipal User user,
                                                                         @PathVariable("projectIdx") Integer projectIdx,
                                                                         @RequestParam(value = "path", required = false, defaultValue = "/") String path) {
+        log.info("GitHub 레포지토리 내용 조회 - 사용자: {} 프로젝트 인덱스: {} 경로: {}", user.getName(), projectIdx, path);
             return BaseResponse.of(GITHUB_REPOSITORIES_OK, githubService.getGithubFiles(user, projectIdx, path));
         }
 }

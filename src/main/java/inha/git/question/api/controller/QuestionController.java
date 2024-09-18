@@ -101,8 +101,10 @@ public class QuestionController {
             @AuthenticationPrincipal User user,
             @Validated @RequestBody CreateQuestionRequest createQuestionRequest) {
         if (user.getRole() == Role.COMPANY) {
+            log.error("기업은 프로젝트를 생성할 수 없습니다. - 사용자: {}", user.getName());
             throw new BaseException(COMPANY_CANNOT_CREATE_QUESTION);
         }
+        log.info("질문 생성 - 사용자: {} 질문 제목: {}", user.getName(), createQuestionRequest.title());
         return BaseResponse.of(QUESTION_CREATE_OK, questionService.createQuestion(user, createQuestionRequest));
     }
 
@@ -122,6 +124,7 @@ public class QuestionController {
             @AuthenticationPrincipal User user,
             @PathVariable("questionIdx") Integer questionIdx,
             @Validated @RequestBody UpdateQuestionRequest updateQuestionRequest) {
+        log.info("질문 수정 - 사용자: {} 질문 ID: {}", user.getName(), questionIdx);
         return BaseResponse.of(QUESTION_DELETE_OK, questionService.updateQuestion(user, questionIdx, updateQuestionRequest));
     }
 
@@ -155,6 +158,7 @@ public class QuestionController {
     @Operation(summary = "질문 좋아요 API", description = "특정 질문에 좋아요를 합니다.")
     public BaseResponse<String> questionLike(@AuthenticationPrincipal User user,
                                             @RequestBody @Valid LikeRequest likeRequest) {
+        log.info("질문 좋아요 - 사용자: {} 질문 ID: {}", user.getName(), likeRequest.idx());
         return BaseResponse.of(LIKE_SUCCESS, questionService.createQuestionLike(user,likeRequest));
     }
 
@@ -171,6 +175,7 @@ public class QuestionController {
     @Operation(summary = "질문 좋아요 취소 API", description = "특정 질문에 좋아요를 취소합니다.")
     public BaseResponse<String> questionLikeCancel(@AuthenticationPrincipal User user,
                                                       @RequestBody @Valid LikeRequest likeRequest) {
+        log.info("질문 좋아요 취소 - 사용자: {} 질문 ID: {}", user.getName(), likeRequest.idx());
         return BaseResponse.of(LIKE_CANCEL_SUCCESS, questionService.questionLikeCancel(user,likeRequest));
     }
 

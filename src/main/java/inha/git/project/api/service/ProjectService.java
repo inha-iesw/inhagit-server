@@ -12,6 +12,5 @@ public interface ProjectService {
     ProjectResponse createProject(User user, CreateProjectRequest createProjectRequest, MultipartFile file);
     ProjectResponse updateProject(User user, Integer projectIdx, UpdateProjectRequest updateProjectRequest, MultipartFile file);
     ProjectResponse deleteProject(User user, Integer projectIdx);
-
     ProjectResponse createGithubProject(User user, CreateGithubProjectRequest createGithubProjectRequest);
 }

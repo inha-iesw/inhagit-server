@@ -5,11 +5,13 @@ import inha.git.college.controller.dto.request.UpdateCollegeRequest;
 import inha.git.college.controller.dto.response.SearchCollegeResponse;
 import inha.git.college.service.CollegeService;
 import inha.git.common.BaseResponse;
+import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,8 +65,10 @@ public class CollegeController {
     @PostMapping
     @PreAuthorize("hasAuthority('admin:create')")
     @Operation(summary = "단과대 생성(관리자 전용) API", description = "단과대를 생성합니다.(관리자 전용)")
-    public BaseResponse<String> createCollege(@Validated @RequestBody CreateCollegeRequest createDepartmentRequest) {
-        return BaseResponse.of(COLLEGE_CREATE_OK, collegeService.createCollege(createDepartmentRequest));
+    public BaseResponse<String> createCollege(@AuthenticationPrincipal User user,
+                                              @Validated @RequestBody CreateCollegeRequest createDepartmentRequest) {
+        log.info("단과대 생성 - 관리자: {} 단과대 이름: {}", user.getName(), createDepartmentRequest.name());
+        return BaseResponse.of(COLLEGE_CREATE_OK, collegeService.createCollege(user, createDepartmentRequest));
     }
 
 
@@ -78,9 +82,11 @@ public class CollegeController {
     @PutMapping("/{collegeIdx}")
     @PreAuthorize("hasAuthority('admin:update')")
     @Operation(summary = "단과대 수정(관리자 전용) API", description = "단과대를 수정합니다.(관리자 전용)")
-    public BaseResponse<String> updateCollege(@PathVariable("collegeIdx") Integer collegeIdx,
-                                                 @Validated @RequestBody UpdateCollegeRequest updateCollegeRequest) {
-        return BaseResponse.of(COLLEGE_UPDATE_OK, collegeService.updateCollegeName(collegeIdx, updateCollegeRequest));
+    public BaseResponse<String> updateCollege(@AuthenticationPrincipal User user,
+                                              @PathVariable("collegeIdx") Integer collegeIdx,
+                                              @Validated @RequestBody UpdateCollegeRequest updateCollegeRequest) {
+        log.info("단과대 수정 - 관리자: {} 단과대 이름: {}", user.getName(), updateCollegeRequest.name());
+        return BaseResponse.of(COLLEGE_UPDATE_OK, collegeService.updateCollegeName(user ,collegeIdx, updateCollegeRequest));
     }
 
     /**
@@ -92,8 +98,10 @@ public class CollegeController {
     @DeleteMapping("/{collegeIdx}")
     @PreAuthorize("hasAuthority('admin:delete')")
     @Operation(summary = "단과대 삭제(관리자 전용) API", description = "단과대를 soft 삭제합니다.(관리자 전용)")
-    public BaseResponse<String> deleteCollege (@PathVariable("collegeIdx") Integer collegeIdx) {
-        return BaseResponse.of(DEPARTMENT_DELETE_OK, collegeService.deleteCollege(collegeIdx));
+    public BaseResponse<String> deleteCollege (@AuthenticationPrincipal User user,
+                                               @PathVariable("collegeIdx") Integer collegeIdx) {
+        log.info("단과대 삭제 - 관리자: {} 단과대 인덱스: {}", user.getName(), collegeIdx);
+        return BaseResponse.of(DEPARTMENT_DELETE_OK, collegeService.deleteCollege(user, collegeIdx));
     }
 
 }

@@ -81,6 +81,7 @@ public class NoticeController {
     @Operation(summary = "공지 생성(조교, 교수, 관리자 전용) API", description = "공지를 생성합니다.")
     public BaseResponse<String> createNotice(@AuthenticationPrincipal User user,
                                              @Validated @RequestBody CreateNoticeRequest createNoticeRequest) {
+        log.info("공지 생성 - 사용자: {} 공지 제목: {}", user.getName(), createNoticeRequest.title());
         return BaseResponse.of(NOTICE_CREATE_OK, noticeService.createNotice(user, createNoticeRequest));
     }
 
@@ -101,6 +102,7 @@ public class NoticeController {
     public BaseResponse<String> updateNotice(@AuthenticationPrincipal User user,
                                              @PathVariable("noticeIdx") Integer noticeIdx,
                                              @Validated @RequestBody UpdateNoticeRequest updateNoticeRequest) {
+        log.info("공지 수정 - 사용자: {} 공지 제목: {}", user.getName(), updateNoticeRequest.title());
         return BaseResponse.of(NOTICE_UPDATE_OK, noticeService.updateNotice(user, noticeIdx, updateNoticeRequest));
     }
 
@@ -119,6 +121,7 @@ public class NoticeController {
     @Operation(summary = "공지 삭제(조교, 교수, 관리자 전용) API", description = "공지를 삭제합니다.")
     public BaseResponse<String> deleteNotice(@AuthenticationPrincipal User user,
                                              @PathVariable("noticeIdx") Integer noticeIdx) {
+        log.info("공지 삭제 - 사용자: {} 공지 인덱스: {}", user.getName(), noticeIdx);
         return BaseResponse.of(NOTICE_DELETE_OK, noticeService.deleteNotice(user, noticeIdx));
     }
 }

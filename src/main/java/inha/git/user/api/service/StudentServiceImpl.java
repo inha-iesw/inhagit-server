@@ -69,6 +69,7 @@ public class StudentServiceImpl implements StudentService{
                 userStatisticsJpaRepository.save(userStatistics);
             }
         }
+        log.info("학생 회원가입 성공 - 이메일: {}", studentSignupRequest.email());
         return userMapper.userToStudentSignupResponse(savedUser);
     }
 }

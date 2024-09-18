@@ -58,7 +58,7 @@ public class AdminApproveController {
     public BaseResponse<String> demotion(@AuthenticationPrincipal User user,
                                          @Validated @RequestBody AdminDemotionRequest adminDemotionRequest) {
         log.info("관리자 승격 취소 - 관리자: {}, 승격할 유저: {}", user.getName(), adminDemotionRequest.userIdx());
-        return BaseResponse.of(DEMOTION_CREATED, adminApproveService.demotion(adminDemotionRequest));
+        return BaseResponse.of(DEMOTION_CREATED, adminApproveService.demotion(user, adminDemotionRequest));
     }
 
     /**
@@ -74,7 +74,7 @@ public class AdminApproveController {
     public BaseResponse<String> acceptProfessor(@AuthenticationPrincipal User user,
                                                 @Validated @RequestBody ProfessorAcceptRequest professorAcceptRequest) {
         log.info("교수 승인 - 관리자: {}, 교수: {}", user.getName(), professorAcceptRequest.userIdx());
-        return BaseResponse.of(PROFESSOR_ACCEPT_OK, adminApproveService.acceptProfessor(professorAcceptRequest));
+        return BaseResponse.of(PROFESSOR_ACCEPT_OK, adminApproveService.acceptProfessor(user, professorAcceptRequest));
     }
 
     /**
@@ -90,7 +90,7 @@ public class AdminApproveController {
     public BaseResponse<String> cancelProfessor(@AuthenticationPrincipal User user,
                                                 @Validated @RequestBody ProfessorCancelRequest professorCancelRequest) {
         log.info("교수 승인 취소 - 관리자: {}, 교수: {}", user.getName(), professorCancelRequest.userIdx());
-        return BaseResponse.of(PROFESSOR_CANCEL_OK, adminApproveService.cancelProfessor(professorCancelRequest));
+        return BaseResponse.of(PROFESSOR_CANCEL_OK, adminApproveService.cancelProfessor(user, professorCancelRequest));
     }
 
     /**
@@ -106,7 +106,7 @@ public class AdminApproveController {
     public BaseResponse<String> blockUser(@AuthenticationPrincipal User user,
                                           @Validated @RequestBody UserBlockRequest userBlockRequest) {
         log.info("유저 차단 - 관리자: {}, 차단할 유저: {}", user.getName(), userBlockRequest.userIdx());
-        return BaseResponse.of(USER_BLOCK_OK, adminApproveService.blockUser(userBlockRequest));
+        return BaseResponse.of(USER_BLOCK_OK, adminApproveService.blockUser(user, userBlockRequest));
     }
 
     /**
@@ -122,6 +122,6 @@ public class AdminApproveController {
     public BaseResponse<String> unblockUser(@AuthenticationPrincipal User user,
                                             @Validated @RequestBody UserUnblockRequest userUnblockRequest) {
         log.info("유저 차단 해제 - 관리자: {}, 차단 해제할 유저: {}", user.getName(), userUnblockRequest.userIdx());
-        return BaseResponse.of(USER_UNBLOCK_OK, adminApproveService.unblockUser(userUnblockRequest));
+        return BaseResponse.of(USER_UNBLOCK_OK, adminApproveService.unblockUser(user, userUnblockRequest));
     }
 }

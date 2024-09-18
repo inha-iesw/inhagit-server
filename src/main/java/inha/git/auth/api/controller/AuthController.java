@@ -55,7 +55,6 @@ public class AuthController {
     @PostMapping ("/number")
     @Operation(summary = "이메일 인증 API",description = "이메일 인증을 처리합니다.")
     public BaseResponse<String> mailSend(@RequestBody @Valid EmailRequest emailRequest){
-        log.info("이메일 인증 요청");
         log.info("이메일 인증 이메일 : {}", emailRequest.email());
         return BaseResponse.of(EMAIL_SEND_OK, mailService.mailSend(emailRequest));
     }
@@ -72,12 +71,14 @@ public class AuthController {
     @PostMapping("/number/check")
     @Operation(summary = "이메일 인증 확인 API",description = "이메일 인증 확인을 처리합니다.")
     public BaseResponse<Boolean> mailSendCheck(@RequestBody @Valid EmailCheckRequest emailCheckRequest) {
+        log.info("이메일 인증 확인 이메일 : {}", emailCheckRequest.email());
         return BaseResponse.of(EMAIL_AUTH_OK, mailService.mailSendCheck(emailCheckRequest));
     }
 
     @PostMapping("/login")
     @Operation(summary = "로그인 API",description = "로그인을 처리합니다.")
     public BaseResponse<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
+        log.info("로그인 시도 이메일 : {}", loginRequest.email());
         return BaseResponse.of(LOGIN_OK, authService.login(loginRequest));
     }
 

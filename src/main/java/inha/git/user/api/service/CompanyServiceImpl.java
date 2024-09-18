@@ -48,6 +48,7 @@ public class CompanyServiceImpl implements CompanyService{
         Company company = userMapper.companySignupRequestToCompany(companySignupRequest,  FilePath.storeFile(evidence, EVIDENCE));
         company.setUser(savedUser);
         companyJpaRepository.save(company);
+        log.info("기업 회원가입 성공 - 이메일: {}", companySignupRequest.email());
         return userMapper.userToCompanySignupResponse(savedUser);
     }
 }

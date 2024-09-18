@@ -77,6 +77,7 @@ public class GithubServiceImpl implements GithubService {
     public List<GithubRepositoryResponse> getGithubRepositories(User user) {
         String githubToken = user.getGithubToken();
         if (githubToken == null) {
+            log.error("Github Token이 없습니다. - 사용자: {}", user.getName());
             throw new BaseException(GITHUB_TOKEN_NOT_FOUND);
         }
         try {
@@ -92,6 +93,7 @@ public class GithubServiceImpl implements GithubService {
                     .map(githubMapper::toDto)
                     .toList();
         } catch (IOException e) {
+            log.error("Github 레포지토리 목록을 가져오는데 실패했습니다. - 사용자: {} 에러메시지: {} ", user.getName(), e.getMessage());
             throw new BaseException(FAILED_TO_GET_GITHUB_REPOSITORIES);
         }
     }
@@ -111,6 +113,7 @@ public class GithubServiceImpl implements GithubService {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
             return response.getStatusCode().is2xxSuccessful();
         } catch (Exception e) {
+            log.error("Github Token이 유효하지 않습니다. - 에러메시지: {}", e.getMessage());
             e.printStackTrace();
             return false;
         }
@@ -130,6 +133,7 @@ public class GithubServiceImpl implements GithubService {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         if(project.getRepoName() == null) {
+            log.error("프로젝트의 Github 레포지토리가 없습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), projectIdx);
             throw new BaseException(GITHUB_REPO_NOT_FOUND);
         }
         log.info("path: {}", path);
@@ -137,11 +141,8 @@ public class GithubServiceImpl implements GithubService {
 
         HttpHeaders headers = new HttpHeaders();
         String githubToken = project.getUser().getGithubToken();
-        log.info("!!!!!!!!!!!!!!!! token: {}", githubToken);
-        log.info("!!!!!!!!!!!!!!!!여기 통과? token: {}", githubToken);
         headers.set("Authorization", "token " + githubToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
-
         ResponseEntity<List<GithubItemDTO>> response;
         try {
             response = restTemplate.exchange(
@@ -151,16 +152,15 @@ public class GithubServiceImpl implements GithubService {
                     new ParameterizedTypeReference<List<GithubItemDTO>>() {}
             );
         } catch (Exception e) {
-            // If it's not a list, it might be a single file
+            log.error("Github 파일 목록을 가져오는데 실패했습니다. - 사용자: {} 프로젝트 ID: {} 에러메시지: {}", user.getName(), projectIdx, e.getMessage());
             return List.of(getGithubFileContent(project.getUser(), project.getRepoName(), path));
         }
-
         List<GithubItemDTO> items = response.getBody();
-
         if (items == null) {
+            log.error("Github 파일 목록이 없습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), projectIdx);
             throw new BaseException(FILE_NOT_FOUND);
         }
-
+        log.info("Github 파일 목록 조회 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), projectIdx);
         return items.stream()
                 .filter(f -> !f.getName().equals(GIT) &&
                         !f.getName().equals(DS_STORE) &&
@@ -170,6 +170,12 @@ public class GithubServiceImpl implements GithubService {
                 .toList();
     }
 
+    /**
+     * Github 파일을 SearchFileResponse로 매핑합니다.
+     *
+     * @param item Github 파일 정보
+     * @return SearchFileResponse
+     */
     private SearchFileResponse mapToFileResponse(GithubItemDTO item) {
         if ("dir".equals(item.getType())) {
             return new SearchDirectoryResponse(item.getName(), "directory", null);
@@ -197,6 +203,7 @@ public class GithubServiceImpl implements GithubService {
 
         GithubFileContentDTO fileContent = response.getBody();
         if (fileContent == null || fileContent.getContent() == null) {
+            log.error("Github 파일 내용을 가져오는데 실패했습니다. - 사용자: {} 경로: {}", user.getName(), path);
             throw new BaseException(FILE_NOT_FOUND);
         }
 
