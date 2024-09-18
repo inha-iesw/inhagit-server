@@ -25,6 +25,9 @@ public record SearchQuestionResponse(
         LocalDateTime createdAt,
 
         @NotNull
+        SearchLikeState likeState,
+
+        @NotNull
         @Schema(description = "질문 좋아요 개수", example = "1")
         Integer likeCount,
 

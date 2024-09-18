@@ -83,8 +83,9 @@ public class QuestionController {
      */
     @GetMapping("/{questionIdx}")
     @Operation(summary = "질문 상세 조회 API", description = "질문 상세를 조회합니다.")
-    public BaseResponse<SearchQuestionResponse> getQuestion(@PathVariable("questionIdx") Integer questionIdx) {
-        return BaseResponse.of(QUESTION_DETAIL_OK, questionService.getQuestion(questionIdx));
+    public BaseResponse<SearchQuestionResponse> getQuestion(@AuthenticationPrincipal User user,
+                                                            @PathVariable("questionIdx") Integer questionIdx) {
+        return BaseResponse.of(QUESTION_DETAIL_OK, questionService.getQuestion(user, questionIdx));
     }
     /**
      * 질문 생성(기업제외) API
