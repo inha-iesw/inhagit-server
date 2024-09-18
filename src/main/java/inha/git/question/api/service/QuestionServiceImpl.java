@@ -13,6 +13,7 @@ import inha.git.question.api.controller.dto.request.LikeRequest;
 import inha.git.question.api.controller.dto.request.SearchQuestionCond;
 import inha.git.question.api.controller.dto.request.UpdateQuestionRequest;
 import inha.git.question.api.controller.dto.response.QuestionResponse;
+import inha.git.question.api.controller.dto.response.SearchLikeState;
 import inha.git.question.api.controller.dto.response.SearchQuestionResponse;
 import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
 import inha.git.question.api.mapper.QuestionMapper;
@@ -93,16 +94,17 @@ public class QuestionServiceImpl implements QuestionService {
      * @return SearchQuestionResponse
      */
     @Override
-    public SearchQuestionResponse getQuestion(Integer questionIdx) {
+    public SearchQuestionResponse getQuestion(User user, Integer questionIdx) {
         Question question = questionJpaRepository.findByIdAndState(questionIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
         SearchSemesterResponse searchSemesterResponse = semesterMapper.semesterToSearchSemesterResponse(question.getSemester());
         SearchUserResponse searchUserResponse = questionMapper.userToSearchUserResponse(question.getUser());
+        SearchLikeState likeState = questionMapper.questionToSearchLikeState(questionLikeJpaRepository.existsByUserAndQuestion(user, question));
         List<SearchFieldResponse> searchFieldResponses = questionFieldJpaRepository.findByQuestion(question)
                 .stream()
                 .map(questionField -> questionMapper.projectFieldToSearchFieldResponse(questionField.getField()))
                 .toList();
-        return questionMapper.questionToSearchQuestionResponse(question, searchFieldResponses, searchUserResponse, searchSemesterResponse);
+        return questionMapper.questionToSearchQuestionResponse(question, searchFieldResponses, searchUserResponse, searchSemesterResponse, likeState);
     }
 
 

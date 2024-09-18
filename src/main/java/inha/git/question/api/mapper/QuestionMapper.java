@@ -8,10 +8,7 @@ import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.project.domain.Project;
 import inha.git.question.api.controller.dto.request.*;
-import inha.git.question.api.controller.dto.response.CommentResponse;
-import inha.git.question.api.controller.dto.response.QuestionResponse;
-import inha.git.question.api.controller.dto.response.ReplyCommentResponse;
-import inha.git.question.api.controller.dto.response.SearchQuestionResponse;
+import inha.git.question.api.controller.dto.response.*;
 import inha.git.question.domain.Question;
 import inha.git.question.domain.QuestionComment;
 import inha.git.question.domain.QuestionReplyComment;
@@ -102,7 +99,7 @@ public interface QuestionMapper {
     @Mapping(target = "createdAt", source = "question.createdAt")
     @Mapping(target = "semester", source = "semester")
     @Mapping(target = "likeCount", source = "question.likeCount")
-    SearchQuestionResponse questionToSearchQuestionResponse(Question question, List<SearchFieldResponse> fieldList, SearchUserResponse author, SearchSemesterResponse semester);
+    SearchQuestionResponse questionToSearchQuestionResponse(Question question, List<SearchFieldResponse> fieldList, SearchUserResponse author, SearchSemesterResponse semester, SearchLikeState likeState);
 
     /**
      * User를 SearchUserResponse로 변환합니다.
@@ -237,5 +234,5 @@ public interface QuestionMapper {
         return new QuestionLike(new QuestionLikeId(user.getId(), question.getId()), question, user);
     }
 
-
+    SearchLikeState questionToSearchLikeState(Boolean like);
 }
