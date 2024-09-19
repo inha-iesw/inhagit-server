@@ -58,7 +58,7 @@ public class AuthServiceImpl implements AuthService {
                     (new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password()));
         } catch (BadCredentialsException e) {
             log.error("로그인 실패 - 사용자: {}", loginRequest.email());
-            throw new BaseException(FAILED_TO_LOGIN);
+            throw new BaseException(NOT_FIND_USER);
         }
         if(findUser.getBlockedAt() != null) {
             log.error("차단된 사용자 로그인 시도 - 사용자: {}", loginRequest.email());
