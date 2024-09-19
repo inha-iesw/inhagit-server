@@ -627,7 +627,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private boolean hasUploadedAnyQuestion(User user) {
         return userStatisticsJpaRepository.countByUserIdAndQuestionCountGreaterThan(user.getId(), 0) > 0;
     }
-d .
+
     private boolean hasUploadedExactlyOneQuestion(User user) {
         return userStatisticsJpaRepository.countByUserIdAndQuestionCount(user.getId(), 1) == 1;
     }
