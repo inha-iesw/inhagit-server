@@ -18,22 +18,26 @@ public record ProfessorSignupRequest(
         @Email
         @ValidEmail
         @ValidInhaEmail
+        @ValidParameter
         @Schema(description = "유저 이메일", example = "ghkdrbgur13@inha.ac.kr")
         String email,
 
         @NotEmpty(message = "이름은 필수 입력 항목입니다.")
         @ValidName
+        @ValidParameter
         @Schema(description = "이름", example = "홍길동")
         String name,
 
         @NotEmpty(message = "비밀번호는 필수 입력 항목입니다.")
         @ValidPassword
+        @ValidParameter
         @Schema(description = "비밀번호", example = "password2@")
         String pw,
 
         @NotEmpty(message = "사번 필수 입력 항목입니다.")
         @ValidUserNumber
         @UserNumberUnique
+        @ValidParameter
         @Size(min = 6, max = 6, message = "사번은 6자리 숫자여야 합니다.")
         @Schema(description = "사번", example = "221121")
         String userNumber,

@@ -131,7 +131,12 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
      */
     @Override
     public List<SearchFileResponse> getProjectFileByIdx(Integer projectIdx, String path) {
-        log.info("path: {}", path);
+        if (path.contains("..") || path.contains("\0")) {
+            throw new BaseException(INVALID_FILE_PATH);
+        }
+
+        projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         ProjectUpload projectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         String absoluteFilePath = BASE_DIR_SOURCE + projectUpload.getDirectoryName() + '/' + path;
@@ -148,6 +153,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
                                     !f.getFileName().toString().startsWith(UNDERBAR) &&
                                     !f.getFileName().toString().startsWith(MACOSX) &&
                                     !f.getFileName().toString().equals(PYCACHE) &&
+                                    !f.getFileName().toString().equals(IDEA) &&
                                     !f.getFileName().toString().endsWith(PYC))
                             .map(this::mapToFileResponse)
                             .toList();

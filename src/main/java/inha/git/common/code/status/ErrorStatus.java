@@ -20,6 +20,7 @@ public enum ErrorStatus implements BaseErrorCode {
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON4001", "로그인 인증이 필요합니다."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON4003", "접근 권한이 없는 요청입니다."),
     RESPONSE_ERROR(HttpStatus.NOT_FOUND, "COMMON4004", "값을 불러오는데 실패하였습니다."),
+    INVALID_INPUT_VALUE(HttpStatus.BAD_REQUEST, "COMMON4005", "입력값이 올바르지 않습니다."),
 
     USERS_EMPTY_EMAIL( HttpStatus.BAD_REQUEST, "USER4000", "이메일을 입력해주세요."),
     POST_USERS_INVALID_EMAIL(HttpStatus.BAD_REQUEST,"USER4001" , "이메일 형식을 확인해주세요."),
@@ -66,6 +67,7 @@ public enum ErrorStatus implements BaseErrorCode {
     FILE_UNZIP_ERROR(HttpStatus.BAD_REQUEST, "FILE4009", "파일 압축 해제에 실패하였습니다."),
     FILE_PROCESS_ERROR(HttpStatus.BAD_REQUEST, "FILE4010", "파일 처리에 실패하였습니다."),
     FILE_INVALID_NAME(HttpStatus.BAD_REQUEST, "FILE4011", "파일 이름이 유효하지 않습니다."),
+    INVALID_FILE_PATH(HttpStatus.BAD_REQUEST, "FILE4012", "유효하지 않은 파일 경로입니다."),
 
 
     EMAIL_NOT_FOUND(HttpStatus.BAD_REQUEST, "EMAIL4001", "이메일이 존재하지 않습니다."),

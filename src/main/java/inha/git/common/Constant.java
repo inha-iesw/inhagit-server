@@ -59,8 +59,8 @@ public class Constant {
     public final static String FILE = "file";
     public final static String UNDERBAR = "._";
     public final static String MACOSX = "__MACOSX";
-    //__pycache__
     public final static String PYCACHE = "__pycache__";
+    public final static String IDEA = ".idea";
 
     public final static String ACCESS_KEY = "&accessKey=";
 
