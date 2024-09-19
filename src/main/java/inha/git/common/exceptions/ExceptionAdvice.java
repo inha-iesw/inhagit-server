@@ -72,7 +72,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
                     errors.merge(fieldName, errorMessage, (existingErrorMessage, newErrorMessage) -> existingErrorMessage + ", " + newErrorMessage);
                 });
 
-        return handleExceptionInternalArgs(ex, HttpHeaders.EMPTY,ErrorStatus.valueOf("BAD_REQUEST"),request, null);
+        return handleExceptionInternalArgs(ex, HttpHeaders.EMPTY,ErrorStatus.valueOf("BAD_REQUEST"),request,errors);
 
     }
 

@@ -13,16 +13,19 @@ public record CompanySignupRequest(
         @EmailUnique
         @Email
         @ValidEmail
+        @ValidParameter
         @Schema(description = "유저 이메일", example = "ghkdrbgur13@gamil.com")
         String email,
 
         @NotEmpty(message = "이름은 필수 입력 항목입니다.")
         @ValidName
+        @ValidParameter
         @Schema(description = "이름", example = "홍길동")
         String name,
 
         @NotEmpty(message = "비밀번호는 필수 입력 항목입니다.")
         @ValidPassword
+        @ValidParameter
         @Schema(description = "비밀번호", example = "password2@")
         String pw,
 
