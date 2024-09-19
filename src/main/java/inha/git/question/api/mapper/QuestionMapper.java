@@ -1,12 +1,16 @@
 package inha.git.question.api.mapper;
 
-import inha.git.common.BaseEntity.State;
 import inha.git.field.domain.Field;
-import inha.git.mapping.domain.*;
-import inha.git.mapping.domain.id.*;
+import inha.git.mapping.domain.QuestionCommentLike;
+import inha.git.mapping.domain.QuestionField;
+import inha.git.mapping.domain.QuestionLike;
+import inha.git.mapping.domain.QuestionReplyCommentLike;
+import inha.git.mapping.domain.id.QuestionCommentLikeId;
+import inha.git.mapping.domain.id.QuestionFieldId;
+import inha.git.mapping.domain.id.QuestionLikeId;
+import inha.git.mapping.domain.id.QuestionReplyCommentLikeId;
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
-import inha.git.project.domain.Project;
 import inha.git.question.api.controller.dto.request.*;
 import inha.git.question.api.controller.dto.response.*;
 import inha.git.question.domain.Question;
@@ -159,53 +163,33 @@ public interface QuestionMapper {
     @Mapping(target = "idx", source = "questionReplyComment.id")
     ReplyCommentResponse toReplyCommentResponse(QuestionReplyComment questionReplyComment);
 
+
     /**
-     * QuestionComment를 CommentWithRepliesResponse로 변환합니다.
+     * QuestionComment 엔티티를 CommentWithRepliesResponse로 변환
      *
-     * @param questionComment QuestionComment
+     * @param questionComment 질문 댓글 엔티티
+     * @param likeState 좋아요 상태
+     * @param replies 답글
      * @return CommentWithRepliesResponse
      */
     @Mapping(target = "idx", source = "questionComment.id")
     @Mapping(target = "author", source = "questionComment.user")
-    @Mapping(target = "createdAt", source = "questionComment.createdAt")
-    @Mapping(target = "contents", source = "questionComment.contents")
-    @Mapping(target = "likeCount", source = "questionComment.likeCount")
-    @Mapping(target = "replies", expression = "java(filterActiveReplies(questionComment.getReplies()))")
-    CommentWithRepliesResponse toCommentWithRepliesResponse(QuestionComment questionComment);
+    @Mapping(target = "replies", source = "replies")  // 대댓글 리스트는 이미 처리된 상태로 전달됨
+    CommentWithRepliesResponse toCommentWithRepliesResponse(QuestionComment questionComment, Boolean likeState, List<SearchReplyCommentResponse> replies);
 
     /**
-     * QuestionReplyComment 목록을 SearchReplyCommentResponse 목록으로 변환합니다.
+     * QuestionReplyComment 엔티티를 SearchReplyCommentResponse로 변환
      *
-     * @param replies List<QuestionReplyComment>
-     * @return List<SearchReplyCommentResponse>
-     */
-    default List<SearchReplyCommentResponse> filterActiveReplies(List<QuestionReplyComment> replies) {
-        return replies.stream()
-                .filter(reply -> reply.getState() == State.ACTIVE)  // 상태가 ACTIVE인 대댓글만 필터링
-                .map(this::toSearchReplyCommentResponse)  // SearchReplyCommentResponse로 매핑
-                .toList();
-    }
-    /**
-     * QuestionReplyComment를 SearchReplyCommentResponse로 변환합니다.
-     *
-     * @param questionReplyComment QuestionReplyComment
+     * @param questionReplyComment 질문 답글 엔티티
+     * @param likeState 좋아요 상태
      * @return SearchReplyCommentResponse
      */
+    @Mapping(target = "likeState", source = "likeState")
     @Mapping(target = "idx", source = "questionReplyComment.id")
     @Mapping(target = "author", source = "questionReplyComment.user")
-    @Mapping(target = "createdAt", source = "questionReplyComment.createdAt")
-    @Mapping(target = "likeCount", source = "questionReplyComment.likeCount")
-    @Mapping(target = "contents", source = "questionReplyComment.contents")
-    SearchReplyCommentResponse toSearchReplyCommentResponse(QuestionReplyComment questionReplyComment);
+    SearchReplyCommentResponse toSearchReplyCommentResponse(QuestionReplyComment questionReplyComment, boolean likeState);
 
 
-    /**
-     * QuestionComment 목록을 CommentWithRepliesResponse 목록으로 변환합니다.
-     *
-     * @param comments List<QuestionComment>
-     * @return List<CommentWithRepliesResponse>
-     */
-    List<CommentWithRepliesResponse> toCommentWithRepliesResponseList(List<QuestionComment> comments);
 
 
     default QuestionCommentLike createQuestionCommentLike(User user, QuestionComment questionComment) {

@@ -37,8 +37,9 @@ public class QuestionCommentController {
     @GetMapping
     @Operation(summary = "특정 질문 댓글 전체 조회 API", description = "특정 질문의 모든 댓글과 대댓글을 조회합니다.")
     public BaseResponse<List<CommentWithRepliesResponse>> getAllComments(
+            @AuthenticationPrincipal User user,
             @RequestParam("questionIdx") Integer questionIdx) {
-        return BaseResponse.of(QUESTION_COMMENT_SEARCH_OK, questionCommentService.getAllCommentsByQuestionIdx(questionIdx));
+        return BaseResponse.of(QUESTION_COMMENT_SEARCH_OK, questionCommentService.getAllCommentsByQuestionIdx(user, questionIdx));
     }
     /**
      * 질문 댓글 생성 API

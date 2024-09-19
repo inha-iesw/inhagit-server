@@ -8,7 +8,7 @@ import inha.git.user.domain.User;
 import java.util.List;
 
 public interface QuestionCommentService {
-    List<CommentWithRepliesResponse> getAllCommentsByQuestionIdx(Integer questionIdx);
+    List<CommentWithRepliesResponse> getAllCommentsByQuestionIdx(User user, Integer questionIdx);
     CommentResponse createComment(User user, CreateCommentRequest createCommentRequest);
 
     CommentResponse updateComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest);

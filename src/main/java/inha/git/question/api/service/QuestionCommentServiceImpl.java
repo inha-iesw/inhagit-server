@@ -46,11 +46,26 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      * @return List<CommentWithRepliesResponse>
      */
     @Override
-    public List<CommentWithRepliesResponse> getAllCommentsByQuestionIdx(Integer questionIdx) {
+    public List<CommentWithRepliesResponse> getAllCommentsByQuestionIdx(User user, Integer questionIdx) {
         Question question = questionJpaRepository.findByIdAndState(questionIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
         List<QuestionComment> comments = questionCommentJpaRepository.findAllByQuestionAndStateOrderByIdAsc(question, ACTIVE);
-        return questionMapper.toCommentWithRepliesResponseList(comments);
+        return comments.stream()
+                .map(comment -> {
+                    // 댓글에 대한 likeState를 확인
+                    boolean commentLikeState = questionCommentLikeJpaRepository.existsByUserAndQuestionComment(user, comment);
+                    // 대댓글에 대한 likeState를 확인하여 변환
+                    List<SearchReplyCommentResponse> replies = comment.getReplies().stream()
+                            .filter(reply -> reply.getState().equals(ACTIVE))
+                            .map(reply -> {
+                                boolean replyLikeState = questionReplyCommentLikeJpaRepository.existsByUserAndQuestionReplyComment(user, reply);
+                                return questionMapper.toSearchReplyCommentResponse(reply, replyLikeState);
+                            })
+                            .toList();
+                    // 댓글과 대댓글 리스트를 포함하여 CommentWithRepliesResponse로 변환
+                    return questionMapper.toCommentWithRepliesResponse(comment, commentLikeState, replies);
+                })
+                .toList();
     }
     /**
      * 댓글 생성
