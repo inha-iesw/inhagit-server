@@ -153,6 +153,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
                                     !f.getFileName().toString().startsWith(UNDERBAR) &&
                                     !f.getFileName().toString().startsWith(MACOSX) &&
                                     !f.getFileName().toString().equals(PYCACHE) &&
+                                    !f.getFileName().toString().equals(IDEA) &&
                                     !f.getFileName().toString().endsWith(PYC))
                             .map(this::mapToFileResponse)
                             .toList();
