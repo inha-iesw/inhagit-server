@@ -66,6 +66,7 @@ public enum ErrorStatus implements BaseErrorCode {
     FILE_UNZIP_ERROR(HttpStatus.BAD_REQUEST, "FILE4009", "파일 압축 해제에 실패하였습니다."),
     FILE_PROCESS_ERROR(HttpStatus.BAD_REQUEST, "FILE4010", "파일 처리에 실패하였습니다."),
     FILE_INVALID_NAME(HttpStatus.BAD_REQUEST, "FILE4011", "파일 이름이 유효하지 않습니다."),
+    INVALID_FILE_PATH(HttpStatus.BAD_REQUEST, "FILE4012", "유효하지 않은 파일 경로입니다."),
 
 
     EMAIL_NOT_FOUND(HttpStatus.BAD_REQUEST, "EMAIL4001", "이메일이 존재하지 않습니다."),
