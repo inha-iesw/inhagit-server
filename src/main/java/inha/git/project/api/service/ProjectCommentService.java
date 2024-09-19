@@ -12,7 +12,7 @@ import inha.git.user.domain.User;
 import java.util.List;
 
 public interface ProjectCommentService {
-    List<CommentWithRepliesResponse> getAllCommentsByProjectIdx(Integer projectIdx);
+    List<CommentWithRepliesResponse> getAllCommentsByProjectIdx(User user, Integer projectIdx);
     CommentResponse createComment(User user, CreateCommentRequest createCommentRequest);
     CommentResponse updateComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest);
 

@@ -38,8 +38,9 @@ public class ProjectCommentController {
     @GetMapping
     @Operation(summary = "특정 프로젝트 댓글 전체 조회 API", description = "특정 프로젝트의 모든 댓글과 대댓글을 조회합니다.")
     public BaseResponse<List<CommentWithRepliesResponse>> getAllComments(
+            @AuthenticationPrincipal User user,
             @RequestParam("projectIdx") Integer projectIdx) {
-        return BaseResponse.of(PROJECT_COMMENT_SEARCH_OK, projectCommentService.getAllCommentsByProjectIdx(projectIdx));
+        return BaseResponse.of(PROJECT_COMMENT_SEARCH_OK, projectCommentService.getAllCommentsByProjectIdx(user, projectIdx));
     }
 
     /**
