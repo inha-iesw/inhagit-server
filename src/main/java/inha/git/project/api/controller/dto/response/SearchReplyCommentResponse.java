@@ -19,6 +19,10 @@ public record SearchReplyCommentResponse(
         Integer likeCount,
 
         @NotNull
+        @Schema(description = "답글 좋아요 상태", example = "true")
+        Boolean likeState,
+
+        @NotNull
         @Schema(description = "작성자 정보")
         SearchUserResponse author,
 

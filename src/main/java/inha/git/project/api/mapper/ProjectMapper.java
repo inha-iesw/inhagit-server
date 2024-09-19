@@ -1,6 +1,5 @@
 package inha.git.project.api.mapper;
 
-import inha.git.common.BaseEntity;
 import inha.git.field.domain.Field;
 import inha.git.mapping.domain.*;
 import inha.git.mapping.domain.id.*;
@@ -23,6 +22,7 @@ import java.util.List;
  */
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ProjectMapper {
+
 
     /**
      * CreateProjectRequest를 Project 엔티티로 변환
@@ -240,32 +240,32 @@ public interface ProjectMapper {
     @Mapping(target = "idx", source = "projectReplyComment.id")
     ReplyCommentResponse toReplyCommentResponse(ProjectReplyComment projectReplyComment);
 
+
     /**
      * ProjectComment 엔티티를 CommentWithRepliesResponse로 변환
      *
      * @param projectComment 프로젝트 댓글 엔티티
+     * @param likeState 좋아요 상태
+     * @param replies 답글
      * @return CommentWithRepliesResponse
      */
     @Mapping(target = "idx", source = "projectComment.id")
     @Mapping(target = "author", source = "projectComment.user")
-    @Mapping(target = "createdAt", source = "projectComment.createdAt")
-    @Mapping(target = "contents", source = "projectComment.contents")
-    @Mapping(target = "likeCount", source = "projectComment.likeCount")
-    @Mapping(target = "replies", expression = "java(filterActiveReplies(projectComment.getReplies()))")
-    CommentWithRepliesResponse toCommentWithRepliesResponse(ProjectComment projectComment);
+    @Mapping(target = "replies", source = "replies")  // 대댓글 리스트는 이미 처리된 상태로 전달됨
+    CommentWithRepliesResponse toCommentWithRepliesResponse(ProjectComment projectComment, Boolean likeState, List<SearchReplyCommentResponse> replies);
 
     /**
-     * ProjectReplyComment 엔티티 리스트를 SearchReplyCommentResponse 리스트로 변환
+     * ProjectReplyComment 엔티티를 SearchReplyCommentResponse로 변환
      *
-     * @param replies 프로젝트 답글 엔티티 리스트
-     * @return SearchReplyCommentResponse 리스트
+     * @param projectReplyComment 프로젝트 답글 엔티티
+     * @param likeState 좋아요 상태
+     * @return SearchReplyCommentResponse
      */
-    default List<SearchReplyCommentResponse> filterActiveReplies(List<ProjectReplyComment> replies) {
-        return replies.stream()
-                .filter(reply -> reply.getState() == BaseEntity.State.ACTIVE)  // 상태가 ACTIVE인 대댓글만 필터링
-                .map(this::toSearchReplyCommentResponse)  // SearchReplyCommentResponse로 매핑
-                .toList();
-    }
+    @Mapping(target = "likeState", source = "likeState")
+    @Mapping(target = "idx", source = "projectReplyComment.id")
+    @Mapping(target = "author", source = "projectReplyComment.user")
+    SearchReplyCommentResponse toSearchReplyCommentResponse(ProjectReplyComment projectReplyComment, boolean likeState);
+
     /**
      * ProjectReplyComment 엔티티를 SearchReplyCommentResponse로 변환
      *
@@ -279,14 +279,6 @@ public interface ProjectMapper {
     @Mapping(target = "createdAt", source = "projectReplyComment.createdAt")
     SearchReplyCommentResponse toSearchReplyCommentResponse(ProjectReplyComment projectReplyComment);
 
-
-    /**
-     * ProjectComment 엔티티 리스트를 CommentWithRepliesResponse 리스트로 변환
-     *
-     * @param comments 프로젝트 댓글 엔티티 리스트
-     * @return CommentWithRepliesResponse 리스트
-     */
-    List<CommentWithRepliesResponse> toCommentWithRepliesResponseList(List<ProjectComment> comments);
 
     /**
      * CreateGithubProjectRequest를 Project 엔티티로 변환

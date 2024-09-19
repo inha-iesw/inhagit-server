@@ -3,10 +3,14 @@ package inha.git.project.api.service;
 import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.repository.ProjectCommentLikeJpaRepository;
 import inha.git.mapping.domain.repository.ProjectReplyCommentLikeJpaRepository;
-import inha.git.project.api.controller.dto.request.*;
+import inha.git.project.api.controller.dto.request.CommentLikeRequest;
+import inha.git.project.api.controller.dto.request.CreateCommentRequest;
+import inha.git.project.api.controller.dto.request.CreateReplyCommentRequest;
+import inha.git.project.api.controller.dto.request.UpdateCommentRequest;
 import inha.git.project.api.controller.dto.response.CommentResponse;
 import inha.git.project.api.controller.dto.response.CommentWithRepliesResponse;
 import inha.git.project.api.controller.dto.response.ReplyCommentResponse;
+import inha.git.project.api.controller.dto.response.SearchReplyCommentResponse;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectComment;
@@ -48,11 +52,27 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<CommentWithRepliesResponse> getAllCommentsByProjectIdx(Integer projectIdx) {
+    public List<CommentWithRepliesResponse> getAllCommentsByProjectIdx(User user, Integer projectIdx) {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+
         List<ProjectComment> comments = projectCommentJpaRepository.findAllByProjectAndStateOrderByIdAsc(project, ACTIVE);
-        return projectMapper.toCommentWithRepliesResponseList(comments);
+        return comments.stream()
+                .map(comment -> {
+                    // 댓글에 대한 likeState를 확인
+                    boolean commentLikeState = projectCommentLikeJpaRepository.existsByUserAndProjectComment(user, comment);
+                    // 대댓글에 대한 likeState를 확인하여 변환
+                    List<SearchReplyCommentResponse> replies = comment.getReplies().stream()
+                            .filter(reply -> reply.getState().equals(ACTIVE))
+                            .map(reply -> {
+                                boolean replyLikeState = projectReplyCommentLikeJpaRepository.existsByUserAndProjectReplyComment(user, reply);
+                                return projectMapper.toSearchReplyCommentResponse(reply, replyLikeState);
+                            })
+                            .toList();
+                    // 댓글과 대댓글 리스트를 포함하여 CommentWithRepliesResponse로 변환
+                    return projectMapper.toCommentWithRepliesResponse(comment, commentLikeState, replies);
+                })
+                .toList();
     }
 
     /**
