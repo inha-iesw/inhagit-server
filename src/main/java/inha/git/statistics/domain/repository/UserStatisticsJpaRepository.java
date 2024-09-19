@@ -21,4 +21,13 @@ public interface UserStatisticsJpaRepository extends JpaRepository<UserStatistic
     int countByUserIdAndProblemCountGreaterThan(Integer id, int i);
 
     int countByUserIdAndQuestionCountGreaterThan(Integer id, int i);
+
+    int countByUserIdAndProjectCount(Integer userId, int projectCount);
+
+
+    int countByUserIdAndGithubProjectCount(Integer userId, int githubProjectCount);
+
+    int countByUserIdAndQuestionCount(Integer userId, int questionCount);
+
+
 }

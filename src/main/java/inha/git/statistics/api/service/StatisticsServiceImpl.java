@@ -264,6 +264,44 @@ public class StatisticsServiceImpl implements StatisticsService {
      * @param type Integer
      */
     public void decreaseCount(User user, List<Field> fields, Semester semester, Integer type) {
+        TotalUserStatistics totalUserStatistics = totalUserStatisticsJpaRepository.findById(1) // 예시로 ID 1번 TotalStatistics 조회
+                .orElseThrow(() -> new BaseException(TOTAL_STATISTICS_NOT_FOUND));
+        if (type == 1 || type == 8) {
+            if (hasUploadedExactlyOneProject(user)) {
+                log.info("여기 작동?!?!?!");
+                totalUserStatistics.decreaseUserProjectCount(); // 사용자 프로젝트 카운트 감소
+                updateDepartmentAndCollegeStatistics(user,
+                        TotalDepartmentStatistics::decreaseUserProjectCount,
+                        TotalCollegeStatistics::decreaseUserProjectCount); // 학과 및 단과대 통계 업데이트
+            }
+            // 전체 통계 업데이트
+            reverseTotalStatistics(totalUserStatistics, type);
+            if (type == 1) {
+                // 일반 프로젝트 통계 업데이트
+                updateDepartmentAndCollegeStatistics(user,
+                        TotalDepartmentStatistics::decreaseTotalProjectCount,
+                        TotalCollegeStatistics::decreaseTotalProjectCount);
+            } else {
+                // 깃허브 프로젝트 통계 업데이트
+                updateDepartmentAndCollegeStatistics(user,
+                        TotalDepartmentStatistics::decreaseTotalGithubProjectCount,
+                        TotalCollegeStatistics::decreaseTotalGithubProjectCount);
+            }
+        }
+
+        if (type == 2) {
+            if (hasUploadedExactlyOneQuestion(user)) {
+                totalUserStatistics.decreaseUserQuestionCount();
+                updateDepartmentAndCollegeStatistics(user,
+                        TotalDepartmentStatistics::decreaseUserQuestionCount,
+                        TotalCollegeStatistics::decreaseUserQuestionCount);
+            }
+            reverseTotalStatistics(totalUserStatistics, type);
+            updateDepartmentAndCollegeStatistics(user,
+                    TotalDepartmentStatistics::decreaseTotalQuestionCount,
+                    TotalCollegeStatistics::decreaseTotalQuestionCount);
+        }
+
         for(Field field: fields) {
             UserStatistics userStatistics = userStatisticsJpaRepository.findById(new UserStatisticsId(user.getId(), semester.getId(), field.getId()))
                     .orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
@@ -271,7 +309,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             UserCountStatistics userCountStatistics = userCountStatisticsJpaRepository.findById(new UserCountStatisticsId(semester.getId(), field.getId())).orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
             if(type == 1) {
                 userCountStatistics.decreaseTotalProjectCount();
-                if(userStatistics.getProjectCount() == 1 && userStatistics.getGithubProjectCount() == 0) {
+                if (projectJpaRepository.countByUserAndSemesterAndProjectFields_Field(user, semester, field) == 0) {
                     userCountStatistics.decreaseUserProjectCount();
                     userDepartments
                             .forEach(userDepartment -> {
@@ -394,7 +432,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                         });
             } else if(type == 8) {
                 userCountStatistics.decreaseTotalGithubProjectCount();
-                if(userStatistics.getProjectCount() == 0 && userStatistics.getGithubProjectCount() == 1) {
+                if((projectJpaRepository.countByUserAndSemesterAndProjectFields_Field(user, semester, field) == 0)) {
                     userCountStatistics.decreaseUserProjectCount();
                     userDepartments
                             .forEach(userDepartment -> {
@@ -557,6 +595,18 @@ public class StatisticsServiceImpl implements StatisticsService {
         }
     }
 
+    private void reverseTotalStatistics(TotalUserStatistics totalUserStatistics, int type) {
+        if(type == 1) {
+            totalUserStatistics.decreaseTotalProjectCount(); // 전체 프로젝트 카운트 감소
+        }
+        else if(type == 2) {
+            totalUserStatistics.decreaseTotalQuestionCount(); // 전체 질문 카운트 감소
+        }
+        else if(type == 8) {
+            totalUserStatistics.decreaseTotalGithubProjectCount(); // 전체 깃허브 프로젝트 카운트 감소
+        }
+    }
+
     // 유저가 프로젝트를 올린 적이 있는지 확인
     private boolean hasUploadedAnyProject(User user) {
         boolean hasUploadedGeneralProject = userStatisticsJpaRepository.countByUserIdAndProjectCountGreaterThan(user.getId(), 0) > 0;
@@ -564,7 +614,21 @@ public class StatisticsServiceImpl implements StatisticsService {
         return hasUploadedGeneralProject || hasUploadedGithubProject;
     }
 
+    private boolean hasUploadedExactlyOneProject(User user) {
+        int generalProjectCount = userStatisticsJpaRepository.countByUserIdAndProjectCount(user.getId(), 1);
+        log.info("!!!generalProjectCount : " + generalProjectCount);
+        // 깃허브 프로젝트 개수가 정확히 1개인 경우
+        int githubProjectCount = userStatisticsJpaRepository.countByUserIdAndGithubProjectCount(user.getId(), 1);
+        log.info("!!!githubProjectCount : " + githubProjectCount);
+        // 두 프로젝트의 총합이 1개인지 확인
+        return (generalProjectCount + githubProjectCount) == 1;
+    }
+
     private boolean hasUploadedAnyQuestion(User user) {
         return userStatisticsJpaRepository.countByUserIdAndQuestionCountGreaterThan(user.getId(), 0) > 0;
+    }
+
+    private boolean hasUploadedExactlyOneQuestion(User user) {
+        return userStatisticsJpaRepository.countByUserIdAndQuestionCount(user.getId(), 1) == 1;
     }
 }
