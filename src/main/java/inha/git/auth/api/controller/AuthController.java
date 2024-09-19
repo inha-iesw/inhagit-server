@@ -30,18 +30,6 @@ public class AuthController {
     private final AuthService authService;
     private final MailService mailService;
 
-    /**
-     * 서버 상태 확인 API
-     *
-     * <p>서버의 상태를 확인.</p>
-     *
-     * @return 서버 상태 메시지를 포함하는 BaseResponse<String>
-     */
-    @GetMapping("/health")
-    @Operation(summary = "서버 상태 확인 API",description = "서버 상태를 확인합니다.")
-    public BaseResponse<String> health() {
-        return BaseResponse.onSuccess("I'm healthy");
-    }
 
     /**
      * 이메일 인증 API
