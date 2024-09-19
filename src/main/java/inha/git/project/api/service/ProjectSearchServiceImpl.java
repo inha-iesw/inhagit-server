@@ -131,7 +131,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
      */
     @Override
     public List<SearchFileResponse> getProjectFileByIdx(Integer projectIdx, String path) {
-        if (path.contains("..")) {
+        if (path.contains("..") || path.contains("\0")) {
             throw new BaseException(INVALID_FILE_PATH);
         }
 
