@@ -22,5 +22,5 @@ public interface ProjectJpaRepository extends JpaRepository<Project, Integer> {
 
     Optional<Project> findByIdAndState(Integer projectIdx, BaseEntity.State state);
 
-    long countByUserAndSemesterAndProjectFields_Field(User user, Semester semester, Field field);
+    long countByUserAndSemesterAndProjectFields_FieldAndState(User user, Semester semester, Field field, BaseEntity.State state);
 }
