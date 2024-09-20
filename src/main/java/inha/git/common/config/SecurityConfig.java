@@ -94,6 +94,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .headers(headers -> headers
+                        .contentSecurityPolicy(contentSecurityPolicy -> contentSecurityPolicy
+                                .policyDirectives("default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'"))
+                )
                 .authorizeHttpRequests(req ->
 
                         req.requestMatchers(WHITE_LIST_URL).permitAll().
