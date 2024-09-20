@@ -3,10 +3,12 @@ package inha.git.search.domain.repository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.notice.domain.QNotice;
 import inha.git.problem.domain.QProblem;
+import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.question.domain.QQuestion;
 import inha.git.search.api.controller.dto.response.SearchResponse;
 import inha.git.search.domain.enums.TableType;
+import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.team.domain.QTeamPost;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -104,6 +106,15 @@ public class SearchQueryRepository {
                         p.getTitle(),
                         p.getCreatedAt(),
                         new SearchUserResponse(p.getUser().getId(), p.getUser().getName()),
+                        new SearchSemesterResponse(p.getSemester().getId(), p.getSemester().getName()),
+                        p.getSubjectName(),
+                        p.getLikeCount(),
+                        p.getProjectFields().stream()
+                                .map(f -> new SearchFieldResponse(
+                                        f.getField().getId(),
+                                        f.getField().getName()
+                                ))
+                                .toList(),
                         TableType.I_FOSS.getValue(),
                         p.getRepoName() != null)
                 )
@@ -133,6 +144,10 @@ public class SearchQueryRepository {
                         p.getTitle(),
                         p.getCreatedAt(),
                         new SearchUserResponse(p.getUser().getId(), p.getUser().getName()),
+                        null,
+                        null,
+                        null,
+                        null,
                         TableType.PROBLEM.getValue(),
                         null))
                 .toList();
@@ -161,6 +176,15 @@ public class SearchQueryRepository {
                         q.getTitle(),
                         q.getCreatedAt(),
                         new SearchUserResponse(q.getUser().getId(), q.getUser().getName()),
+                        new SearchSemesterResponse(q.getSemester().getId(), q.getSemester().getName()),
+                        q.getSubjectName(),
+                        q.getLikeCount(),
+                        q.getQuestionFields().stream()
+                                .map(f -> new SearchFieldResponse(
+                                        f.getField().getId(),
+                                        f.getField().getName()
+                                ))
+                                .toList(),
                         TableType.ISSS.getValue(),
                         null))
                 .toList();
@@ -189,6 +213,10 @@ public class SearchQueryRepository {
                         t.getTitle(),
                         t.getCreatedAt(),
                         new SearchUserResponse(t.getTeam().getUser().getId(), t.getTeam().getUser().getName()),
+                        null,
+                        null,
+                        null,
+                        null,
                         TableType.TEAM.getValue(),
                         null))
                 .toList();
@@ -217,6 +245,10 @@ public class SearchQueryRepository {
                         n.getTitle(),
                         n.getCreatedAt(),
                         new SearchUserResponse(n.getUser().getId(), n.getUser().getName()),
+                        null,
+                        null,
+                        null,
+                        null,
                         TableType.NOTICE.getValue(),
                         null))
                 .toList();
