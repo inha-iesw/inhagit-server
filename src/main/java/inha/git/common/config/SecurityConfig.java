@@ -96,7 +96,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers(headers -> headers
                         .contentSecurityPolicy(contentSecurityPolicy -> contentSecurityPolicy
-                                .policyDirectives("default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'"))
+                                .policyDirectives("default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;"))
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)
                 )
                 .authorizeHttpRequests(req ->
 
