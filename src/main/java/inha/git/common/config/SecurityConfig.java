@@ -97,7 +97,8 @@ public class SecurityConfig {
                 .headers(headers -> headers
                         .referrerPolicy(referrerPolicy -> referrerPolicy.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER))
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
-                        .contentSecurityPolicy(contentSecurityPolicy -> contentSecurityPolicy.policyDirectives("default-src 'self'; style-src 'self' 'unsafe-inline'"))
+                        .contentSecurityPolicy(contentSecurityPolicy -> contentSecurityPolicy
+                                .policyDirectives("default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'"))
                 )
                 .authorizeHttpRequests(req ->
 
