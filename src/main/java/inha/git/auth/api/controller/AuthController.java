@@ -2,7 +2,9 @@ package inha.git.auth.api.controller;
 
 import inha.git.auth.api.controller.dto.request.EmailCheckRequest;
 import inha.git.auth.api.controller.dto.request.EmailRequest;
+import inha.git.auth.api.controller.dto.request.FindEmailRequest;
 import inha.git.auth.api.controller.dto.request.LoginRequest;
+import inha.git.auth.api.controller.dto.response.FindEmailResponse;
 import inha.git.auth.api.controller.dto.response.LoginResponse;
 import inha.git.auth.api.service.AuthService;
 import inha.git.auth.api.service.MailService;
@@ -63,6 +65,15 @@ public class AuthController {
         return BaseResponse.of(EMAIL_AUTH_OK, mailService.mailSendCheck(emailCheckRequest));
     }
 
+    /**
+     * 로그인 API
+     *
+     * <p>로그인을 처리.</p>
+     *
+     * @param loginRequest 로그인 요청 정보
+     *
+     * @return 로그인 결과를 포함하는 BaseResponse<LoginResponse>
+     */
     @PostMapping("/login")
     @Operation(summary = "로그인 API",description = "로그인을 처리합니다.")
     public BaseResponse<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
@@ -70,7 +81,21 @@ public class AuthController {
         return BaseResponse.of(LOGIN_OK, authService.login(loginRequest));
     }
 
-
+    /**
+     * 아이디 찾기 API
+     *
+     * <p>아이디 찾기를 처리.</p>
+     *
+     * @param findEmailRequest 아이디 찾기 요청 정보
+     *
+     * @return 아이디 찾기 결과를 포함하는 BaseResponse<FindEmailResponse>
+     */
+    @PostMapping("/find/email")
+    @Operation(summary = "아이디 찾기 API",description = "아이디 찾기를 처리합니다.")
+    public BaseResponse<FindEmailResponse> findEmail(@RequestBody @Valid FindEmailRequest findEmailRequest) {
+        log.info("아이디 찾기 시도 학번 : {} 이름 : {}", findEmailRequest.userNumber(), findEmailRequest.name());
+        return BaseResponse.of(FIND_EMAIL_OK, authService.findEmail(findEmailRequest));
+    }
 
 
 

@@ -1,6 +1,8 @@
 package inha.git.auth.api.service;
 
+import inha.git.auth.api.controller.dto.request.FindEmailRequest;
 import inha.git.auth.api.controller.dto.request.LoginRequest;
+import inha.git.auth.api.controller.dto.response.FindEmailResponse;
 import inha.git.auth.api.controller.dto.response.LoginResponse;
 import inha.git.auth.api.mapper.AuthMapper;
 import inha.git.common.exceptions.BaseException;
@@ -31,7 +33,7 @@ import static inha.git.common.code.status.ErrorStatus.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
+@Transactional
 public class AuthServiceImpl implements AuthService {
 
     private final UserJpaRepository userJpaRepository;
@@ -84,6 +86,22 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtProvider.generateToken(findUser);
         log.info("사용자 {} 로그인 성공", findUser.getEmail());
         return authMapper.userToLoginResponse(findUser, TOKEN_PREFIX + accessToken);
+    }
+
+    /**
+     * 이메일 찾기 API
+     *
+     * <p>이메일을 찾습니다.</p>
+     *
+     * @param findEmailRequest 이메일 찾기 요청 정보
+     * @return 이메일을 포함하는 FindEmailResponse
+     */
+    @Override
+    public FindEmailResponse findEmail(FindEmailRequest findEmailRequest) {
+        User user = userJpaRepository.findByUserNumberAndName(findEmailRequest.userNumber(), findEmailRequest.name())
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        log.info("사용자 {} 이메일 찾기 성공", user.getName());
+        return authMapper.userToFindEmailResponse(user);
     }
 }
 
