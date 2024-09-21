@@ -6,6 +6,7 @@ import inha.git.auth.api.controller.dto.response.LoginResponse;
 import inha.git.auth.api.service.AuthService;
 import inha.git.auth.api.service.MailService;
 import inha.git.common.BaseResponse;
+import inha.git.user.api.controller.dto.response.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -104,7 +105,7 @@ public class AuthController {
      *
      * @return 비밀번호 찾기 이메일 인증 결과를 포함하는 BaseResponse<String>
      */
-    @PostMapping ("/find/password")
+    @PostMapping ("/find/pw")
     @Operation(summary = "비밀번호 찾기 이메일 인증 API",description = "비밀번호 찾기 이메일 인증을 처리합니다.")
     public BaseResponse<String> findPasswordMailSend(@RequestBody @Valid FindPasswordRequest findPasswordRequest){
         log.info("비밀번호 찾기 이메일 인증 이메일 : {}", findPasswordRequest.email());
@@ -120,16 +121,28 @@ public class AuthController {
      *
      * @return 비밀번호 찾기 이메일 인증 확인 결과를 포함하는 BaseResponse<Boolean>
      */
-    @PostMapping ("/find/password/check")
+    @PostMapping ("/find/pw/check")
+    @Operation(summary = "비밀번호 찾기 이메일 인증 확인 API",description = "비밀번호 찾기 이메일 인증 확인을 처리합니다.")
     public BaseResponse<Boolean> findPasswordMailSendCheck(@RequestBody @Valid FindPasswordCheckRequest fdindPasswordCheckRequest){
+        log.info("비밀번호 찾기 이메일 인증 확인 이메일 : {}", fdindPasswordCheckRequest.email());
         return BaseResponse.of(FIND_PASSWORD_EMAIL_AUTH_OK, mailService.findPasswordMailSendCheck(fdindPasswordCheckRequest));
     }
 
-//    @PostMapping("/find/password/change")
-//    public BaseResponse<String> findPassword(@RequestBody @Valid FindEmailRequest findEmailRequest) {
-//        log.info("비밀번호 찾기 시도 학번 : {} 이름 : {}", findEmailRequest.userNumber(), findEmailRequest.name());
-//        return BaseResponse.of(FIND_PASSWORD_OK, authService.findPassword(findEmailRequest));
-//    }
+    /**
+     * 비밀번호 변경 API
+     *
+     * <p>비밀번호 변경을 처리.</p>
+     *
+     * @param changePasswordRequest 비밀번호 변경 요청 정보
+     *
+     * @return 비밀번호 변경 결과를 포함하는 BaseResponse<UserResponse>
+     */
+    @PostMapping("/find/pw/change")
+    @Operation(summary = "비밀번호 변경 API",description = "비밀번호 변경을 처리합니다.")
+    public BaseResponse<UserResponse> findPassword(@RequestBody @Valid ChangePasswordRequest changePasswordRequest) {
+        log.info("비밀번호 변경 이메일 : {}", changePasswordRequest.email());
+        return BaseResponse.of(CHANGE_PASSWORD_OK, authService.changePassword(changePasswordRequest));
+    }
 
 
 

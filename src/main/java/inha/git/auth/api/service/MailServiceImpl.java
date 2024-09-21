@@ -105,15 +105,15 @@ public class MailServiceImpl implements MailService {
         }
         String storedAuthNum = redisProvider.getValueOps(emailCheckRequest.email() + "-" + emailCheckRequest.type());
         if(storedAuthNum == null) {
-            log.info("이메일 인증 만료");
+            log.info("{} 이메일 인증 만료", emailCheckRequest.email());
             throw new BaseException(EMAIL_AUTH_EXPIRED);
         }
         if (storedAuthNum.equals(emailCheckRequest.number())) {
-            log.info("이메일 인증 성공");
+            log.info("{} 이메일 인증 성공", emailCheckRequest.email());
             redisProvider.setDataExpire("verification-"+ emailCheckRequest.email() + "-" + emailCheckRequest.type(), emailCheckRequest.type().toString(), 60*60L);
             return true;
         } else {
-            log.info("이메일 인증 실패");
+            log.info("{} 이메일 인증 실패", emailCheckRequest.email());
             throw new BaseException(EMAIL_AUTH_NOT_MATCH);
         }
     }
@@ -131,16 +131,16 @@ public class MailServiceImpl implements MailService {
                 .orElseThrow(() -> new BaseException(EMAIL_NOT_FOUND));
         String storedAuthNum = redisProvider.getValueOps(findPasswordCheckRequest.email() + "-" + PASSWORD_TYPE);
         if(storedAuthNum == null) {
-            log.info("이메일 인증 만료");
+            log.info("{} 이메일 인증 만료", findPasswordCheckRequest.email());
             throw new BaseException(EMAIL_AUTH_EXPIRED);
         }
 
         if (storedAuthNum.equals(findPasswordCheckRequest.number())) {
-            log.info("이메일 인증 성공");
+            log.info("{} 이메일 인증 성공", findPasswordCheckRequest.email());
             redisProvider.setDataExpire("verification-"+ findPasswordCheckRequest.email() + "-" + PASSWORD_TYPE, PASSWORD_TYPE.toString(), 60*60L);
             return true;
         } else {
-            log.info("이메일 인증 실패");
+            log.info("{} 이메일 인증 실패", findPasswordCheckRequest.email());
             throw new BaseException(EMAIL_AUTH_NOT_MATCH);
         }
     }
