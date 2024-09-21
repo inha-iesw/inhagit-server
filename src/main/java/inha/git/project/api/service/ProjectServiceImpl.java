@@ -123,7 +123,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     public ProjectResponse updateProject(User user, Integer projectIdx, UpdateProjectRequest updateProjectRequest, MultipartFile file) {
-        log.info("!@#!#@!#@!#!@ {}", updateProjectRequest.fieldIdxList());
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         if(!project.getUser().getId().equals(user.getId()) && !user.getRole().equals(Role.ADMIN)) {
@@ -134,7 +133,6 @@ public class ProjectServiceImpl implements ProjectService {
                 .map(ProjectField::getField)
                 .toList();
         projectFieldJpaRepository.deleteByProject(project);
-        log.info("프로젝트 필드 삭제 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
         Semester originSemester = project.getSemester();
         Semester semester = semesterJpaRepository.findByIdAndState(updateProjectRequest.semesterIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
