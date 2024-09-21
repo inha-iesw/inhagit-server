@@ -1,9 +1,6 @@
 package inha.git.auth.api.controller;
 
-import inha.git.auth.api.controller.dto.request.EmailCheckRequest;
-import inha.git.auth.api.controller.dto.request.EmailRequest;
-import inha.git.auth.api.controller.dto.request.FindEmailRequest;
-import inha.git.auth.api.controller.dto.request.LoginRequest;
+import inha.git.auth.api.controller.dto.request.*;
 import inha.git.auth.api.controller.dto.response.FindEmailResponse;
 import inha.git.auth.api.controller.dto.response.LoginResponse;
 import inha.git.auth.api.service.AuthService;
@@ -96,6 +93,27 @@ public class AuthController {
         log.info("아이디 찾기 시도 학번 : {} 이름 : {}", findEmailRequest.userNumber(), findEmailRequest.name());
         return BaseResponse.of(FIND_EMAIL_OK, authService.findEmail(findEmailRequest));
     }
+
+
+    @PostMapping ("/find/password")
+    @Operation(summary = "비밀번호 찾기 이메일 인증 API",description = "비밀번호 찾기 이메일 인증을 처리합니다.")
+    public BaseResponse<String> findPasswordMailSend(@RequestBody @Valid FindPasswordRequest findPasswordRequest){
+        log.info("비밀번호 찾기 이메일 인증 이메일 : {}", findPasswordRequest.email());
+        return BaseResponse.of(FIND_PASSWORD_EMAIL_OK, mailService.findPasswordMailSend(findPasswordRequest));
+    }
+
+//    @PostMapping ("/find/password/check")
+//    @Operation(summary = "이메일 인증 API",description = "이메일 인증을 처리합니다.")
+//    public BaseResponse<String> findPasswordMailSendCheck(@RequestBody @Valid EmailRequest emailRequest){
+//        log.info("이메일 인증 이메일 : {}", emailRequest.email());
+//        return BaseResponse.of(EMAIL_SEND_OK, mailService.findPasswordMailSendCheck(emailRequest));
+//    }
+
+//    @PostMapping("/find/password/change")
+//    public BaseResponse<String> findPassword(@RequestBody @Valid FindEmailRequest findEmailRequest) {
+//        log.info("비밀번호 찾기 시도 학번 : {} 이름 : {}", findEmailRequest.userNumber(), findEmailRequest.name());
+//        return BaseResponse.of(FIND_PASSWORD_OK, authService.findPassword(findEmailRequest));
+//    }
 
 
 

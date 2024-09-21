@@ -2,8 +2,11 @@ package inha.git.auth.api.service;
 
 import inha.git.auth.api.controller.dto.request.EmailCheckRequest;
 import inha.git.auth.api.controller.dto.request.EmailRequest;
+import inha.git.auth.api.controller.dto.request.FindPasswordRequest;
 import inha.git.common.exceptions.BaseException;
 import inha.git.user.api.service.EmailDomainService;
+import inha.git.user.domain.User;
+import inha.git.user.domain.repository.UserJpaRepository;
 import inha.git.utils.RedisProvider;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -17,8 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 
-import static inha.git.common.Constant.EMAIL_CONTENT;
-import static inha.git.common.Constant.EMAIL_TITLE;
+import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 /**
@@ -33,6 +35,7 @@ public class MailServiceImpl implements MailService {
     private final RedisProvider redisProvider;
     private final JavaMailSender mailSender;
     private final EmailDomainService emailDomainService;
+    private final UserJpaRepository userJpaRepository;
 
     @Value("${spring.mail.username}")
     private String username;
@@ -60,7 +63,30 @@ public class MailServiceImpl implements MailService {
         int authNumber = makeRandomNumber();
         String emailContent = String.format(EMAIL_CONTENT, authNumber);
         postMailSend(username, emailRequest.email(), EMAIL_TITLE, emailContent, authNumber, emailRequest.type());
-        log.info("이메일 전송 완료");
+        log.info("{}이메일 전송 완료", emailRequest.email());
+        return "이메일 전송 완료";
+    }
+
+    /**
+     * 비밀번호 찾기 이메일 전송
+     *
+     * @param findPasswordRequest 비밀번호 찾기 요청 정보
+     *
+     * @return 비밀번호 찾기 이메일 전송 결과
+     */
+    @Override
+    public String findPasswordMailSend(FindPasswordRequest findPasswordRequest) {
+        userJpaRepository.findByEmail(findPasswordRequest.email())
+                .orElseThrow(() -> new BaseException(EMAIL_NOT_FOUND));
+        String oldAuthNum = redisProvider.getValueOps(findPasswordRequest.email() + "-" + PASSWORD_TYPE);
+        if (oldAuthNum != null) {
+            log.info("기존 인증번호 삭제 : {}", oldAuthNum);
+            redisProvider.deleteValueOps(findPasswordRequest.email() + "-" + PASSWORD_TYPE);
+        }
+        int authNumber = makeRandomNumber();
+        String emailContent = String.format(FIND_PASSWORD_CONTENT, authNumber);
+        postMailSend(username, findPasswordRequest.email(), FIND_PASSWORD_TITLE, emailContent, authNumber, PASSWORD_TYPE);
+        log.info("{} 이메일 전송 완료", findPasswordRequest.email());
         return "이메일 전송 완료";
     }
 
@@ -91,6 +117,8 @@ public class MailServiceImpl implements MailService {
             throw new BaseException(EMAIL_AUTH_NOT_MATCH);
         }
     }
+
+
     /**
      * 이메일을 전송합니다.
      *
@@ -135,4 +163,6 @@ public class MailServiceImpl implements MailService {
             throw new BaseException(EMAIL_AUTH_NOT_FOUND);
         }
     }
+
+
 }
