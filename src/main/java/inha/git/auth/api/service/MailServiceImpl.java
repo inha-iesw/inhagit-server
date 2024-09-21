@@ -2,10 +2,10 @@ package inha.git.auth.api.service;
 
 import inha.git.auth.api.controller.dto.request.EmailCheckRequest;
 import inha.git.auth.api.controller.dto.request.EmailRequest;
+import inha.git.auth.api.controller.dto.request.FindPasswordCheckRequest;
 import inha.git.auth.api.controller.dto.request.FindPasswordRequest;
 import inha.git.common.exceptions.BaseException;
 import inha.git.user.api.service.EmailDomainService;
-import inha.git.user.domain.User;
 import inha.git.user.domain.repository.UserJpaRepository;
 import inha.git.utils.RedisProvider;
 import jakarta.mail.MessagingException;
@@ -111,6 +111,33 @@ public class MailServiceImpl implements MailService {
         if (storedAuthNum.equals(emailCheckRequest.number())) {
             log.info("이메일 인증 성공");
             redisProvider.setDataExpire("verification-"+ emailCheckRequest.email() + "-" + emailCheckRequest.type(), emailCheckRequest.type().toString(), 60*60L);
+            return true;
+        } else {
+            log.info("이메일 인증 실패");
+            throw new BaseException(EMAIL_AUTH_NOT_MATCH);
+        }
+    }
+
+    /**
+     * 비밀번호 찾기 이메일 인증을 처리.
+     *
+     * @param findPasswordCheckRequest 비밀번호 찾기 이메일 인증 요청 정보
+     *
+     * @return 비밀번호 찾기 이메일 인증 결과
+     */
+    @Override
+    public Boolean findPasswordMailSendCheck(FindPasswordCheckRequest findPasswordCheckRequest) {
+        userJpaRepository.findByEmail(findPasswordCheckRequest.email())
+                .orElseThrow(() -> new BaseException(EMAIL_NOT_FOUND));
+        String storedAuthNum = redisProvider.getValueOps(findPasswordCheckRequest.email() + "-" + PASSWORD_TYPE);
+        if(storedAuthNum == null) {
+            log.info("이메일 인증 만료");
+            throw new BaseException(EMAIL_AUTH_EXPIRED);
+        }
+
+        if (storedAuthNum.equals(findPasswordCheckRequest.number())) {
+            log.info("이메일 인증 성공");
+            redisProvider.setDataExpire("verification-"+ findPasswordCheckRequest.email() + "-" + PASSWORD_TYPE, PASSWORD_TYPE.toString(), 60*60L);
             return true;
         } else {
             log.info("이메일 인증 실패");

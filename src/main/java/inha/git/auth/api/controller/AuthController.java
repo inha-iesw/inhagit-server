@@ -95,6 +95,15 @@ public class AuthController {
     }
 
 
+    /**
+     * 비밀번호 찾기 이메일 인증 API
+     *
+     * <p>비밀번호 찾기 이메일 인증을 처리.</p>
+     *
+     * @param findPasswordRequest 비밀번호 찾기 이메일 인증 요청 정보
+     *
+     * @return 비밀번호 찾기 이메일 인증 결과를 포함하는 BaseResponse<String>
+     */
     @PostMapping ("/find/password")
     @Operation(summary = "비밀번호 찾기 이메일 인증 API",description = "비밀번호 찾기 이메일 인증을 처리합니다.")
     public BaseResponse<String> findPasswordMailSend(@RequestBody @Valid FindPasswordRequest findPasswordRequest){
@@ -102,12 +111,19 @@ public class AuthController {
         return BaseResponse.of(FIND_PASSWORD_EMAIL_OK, mailService.findPasswordMailSend(findPasswordRequest));
     }
 
-//    @PostMapping ("/find/password/check")
-//    @Operation(summary = "이메일 인증 API",description = "이메일 인증을 처리합니다.")
-//    public BaseResponse<String> findPasswordMailSendCheck(@RequestBody @Valid EmailRequest emailRequest){
-//        log.info("이메일 인증 이메일 : {}", emailRequest.email());
-//        return BaseResponse.of(EMAIL_SEND_OK, mailService.findPasswordMailSendCheck(emailRequest));
-//    }
+    /**
+     * 비밀번호 찾기 이메일 인증 확인 API
+     *
+     * <p>비밀번호 찾기 이메일 인증 확인을 처리.</p>
+     *
+     * @param fdindPasswordCheckRequest 비밀번호 찾기 이메일 인증 확인 요청 정보
+     *
+     * @return 비밀번호 찾기 이메일 인증 확인 결과를 포함하는 BaseResponse<Boolean>
+     */
+    @PostMapping ("/find/password/check")
+    public BaseResponse<Boolean> findPasswordMailSendCheck(@RequestBody @Valid FindPasswordCheckRequest fdindPasswordCheckRequest){
+        return BaseResponse.of(FIND_PASSWORD_EMAIL_AUTH_OK, mailService.findPasswordMailSendCheck(fdindPasswordCheckRequest));
+    }
 
 //    @PostMapping("/find/password/change")
 //    public BaseResponse<String> findPassword(@RequestBody @Valid FindEmailRequest findEmailRequest) {
