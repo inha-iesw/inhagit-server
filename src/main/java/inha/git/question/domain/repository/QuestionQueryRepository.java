@@ -161,6 +161,9 @@ public class QuestionQueryRepository {
             condition = condition.and(question.subjectName.containsIgnoreCase(searchQuestionCond.subject()));
         }
 
+        if (searchQuestionCond.title() != null && !searchQuestionCond.title().isEmpty()) {
+            condition = condition.and(question.title.containsIgnoreCase(searchQuestionCond.title()));
+        }
         // 질문 목록 조회 쿼리
         JPAQuery<Question> query = queryFactory
                 .select(question)

@@ -172,9 +172,14 @@ public class ProjectQueryRepository {
             condition = condition.and(projectField.field.id.eq(searchProjectCond.fieldIdx()));
         }
 
-        if (searchProjectCond.subject() != null) {
+        if (searchProjectCond.subject() != null && !searchProjectCond.subject().isEmpty()) {
             // 과목명 조건: LIKE '%subject%'
             condition = condition.and(project.subjectName.containsIgnoreCase(searchProjectCond.subject()));
+        }
+
+        if(searchProjectCond.title() != null && !searchProjectCond.title().isEmpty()) {
+            // 제목 조건: LIKE '%title%'
+            condition = condition.and(project.title.containsIgnoreCase(searchProjectCond.title()));
         }
 
         // 프로젝트 목록 조회 쿼리

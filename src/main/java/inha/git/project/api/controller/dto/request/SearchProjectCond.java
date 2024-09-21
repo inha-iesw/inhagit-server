@@ -16,6 +16,9 @@ public record SearchProjectCond(
         @Schema(description = "분야 인덱스", example = "1")
         Integer fieldIdx,
         @Schema(description = "과목", example = "과목명")
-        String subject
+        String subject,
+
+        @Schema(description = "제목", example = "제목")
+        String title
 ) {
 }
