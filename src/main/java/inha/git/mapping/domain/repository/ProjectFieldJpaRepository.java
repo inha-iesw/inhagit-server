@@ -8,6 +8,9 @@ import inha.git.project.domain.Project;
 import inha.git.semester.domain.Semester;
 import inha.git.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -18,10 +21,10 @@ import java.util.List;
 public interface ProjectFieldJpaRepository extends JpaRepository<ProjectField, ProjectFieldId> {
 
 
-    void deleteByProject(Project project);
-
+    @Modifying
+    @Query("DELETE FROM ProjectField pf WHERE pf.project = :project")
+    void deleteByProject(@Param("project") Project project);
     List<ProjectField> findByProject(Project project);
 
-    boolean existsByProject_UserAndProject_SemesterAndField(User user, Semester semester, Field field);
 
 }
