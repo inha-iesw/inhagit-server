@@ -4,6 +4,7 @@ import com.querydsl.core.annotations.QueryProjection;
 import inha.git.common.validation.annotation.ValidName;
 import inha.git.user.domain.Professor;
 import inha.git.user.domain.User;
+import inha.git.utils.EmailMapperUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -44,7 +45,7 @@ public record SearchProfessorResponse(
     public SearchProfessorResponse(User user, Professor professor) {
         this(
                 user.getId(),
-                user.getEmail(),
+                EmailMapperUtil.maskEmail(user.getEmail()),
                 user.getName(),
                 mapRoleToPosition(user.getRole()),
                 user.getCreatedAt(),

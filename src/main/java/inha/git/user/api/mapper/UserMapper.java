@@ -16,6 +16,7 @@ import inha.git.user.api.controller.dto.response.*;
 import inha.git.user.domain.Company;
 import inha.git.user.domain.Professor;
 import inha.git.user.domain.User;
+import inha.git.utils.EmailMapperUtil;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -27,7 +28,7 @@ import static inha.git.common.code.status.ErrorStatus.DEPARTMENT_NOT_FOUND;
 /**
  * UserMapper는 User 엔티티와 관련된 데이터 변환 기능을 제공.
  */
-@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, imports = { EmailMapperUtil.class })
 public interface UserMapper {
 
     /**
@@ -157,6 +158,7 @@ public interface UserMapper {
     @Mapping(source = "totalProjectCount", target = "projectNumber")
     @Mapping(source = "totalQuestionCount", target = "questionCommentNumber")
     @Mapping(source = "totalTeamCount", target = "belongTeamNumber")
+    @Mapping(expression = "java(EmailMapperUtil.maskEmail(user.getEmail()))", target = "email")
     SearchNonCompanyUserResponse toSearchNonCompanyUserResponse(User user, Integer totalProjectCount, Integer totalQuestionCount, Integer totalTeamCount, List<SearchDepartmentResponse> departmentList, Integer position, Boolean githubTokenState);
 
 
@@ -169,6 +171,7 @@ public interface UserMapper {
      * @return SearchCompanyUserResponse
      */
     @Mapping(source = "user.id", target = "idx")
+    @Mapping(expression = "java(EmailMapperUtil.maskEmail(user.getEmail()))", target = "email")
     SearchCompanyUserResponse toSearchCompanyUserResponse(User user, Integer position, Company company);
 
     /**
