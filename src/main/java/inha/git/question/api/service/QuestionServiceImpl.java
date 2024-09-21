@@ -148,14 +148,22 @@ public class QuestionServiceImpl implements QuestionService {
             log.error("질문 수정 권한 없음 - 사용자: {} 질문 ID: {}", user.getName(), questionIdx);
             throw new BaseException(QUESTION_NOT_AUTHORIZED);
         }
+        List<Field> originFields = question.getQuestionFields().stream()
+                .map(QuestionField::getField)
+                .toList();
+        questionFieldJpaRepository.deleteByQuestion(question);
+        Semester originSemester = question.getSemester();
         Semester semester = semesterJpaRepository.findByIdAndState(updateQuestionRequest.semesterIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
         questionMapper.updateQuestionRequestToQuestion(updateQuestionRequest, question, semester);
         Question savedQuestion = questionJpaRepository.save(question);
-        questionFieldJpaRepository.deleteByQuestion(savedQuestion);
+        statisticsService.decreaseCount(user, originFields, originSemester, 2);
 
         List<QuestionField> questionFields = createAndSaveQuestionFields(updateQuestionRequest.fieldIdxList(), savedQuestion);
-        questionFieldJpaRepository.saveAll(questionFields);
+        List<Field> fields = questionFieldJpaRepository.saveAll(questionFields).stream()
+                .map(QuestionField::getField)
+                .toList();
+        statisticsService.increaseCount(user, fields, semester, 2);
         log.info("질문 수정 성공 - 사용자: {} 질문 ID: {}", user.getName(), savedQuestion.getId());
         return questionMapper.questionToQuestionResponse(savedQuestion);
     }

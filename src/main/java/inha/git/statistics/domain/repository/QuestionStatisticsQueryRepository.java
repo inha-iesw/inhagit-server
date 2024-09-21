@@ -43,7 +43,6 @@ public class QuestionStatisticsQueryRepository {
     public QuestionStatisticsResponse getQuestionStatistics(SearchCond searchCond) {
         // 전체 질문 수 계산
         Integer questionCount = getQuestionCount(searchCond);
-        log.info("여기는!!?!?? {}" , questionCount);
         // 멘토링 참여 인원 수 계산
         Integer userCount = getUserCount(searchCond);
 
@@ -127,7 +126,6 @@ public class QuestionStatisticsQueryRepository {
 
     // 질문 수 계산
     private Integer getQuestionCount(SearchCond searchCond) {
-        log.info("여기 1242ㄱㄷㄹㄴㅁㄴㅇ!!!?");
         if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
             if (searchCond.departmentIdx() != null) {
                 return queryFactory

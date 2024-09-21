@@ -268,7 +268,6 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .orElseThrow(() -> new BaseException(TOTAL_STATISTICS_NOT_FOUND));
         if (type == 1 || type == 8) {
             if (hasUploadedExactlyOneProject(user)) {
-                log.info("여기 작동?!?!?!");
                 totalUserStatistics.decreaseUserProjectCount(); // 사용자 프로젝트 카운트 감소
                 updateDepartmentAndCollegeStatistics(user,
                         TotalDepartmentStatistics::decreaseUserProjectCount,
@@ -559,7 +558,6 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     // 학과 및 단과대 통계 업데이트
     private void updateDepartmentAndCollegeStatistics(User user, Consumer<TotalDepartmentStatistics> departmentUpdater, Consumer<TotalCollegeStatistics> collegeUpdater) {
-        log.info("여기 문제다!!!!!!!!");
         List<UserDepartment> userDepartments = userDepartmentJpaRepository.findByUserId(user.getId()).orElseThrow(() -> new BaseException(USER_DEPARTMENT_NOT_FOUND));
         userDepartments.stream()
                 .map(userDepartment -> userDepartment.getDepartment())  // Department 객체 추출
@@ -616,10 +614,8 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private boolean hasUploadedExactlyOneProject(User user) {
         int generalProjectCount = userStatisticsJpaRepository.countByUserIdAndProjectCount(user.getId(), 1);
-        log.info("!!!generalProjectCount : " + generalProjectCount);
         // 깃허브 프로젝트 개수가 정확히 1개인 경우
         int githubProjectCount = userStatisticsJpaRepository.countByUserIdAndGithubProjectCount(user.getId(), 1);
-        log.info("!!!githubProjectCount : " + githubProjectCount);
         // 두 프로젝트의 총합이 1개인지 확인
         return (generalProjectCount + githubProjectCount) == 1;
     }
