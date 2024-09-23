@@ -6,6 +6,7 @@ import inha.git.college.domain.College;
 import inha.git.field.domain.Field;
 import inha.git.semester.domain.Semester;
 import inha.git.statistics.domain.CollegeStatistics;
+import inha.git.statistics.domain.TotalCollegeStatistics;
 import inha.git.statistics.domain.id.CollegeStatisticsStatisticsId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -45,4 +46,18 @@ public interface CollegeMapper {
     SearchCollegeResponse collegeToSearchCollegeResponse(College college);
 
     List<SearchCollegeResponse> collegesToSearchCollegeResponses(List<College> collegeList);
+
+    @Mapping(source = "college.id", target = "collegeId")
+    @Mapping(target = "userProjectCount", constant = "0")
+    @Mapping(target = "userQuestionCount", constant = "0")
+    @Mapping(target = "userProblemCount", constant = "0")
+    @Mapping(target = "userTeamCount", constant = "0")
+    @Mapping(target = "userPatentCount", constant = "0")
+    @Mapping(target = "totalProjectCount", constant = "0")
+    @Mapping(target = "totalGithubProjectCount", constant = "0")
+    @Mapping(target = "totalQuestionCount", constant = "0")
+    @Mapping(target = "totalProblemCount", constant = "0")
+    @Mapping(target = "totalTeamCount", constant = "0")
+    @Mapping(target = "totalPatentCount", constant = "0")
+    TotalCollegeStatistics createTotalCollegeStatistics(College college);
 }

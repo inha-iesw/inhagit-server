@@ -14,6 +14,7 @@ import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.domain.CollegeStatistics;
 import inha.git.statistics.domain.repository.CollegeStatisticsJpaRepository;
+import inha.git.statistics.domain.repository.TotalCollegeStatisticsJpaRepository;
 import inha.git.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +41,7 @@ public class CollegeServiceImpl implements CollegeService {
     private final CollegeStatisticsJpaRepository collegeStatisticsJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
+    private final TotalCollegeStatisticsJpaRepository totalCollegeStatisticsJpaRepository;
     private final DepartmentJpaRepository departmentJpaRepository;
     private final CollegeMapper collegeMapper;
 
@@ -88,6 +90,7 @@ public class CollegeServiceImpl implements CollegeService {
                 collegeStatisticsJpaRepository.save(collegeStatistics);
             }
         }
+        totalCollegeStatisticsJpaRepository.save(collegeMapper.createTotalCollegeStatistics(college));
         log.info("단과대 생성 성공 - 관리자: {} 단과대 이름: {}", admin.getName(), college.getName());
         return college.getName() + " 단과대가 생성되었습니다.";
     }
