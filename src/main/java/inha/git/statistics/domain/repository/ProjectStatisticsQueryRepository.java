@@ -169,11 +169,10 @@ public class ProjectStatisticsQueryRepository {
             } else {
                 return queryFactory
                         .select(Expressions.numberTemplate(Integer.class,
-                                "SUM({0}) + SUM({1})",
-                                userCountStatistics.totalProjectCount,
-                                userCountStatistics.totalGithubProjectCount))
-                        .from(userCountStatistics)
-                        .where(applyFilters(searchCond))
+                                "{0} + {1}",
+                                totalUserStatistics.totalProjectCount,
+                                totalUserStatistics.totalGithubProjectCount))
+                        .from(totalUserStatistics)
                         .fetchOne();
             }
         }
