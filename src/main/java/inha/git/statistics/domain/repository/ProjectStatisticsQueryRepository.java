@@ -209,6 +209,26 @@ public class ProjectStatisticsQueryRepository {
 
     // 로컬 프로젝트 수 계산
     private Integer getLocalProjectCount(SearchCond searchCond) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+            if (searchCond.departmentIdx() != null) {
+                return queryFactory
+                        .select(totalDepartmentStatistics.totalProjectCount)
+                        .from(totalDepartmentStatistics)
+                        .where(totalDepartmentStatistics.departmentId.eq(searchCond.departmentIdx()))
+                        .fetchOne();
+            } else if (searchCond.collegeIdx() != null) {
+                return queryFactory
+                        .select(totalCollegeStatistics.totalProjectCount)
+                        .from(totalCollegeStatistics)
+                        .where(totalCollegeStatistics.collegeId.eq(searchCond.collegeIdx()))
+                        .fetchOne();
+            } else {
+                return queryFactory
+                        .select(totalUserStatistics.totalProjectCount)
+                        .from(totalUserStatistics)
+                        .fetchOne();
+            }
+        }
         if (searchCond.departmentIdx() != null) {
             return queryFactory
                     .select(departmentStatistics.projectCount.sum())
@@ -232,6 +252,26 @@ public class ProjectStatisticsQueryRepository {
 
     // 깃허브 프로젝트 수 계산
     private Integer getGithubProjectCount(SearchCond searchCond) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+            if (searchCond.departmentIdx() != null) {
+                return queryFactory
+                        .select(totalDepartmentStatistics.totalGithubProjectCount)
+                        .from(totalDepartmentStatistics)
+                        .where(totalDepartmentStatistics.departmentId.eq(searchCond.departmentIdx()))
+                        .fetchOne();
+            } else if (searchCond.collegeIdx() != null) {
+                return queryFactory
+                        .select(totalCollegeStatistics.totalGithubProjectCount)
+                        .from(totalCollegeStatistics)
+                        .where(totalCollegeStatistics.collegeId.eq(searchCond.collegeIdx()))
+                        .fetchOne();
+            } else {
+                return queryFactory
+                        .select(totalUserStatistics.totalGithubProjectCount)
+                        .from(totalUserStatistics)
+                        .fetchOne();
+            }
+        }
         if (searchCond.departmentIdx() != null) {
             return queryFactory
                     .select(departmentStatistics.githubProjectCount.sum())
@@ -255,6 +295,26 @@ public class ProjectStatisticsQueryRepository {
 
     // 특허 프로젝트 수 계산
     private Integer getPatentProjectCount(SearchCond searchCond) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+            if (searchCond.departmentIdx() != null) {
+                return queryFactory
+                        .select(totalDepartmentStatistics.totalPatentCount)
+                        .from(totalDepartmentStatistics)
+                        .where(totalDepartmentStatistics.departmentId.eq(searchCond.departmentIdx()))
+                        .fetchOne();
+            } else if (searchCond.collegeIdx() != null) {
+                return queryFactory
+                        .select(totalCollegeStatistics.totalPatentCount)
+                        .from(totalCollegeStatistics)
+                        .where(totalCollegeStatistics.collegeId.eq(searchCond.collegeIdx()))
+                        .fetchOne();
+            } else {
+                return queryFactory
+                        .select(totalUserStatistics.totalPatentCount)
+                        .from(totalUserStatistics)
+                        .fetchOne();
+            }
+        }
         if (searchCond.departmentIdx() != null) {
             return queryFactory
                     .select(departmentStatistics.patentCount.sum())
