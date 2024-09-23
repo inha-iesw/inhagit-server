@@ -16,4 +16,18 @@ public record SearchDirectoryResponse(
 
         @Schema(description = "하위 파일 목록")
         List<SearchFileResponse> fileList
-) implements SearchFileResponse {}
+) implements SearchFileResponse {
+
+        public SearchDirectoryResponse(String name, List<SearchFileResponse> fileList) {
+                this(name, "directory", fileList);  // type을 "directory"로 설정
+        }
+        @Override
+        public String getName() {
+                return name;
+        }
+
+        @Override
+        public String getType() {
+                return "directory";
+        }
+}
