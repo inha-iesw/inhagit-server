@@ -1,6 +1,11 @@
 package inha.git.github.api.service;
 
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import inha.git.common.exceptions.BaseException;
 import inha.git.github.api.controller.dto.request.GitubTokenResquest;
 import inha.git.github.api.controller.dto.response.GithubFileContentDTO;
@@ -14,6 +19,8 @@ import inha.git.project.domain.Project;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.repository.UserJpaRepository;
+import inha.git.utils.RedisProvider;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.kohsuke.github.GHRepository;
@@ -29,6 +36,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
@@ -48,7 +56,10 @@ public class GithubServiceImpl implements GithubService {
     private final UserJpaRepository userJpaRepository;
     private final ProjectJpaRepository projectJpaRepository;
     private final GithubMapper githubMapper;
+    private final RedisProvider redisProvider;
     private final RestTemplate restTemplate = new RestTemplate();
+    private final ObjectMapper objectMapper;
+
 
     /**
      * Github Token을 갱신합니다.
@@ -74,24 +85,47 @@ public class GithubServiceImpl implements GithubService {
      * @param user 사용자 정보
      * @return Github 레포지토리 목록
      */
+    /**
+     * 사용자의 Github 레포지토리 목록을 조회합니다.
+     *
+     * @param user 사용자 정보
+     * @return Github 레포지토리 목록
+     */
     public List<GithubRepositoryResponse> getGithubRepositories(User user) {
         String githubToken = user.getGithubToken();
         if (githubToken == null) {
             log.error("Github Token이 없습니다. - 사용자: {}", user.getName());
             throw new BaseException(GITHUB_TOKEN_NOT_FOUND);
         }
+
+        // Redis에서 캐시된 레포지토리 목록 조회
+        String cacheKey = GITHUB_REPO_CACHE_PREFIX + user.getId(); // 유저별로 캐시 저장
+        String cachedRepositories = redisProvider.getValueOps(cacheKey);
+
+        // 캐시가 있으면 반환
+        if (cachedRepositories != null) {
+            log.info("Redis에서 Github 레포지토리 목록을 가져왔습니다. - 사용자: {}", user.getName());
+            // 캐시된 JSON 데이터를 DTO로 변환하여 반환
+            return fromJson(cachedRepositories);
+        }
+
         try {
             GitHub github = GitHub.connectUsingOAuth(githubToken);
             List<GHRepository> repositories = github.getMyself().listRepositories().toList();
-
             String username = github.getMyself().getLogin(); // 현재 사용자의 GitHub 계정 가져오기
 
             // 내가 소유한 레포지토리만 필터링
-            return repositories.stream()
+            List<GithubRepositoryResponse> repoResponses = repositories.stream()
                     .filter(repo -> repo.getOwnerName().equals(username)) // 소유자가 현재 사용자와 같은지 확인
                     .sorted(Comparator.comparing(GHRepository::getId).reversed()) // 아이디 최신순으로 정렬
                     .map(githubMapper::toDto)
                     .toList();
+
+            // 캐시가 없었으면, 데이터를 Redis에 캐싱
+            log.info("Github 레포지토리 목록을 Redis에 저장합니다. - 사용자: {}", user.getName());
+            redisProvider.setDataExpire(cacheKey, toJson(repoResponses), 36000); // 1시간 동안 캐싱
+
+            return repoResponses;
         } catch (IOException e) {
             log.error("Github 레포지토리 목록을 가져오는데 실패했습니다. - 사용자: {} 에러메시지: {} ", user.getName(), e.getMessage());
             throw new BaseException(FAILED_TO_GET_GITHUB_REPOSITORIES);
@@ -132,17 +166,48 @@ public class GithubServiceImpl implements GithubService {
     public List<SearchFileResponse> getGithubFiles(User user, Integer projectIdx, String path) {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-        if(project.getRepoName() == null) {
+
+        if (project.getRepoName() == null) {
             log.error("프로젝트의 Github 레포지토리가 없습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), projectIdx);
             throw new BaseException(GITHUB_REPO_NOT_FOUND);
         }
-        log.info("path: {}", path);
+
+        // Redis 캐시 키 설정 (프로젝트와 경로에 따라 캐시 구분)
+        String cacheKey = "github:files:" + project.getRepoName() + ":" + path;
+        String cachedFiles = redisProvider.getValueOps(cacheKey);
+
+        // 캐시가 있으면 반환
+        if (cachedFiles != null) {
+            log.info("Redis에서 Github 파일 목록을 가져왔습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), projectIdx);
+            try {
+                // TypeReference를 사용하여 올바르게 타입을 지정
+                log.info("캐시에서 불러온 데이터: {}", cachedFiles);  // 캐시에서 가져온 JSON 데이터 로그 출력
+                List<SearchFileResponse> fileResponses = objectMapper.readValue(cachedFiles, new TypeReference<List<SearchFileResponse>>() {});
+                log.info("역직렬화된 데이터: {}", fileResponses);  // 역직렬화된 객체 로그 출력
+                return fileResponses;
+            } catch (Exception e) {
+                log.error("Redis 캐시 데이터 변환 실패 - 사용자: {} 프로젝트 ID: {} 캐시 데이터: {} 에러: {}", user.getName(), projectIdx, cachedFiles, e.getMessage(), e);
+            }
+        }
+
+        String fileCacheKey = "github:fileContent:" + project.getRepoName() + ":" + path;
+        String cachedFileContent = redisProvider.getValueOps(fileCacheKey);
+
+        // 캐시가 있으면 반환
+        if (cachedFileContent != null) {
+            log.info("Redis에서 Github 파일 내용을 가져왔습니다. - 사용자: {} 레포지토리: {} 경로: {}", user.getName(), project.getRepoName(), path, fileCacheKey);
+            return  List.of(fromJson(cachedFileContent, SearchFileDetailResponse.class));
+        }
+
+        // 캐시가 없거나 변환에 실패한 경우 GitHub API 호출
+        log.info("Github 파일 목록을 가져옵니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), projectIdx);
         String url = "https://api.github.com/repos/" + project.getRepoName() + "/contents/" + path;
 
         HttpHeaders headers = new HttpHeaders();
         String githubToken = project.getUser().getGithubToken();
         headers.set("Authorization", "token " + githubToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
+
         ResponseEntity<List<GithubItemDTO>> response;
         try {
             response = restTemplate.exchange(
@@ -152,22 +217,30 @@ public class GithubServiceImpl implements GithubService {
                     new ParameterizedTypeReference<List<GithubItemDTO>>() {}
             );
         } catch (Exception e) {
-            log.error("Github 파일 목록을 가져오는데 실패했습니다. - 사용자: {} 프로젝트 ID: {} 에러메시지: {}", user.getName(), projectIdx, e.getMessage());
-            return List.of(getGithubFileContent(project.getUser(), project.getRepoName(), path));
+            return List.of(getGithubFileContent(project.getUser(), project.getRepoName(), path, fileCacheKey));
         }
+
         List<GithubItemDTO> items = response.getBody();
         if (items == null) {
             log.error("Github 파일 목록이 없습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), projectIdx);
             throw new BaseException(FILE_NOT_FOUND);
         }
-        log.info("Github 파일 목록 조회 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), projectIdx);
-        return items.stream()
+
+        List<SearchFileResponse> fileResponses = items.stream()
                 .filter(f -> !f.getName().equals(GIT) &&
                         !f.getName().equals(DS_STORE) &&
                         !f.getName().startsWith(UNDERBAR) &&
                         !f.getName().startsWith(MACOSX))
-                .map(item -> mapToFileResponse(item))
+                .map(this::mapToFileResponse)
                 .toList();
+        try {
+            String jsonFileResponses = objectMapper.writerFor(new TypeReference<List<SearchFileResponse>>() {}).writeValueAsString(fileResponses);
+            redisProvider.setDataExpire(cacheKey, jsonFileResponses, 3600);
+        } catch (JsonProcessingException e) {
+            log.error("Github 파일 목록을 JSON으로 변환하는데 실패했습니다. - 사용자: {} 프로젝트 ID: {} 에러: {}",
+                    user.getName(), projectIdx, e.getMessage(), e);
+        }
+        return fileResponses;
     }
 
     /**
@@ -178,9 +251,9 @@ public class GithubServiceImpl implements GithubService {
      */
     private SearchFileResponse mapToFileResponse(GithubItemDTO item) {
         if ("dir".equals(item.getType())) {
-            return new SearchDirectoryResponse(item.getName(), "directory", null);
+            return new SearchDirectoryResponse(item.getName(), null);  // fileList는 null로 설정
         } else {
-            return new SearchFileDetailResponse(item.getName(), "file", null);
+            return new SearchFileDetailResponse(item.getName(), null);  // contents는 null로 설정
         }
     }
 
@@ -192,7 +265,10 @@ public class GithubServiceImpl implements GithubService {
      * @param path     파일 경로
      * @return Github 파일 내용
      */
-    public SearchFileDetailResponse getGithubFileContent(User user, String repoName, String path) {
+    public SearchFileDetailResponse getGithubFileContent(User user, String repoName, String path, String fileCacheKey) {
+
+
+        // 캐시가 없으면 GitHub API 호출
         String url = "https://api.github.com/repos/" + repoName + "/contents/" + path;
 
         HttpHeaders headers = new HttpHeaders();
@@ -207,18 +283,65 @@ public class GithubServiceImpl implements GithubService {
             throw new BaseException(FILE_NOT_FOUND);
         }
 
-        String fileName = fileContent.getName();
         String content;
+        String fileName = fileContent.getName();
 
-        if (fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") || fileName.endsWith(".gif") || fileName.endsWith(".svg") || fileName.endsWith(".ico") || fileName.endsWith(".bmp") || fileName.endsWith(".webp")) {
+        // 이미지 파일이나 텍스트 파일인지 구분하여 처리
+        if (isBinaryFile(fileName)) {
             content = fileContent.getContent();
-        } else if (fileName.endsWith(".json")) {
-            byte[] decodedBytes = Base64.getDecoder().decode(fileContent.getContent().replaceAll("\n", ""));
-            content = new String(decodedBytes, StandardCharsets.UTF_8);
         } else {
             byte[] decodedBytes = Base64.getDecoder().decode(fileContent.getContent().replaceAll("\n", ""));
-            content = new String(decodedBytes, StandardCharsets.UTF_8);  // 텍스트 파일 처리
+            content = new String(decodedBytes, StandardCharsets.UTF_8);
         }
-        return new SearchFileDetailResponse(fileContent.getName(), "file", content);
+
+        SearchFileDetailResponse fileDetailResponse = new SearchFileDetailResponse(fileName, "file", content);
+
+        // 파일 내용을 Redis에 캐싱 (TTL 1시간)
+        redisProvider.setDataExpire(fileCacheKey, toJson(fileDetailResponse), 3600);
+
+        return fileDetailResponse;
     }
+
+    private boolean isBinaryFile(String fileName) {
+        return fileName.endsWith(".png") || fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") ||
+                fileName.endsWith(".gif") || fileName.endsWith(".svg") || fileName.endsWith(".ico") ||
+                fileName.endsWith(".bmp") || fileName.endsWith(".webp");
+    }
+
+    private List<GithubRepositoryResponse> fromJson(String cachedRepositories) {
+        try {
+            GithubRepositoryResponse[] reposArray = objectMapper.readValue(cachedRepositories, GithubRepositoryResponse[].class);
+            return Arrays.asList(reposArray);
+        } catch (JsonProcessingException e) {
+            throw new BaseException(JSON_CONVERT_ERROR);
+        }
+    }
+
+    /**
+     * GithubRepositoryResponse 리스트를 JSON으로 변환하는 메서드
+     */
+    private String toJson(List<GithubRepositoryResponse> repositories) {
+        try {
+            return objectMapper.writeValueAsString(repositories);
+        } catch (JsonProcessingException e) {
+            throw new BaseException(JSON_CONVERT_ERROR);
+        }
+    }
+
+    private <T> T fromJson(String json, Class<T> valueType) {
+        try {
+            return objectMapper.readValue(json, valueType);
+        } catch (JsonProcessingException e) {
+            throw new BaseException(JSON_CONVERT_ERROR);
+        }
+    }
+    private String toJson(Object object) {
+        try {
+            return objectMapper.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
+            log.error("JSON 변환에 실패했습니다. - 에러메시지: {}", e.getMessage());
+            throw new BaseException(JSON_CONVERT_ERROR);
+        }
+    }
+
 }

@@ -1,5 +1,7 @@
 package inha.git.common.config;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.user.domain.repository.UserJpaRepository;
 import inha.git.utils.ApplicationAuditAware;
@@ -59,6 +61,7 @@ public class AppConfig {
   JPAQueryFactory jpaQueryFactory(EntityManager em) {
     return new JPAQueryFactory(em);
   }
+
 
 
 }

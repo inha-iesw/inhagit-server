@@ -6,6 +6,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface GithubMapper {
 
@@ -15,4 +17,5 @@ public interface GithubMapper {
     default String getArchiveUrl(GHRepository repo) {
         return "https://api.github.com/repos/" + repo.getFullName() + "/zipball/" + repo.getDefaultBranch();
     }
+
 }

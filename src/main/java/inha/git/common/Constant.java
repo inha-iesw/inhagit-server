@@ -78,6 +78,7 @@ public class Constant {
 
     public final static String SEARCH_PATENT = "?applicationNumber=";
 
+    public final static String GITHUB_REPO_CACHE_PREFIX = "github:repos:";
 
 
 
