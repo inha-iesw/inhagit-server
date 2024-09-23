@@ -7,6 +7,7 @@ import inha.git.department.domain.Department;
 import inha.git.field.domain.Field;
 import inha.git.semester.domain.Semester;
 import inha.git.statistics.domain.DepartmentStatistics;
+import inha.git.statistics.domain.TotalDepartmentStatistics;
 import inha.git.statistics.domain.id.DepartmentStatisticsId;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -48,4 +49,18 @@ public interface DepartmentMapper {
     default DepartmentStatistics createDepartmentStatistics(Department department, Semester semester, Field field) {
         return new DepartmentStatistics(new DepartmentStatisticsId(department.getId(), semester.getId(), field.getId()), department, semester, field, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
+
+    @Mapping(source = "department.id", target = "departmentId")
+    @Mapping(target = "userProjectCount", constant = "0")
+    @Mapping(target = "userQuestionCount", constant = "0")
+    @Mapping(target = "userProblemCount", constant = "0")
+    @Mapping(target = "userTeamCount", constant = "0")
+    @Mapping(target = "userPatentCount", constant = "0")
+    @Mapping(target = "totalProjectCount", constant = "0")
+    @Mapping(target = "totalGithubProjectCount", constant = "0")
+    @Mapping(target = "totalQuestionCount", constant = "0")
+    @Mapping(target = "totalProblemCount", constant = "0")
+    @Mapping(target = "totalTeamCount", constant = "0")
+    @Mapping(target = "totalPatentCount", constant = "0")
+    TotalDepartmentStatistics createTotalDepartmentStatistics(Department department);
 }

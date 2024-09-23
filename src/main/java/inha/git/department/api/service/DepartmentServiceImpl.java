@@ -15,6 +15,7 @@ import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.domain.DepartmentStatistics;
 import inha.git.statistics.domain.repository.DepartmentStatisticsJpaRepository;
+import inha.git.statistics.domain.repository.TotalDepartmentStatisticsJpaRepository;
 import inha.git.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ public class DepartmentServiceImpl implements DepartmentService{
     private final DepartmentJpaRepository departmentJpaRepository;
     private final DepartmentMapper departmentMapper;
     private final DepartmentStatisticsJpaRepository departmentStatisticsJpaRepository;
+    private final TotalDepartmentStatisticsJpaRepository totalDepartmentStatisticsJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
     private final CollegeJpaRepository collegeJpaRepository;
@@ -85,6 +87,7 @@ public class DepartmentServiceImpl implements DepartmentService{
                 departmentStatisticsJpaRepository.save(departmentStatistics);
             }
         }
+        totalDepartmentStatisticsJpaRepository.save(departmentMapper.createTotalDepartmentStatistics(department));
         log.info("학과 생성 성공 - 관리자: {} 학과명: {}", admin.getName(), savedDepartment.getName());
         return savedDepartment.getName() + " 학과가 생성되었습니다.";
     }
