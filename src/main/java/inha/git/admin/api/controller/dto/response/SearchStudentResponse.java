@@ -29,6 +29,10 @@ public record SearchStudentResponse(
         @NotNull
         @Schema(description = "직책", example = "2")
         Integer position,
+
+        @NotNull
+        @Schema(description = "차단 유무", example = "false")
+        Boolean isBlocked,
         @NotNull
         @Schema(description = "학생 계정 생성일", example = "2024-05-31 04:26:56.831000 +00:00")
         LocalDateTime createdAt,
@@ -44,6 +48,7 @@ public record SearchStudentResponse(
                 user.getEmail(),
                 user.getName(),
                 mapRoleToPosition(user.getRole()),
+                user.getBlockedAt() != null,
                 user.getCreatedAt(),
                 user.getUserDepartments().stream()
                         .map(ud -> new SearchDepartmentResponse(ud.getDepartment().getId(), ud.getDepartment().getName()))
