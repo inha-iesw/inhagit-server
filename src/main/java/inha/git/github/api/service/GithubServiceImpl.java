@@ -10,6 +10,7 @@ import inha.git.github.api.controller.dto.response.GithubFileContentResponse;
 import inha.git.github.api.controller.dto.response.GithubItemResponse;
 import inha.git.github.api.controller.dto.response.GithubRepositoryResponse;
 import inha.git.github.api.mapper.GithubMapper;
+import inha.git.github.domain.repository.GithubTokenJpaRepository;
 import inha.git.project.api.controller.dto.response.SearchDirectoryResponse;
 import inha.git.project.api.controller.dto.response.SearchFileDetailResponse;
 import inha.git.project.api.controller.dto.response.SearchFileResponse;
@@ -29,6 +30,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -53,9 +55,11 @@ public class GithubServiceImpl implements GithubService {
     private final UserJpaRepository userJpaRepository;
     private final ProjectJpaRepository projectJpaRepository;
     private final GithubMapper githubMapper;
+    private final GithubTokenJpaRepository githubTokenJpaRepository;
     private final RedisProvider redisProvider;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper;
+
 
 
     /**
@@ -198,8 +202,28 @@ public class GithubServiceImpl implements GithubService {
                     new ParameterizedTypeReference<>() {
                     }
             );
+        } catch (RestClientException e) {
+            return List.of(getGithubFileContent(user, githubToken, project.getRepoName(), path, fileCacheKey));
         } catch (Exception e) {
-            return List.of(getGithubFileContent(project.getUser(), project.getRepoName(), path, fileCacheKey));
+            log.warn("사용자 토큰으로 GitHub API 호출에 실패했습니다. 관리자 토큰을 사용합니다. - 에러: {}", e.getMessage());
+            String adminGithubToken = githubTokenJpaRepository.findAll().stream()
+                    .findFirst()
+                    .orElseThrow(() -> new BaseException(GITHUB_TOKEN_NOT_FOUND))
+                    .getToken();
+            headers.set(HEADER_AUTHORIZATION, TOKEN + adminGithubToken);
+            entity = new HttpEntity<>(headers);
+
+            try {
+                response = restTemplate.exchange(
+                        url,
+                        HttpMethod.GET,
+                        entity,
+                        new ParameterizedTypeReference<List<GithubItemResponse>>() {
+                        }
+                );
+            }catch (Exception ex) {
+                return List.of(getGithubFileContent(user, adminGithubToken, project.getRepoName(), path, fileCacheKey));
+            }
         }
 
         List<GithubItemResponse> items = response.getBody();
@@ -245,20 +269,22 @@ public class GithubServiceImpl implements GithubService {
     }
 
     /**
-     * Github 파일의 내용을 조회합니다.
+     * Github 파일 내용을 조회합니다.
      *
-     * @param user     사용자 정보
-     * @param repoName 레포지토리 이름
-     * @param path     파일 경로
-     * @return Github 파일 내용
+     * @param user         사용자 정보
+     * @param githubToken  Github Token
+     * @param repoName     레포지토리 이름
+     * @param path         파일 경로
+     * @param fileCacheKey 파일 캐시 키
+     * @return 파일 내용
      */
-    public SearchFileDetailResponse getGithubFileContent(User user, String repoName, String path, String fileCacheKey) {
+    public SearchFileDetailResponse getGithubFileContent(User user, String githubToken, String repoName, String path, String fileCacheKey) {
 
         // 캐시가 없으면 GitHub API 호출
         String url = GITHUB_API_URL + repoName + GITHUB_CONTENTS + path;
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set(HEADER_AUTHORIZATION, TOKEN_PREFIX + user.getGithubToken());
+        headers.set(HEADER_AUTHORIZATION, TOKEN_PREFIX + githubToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<GithubFileContentResponse> response = restTemplate.exchange(url, HttpMethod.GET, entity, GithubFileContentResponse.class);
 
