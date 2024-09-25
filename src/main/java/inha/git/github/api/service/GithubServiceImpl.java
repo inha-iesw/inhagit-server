@@ -237,7 +237,7 @@ public class GithubServiceImpl implements GithubService {
                         !f.name().equals(DS_STORE) &&
                         !f.name().startsWith(UNDERBAR) &&
                         !f.name().startsWith(MACOSX) &&
-                        !f.name().equals(NODE_MODULES) &&
+                        !f.path().contains(NODE_MODULES) &&
                         !f.name().equals(PYC) &&
                         !f.name().equals(PYCACHE) &&
                         !f.name().equals(IDEA)
