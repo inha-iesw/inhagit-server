@@ -18,6 +18,9 @@ public class Constant {
     public final static String HEADER_AUTHORIZATION = "Authorization";
     public final static String TOKEN_PREFIX = "Bearer ";
 
+    //token
+    public final static String TOKEN = "token ";
+
     public final static String EMAIL_TITLE = "[INHA - OSS] 회원 가입 인증 이메일 입니다.";
 
     public final static String EMAIL_CONTENT = "[INHA - OSS] 로그인 인증입니다." +
@@ -63,14 +66,12 @@ public class Constant {
     public final static String GIT = ".git";
     //.pyc
     public final static String PYC = ".pyc";
-    public final static String GITHUB = "https://github.com/";
     public final static String DS_STORE = ".DS_Store";
-    public final static String DIRECTORY = "directory";
-    public final static String FILE = "file";
     public final static String UNDERBAR = "._";
     public final static String MACOSX = "__MACOSX";
     public final static String PYCACHE = "__pycache__";
     public final static String IDEA = ".idea";
+    public final static String DIR = "dir";
 
     public final static String ACCESS_KEY = "&accessKey=";
 
@@ -79,6 +80,13 @@ public class Constant {
     public final static String SEARCH_PATENT = "?applicationNumber=";
 
     public final static String GITHUB_REPO_CACHE_PREFIX = "github:repos:";
+    public final static String GITHUB_FILE_CACHE_PREFIX = "github:files:";
+    public final static String GITHUB_FILE_CONTENT_CACHE_PREFIX = "github:fileContent:";
+    public final static String GITHUB_API_URL = "https://api.github.com/repos/";
+    public final static String GITHUB_CONTENTS = "/contents/";
+    public final static String NODE_MODULES = "node_modules";
+    //file
+    public final static String FILE = "file";
 
 
 
