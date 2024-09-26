@@ -143,7 +143,9 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
             if (Files.isDirectory(filePath)) {
                 try (Stream<Path> paths = Files.list(filePath)) {
                     return paths
-                            .filter(f -> Files.isDirectory(f) || f.getFileName().toString().contains("."))  // 디렉토리는 포함, 파일은 이름에 점(.)이 있어야 포함
+                            .filter(f -> Files.isDirectory(f) ||
+                                    f.getFileName().toString().contains(".") ||  // 점(.)이 있는 파일 필터링
+                                    isSpecialFile(f))  // 확장자가 없더라도 중요한 파일 포함
                             .filter(f -> !f.getFileName().toString().equals(GIT) &&
                                     !f.getFileName().toString().equals(DS_STORE) &&
                                     !f.getFileName().toString().startsWith(UNDERBAR) &&
@@ -154,7 +156,12 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
                                     !f.getFileName().toString().endsWith(PYC) &&
                                     !f.getFileName().toString().endsWith(IML) &&
                                     !f.getFileName().toString().endsWith(OUT) &&
-                                    !f.getFileName().toString().endsWith(DSYM))
+                                    !f.getFileName().toString().endsWith(DSYM) &&
+                                    !f.getFileName().toString().endsWith(GRADLE) &&
+                                    !f.getFileName().toString().endsWith(OUT_) &&
+                                    !f.getFileName().toString().endsWith(BUILD) &&
+                                    !f.getFileName().toString().endsWith(CLASS)
+                            )
                             .map(this::mapToFileResponse)
                             .toList();
                 }
@@ -192,31 +199,43 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
     }
 
     private String extractFileContent(Path filePath) throws IOException {
+        String fileName = filePath.getFileName().toString().toLowerCase();
         String contentType = Files.probeContentType(filePath);
 
-        // 파일 MIME 타입에 따른 처리
-        if (contentType != null && contentType.equals("text/csv")) {
-            // UTF-8 시도 후 실패하면 CP-949로 시도
-            try {
-                return Files.readString(filePath);  // 기본적으로 UTF-8로 시도
-            } catch (MalformedInputException e) {
-                log.info("UTF-8로 읽기 실패, MS949로 다시 시도합니다.");
-                try (BufferedReader reader = Files.newBufferedReader(filePath, Charset.forName("MS949"))) {
-                    StringBuilder content = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        content.append(line).append("\n");
-                    }
-                    return content.toString();
-                }
-            }
-        } else if (contentType != null && contentType.startsWith("image")) {
-            // 이미지 파일 처리
-            byte[] imageBytes = Files.readAllBytes(filePath);
-            return Base64.getEncoder().encodeToString(imageBytes);
-        } else if (contentType != null && (contentType.startsWith("text") || contentType.contains("json") || contentType.contains("javascript"))) {
-            // 텍스트 또는 JSON, JavaScript 파일 처리
+        // 파일 확장자에 따른 처리 추가
+        if (fileName.endsWith(".sh") || fileName.endsWith(".yml") || fileName.endsWith(".yaml")) {
             return Files.readString(filePath);
+        }
+
+        // MIME 타입에 따른 처리
+        if (contentType != null) {
+            if (contentType.equals("text/csv")) {
+                // UTF-8 시도 후 실패하면 CP-949로 시도
+                try {
+                    return Files.readString(filePath);  // 기본적으로 UTF-8로 시도
+                } catch (MalformedInputException e) {
+                    log.info("UTF-8로 읽기 실패, MS949로 다시 시도합니다.");
+                    try (BufferedReader reader = Files.newBufferedReader(filePath, Charset.forName("MS949"))) {
+                        StringBuilder content = new StringBuilder();
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                            content.append(line).append("\n");
+                        }
+                        return content.toString();
+                    }
+                }
+            } else if (contentType.startsWith("image")) {
+                // 이미지 파일 처리
+                byte[] imageBytes = Files.readAllBytes(filePath);
+                return Base64.getEncoder().encodeToString(imageBytes);
+            } else if (contentType.startsWith("text") ||
+                    contentType.contains("json") ||
+                    contentType.contains("javascript") ||
+                    contentType.contains("xml") ||
+                    contentType.contains("yaml")) {
+                // 텍스트, JSON, JavaScript, XML, YAML 파일 처리
+                return Files.readString(filePath);
+            }
         }
 
         // MIME 타입을 확인할 수 없을 때 기본적으로 텍스트 파일로 처리
@@ -241,5 +260,19 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
                     .orElseThrow(() -> new BaseException(PROJECT_UPLOAD_NOT_FOUND));
         }
         return null;
+    }
+
+    private boolean isSpecialFile(Path file) {
+        String fileName = file.getFileName().toString();
+        return fileName.equals("Dockerfile") ||
+                fileName.equals("Makefile") ||
+                fileName.equals("README") ||
+                fileName.equals("LICENSE") ||
+                fileName.equals("CHANGELOG") ||
+                fileName.equals("VERSION") ||
+                fileName.equals("Gemfile") ||
+                fileName.equals("Rakefile") ||
+                fileName.equals("Procfile") ||
+                fileName.equals("Vagrantfile");
     }
 }

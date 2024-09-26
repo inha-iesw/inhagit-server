@@ -86,10 +86,16 @@ public class Constant {
     public final static String GITHUB_CONTENTS = "/contents/";
     public final static String NODE_MODULES = "node_modules";
     public final static String OUT = ".out";
+    public final static String OUT_ = "out";
     public final static String IML = ".iml";
     public final static String FILE = "file";
     public final static String DIRECTORY = "directory";
     public final static String DSYM = ".dSYM";
+    public final static String GRADLE = ".gradle";
+    public final static String BUILD = "build";
+    //.bat
+    public final static String BAT = ".bat";
+    public final static String CLASS = ".class";
 
 
 
