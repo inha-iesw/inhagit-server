@@ -35,6 +35,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Comparator;
@@ -240,7 +241,11 @@ public class GithubServiceImpl implements GithubService {
                         !f.path().contains(NODE_MODULES) &&
                         !f.name().equals(PYC) &&
                         !f.name().equals(PYCACHE) &&
-                        !f.name().equals(IDEA)
+                        !f.name().equals(IDEA) &&
+                        !f.name().endsWith(OUT) &&
+                        !f.name().endsWith(IML) &&
+                        !f.name().endsWith(DSYM) &&
+                        !isExecutableFile(f)
                 )
                 .map(this::mapToFileResponse)
                 .toList();
@@ -353,6 +358,15 @@ public class GithubServiceImpl implements GithubService {
             log.error("JSON 변환에 실패했습니다. - 에러메시지: {}", e.getMessage());
             throw new BaseException(JSON_CONVERT_ERROR);
         }
+    }
+
+    private boolean isExecutableFile(GithubItemResponse item) {
+        // 디렉토리가 아닌 파일 중 확장자가 없거나 실행 파일로 의심되는 파일
+        if (item.type().equals(DIR)) {
+            return false;  // 디렉토리는 실행 파일이 아니므로 제외
+        }
+        String fileName = item.name();
+        return fileName.endsWith(".exe") || fileName.endsWith(".sh") || fileName.endsWith(".bat") || !fileName.contains(".");  // 확장자가 없는 경우 실행 파일로 간주
     }
 
 }
