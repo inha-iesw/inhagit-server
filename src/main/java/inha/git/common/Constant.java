@@ -85,8 +85,11 @@ public class Constant {
     public final static String GITHUB_API_URL = "https://api.github.com/repos/";
     public final static String GITHUB_CONTENTS = "/contents/";
     public final static String NODE_MODULES = "node_modules";
-    //file
+    public final static String OUT = ".out";
+    public final static String IML = ".iml";
     public final static String FILE = "file";
+    public final static String DIRECTORY = "directory";
+    public final static String DSYM = ".dSYM";
 
 
 

@@ -2,8 +2,8 @@ package inha.git.project.api.service;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.repository.FoundingRecommendJpaRepository;
-import inha.git.mapping.domain.repository.ProjectLikeJpaRepository;
 import inha.git.mapping.domain.repository.ProjectFieldJpaRepository;
+import inha.git.mapping.domain.repository.ProjectLikeJpaRepository;
 import inha.git.mapping.domain.repository.RegistrationRecommendJpaRepository;
 import inha.git.project.api.controller.dto.request.SearchProjectCond;
 import inha.git.project.api.controller.dto.response.*;
@@ -96,12 +96,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         ProjectUpload projectUpload = getProjectUploadIfNeeded(project, projectIdx);
-
-        log.info("semesterIdx {}", project.getSemester().getId());
-        log.info("semesterName {}", project.getSemester().getName());
         SearchSemesterResponse searchSemesterResponse = semesterMapper.semesterToSearchSemesterResponse(project.getSemester());
-        log.info("semesterResponse {}", searchSemesterResponse.idx());
-        log.info("semesterResponse {}", searchSemesterResponse.name());
         List<SearchFieldResponse> searchFieldResponses = projectFieldJpaRepository.findByProject(project)
                 .stream()
                 .map(projectField -> projectMapper.projectFieldToSearchFieldResponse(projectField.getField()))
@@ -147,7 +142,8 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
         try {
             if (Files.isDirectory(filePath)) {
                 try (Stream<Path> paths = Files.list(filePath)) {
-                    List<SearchFileResponse> fileList = paths
+                    return paths
+                            .filter(f -> Files.isDirectory(f) || f.getFileName().toString().contains("."))  // 디렉토리는 포함, 파일은 이름에 점(.)이 있어야 포함
                             .filter(f -> !f.getFileName().toString().equals(GIT) &&
                                     !f.getFileName().toString().equals(DS_STORE) &&
                                     !f.getFileName().toString().startsWith(UNDERBAR) &&
@@ -155,14 +151,16 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
                                     !f.getFileName().toString().equals(PYCACHE) &&
                                     !f.getFileName().toString().contains(NODE_MODULES) &&
                                     !f.getFileName().toString().equals(IDEA) &&
-                                    !f.getFileName().toString().endsWith(PYC))
+                                    !f.getFileName().toString().endsWith(PYC) &&
+                                    !f.getFileName().toString().endsWith(IML) &&
+                                    !f.getFileName().toString().endsWith(OUT) &&
+                                    !f.getFileName().toString().endsWith(DSYM))
                             .map(this::mapToFileResponse)
                             .toList();
-                    return fileList;
                 }
             } else {
                 String content = extractFileContent(filePath);
-                return List.of(new SearchFileDetailResponse(filePath.getFileName().toString(), "file", content));
+                return List.of(new SearchFileDetailResponse(filePath.getFileName().toString(), FILE, content));
             }
         } catch (IOException e) {
             log.error("Error reading file: " + e.getMessage(), e);
@@ -181,13 +179,13 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
         if (Files.isDirectory(path)) {
             return new SearchDirectoryResponse(
                     path.getFileName().toString(),
-                    "directory",
+                    DIRECTORY,
                     null // 하위 파일 리스트는 상위 메소드에서 처리됨
             );
         } else {
             return new SearchFileDetailResponse(
                     path.getFileName().toString(),
-                    "file",
+                    FILE,
                     null // 내용은 상위 메소드에서 처리됨
             );
         }
@@ -198,8 +196,6 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
 
         // 파일 MIME 타입에 따른 처리
         if (contentType != null && contentType.equals("text/csv")) {
-            log.info("CSV 파일 처리 중: {}", filePath);
-
             // UTF-8 시도 후 실패하면 CP-949로 시도
             try {
                 return Files.readString(filePath);  // 기본적으로 UTF-8로 시도
