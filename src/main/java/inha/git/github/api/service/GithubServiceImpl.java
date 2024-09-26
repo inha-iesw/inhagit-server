@@ -245,8 +245,11 @@ public class GithubServiceImpl implements GithubService {
                         !f.name().endsWith(OUT) &&
                         !f.name().endsWith(IML) &&
                         !f.name().endsWith(DSYM) &&
-                        !isExecutableFile(f)
-                )
+                        !f.name().endsWith(GRADLE) &&
+                        !f.name().endsWith(OUT_) &&
+                        !f.name().endsWith(CLASS) &&
+                        !f.name().endsWith(BUILD) &&
+                        !f.name().endsWith(BAT))
                 .map(this::mapToFileResponse)
                 .toList();
         try {
@@ -360,13 +363,5 @@ public class GithubServiceImpl implements GithubService {
         }
     }
 
-    private boolean isExecutableFile(GithubItemResponse item) {
-        // 디렉토리가 아닌 파일 중 확장자가 없거나 실행 파일로 의심되는 파일
-        if (item.type().equals(DIR)) {
-            return false;  // 디렉토리는 실행 파일이 아니므로 제외
-        }
-        String fileName = item.name();
-        return fileName.endsWith(".exe") || fileName.endsWith(".sh") || fileName.endsWith(".bat") || !fileName.contains(".");  // 확장자가 없는 경우 실행 파일로 간주
-    }
 
 }
