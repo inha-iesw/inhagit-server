@@ -22,7 +22,7 @@ public class ProjectReplyComment extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 1000)
     private String contents;
 
     @Column(nullable = false, name = "like_count")
