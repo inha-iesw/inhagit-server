@@ -28,15 +28,15 @@ public class Question extends BaseEntity {
     private Integer id;
 
     @Setter
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 200)
     private String title;
 
     @Setter
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 3000)
     private String contents;
 
     @Setter
-    @Column(nullable = false, length = 50, name = "subject_name")
+    @Column(nullable = false, length = 200, name = "subject_name")
     private String subjectName;
 
     @Column(nullable = false, name = "like_count")

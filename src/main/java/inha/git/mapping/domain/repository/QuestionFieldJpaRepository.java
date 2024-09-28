@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -22,4 +23,6 @@ public interface QuestionFieldJpaRepository extends JpaRepository<QuestionField,
     void deleteByQuestion(@Param("question") Question question);
 
     List<QuestionField> findByQuestion(Question question);
+
+    Optional<QuestionField> findByQuestionAndFieldId(Question question, Integer fieldId);
 }

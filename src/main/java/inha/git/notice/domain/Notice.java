@@ -23,10 +23,10 @@ public class Notice extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 200)
     private String title;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 3000)
     private String contents;
 
     @ManyToOne(fetch = FetchType.LAZY)

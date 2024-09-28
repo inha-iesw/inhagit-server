@@ -13,7 +13,6 @@ public record CompanySignupRequest(
         @EmailUnique
         @Email
         @ValidEmail
-        @ValidParameter
         @Schema(description = "유저 이메일", example = "ghkdrbgur13@gamil.com")
         String email,
 
