@@ -112,6 +112,7 @@ public class GithubServiceImpl implements GithubService {
 
             // 내가 소유한 레포지토리만 필터링
             List<GithubRepositoryResponse> githubRepositoryResponses = repositories.stream()
+                    .filter(repo -> !repo.isPrivate())  // 퍼블릭 레포지토리만 필터링
                     .filter(repo -> repo.getOwnerName().equals(username)) // 소유자가 현재 사용자와 같은지 확인
                     .sorted(Comparator.comparing(GHRepository::getId).reversed()) // 아이디 최신순으로 정렬
                     .map(githubMapper::toDto)
@@ -119,7 +120,7 @@ public class GithubServiceImpl implements GithubService {
 
             // 캐시가 없었으면, 데이터를 Redis에 캐싱
             log.info("Github 레포지토리 목록을 Redis에 저장합니다. - 사용자: {}", user.getName());
-            redisProvider.setDataExpire(cacheKey, toJson(githubRepositoryResponses), 600); // 5분 캐싱
+            redisProvider.setDataExpire(cacheKey, toJson(githubRepositoryResponses), 60); // 1분 동안 캐시 유지
             return githubRepositoryResponses;
         } catch (IOException e) {
             log.error("Github 레포지토리 목록을 가져오는데 실패했습니다. - 사용자: {} 에러메시지: {} ", user.getName(), e.getMessage());
