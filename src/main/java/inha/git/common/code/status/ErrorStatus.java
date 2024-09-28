@@ -60,7 +60,7 @@ public enum ErrorStatus implements BaseErrorCode {
     FILE_NOT_FOUND(HttpStatus.BAD_REQUEST, "FILE4002", "파일을 찾을 수 없습니다."),
     FILE_NOT_ZIP(HttpStatus.BAD_REQUEST, "FILE4003", "zip 파일만 업로드 가능합니다."),
     FILE_MAX_FILES(HttpStatus.BAD_REQUEST, "FILE4004", "압축 파일 내의 파일 수는 100개 이하로 제한됩니다."),
-    FILE_MAX_SIZE(HttpStatus.BAD_REQUEST, "FILE4005", "압축 파일의 총 크기는 200MB 이하로 제한됩니다."),
+    FILE_MAX_SIZE(HttpStatus.BAD_REQUEST, "FILE4005", "압축 파일의 총 크기는 20MB 이하로 제한됩니다."),
     FILE_DELETE_FAIL(HttpStatus.BAD_REQUEST, "FILE4006", "파일 삭제에 실패하였습니다."),
     FILE_COMPRESS_FAIL(HttpStatus.BAD_REQUEST, "FILE4007", "파일 압축에 실패하였습니다."),
     FILE_INVALID_TYPE(HttpStatus.BAD_REQUEST, "FILE4008", "지원하지 않는 파일 형식입니다."),
