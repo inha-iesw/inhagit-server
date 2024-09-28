@@ -262,7 +262,7 @@ public class ProjectServiceImpl implements ProjectService {
     private String[] storeAndUnzipFile(MultipartFile file) {
         log.info("파일 저장 및 압축 해제");
         String zipFilePath = FilePath.storeFile(file, PROJECT_ZIP);
-        String folderName = zipFilePath.substring(zipFilePath.lastIndexOf("/") + 1, zipFilePath.lastIndexOf(".zip"));
+        String folderName = zipFilePath.substring(zipFilePath.lastIndexOf("/") + 1, zipFilePath.toLowerCase().lastIndexOf(ZIP));
         UnZip.unzipFile(BASE_DIR_SOURCE + zipFilePath, BASE_DIR_SOURCE + PROJECT + '/' + folderName);
         return new String[] { zipFilePath, folderName };
     }
