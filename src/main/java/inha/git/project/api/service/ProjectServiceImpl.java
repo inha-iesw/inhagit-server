@@ -125,31 +125,72 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectResponse updateProject(User user, Integer projectIdx, UpdateProjectRequest updateProjectRequest, MultipartFile file) {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-        if(!project.getUser().getId().equals(user.getId()) && !user.getRole().equals(Role.ADMIN)) {
+        if (!project.getUser().getId().equals(user.getId()) && !user.getRole().equals(Role.ADMIN)) {
             log.error("프로젝트 수정 권한이 없습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
             throw new BaseException(PROJECT_NOT_AUTHORIZED);
         }
+        log.info(updateProjectRequest.fieldIdxList().toString());
+
+        // 기존 필드 목록과 새로운 필드 목록을 비교하여 추가 및 삭제 항목을 결정
         List<Field> originFields = project.getProjectFields().stream()
                 .map(ProjectField::getField)
                 .toList();
-        projectFieldJpaRepository.deleteByProject(project);
+        List<Integer> originFieldIds = originFields.stream()
+                .map(Field::getId)
+                .toList();
+        List<Integer> newFieldIds = updateProjectRequest.fieldIdxList();
+
+        List<Integer> fieldsToAdd = newFieldIds.stream()
+                .filter(fieldId -> !originFieldIds.contains(fieldId))
+                .toList();
+        List<Integer> fieldsToRemove = originFieldIds.stream()
+                .filter(fieldId -> !newFieldIds.contains(fieldId))
+                .toList();
+
+        boolean isFieldChanged = !fieldsToAdd.isEmpty() || !fieldsToRemove.isEmpty();
+
+        // 변경된 경우에만 필드 삭제 및 추가 처리
+        if (isFieldChanged) {
+            // 삭제해야 할 필드 삭제
+            fieldsToRemove.forEach(fieldId -> {
+                ProjectField projectField = projectFieldJpaRepository.findByProjectAndFieldId(project, fieldId)
+                        .orElseThrow(() -> new BaseException(FIELD_NOT_FOUND));
+                projectFieldJpaRepository.delete(projectField);
+            });
+
+            // 필드 추가
+            List<ProjectField> projectFieldsToAdd = createAndSaveProjectFields(fieldsToAdd, project);
+            projectFieldJpaRepository.saveAll(projectFieldsToAdd);
+        }
+
         Semester originSemester = project.getSemester();
         Semester semester = semesterJpaRepository.findByIdAndState(updateProjectRequest.semesterIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
         projectMapper.updateProjectRequestToProject(updateProjectRequest, project, semester);
         Project savedProject = projectJpaRepository.saveAndFlush(project);
-        if(project.getRepoName() != null) {
-            statisticsService.decreaseCount(user, originFields, originSemester,  8);
-        }
-        else {
-            statisticsService.decreaseCount(user, originFields, originSemester,  1);
+
+        // 필드나 학기가 변경된 경우에만 통계 감소/증가 처리
+        boolean isSemesterChanged = !originSemester.getId().equals(semester.getId());
+
+        if (isFieldChanged || isSemesterChanged) {
+            if (project.getRepoName() != null) {
+                statisticsService.decreaseCount(user, originFields, originSemester, 8);
+            } else {
+                statisticsService.decreaseCount(user, originFields, originSemester, 1);
+            }
+
+            List<Field> updatedFields = project.getProjectFields().stream()
+                    .map(ProjectField::getField)
+                    .toList();
+
+            if (project.getRepoName() != null) {
+                statisticsService.increaseCount(user, updatedFields, semester, 8);
+            } else {
+                statisticsService.increaseCount(user, updatedFields, semester, 1);
+            }
         }
 
-        List<ProjectField> projectFields = createAndSaveProjectFields(updateProjectRequest.fieldIdxList(), savedProject);
-        List<Field> fields = projectFieldJpaRepository.saveAll(projectFields).stream()
-                .map(ProjectField::getField) // ProjectField에서 Field 객체만 추출
-                .toList();
-        if(project.getRepoName() == null) {
+        if (project.getRepoName() == null) {
             ProjectUpload findProjectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
                     .orElseThrow(() -> new BaseException(PROJECT_UPLOAD_NOT_FOUND));
 
@@ -174,16 +215,10 @@ public class ProjectServiceImpl implements ProjectService {
             }
         }
 
-        if(project.getRepoName() != null) {
-            statisticsService.increaseCount(user, fields, semester,  8);
-        }
-        else {
-            statisticsService.increaseCount(user, fields, semester,  1);
-        }
-
         log.info("프로젝트 수정 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), savedProject.getId());
         return projectMapper.projectToProjectResponse(savedProject);
     }
+
 
     /**
      * 프로젝트 삭제

@@ -148,22 +148,58 @@ public class QuestionServiceImpl implements QuestionService {
             log.error("질문 수정 권한 없음 - 사용자: {} 질문 ID: {}", user.getName(), questionIdx);
             throw new BaseException(QUESTION_NOT_AUTHORIZED);
         }
+
+        // 기존 필드 목록과 새로운 필드 목록을 비교하여 추가 및 삭제 항목을 결정
         List<Field> originFields = question.getQuestionFields().stream()
                 .map(QuestionField::getField)
                 .toList();
-        questionFieldJpaRepository.deleteByQuestion(question);
+        List<Integer> originFieldIds = originFields.stream()
+                .map(Field::getId)
+                .toList();
+        List<Integer> newFieldIds = updateQuestionRequest.fieldIdxList();
+
+        List<Integer> fieldsToAdd = newFieldIds.stream()
+                .filter(fieldId -> !originFieldIds.contains(fieldId))
+                .toList();
+        List<Integer> fieldsToRemove = originFieldIds.stream()
+                .filter(fieldId -> !newFieldIds.contains(fieldId))
+                .toList();
+
+        boolean isFieldChanged = !fieldsToAdd.isEmpty() || !fieldsToRemove.isEmpty();
+
+        // 변경된 경우에만 필드 삭제 및 추가 처리
+        if (isFieldChanged) {
+            // 삭제해야 할 필드 삭제
+            fieldsToRemove.forEach(fieldId -> {
+                QuestionField questionField = questionFieldJpaRepository.findByQuestionAndFieldId(question, fieldId)
+                        .orElseThrow(() -> new BaseException(FIELD_NOT_FOUND));
+                questionFieldJpaRepository.delete(questionField);
+            });
+
+            // 필드 추가
+            List<QuestionField> questionFieldsToAdd = createAndSaveQuestionFields(fieldsToAdd, question);
+            questionFieldJpaRepository.saveAll(questionFieldsToAdd);
+        }
+
         Semester originSemester = question.getSemester();
         Semester semester = semesterJpaRepository.findByIdAndState(updateQuestionRequest.semesterIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
         questionMapper.updateQuestionRequestToQuestion(updateQuestionRequest, question, semester);
         Question savedQuestion = questionJpaRepository.save(question);
-        statisticsService.decreaseCount(user, originFields, originSemester, 2);
 
-        List<QuestionField> questionFields = createAndSaveQuestionFields(updateQuestionRequest.fieldIdxList(), savedQuestion);
-        List<Field> fields = questionFieldJpaRepository.saveAll(questionFields).stream()
-                .map(QuestionField::getField)
-                .toList();
-        statisticsService.increaseCount(user, fields, semester, 2);
+        // 필드나 학기가 변경된 경우에만 통계 감소/증가 처리
+        boolean isSemesterChanged = !originSemester.getId().equals(semester.getId());
+
+        if (isFieldChanged || isSemesterChanged) {
+            statisticsService.decreaseCount(user, originFields, originSemester, 2);
+
+            List<Field> updatedFields = question.getQuestionFields().stream()
+                    .map(QuestionField::getField)
+                    .toList();
+
+            statisticsService.increaseCount(user, updatedFields, semester, 2);
+        }
+
         log.info("질문 수정 성공 - 사용자: {} 질문 ID: {}", user.getName(), savedQuestion.getId());
         return questionMapper.questionToQuestionResponse(savedQuestion);
     }
