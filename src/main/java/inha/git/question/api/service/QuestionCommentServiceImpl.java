@@ -15,6 +15,7 @@ import inha.git.question.domain.repository.QuestionJpaRepository;
 import inha.git.question.domain.repository.QuestionReplyCommentJpaRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
+import inha.git.utils.IdempotentProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,7 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
     private final QuestionCommentLikeJpaRepository questionCommentLikeJpaRepository;
     private final QuestionReplyCommentLikeJpaRepository questionReplyCommentLikeJpaRepository;
     private final QuestionMapper questionMapper;
+    private final IdempotentProvider idempotentProvider;
 
     /**
      * 특정 질문 댓글 전체 조회
@@ -76,6 +78,10 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      */
     @Override
     public CommentResponse createComment(User user, CreateCommentRequest createCommentRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("createComment", user.getId().toString(), user.getName(), createCommentRequest.contents()));
+
+
         Question question = questionJpaRepository.findByIdAndState(createCommentRequest.questionIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
         QuestionComment questionComment = questionMapper.toQuestionComment(createCommentRequest, user, question);
@@ -138,6 +144,10 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      */
     @Override
     public ReplyCommentResponse createReplyComment(User user, CreateReplyCommentRequest createReplyCommentRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("createReplyComment", user.getId().toString(), user.getName(), createReplyCommentRequest.contents()));
+
+
         QuestionComment questionComment = questionCommentJpaRepository.findByIdAndState(createReplyCommentRequest.commentIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_COMMENT_NOT_FOUND));
         QuestionReplyComment questionReplyComment = questionMapper.toQuestionReplyComment(createReplyCommentRequest, user, questionComment);
@@ -199,6 +209,10 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      */
     @Override
     public String questionCommentLike(User user, CommentLikeRequest commentLikeRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("questionCommentLike", user.getId().toString(), user.getName(), commentLikeRequest.idx().toString()));
+
+
         QuestionComment questionComment = getQuestionComment(commentLikeRequest);
         validLike(questionComment, user, questionCommentLikeJpaRepository.existsByUserAndQuestionComment(user, questionComment));
         questionCommentLikeJpaRepository.save(questionMapper.createQuestionCommentLike(user, questionComment));
@@ -216,6 +230,9 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      */
     @Override
     public String questionCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("questionCommentLikeCancel", user.getId().toString(), user.getName(), commentLikeRequest.idx().toString()));
+
         QuestionComment questionComment = getQuestionComment(commentLikeRequest);
         boolean commentLikeJpaRepository = questionCommentLikeJpaRepository.existsByUserAndQuestionComment(user, questionComment);
         validLikeCancel(questionComment, user, commentLikeJpaRepository);
@@ -234,6 +251,9 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      */
     @Override
     public String questionReplyCommentLike(User user, CommentLikeRequest commentLikeRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("questionReplyCommentLike", user.getId().toString(), user.getName(), commentLikeRequest.idx().toString()));
+
         QuestionReplyComment questionReplyComment = questionReplyCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_COMMENT_REPLY_NOT_FOUND));
         validReplyLike(questionReplyComment, user, questionReplyCommentLikeJpaRepository.existsByUserAndQuestionReplyComment(user, questionReplyComment));
@@ -252,6 +272,9 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      */
     @Override
     public String questionReplyCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("questionReplyCommentLikeCancel", user.getId().toString(), user.getName(), commentLikeRequest.idx().toString()));
+
         QuestionReplyComment questionReplyComment = questionReplyCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_COMMENT_REPLY_NOT_FOUND));
         boolean commentLikeJpaRepository = questionReplyCommentLikeJpaRepository.existsByUserAndQuestionReplyComment(user, questionReplyComment);

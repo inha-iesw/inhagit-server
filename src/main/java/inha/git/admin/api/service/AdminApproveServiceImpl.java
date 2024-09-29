@@ -9,12 +9,14 @@ import inha.git.user.domain.enums.Role;
 import inha.git.user.domain.repository.CompanyJpaRepository;
 import inha.git.user.domain.repository.ProfessorJpaRepository;
 import inha.git.user.domain.repository.UserJpaRepository;
+import inha.git.utils.IdempotentProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
@@ -28,6 +30,8 @@ public class AdminApproveServiceImpl implements AdminApproveService {
     private final UserJpaRepository userJpaRepository;
     private final CompanyJpaRepository companyJpaRepository;
     private final ProfessorJpaRepository professorJpaRepository;
+    private final IdempotentProvider idempotentProvider;
+
 
     /**
      * 관리자 권한 부여
@@ -37,6 +41,8 @@ public class AdminApproveServiceImpl implements AdminApproveService {
      */
     @Override
     public String promotion(User admin, AdminPromotionRequest adminPromotionRequest) {
+        idempotentProvider.isValidIdempotent(List.of("adminPromotionRequest", adminPromotionRequest.userIdx().toString()));
+
         User user = getUser(adminPromotionRequest.userIdx());
         if(user.getRole() == Role.ADMIN) {
             log.error("이미 관리자입니다. - 관리자: {}, 승격할 유저: {}", user.getName(), adminPromotionRequest.userIdx());
@@ -55,6 +61,8 @@ public class AdminApproveServiceImpl implements AdminApproveService {
      */
     @Override
     public String demotion(User admin, AdminDemotionRequest adminDemotionRequest) {
+        idempotentProvider.isValidIdempotent(List.of("adminDemotionRequest", adminDemotionRequest.userIdx().toString()));
+
         User user = getUser(adminDemotionRequest.userIdx());
         if(user.getRole() != Role.ADMIN) {
             log.error("관리자가 아닙니다. - 관리자: {}, 박탈할 유저: {}", user.getName(), adminDemotionRequest.userIdx());
@@ -81,6 +89,8 @@ public class AdminApproveServiceImpl implements AdminApproveService {
      */
     @Override
     public String acceptProfessor(User admin, ProfessorAcceptRequest professorAcceptRequest) {
+        idempotentProvider.isValidIdempotent(List.of("professorAcceptRequest", professorAcceptRequest.userIdx().toString()));
+
         User user = getUser(professorAcceptRequest.userIdx());
         if(user.getRole() != Role.PROFESSOR) {
             log.error("교수가 아닙니다. - 관리자: {}, 승인할 유저: {}", user.getName(), professorAcceptRequest.userIdx());
@@ -99,6 +109,8 @@ public class AdminApproveServiceImpl implements AdminApproveService {
 
     @Override
     public String cancelProfessor(User admin, ProfessorCancelRequest professorCancelRequest) {
+        idempotentProvider.isValidIdempotent(List.of("professorCancelRequest", professorCancelRequest.userIdx().toString()));
+
         User user = getUser(professorCancelRequest.userIdx());
         validProfessor(professorCancelRequest, user);
         Professor professor = getProfessor(user);
@@ -122,6 +134,8 @@ public class AdminApproveServiceImpl implements AdminApproveService {
      */
     @Override
     public String acceptCompany(User admin, CompanyAcceptRequest companyAcceptRequest) {
+        idempotentProvider.isValidIdempotent(List.of("companyAcceptRequest", companyAcceptRequest.userIdx().toString()));
+
         User user = getUser(companyAcceptRequest.userIdx());
         if(user.getRole() != Role.COMPANY) {
             log.info("기업이 아닙니다. - 관리자: {}, 승인할 유저: {}", user.getName(), companyAcceptRequest.userIdx());
@@ -139,8 +153,17 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         return companyAcceptRequest.userIdx() + ": 기업 승인 완료";
     }
 
+    /**
+     * 기업 승인 취소
+     *
+     * @param companyCancelRequest 기업 승인 취소 요청
+     * @return 성공 메시지
+     */
     @Override
     public String cancelCompany(User admin, CompanyCancelRequest companyCancelRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("companyCancelRequest", companyCancelRequest.userIdx().toString()));
+
         User user = getUser(companyCancelRequest.userIdx());
         if(user.getRole() != Role.COMPANY) {
             log.error("기업이 아닙니다. - 관리자: {}, 승인할 유저: {}", user.getName(), companyCancelRequest.userIdx());
@@ -166,6 +189,8 @@ public class AdminApproveServiceImpl implements AdminApproveService {
      */
     @Override
     public String promotionStudent(User admin, AssistantPromotionRequest assistantPromotionRequest) {
+        idempotentProvider.isValidIdempotent(List.of("assistantPromotionRequest", assistantPromotionRequest.userIdx().toString()));
+
         User user = getUser(assistantPromotionRequest.userIdx());
         if(user.getRole() != Role.USER) {
             log.error("학생이 아닙니다. - 관리자: {}, 승인할 유저: {}", user.getName(), assistantPromotionRequest.userIdx());
@@ -184,6 +209,8 @@ public class AdminApproveServiceImpl implements AdminApproveService {
      */
     @Override
     public String demotionStudent(User admin, AssistantDemotionRequest assistantDemotionRequest) {
+        idempotentProvider.isValidIdempotent(List.of("assistantDemotionRequest", assistantDemotionRequest.userIdx().toString()));
+
         User user = getUser(assistantDemotionRequest.userIdx());
         if(user.getRole() != Role.ASSISTANT) {
             log.error("조교가 아닙니다. - 관리자: {}, 승인할 유저: {}", user.getName(), assistantDemotionRequest.userIdx());
@@ -202,6 +229,9 @@ public class AdminApproveServiceImpl implements AdminApproveService {
      */
     @Override
     public String blockUser(User admin, UserBlockRequest userBlockRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("userBlockRequest", userBlockRequest.userIdx().toString()));
+
         User user = getUser(userBlockRequest.userIdx());
         if(user.getRole() == Role.ADMIN) {
             log.error("관리자는 차단할 수 없습니다. - 관리자: {}, 차단할 유저: {}", user.getName(), userBlockRequest.userIdx());
@@ -224,6 +254,10 @@ public class AdminApproveServiceImpl implements AdminApproveService {
      */
     @Override
     public String unblockUser(User admin, UserUnblockRequest userUnblockRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("userUnblockRequest", userUnblockRequest.userIdx().toString()));
+
+
         User user = getUser(userUnblockRequest.userIdx());
         if(user.getBlockedAt() == null) {
             log.error("이미 차단 해제된 유저입니다. - 관리자: {}, 차단할 유저: {}", user.getName(), userUnblockRequest.userIdx());

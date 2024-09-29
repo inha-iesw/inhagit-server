@@ -19,6 +19,7 @@ import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.api.service.StatisticsService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
+import inha.git.utils.IdempotentProvider;
 import inha.git.utils.file.FilePath;
 import inha.git.utils.file.UnZip;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +53,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final FieldJpaRepository fieldJpaRepository;
     private final ProjectMapper projectMapper;
     private final StatisticsService statisticsService;
+    private final IdempotentProvider idempotentProvider;
 
     /**
      * 프로젝트 생성
@@ -64,6 +66,9 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     public ProjectResponse createProject(User user, CreateProjectRequest createProjectRequest, MultipartFile file) {
+
+        idempotentProvider.isValidIdempotent(List.of("createProject", user.getName(), user.getId().toString(), createProjectRequest.title(), createProjectRequest.contents(), createProjectRequest.subject()));
+
         String[] paths = storeAndUnzipFile(file);
         String zipFilePath = paths[0];
         String folderName = paths[1];
@@ -97,6 +102,8 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     public ProjectResponse createGithubProject(User user, CreateGithubProjectRequest createGithubProjectRequest) {
+        idempotentProvider.isValidIdempotent(List.of("createGithubProject", user.getName(), user.getId().toString(), createGithubProjectRequest.title(), createGithubProjectRequest.contents(), createGithubProjectRequest.subject()));
+
         Semester semester = semesterJpaRepository.findByIdAndState(createGithubProjectRequest.semesterIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
         Project project = projectMapper.createGithubProjectRequestToProject(createGithubProjectRequest, user, semester);

@@ -96,6 +96,9 @@ public class Constant {
     //.bat
     public final static String BAT = ".bat";
     public final static String CLASS = ".class";
+    //IDEMPOTENT
+    public final static String IDEMPOTENT = "IDEMPOTENT";
+    public final static Integer TIME_LIMIT = 3;
 
 
 

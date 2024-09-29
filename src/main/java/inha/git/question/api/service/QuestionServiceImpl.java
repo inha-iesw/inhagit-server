@@ -27,6 +27,7 @@ import inha.git.semester.mapper.SemesterMapper;
 import inha.git.statistics.api.service.StatisticsService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
+import inha.git.utils.IdempotentProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -60,6 +61,7 @@ public class QuestionServiceImpl implements QuestionService {
     private final FieldJpaRepository fieldJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
     private final QuestionQueryRepository questionQueryRepository;
+    private final IdempotentProvider idempotentProvider;
     private final StatisticsService statisticsService;
 
     /**
@@ -118,6 +120,10 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     @Transactional
     public QuestionResponse createQuestion(User user, CreateQuestionRequest createQuestionRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("createQuestion", user.getName(), user.getId().toString(), createQuestionRequest.title(), createQuestionRequest.contents(), createQuestionRequest.subject()));
+
+
         Semester semester = semesterJpaRepository.findByIdAndState(createQuestionRequest.semesterIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
         Question question = questionMapper.createQuestionRequestToQuestion(createQuestionRequest, user, semester);
@@ -241,6 +247,10 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     @Transactional
     public String createQuestionLike(User user, LikeRequest likeRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("createQuestionLike", user.getId().toString(), user.getName(), likeRequest.idx().toString()));
+
+
         Question question = questionJpaRepository.findByIdAndState(likeRequest.idx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
         validLike(question, user, questionLikeJpaRepository.existsByUserAndQuestion(user, question));
@@ -260,6 +270,9 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     @Transactional
     public String questionLikeCancel(User user, LikeRequest likeRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("questionLikeCancel", user.getId().toString(), user.getName(), likeRequest.idx().toString()));
+
         Question question = questionJpaRepository.findByIdAndState(likeRequest.idx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
         validLikeCancel(question, user, questionLikeJpaRepository.existsByUserAndQuestion(user, question));

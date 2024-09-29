@@ -13,6 +13,7 @@ import inha.git.notice.domain.repository.NoticeQueryRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.user.domain.repository.UserJpaRepository;
+import inha.git.utils.IdempotentProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.Constant.CREATE_AT;
@@ -39,6 +42,8 @@ public class NoticeServiceImpl implements NoticeService {
     private final NoticeMapper noticeMapper;
     private final NoticeQueryRepository noticeQueryRepository;
     private final UserJpaRepository userJpaRepository;
+    private final IdempotentProvider idempotentProvider;
+
 
     /**
      * 공지 조회
@@ -71,6 +76,8 @@ public class NoticeServiceImpl implements NoticeService {
      */
     @Override
     public String createNotice(User user, CreateNoticeRequest createNoticeRequest) {
+        idempotentProvider.isValidIdempotent(List.of("createNoticeRequest", user.getId().toString(), user.getName(), createNoticeRequest.title(), createNoticeRequest.contents()));
+
         Notice notice = noticeMapper.createNoticeRequestToNotice(user, createNoticeRequest);
         log.info("공지 생성 성공 - 사용자: {} 공지 제목: {}", user.getName(), notice.getTitle());
         return noticeJpaRepository.save(notice).getTitle() + " 공지가 생성되었습니다.";

@@ -10,10 +10,13 @@ import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.user.domain.User;
+import inha.git.utils.IdempotentProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
@@ -32,6 +35,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     private final ProjectLikeJpaRepository projectLikeJpaRepository;
     private final FoundingRecommendJpaRepository foundingRecommendJpaRepository;
     private final RegistrationRecommendJpaRepository registrationRecommendJpaRepository;
+    private final IdempotentProvider idempotentProvider;
 
 
     /**
@@ -43,6 +47,10 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
      */
     @Override
     public String createProjectFoundingRecommend(User user, RecommendRequest recommendRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("createProjectFoundingRecommend", user.getId().toString(), user.getName(), recommendRequest.idx().toString()));
+
+
         Project project = getProject(recommendRequest);
         validRecommend(project, user, foundingRecommendJpaRepository.existsByUserAndProject(user, project));
         foundingRecommendJpaRepository.save(projectMapper.createProjectFoundingRecommend(user, project));
@@ -60,6 +68,9 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
      */
     @Override
     public String createProjectLike(User user, RecommendRequest recommendRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("createProjectLike", user.getId().toString(), user.getName(), recommendRequest.idx().toString()));
+
         Project project = getProject(recommendRequest);
         validRecommend(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
         projectLikeJpaRepository.save(projectMapper.createProjectLike(user, project));
@@ -77,6 +88,10 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
      */
     @Override
     public String createProjectRegistrationRecommend(User user, RecommendRequest recommendRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("createProjectRegistrationRecommend", user.getId().toString(), user.getName(), recommendRequest.idx().toString()));
+
+
         Project project = getProject(recommendRequest);
         validRecommend(project, user, registrationRecommendJpaRepository.existsByUserAndProject(user, project));
         registrationRecommendJpaRepository.save(projectMapper.createProjectRegistrationRecommend(user, project));
@@ -94,6 +109,9 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
      */
     @Override
     public String cancelProjectFoundingRecommend(User user, RecommendRequest recommendRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("cancelProjectFoundingRecommend", user.getId().toString(), user.getName(), recommendRequest.idx().toString()));
+
         Project project = getProject(recommendRequest);
         validRecommendCancel(project, user, foundingRecommendJpaRepository.existsByUserAndProject(user, project));
         foundingRecommendJpaRepository.deleteByUserAndProject(user, project);
@@ -111,6 +129,10 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
      */
     @Override
     public String cancelProjectLike(User user, RecommendRequest recommendRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("cancelProjectLike", user.getId().toString(), user.getName(), recommendRequest.idx().toString()));
+
+
         Project project = getProject(recommendRequest);
         validRecommendCancel(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
         projectLikeJpaRepository.deleteByUserAndProject(user, project);
@@ -128,6 +150,10 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
      */
     @Override
     public String cancelProjectRegistrationRecommend(User user, RecommendRequest recommendRequest) {
+
+        idempotentProvider.isValidIdempotent(List.of("cancelProjectRegistrationRecommend", user.getId().toString(), user.getName(), recommendRequest.idx().toString()));
+
+
         Project project = getProject(recommendRequest);
         validRecommendCancel(project, user, registrationRecommendJpaRepository.existsByUserAndProject(user, project));
         registrationRecommendJpaRepository.deleteByUserAndProject(user, project);
