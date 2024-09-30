@@ -38,7 +38,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
@@ -149,11 +152,11 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     @Transactional
     public QuestionResponse updateQuestion(User user, Integer questionIdx, UpdateQuestionRequest updateQuestionRequest) {
-
         idempotentProvider.isValidIdempotent(List.of("updateQuestion", user.getName(), user.getId().toString(), updateQuestionRequest.title(), updateQuestionRequest.contents(), updateQuestionRequest.subject()));
 
         Question question = questionJpaRepository.findByIdAndState(questionIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
+
         if (!question.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
             log.error("질문 수정 권한 없음 - 사용자: {} 질문 ID: {}", user.getName(), questionIdx);
             throw new BaseException(QUESTION_NOT_AUTHORIZED);
@@ -176,25 +179,50 @@ public class QuestionServiceImpl implements QuestionService {
         // 질문 정보 업데이트
         questionMapper.updateQuestionRequestToQuestion(updateQuestionRequest, question, newSemester);
 
-        // 필드 정보 업데이트
-        questionFieldJpaRepository.deleteByQuestion(question);
-        List<QuestionField> newQuestionFields = newFields.stream()
-                .map(field -> new QuestionField(new QuestionFieldId(questionIdx, field.getId()), question, field))
-                .toList();
-        questionFieldJpaRepository.saveAll(newQuestionFields);
+        // 필드 정보 업데이트 (최적화된 로직)
+        Set<Integer> existingFieldIds = question.getQuestionFields().stream()
+                .map(qf -> qf.getField().getId())
+                .collect(Collectors.toSet());
+
+        Set<Integer> newFieldIdSet = new HashSet<>(newFieldIds);
+
+
+        // 삭제해야 할 분야 처리
+        existingFieldIds.stream()
+                .filter(id -> !newFieldIdSet.contains(id))
+                .forEach(id -> {
+                    QuestionField questionField = question.getQuestionFields().stream()
+                            .filter(qf -> qf.getField().getId().equals(id))
+                            .findFirst()
+                            .orElse(null);
+                    if (questionField != null) {
+                        question.getQuestionFields().remove(questionField);
+                        questionFieldJpaRepository.delete(questionField);
+                    }
+                });
+
+        // 새로 추가해야 할 분야 처리
+        newFieldIdSet.stream()
+                .filter(id -> !existingFieldIds.contains(id))
+                .forEach(id -> {
+                    Field field = fieldJpaRepository.findById(id)
+                            .orElseThrow(() -> new BaseException(FIELD_NOT_FOUND));
+                    QuestionField newQuestionField = new QuestionField(new QuestionFieldId(questionIdx, id), question, field);
+                    question.getQuestionFields().add(newQuestionField);
+                    questionFieldJpaRepository.save(newQuestionField);
+                });
 
         Question savedQuestion = questionJpaRepository.save(question);
+
         // 통계 업데이트
         // 이전 상태에 대한 통계 감소
         statisticsService.decreaseCount(user, originFields, originSemester, 2);
-
         // 새로운 상태에 대한 통계 증가
         statisticsService.increaseCount(user, newFields, newSemester, 2);
 
         log.info("질문 수정 성공 - 사용자: {} 질문 ID: {}", user.getName(), savedQuestion.getId());
         return questionMapper.questionToQuestionResponse(savedQuestion);
     }
-
     /**
      * 질문 삭제
      *

@@ -31,7 +31,10 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
@@ -131,11 +134,11 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     @Transactional
     public ProjectResponse updateProject(User user, Integer projectIdx, UpdateProjectRequest updateProjectRequest, MultipartFile file) {
-
         idempotentProvider.isValidIdempotent(List.of("updateProject", user.getName(), user.getId().toString(), updateProjectRequest.title(), updateProjectRequest.contents(), updateProjectRequest.subject()));
 
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+
         if (!project.getUser().getId().equals(user.getId()) && !user.getRole().equals(Role.ADMIN)) {
             log.error("프로젝트 수정 권한이 없습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
             throw new BaseException(PROJECT_NOT_AUTHORIZED);
@@ -158,14 +161,51 @@ public class ProjectServiceImpl implements ProjectService {
         // 프로젝트 정보 업데이트
         projectMapper.updateProjectRequestToProject(updateProjectRequest, project, newSemester);
 
-        // 필드 정보 업데이트
-        projectFieldJpaRepository.deleteByProject(project);
-        List<ProjectField> newProjectFields = newFields.stream()
-                .map(field -> new ProjectField(new ProjectFieldId(projectIdx, field.getId()), project, field))
+        // 필드 정보 업데이트 (디버깅을 위한 로깅 추가)
+        Set<Integer> existingFieldIds = project.getProjectFields().stream()
+                .map(pf -> pf.getField().getId())
+                .collect(Collectors.toSet());
+
+
+        Set<Integer> newFieldIdSet = new HashSet<>(newFieldIds);
+
+        // 삭제해야 할 분야 처리
+        List<Integer> fieldsToRemove = existingFieldIds.stream()
+                .filter(id -> !newFieldIdSet.contains(id))
                 .toList();
-        projectFieldJpaRepository.saveAll(newProjectFields);
+
+
+        fieldsToRemove.forEach(id -> {
+            ProjectField projectField = project.getProjectFields().stream()
+                    .filter(pf -> pf.getField().getId().equals(id))
+                    .findFirst()
+                    .orElse(null);
+            if (projectField != null) {
+                project.getProjectFields().remove(projectField);
+                projectFieldJpaRepository.delete(projectField);
+                log.debug("필드 ID {} 삭제됨", id);
+            }
+        });
+
+        // 새로 추가해야 할 분야 처리
+        List<Integer> fieldsToAdd = newFieldIdSet.stream()
+                .filter(id -> !existingFieldIds.contains(id))
+                .toList();
+
+        fieldsToAdd.forEach(id -> {
+            Field field = fieldJpaRepository.findById(id)
+                    .orElseThrow(() -> new BaseException(FIELD_NOT_FOUND));
+            ProjectField newProjectField = new ProjectField(new ProjectFieldId(projectIdx, id), project, field);
+            project.getProjectFields().add(newProjectField);
+            projectFieldJpaRepository.save(newProjectField);
+        });
 
         Project savedProject = projectJpaRepository.saveAndFlush(project);
+
+        // 저장 후 프로젝트 필드 확인
+        List<Integer> finalFieldIds = savedProject.getProjectFields().stream()
+                .map(pf -> pf.getField().getId())
+                .toList();
 
         // 통계 업데이트
         boolean isRepoProject = project.getRepoName() != null;
@@ -183,17 +223,19 @@ public class ProjectServiceImpl implements ProjectService {
 
             String directoryName = findProjectUpload.getDirectoryName();
             String zipDirectoryName = findProjectUpload.getZipDirectoryName();
+
             if (file != null) {
                 String[] paths = storeAndUnzipFile(file);
                 String zipFilePath = paths[0];
                 String folderName = paths[1];
-
                 registerRollbackCleanup(zipFilePath, folderName);
 
                 projectMapper.updateProjectUpload(PROJECT_UPLOAD + folderName, zipFilePath, findProjectUpload);
                 projectUploadJpaRepository.save(findProjectUpload);
+
                 boolean isFileDeleted = FilePath.deleteFile(BASE_DIR_SOURCE_2 + zipDirectoryName);
                 boolean isDirDeleted = FilePath.deleteDirectory(BASE_DIR_SOURCE_2 + directoryName);
+
                 if (isFileDeleted && isDirDeleted) {
                     log.info("기존 파일과 디렉토리가 성공적으로 삭제되었습니다.");
                 } else {
