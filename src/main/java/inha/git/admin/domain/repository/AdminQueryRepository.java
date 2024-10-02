@@ -68,7 +68,7 @@ public class AdminQueryRepository {
                 .from(user)
                 .leftJoin(user.userDepartments, userDepartment)
                 .where(
-                        user.role.eq(Role.USER),
+                        user.role.eq(Role.USER).or(user.role.eq(Role.ASSISTANT)),
                         nameLike(search),
                         user.state.eq(State.ACTIVE)
                 )
