@@ -31,6 +31,10 @@ public record SearchQuestionsResponse(
         @NotNull
         @Schema(description = "좋아요 수", example = "1")
         Integer likeCount,
+
+        @NotNull
+        @Schema(description = "댓글 수", example = "1")
+        Integer commentCount,
         @NotNull
         List<SearchFieldResponse> fieldList,
         @NotNull

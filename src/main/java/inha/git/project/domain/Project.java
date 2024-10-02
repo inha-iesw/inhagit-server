@@ -55,6 +55,9 @@ public class Project extends BaseEntity {
     @Column(name = "project_patent_id")
     private Integer projectPatentId;
 
+    @Column(name = "comment_count")
+    private Integer commentCount = 0;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -87,5 +90,13 @@ public class Project extends BaseEntity {
 
     public void setProjectPatentId(Integer id) {
         this.projectPatentId = id;
+    }
+
+    public void increaseCommentCount() {
+        this.commentCount++;
+    }
+
+    public void decreaseCommentCount() {
+        this.commentCount--;
     }
 }
