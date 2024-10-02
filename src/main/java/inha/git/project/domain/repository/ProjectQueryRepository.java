@@ -74,6 +74,7 @@ public class ProjectQueryRepository {
                                 p.getSemester().getName()),
                         p.getSubjectName(),
                         p.getLikeCount(),
+                        p.getCommentCount(),
                         p.getProjectFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),
@@ -85,6 +86,7 @@ public class ProjectQueryRepository {
                                 p.getUser().getName()
 
                         )
+
                 ))
                 .toList();
         return new PageImpl<>(content, pageable, total);
@@ -128,6 +130,7 @@ public class ProjectQueryRepository {
                                 p.getSemester().getName()),
                         p.getSubjectName(),
                         p.getLikeCount(),
+                        p.getCommentCount(),
                         p.getProjectFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),
@@ -213,6 +216,7 @@ public class ProjectQueryRepository {
                                 p.getSemester().getName()),
                         p.getSubjectName(),
                         p.getLikeCount(),
+                        p.getCommentCount(),
                         p.getProjectFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),

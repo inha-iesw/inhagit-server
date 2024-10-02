@@ -93,6 +93,7 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         ProjectComment projectComment = projectMapper.toProjectComment(createCommentRequest, user, project);
         projectCommentJpaRepository.save(projectComment);
+        project.increaseCommentCount();
         log.info("프로젝트 댓글 생성 성공 - 사용자: {} 프로젝트 댓글 내용: {}", user.getName(), createCommentRequest.contents());
         return projectMapper.toCommentResponse(projectComment);
     }
@@ -137,6 +138,10 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         projectComment.setDeletedAt();
         projectComment.setState(INACTIVE);
         projectCommentJpaRepository.save(projectComment);
+
+        Project project = projectComment.getProject();
+        project.decreaseCommentCount();
+
         log.info("프로젝트 댓글 삭제 성공 - 사용자: {} 프로젝트 댓글 내용: {}", user.getName(), projectComment.getContents());
         return projectMapper.toCommentResponse(projectComment);
     }
@@ -157,6 +162,10 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
                 .orElseThrow(() -> new BaseException(PROJECT_COMMENT_NOT_FOUND));
         ProjectReplyComment projectReplyComment = projectMapper.toProjectReplyComment(createReplyCommentRequest, user, projectComment);
         projectReplyCommentJpaRepository.save(projectReplyComment);
+
+        Project project = projectComment.getProject();
+        project.increaseCommentCount();
+
         log.info("프로젝트 대댓글 생성 성공 - 사용자: {} 프로젝트 대댓글 내용: {}", user.getName(), createReplyCommentRequest.contents());
         return projectMapper.toReplyCommentResponse(projectReplyComment);
     }
@@ -201,6 +210,10 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         projectReplyComment.setDeletedAt();
         projectReplyComment.setState(INACTIVE);
         projectReplyCommentJpaRepository.save(projectReplyComment);
+
+        Project project = projectReplyComment.getProjectComment().getProject();
+        project.decreaseCommentCount();
+
         log.info("프로젝트 대댓글 삭제 성공 - 사용자: {} 프로젝트 대댓글 내용: {}", user.getName(), projectReplyComment.getContents());
         return projectMapper.toReplyCommentResponse(projectReplyComment);
     }
