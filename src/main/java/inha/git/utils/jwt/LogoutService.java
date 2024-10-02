@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -24,6 +25,9 @@ public class LogoutService implements LogoutHandler {
 
   private final JwtProvider jwtProvider;
   private final RedisProvider redisProvider;
+
+  @Value("${jwt.expiration}")
+  private Long expiration;
   /**
    * 사용자가 로그아웃할 때 실행되는 메서드.
    *
@@ -44,8 +48,9 @@ public class LogoutService implements LogoutHandler {
     }
     jwt = authHeader.substring(7);
     String username = jwtProvider.extractUsername(jwt);
-    log.info("username: {}", username);
+    log.info("사용자 {} 로그아웃 성공", username);
     redisProvider.deleteValueOps(username);
+    redisProvider.setDataExpire(jwt, jwt, expiration);
     SecurityContextHolder.clearContext();
   }
 }

@@ -2,7 +2,9 @@ package inha.git.utils.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import inha.git.common.code.ErrorReasonDTO;
+import inha.git.common.code.status.ErrorStatus;
 import inha.git.common.exceptions.BaseException;
+import inha.git.utils.RedisProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,6 +24,7 @@ import java.io.IOException;
 
 import static inha.git.common.Constant.HEADER_AUTHORIZATION;
 import static inha.git.common.Constant.TOKEN_PREFIX;
+import static inha.git.common.code.status.ErrorStatus.*;
 
 
 /**
@@ -35,6 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final UserDetailsService userDetailsService;
+    private final RedisProvider redisProvider;
 
     @Override
     protected void doFilterInternal(
@@ -60,9 +64,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         jwt = authHeader.substring(7);
 
+
+
         try {
             // JWT에서 username 추출
             username = jwtProvider.extractUsername(jwt);
+
+            if (redisProvider.getValueOps(jwt) != null) {
+                log.error("사용자 {} 로그아웃된 토큰으로 시도하였습니다: {}, ", username, jwt);
+                throw new BaseException(INVALID_TOKEN);
+            }
 
             // 토큰이 유효하고 인증이 아직 이루어지지 않은 경우
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
