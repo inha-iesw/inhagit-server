@@ -44,6 +44,7 @@ public interface QuestionMapper {
     @Mapping(target = "user", source = "user")
     @Mapping(target = "semester", source = "semester")
     @Mapping(target = "likeCount", constant = "0")
+    @Mapping(target = "commentCount", constant = "0")
     Question createQuestionRequestToQuestion(CreateQuestionRequest createQuestionRequest, User user, Semester semester);
 
     /**

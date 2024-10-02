@@ -42,6 +42,9 @@ public class Question extends BaseEntity {
     @Column(nullable = false, name = "like_count")
     private Integer likeCount = 0;
 
+    @Column(name = "comment_count")
+    private Integer commentCount = 0;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -56,5 +59,13 @@ public class Question extends BaseEntity {
 
     public void setLikeCount(int likeCount) {
         this.likeCount = likeCount;
+    }
+
+    public void increaseCommentCount() {
+        this.commentCount++;
+    }
+
+    public void decreaseCommentCount() {
+        this.commentCount--;
     }
 }

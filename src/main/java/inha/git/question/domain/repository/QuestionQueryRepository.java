@@ -62,6 +62,7 @@ public class QuestionQueryRepository {
                                 q.getSemester().getName()
                         ),
                         q.getLikeCount(),
+                        q.getCommentCount(),
                         q.getQuestionFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),
@@ -110,6 +111,7 @@ public class QuestionQueryRepository {
                                 q.getSemester().getName()
                         ),
                         q.getLikeCount(),
+                        q.getCommentCount(),
                         q.getQuestionFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),
@@ -191,6 +193,7 @@ public class QuestionQueryRepository {
                                 q.getSemester().getName()
                         ),
                         q.getLikeCount(),
+                        q.getCommentCount(),
                         q.getQuestionFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),
