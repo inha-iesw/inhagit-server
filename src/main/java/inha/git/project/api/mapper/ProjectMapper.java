@@ -292,6 +292,7 @@ public interface ProjectMapper {
     @Mapping(target = "likeCount", constant = "0")
     @Mapping(target = "foundingRecommendCount", constant = "0")
     @Mapping(target = "registrationRecommendCount", constant = "0")
+    @Mapping(target = "commentCount", constant = "0")
     @Mapping(target = "subjectName", source = "createGithubProjectRequest.subject")
     @Mapping(target = "user", source = "user")
     @Mapping(target = "semester", source = "semester")
