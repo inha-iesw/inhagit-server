@@ -20,4 +20,6 @@ public interface ProjectReplyCommentJpaRepository extends JpaRepository<ProjectR
 
     Optional<ProjectReplyComment> findByIdAndState(Integer replyCommentIdx, State state);
 
+    boolean existsByProjectCommentAndState(ProjectComment projectComment, State state);
+
 }

@@ -20,4 +20,6 @@ public interface QuestionCommentJpaRepository extends JpaRepository<QuestionComm
     Optional<QuestionComment> findByIdAndState(Integer commentIdx, State state);
 
     List<QuestionComment> findAllByQuestionAndStateOrderByIdAsc(Question question, State state);
+
+
 }

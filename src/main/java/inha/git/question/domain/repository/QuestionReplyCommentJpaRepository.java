@@ -1,7 +1,9 @@
 package inha.git.question.domain.repository;
 
 
+import inha.git.common.BaseEntity;
 import inha.git.common.BaseEntity.State;
+import inha.git.question.domain.QuestionComment;
 import inha.git.question.domain.QuestionReplyComment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -15,4 +17,6 @@ public interface QuestionReplyCommentJpaRepository extends JpaRepository<Questio
 
 
     Optional<QuestionReplyComment> findByIdAndState(Integer commentIdx, State state);
+
+    boolean existsByQuestionCommentAndState(QuestionComment questionComment, State state);
 }
