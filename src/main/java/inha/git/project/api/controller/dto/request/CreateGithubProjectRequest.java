@@ -21,7 +21,7 @@ public record CreateGithubProjectRequest(
         @Schema(description = "프로젝트 내용", example = "프로젝트 내용")
         String contents,
         @NotNull(message = "프로젝트 주제를 작성해주세요.")
-        @Size(min = 1, max = 200)
+        @Size(min = 1, max = 30)
         @ValidParameter
         @Schema(description = "프로젝트 주제", example = "프로젝트 주제")
         String subject,

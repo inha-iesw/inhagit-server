@@ -40,7 +40,7 @@ public class Project extends BaseEntity {
     private String contents;
 
     @Setter
-    @Column(nullable = false, length = 200, name = "subject_name")
+    @Column(nullable = false, length = 30, name = "subject_name")
     private String subjectName;
 
     @Column(nullable = false, name = "like_count")
