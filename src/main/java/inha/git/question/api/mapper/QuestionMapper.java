@@ -174,7 +174,7 @@ public interface QuestionMapper {
      * @return CommentWithRepliesResponse
      */
     @Mapping(target = "idx", source = "questionComment.id")
-    @Mapping(target = "author", source = "questionComment.user")
+    @Mapping(target = "author", expression = "java(questionComment.getDeletedAt() == null ? this.userToSearchUserResponse(questionComment.getUser()): null)")
     @Mapping(target = "replies", source = "replies")  // 대댓글 리스트는 이미 처리된 상태로 전달됨
     CommentWithRepliesResponse toCommentWithRepliesResponse(QuestionComment questionComment, Boolean likeState, List<SearchReplyCommentResponse> replies);
 

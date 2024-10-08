@@ -251,7 +251,7 @@ public interface ProjectMapper {
      * @return CommentWithRepliesResponse
      */
     @Mapping(target = "idx", source = "projectComment.id")
-    @Mapping(target = "author", source = "projectComment.user")
+    @Mapping(target = "author", expression = "java(projectComment.getDeletedAt() == null ? this.userToSearchUserResponse(projectComment.getUser()): null)")
     @Mapping(target = "replies", source = "replies")  // 대댓글 리스트는 이미 처리된 상태로 전달됨
     CommentWithRepliesResponse toCommentWithRepliesResponse(ProjectComment projectComment, Boolean likeState, List<SearchReplyCommentResponse> replies);
 

@@ -104,6 +104,10 @@ public enum ErrorStatus implements BaseErrorCode {
     USER_NOT_INVENTORY(HttpStatus.BAD_REQUEST, "PROJECT4014", "해당 특허에 참여하지 않은 유저입니다."),
     USER_NOT_PROJECT_OWNER(HttpStatus.BAD_REQUEST, "PROJECT4015", "프로젝트의 소유자가 아닙니다."),
     PROJECT_UPLOAD_NOT_FOUND(HttpStatus.NOT_FOUND, "PROJECT4016", "프로젝트 업로드 파일을 찾을 수 없습니다."),
+    PROJECT_COMMENT_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "PROJECT4017", "이미 삭제된 댓글입니다."),
+    MY_PROJECT_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4018", "자신의 프로젝트에는 좋아요를 누를 수 없습니다."),
+    PROJECT_ALREADY_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4019", "이미 좋아요한 프로젝트입니다."),
+    PROJECT_NOT_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4020", "좋아요하지 않은 프로젝트입니다."),
 
     ALREADY_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4017", "이미 좋아요한 댓글입니다."),
     MY_COMMENT_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4018", "자신의 댓글에는 좋아요를 누를 수 없습니다."),
@@ -181,6 +185,7 @@ public enum ErrorStatus implements BaseErrorCode {
     MY_QUESTION_LIKE(HttpStatus.BAD_REQUEST, "QUESTION4010", "자신의 질문에는 좋아요를 누를 수 없습니다."),
     QUESTION_ALREADY_LIKE(HttpStatus.BAD_REQUEST, "QUESTION4011", "이미 좋아요한 질문입니다."),
     QUESTION_NOT_LIKE(HttpStatus.BAD_REQUEST, "QUESTION4012", "좋아요하지 않은 질문입니다."),
+    QUESTION_COMMENT_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "QUESTION4013", "이미 삭제된 댓글입니다."),
 
     COMPANY_CANNOT_CREATE_TEAM(HttpStatus.BAD_REQUEST, "TEAM4000", "기업 회원은 팀을 생성할 수 없습니다."),
     TEAM_NOT_FOUND(HttpStatus.NOT_FOUND, "TEAM4001", "팀을 찾을 수 없습니다."),

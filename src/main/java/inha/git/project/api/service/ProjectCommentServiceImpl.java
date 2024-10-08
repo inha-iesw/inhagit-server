@@ -135,8 +135,17 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
             log.error("프로젝트 댓글 삭제 실패 - 사용자: {} 권한이 없습니다.", user.getName());
             throw new BaseException(PROJECT_COMMENT_DELETE_NOT_AUTHORIZED);
         }
+        if(projectComment.getDeletedAt() != null) {
+            log.error("프로젝트 댓글 삭제 실패 - 사용자: {} 이미 삭제된 댓글입니다.", user.getName());
+            throw new BaseException(PROJECT_COMMENT_ALREADY_DELETED);
+        }
         projectComment.setDeletedAt();
-        projectComment.setState(INACTIVE);
+        if(projectReplyCommentJpaRepository.existsByProjectCommentAndState(projectComment, ACTIVE)) {
+            projectComment.setContents("삭제된 댓글입니다.");
+        }
+        else {
+            projectComment.setState(INACTIVE);
+        }
         projectCommentJpaRepository.save(projectComment);
 
         Project project = projectComment.getProject();

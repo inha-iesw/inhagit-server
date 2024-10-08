@@ -72,7 +72,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         idempotentProvider.isValidIdempotent(List.of("createProjectLike", user.getId().toString(), user.getName(), recommendRequest.idx().toString()));
 
         Project project = getProject(recommendRequest);
-        validRecommend(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
+        validLike(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
         projectLikeJpaRepository.save(projectMapper.createProjectLike(user, project));
         project.setLikeCount(project.getLikeCount() + 1);
         log.info("프로젝트 좋아요 - 사용자: {} 프로젝트 ID: {} 좋아요 개수: {}", user.getName(), recommendRequest.idx(), project.getLikeCount());
@@ -134,7 +134,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
 
 
         Project project = getProject(recommendRequest);
-        validRecommendCancel(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
+        validLikeCancel(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
         projectLikeJpaRepository.deleteByUserAndProject(user, project);
         project.setLikeCount(project.getLikeCount() - 1);
         log.info("프로젝트 좋아요 취소 - 사용자: {} 프로젝트 ID: {} 좋아요 개수: {}", user.getName(), recommendRequest.idx(), project.getLikeCount());
@@ -184,6 +184,24 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     }
 
     /**
+     * 좋아요할 프로젝트가 유효한지 확인
+     *
+     * @param project 프로젝트 정보
+     * @param user 로그인한 사용자 정보
+     * @param patentRecommendJpaRepository 특허 추천 레포지토리
+     */
+    private void validLike(Project project, User user, boolean patentRecommendJpaRepository) {
+        if (project.getUser().getId().equals(user.getId())) {
+            log.error("내 프로젝트는 좋아요할 수 없습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
+            throw new BaseException(MY_PROJECT_LIKE);
+        }
+        if (patentRecommendJpaRepository) {
+            log.error("이미 좋아요한 프로젝트입니다.. - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
+            throw new BaseException(PROJECT_ALREADY_LIKE);
+        }
+    }
+
+    /**
      * 추천 취소할 프로젝트가 유효한지 확인
      *
      * @param project 프로젝트 정보
@@ -198,6 +216,24 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         if (!patentRecommendJpaRepository) {
             log.error("추천하지 않은 프로젝트입니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
             throw new BaseException(PROJECT_NOT_RECOMMEND);
+        }
+    }
+
+    /**
+     * 좋아요할 프로젝트가 유효한지 확인
+     *
+     * @param project 프로젝트 정보
+     * @param user 로그인한 사용자 정보
+     * @param patentRecommendJpaRepository 특허 추천 레포지토리
+     */
+    private void validLikeCancel(Project project, User user, boolean patentRecommendJpaRepository) {
+        if (project.getUser().getId().equals(user.getId())) {
+            log.error("내 프로젝트는 좋아요할 수 없습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
+            throw new BaseException(MY_PROJECT_LIKE);
+        }
+        if (!patentRecommendJpaRepository) {
+            log.error("좋아요하지 않은 프로젝트입니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
+            throw new BaseException(PROJECT_NOT_LIKE);
         }
     }
     /**

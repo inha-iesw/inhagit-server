@@ -130,8 +130,18 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
             log.error("질문 댓글 삭제 권한 없음 - 사용자: {} 댓글 ID: {}", user.getName(), commentIdx);
             throw new BaseException(QUESTION_COMMENT_DELETE_NOT_AUTHORIZED);
         }
-        questionComment.setState(INACTIVE);
+
+        if(questionComment.getDeletedAt() != null) {
+            log.error("질문 댓글 삭제 실패 - 사용자: {} 이미 삭제된 댓글입니다.", user.getName());
+            throw new BaseException(QUESTION_COMMENT_ALREADY_DELETED);
+        }
         questionComment.setDeletedAt();
+        if(questionReplyCommentJpaRepository.existsByQuestionCommentAndState(questionComment, ACTIVE)) {
+            questionComment.setContents("삭제된 댓글입니다.");
+        }
+        else {
+            questionComment.setState(INACTIVE);
+        }
         questionCommentJpaRepository.save(questionComment);
 
         Question question = questionComment.getQuestion();

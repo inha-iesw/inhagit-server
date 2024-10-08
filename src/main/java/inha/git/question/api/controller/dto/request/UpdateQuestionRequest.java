@@ -19,7 +19,7 @@ public record UpdateQuestionRequest(
         @Schema(description = "질문 내용 수정", example = "질문 내용 수정")
         String contents,
         @NotNull(message = "프로젝트 주제를 작성해주세요.")
-        @Size(min = 1, max = 200)
+        @Size(min = 1, max = 30)
         @ValidParameter
         @Schema(description = "질문 주제 수정", example = "질문 주제 수정")
         String subject,

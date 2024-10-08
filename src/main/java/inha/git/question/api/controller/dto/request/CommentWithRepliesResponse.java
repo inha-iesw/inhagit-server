@@ -17,7 +17,6 @@ public record CommentWithRepliesResponse(
         @Schema(description = "댓글 내용", example = "댓글 내용")
         String contents,
 
-        @NotNull
         @Schema(description = "작성자 정보")
         SearchUserResponse author,
 
