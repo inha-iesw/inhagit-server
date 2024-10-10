@@ -75,7 +75,8 @@ public class UserServiceImpl implements UserService {
         } else {
             List<UserStatistics> userStatistics = userStatisticsJpaRepository.findByUser(user)
                     .orElseThrow(() -> new BaseException(USER_STATISTICS_NOT_FOUND));
-            int totalProjectCount = userStatistics.stream().mapToInt(UserStatistics::getProjectCount).sum();
+            int localProjectCount = userStatistics.stream().mapToInt(UserStatistics::getProjectCount).sum();
+            int githubProjectCount = userStatistics.stream().mapToInt(UserStatistics::getGithubProjectCount).sum();
             int totalQuestionCount = userStatistics.stream().mapToInt(UserStatistics::getQuestionCount).sum();
             int totalTeamCount = userStatistics.stream().mapToInt(UserStatistics::getTeamCount).sum();
 
@@ -84,7 +85,7 @@ public class UserServiceImpl implements UserService {
                     .stream()
                     .map(UserDepartment::getDepartment)
                     .toList());
-            return userMapper.toSearchNonCompanyUserResponse(user, totalProjectCount, totalQuestionCount, totalTeamCount , searchDepartmentResponses, position, user.getGithubToken() != null);
+            return userMapper.toSearchNonCompanyUserResponse(user, localProjectCount + githubProjectCount, totalQuestionCount, totalTeamCount , searchDepartmentResponses, position, user.getGithubToken() != null);
         }
     }
 
