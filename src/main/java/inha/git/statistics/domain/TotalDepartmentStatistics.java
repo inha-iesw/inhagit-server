@@ -76,11 +76,15 @@ public class TotalDepartmentStatistics {
     }
 
     public void decreaseUserProjectCount() {
-        userProjectCount--;
+        if (userProjectCount > 0) {
+            userProjectCount--;
+        }
     }
 
     public void decreaseUserQuestionCount() {
-        userQuestionCount--;
+        if (userQuestionCount > 0) {
+            userQuestionCount--;
+        }
     }
 
     public void decreaseUserProblemCount() {
@@ -116,11 +120,15 @@ public class TotalDepartmentStatistics {
     }
 
     public void decreaseTotalProjectCount() {
-        totalProjectCount--;
+        if (totalProjectCount > 0) {
+            totalProjectCount--;
+        }
     }
 
     public void decreaseTotalQuestionCount() {
-        totalQuestionCount--;
+        if (totalQuestionCount > 0) {
+            totalQuestionCount--;
+        }
     }
 
     public void decreaseTotalProblemCount() {
@@ -136,11 +144,15 @@ public class TotalDepartmentStatistics {
     }
 
     public void increaseTotalGithubProjectCount() {
-        totalGithubProjectCount++;
+        if (totalGithubProjectCount < 0) {
+            totalGithubProjectCount = 0;
+        }
     }
 
     public void decreaseTotalGithubProjectCount() {
-        totalGithubProjectCount--;
+        if (totalGithubProjectCount > 0) {
+            totalGithubProjectCount--;
+        }
     }
 
 }

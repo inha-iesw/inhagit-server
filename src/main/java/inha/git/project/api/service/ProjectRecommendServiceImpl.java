@@ -115,6 +115,9 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         Project project = getProject(recommendRequest);
         validRecommendCancel(project, user, foundingRecommendJpaRepository.existsByUserAndProject(user, project));
         foundingRecommendJpaRepository.deleteByUserAndProject(user, project);
+        if (project.getFoundingRecommendCount() <= 0) {
+            project.setFoundRecommendCount(0);
+        }
         project.setFoundRecommendCount(project.getFoundingRecommendCount() - 1);
         log.info("프로젝트 창업 추천 취소 - 사용자: {} 프로젝트 ID: {} 추천 개수: {}", user.getName(), recommendRequest.idx(), project.getFoundingRecommendCount());
         return recommendRequest.idx() + "번 프로젝트 창업 추천 취소 완료";
@@ -136,6 +139,9 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         Project project = getProject(recommendRequest);
         validLikeCancel(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
         projectLikeJpaRepository.deleteByUserAndProject(user, project);
+        if (project.getLikeCount() <= 0) {
+            project.setLikeCount(0);
+        }
         project.setLikeCount(project.getLikeCount() - 1);
         log.info("프로젝트 좋아요 취소 - 사용자: {} 프로젝트 ID: {} 좋아요 개수: {}", user.getName(), recommendRequest.idx(), project.getLikeCount());
         return recommendRequest.idx() + "번 프로젝트 좋아요 취소 완료";
@@ -157,6 +163,9 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         Project project = getProject(recommendRequest);
         validRecommendCancel(project, user, registrationRecommendJpaRepository.existsByUserAndProject(user, project));
         registrationRecommendJpaRepository.deleteByUserAndProject(user, project);
+        if (project.getRegistrationRecommendCount() <= 0) {
+            project.setRegistrationRecommendCount(0);
+        }
         project.setRegistrationRecommendCount(project.getRegistrationRecommendCount() - 1);
         log.info("프로젝트 등록 추천 취소 - 사용자: {} 프로젝트 ID: {} 추천 개수: {}", user.getName(), recommendRequest.idx(), project.getRegistrationRecommendCount());
         return recommendRequest.idx() + "번 프로젝트 등록 추천 취소 완료";

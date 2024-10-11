@@ -82,11 +82,15 @@ public class DepartmentStatistics {
     }
 
     public void decreaseProjectCount() {
-        projectCount--;
+        if (projectCount > 0) {
+            projectCount--;
+        }
     }
 
     public void decreaseQuestionCount() {
-        questionCount--;
+        if (questionCount > 0) {
+            questionCount--;
+        }
     }
 
 
@@ -95,7 +99,9 @@ public class DepartmentStatistics {
     }
 
     public void decreaseProblemCount() {
-        problemCount--;
+        if (problemCount > 0) {
+            problemCount--;
+        }
     }
 
     public void increaseTeamCount() {
@@ -103,7 +109,9 @@ public class DepartmentStatistics {
     }
 
     public void decreaseTeamCount() {
-        teamCount--;
+        if (teamCount > 0) {
+            teamCount--;
+        }
     }
 
     public void increasePatentCount() {
@@ -111,7 +119,9 @@ public class DepartmentStatistics {
     }
 
     public void decreasePatentCount() {
-        patentCount--;
+        if (patentCount > 0) {
+            patentCount--;
+        }
     }
 
     public void increaseProjectUserCount() {
@@ -135,23 +145,33 @@ public class DepartmentStatistics {
     }
 
     public void decreaseProjectUserCount() {
-        projectUserCount--;
+        if (projectUserCount > 0) {
+            projectUserCount--;
+        }
     }
 
     public void decreaseQuestionUserCount() {
-        questionUserCount--;
+        if (questionUserCount > 0) {
+            questionUserCount--;
+        }
     }
 
     public void decreaseProblemUserCount() {
-        problemUserCount--;
+        if (problemUserCount > 0) {
+            problemUserCount--;
+        }
     }
 
     public void decreaseTeamUserCount() {
-        teamUserCount--;
+        if (teamUserCount > 0) {
+            teamUserCount--;
+        }
     }
 
     public void decreasePatentUserCount() {
-        patentUserCount--;
+        if (patentUserCount > 0) {
+            patentUserCount--;
+        }
     }
 
     public void increaseProblemParticipationCount() {
@@ -159,7 +179,9 @@ public class DepartmentStatistics {
     }
 
     public void decreaseProblemParticipationCount() {
-        problemParticipationCount--;
+        if (problemParticipationCount > 0) {
+            problemParticipationCount--;
+        }
     }
 
     public void increaseGithubProjectCount() {
@@ -167,7 +189,9 @@ public class DepartmentStatistics {
     }
 
     public void decreaseGithubProjectCount() {
-        githubProjectCount--;
+        if (githubProjectCount > 0) {
+            githubProjectCount--;
+        }
     }
 
 }
