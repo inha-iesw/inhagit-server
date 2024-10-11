@@ -264,6 +264,9 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         ProjectComment projectComment = getProjectComment(commentLikeRequest);
         validLikeCancel(projectComment, user, projectCommentLikeJpaRepository.existsByUserAndProjectComment(user, projectComment));
         projectCommentLikeJpaRepository.deleteByUserAndProjectComment(user, projectComment);
+        if (projectComment.getLikeCount() <= 0) {
+            projectComment.setLikeCount(0);
+        }
         projectComment.setLikeCount(projectComment.getLikeCount() - 1);
         log.info("프로젝트 댓글 좋아요 취소 완료 - 사용자: {} 프로젝트 댓글 식별자: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), projectComment.getLikeCount());
         return commentLikeRequest.idx() + "번 프로젝트 댓글 좋아요 취소 완료";
@@ -304,6 +307,9 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
                 .orElseThrow(() -> new BaseException(PROJECT_COMMENT_REPLY_NOT_FOUND));
         validReplyLikeCancel(projectReplyComment, user, projectReplyCommentLikeJpaRepository.existsByUserAndProjectReplyComment(user, projectReplyComment));
         projectReplyCommentLikeJpaRepository.deleteByUserAndProjectReplyComment(user, projectReplyComment);
+        if (projectReplyComment.getLikeCount() <= 0) {
+            projectReplyComment.setLikeCount(0);
+        }
         projectReplyComment.setLikeCount(projectReplyComment.getLikeCount() - 1);
         log.info("프로젝트 대댓글 좋아요 취소 완료 - 사용자: {} 프로젝트 대댓글 식별자: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), projectReplyComment.getLikeCount());
         return commentLikeRequest.idx() + "번 프로젝트 대댓글 좋아요 취소 완료";

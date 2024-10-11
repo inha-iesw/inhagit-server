@@ -70,11 +70,15 @@ public class UserStatistics {
     }
 
     public void decreaseProjectCount() {
-        projectCount--;
+        if (projectCount > 0) {
+            projectCount--;
+        }
     }
 
     public void decreaseQuestionCount() {
-        questionCount--;
+        if (questionCount > 0) {
+            questionCount--;
+        }
     }
 
     public void increaseTeamCount() {
@@ -82,7 +86,9 @@ public class UserStatistics {
     }
 
     public void decreaseTeamCount() {
-        teamCount--;
+        if (teamCount > 0) {
+            teamCount--;
+        }
     }
 
     public void increasePatentCount() {
@@ -90,7 +96,9 @@ public class UserStatistics {
     }
 
     public void decreasePatentCount() {
-        patentCount--;
+        if (patentCount > 0) {
+            patentCount--;
+        }
     }
 
     public void increaseProblemCount() {
@@ -98,7 +106,9 @@ public class UserStatistics {
     }
 
     public void decreaseProblemCount() {
-        problemCount--;
+        if (problemCount > 0) {
+            problemCount--;
+        }
     }
 
     public void increaseGithubProjectCount() {
@@ -106,7 +116,9 @@ public class UserStatistics {
     }
 
     public void decreaseGithubProjectCount() {
-        githubProjectCount--;
+        if (githubProjectCount > 0) {
+            githubProjectCount--;
+        }
     }
 
 

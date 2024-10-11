@@ -76,11 +76,15 @@ public class TotalCollegeStatistics {
     }
 
     public void decreaseUserProjectCount() {
-        userProjectCount--;
+        if (userProjectCount > 0) {
+            userProjectCount--;
+        }
     }
 
     public void decreaseUserQuestionCount() {
-        userQuestionCount--;
+        if (userQuestionCount > 0){
+            userQuestionCount--;
+        }
     }
 
     public void decreaseUserProblemCount() {
@@ -116,11 +120,15 @@ public class TotalCollegeStatistics {
     }
 
     public void decreaseTotalProjectCount() {
-        totalProjectCount--;
+        if (totalProjectCount > 0) {
+            totalProjectCount--;
+        }
     }
 
     public void decreaseTotalQuestionCount() {
-        totalQuestionCount--;
+        if (totalQuestionCount > 0) {
+            totalQuestionCount--;
+        }
     }
 
     public void decreaseTotalProblemCount() {
@@ -140,7 +148,9 @@ public class TotalCollegeStatistics {
     }
 
     public void decreaseTotalGithubProjectCount() {
-        totalGithubProjectCount--;
+        if (totalGithubProjectCount > 0) {
+            totalGithubProjectCount--;
+        }
     }
 
 }

@@ -84,23 +84,33 @@ public class UserCountStatistics {
     }
 
     public void decreaseUserProjectCount() {
-        userProjectCount--;
+        if (userProjectCount > 0) {
+            userProjectCount--;
+        }
     }
 
     public void decreaseUserQuestionCount() {
-        userQuestionCount--;
+        if (userQuestionCount > 0) {
+            userQuestionCount--;
+        }
     }
 
     public void decreaseUserProblemCount() {
-        userProblemCount--;
+        if (userProblemCount > 0) {
+            userProblemCount--;
+        }
     }
 
     public void decreaseUserTeamCount() {
-        userTeamCount--;
+        if (userTeamCount > 0) {
+            userTeamCount--;
+        }
     }
 
     public void decreaseUserPatentCount() {
-        userPatentCount--;
+        if (userPatentCount > 0) {
+            userPatentCount--;
+        }
     }
 
     public void increaseTotalProjectCount() {
@@ -124,23 +134,33 @@ public class UserCountStatistics {
     }
 
     public void decreaseTotalProjectCount() {
-        totalProjectCount--;
+        if (totalProjectCount > 0) {
+            totalProjectCount--;
+        }
     }
 
     public void decreaseTotalQuestionCount() {
-        totalQuestionCount--;
+        if (totalQuestionCount > 0) {
+            totalQuestionCount--;
+        }
     }
 
     public void decreaseTotalProblemCount() {
-        totalProblemCount--;
+        if (totalProblemCount > 0) {
+            totalProblemCount--;
+        }
     }
 
     public void decreaseTotalTeamCount() {
-        totalTeamCount--;
+        if (totalTeamCount > 0) {
+            totalTeamCount--;
+        }
     }
 
     public void decreaseTotalPatentCount() {
-        totalPatentCount--;
+        if (totalPatentCount > 0) {
+            totalPatentCount--;
+        }
     }
 
     public void increaseTotalGithubProjectCount() {
@@ -148,6 +168,8 @@ public class UserCountStatistics {
     }
 
     public void decreaseTotalGithubProjectCount() {
-        totalGithubProjectCount--;
+        if (totalGithubProjectCount > 0) {
+            totalGithubProjectCount--;
+        }
     }
 }

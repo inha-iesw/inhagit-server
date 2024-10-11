@@ -261,6 +261,9 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         boolean commentLikeJpaRepository = questionCommentLikeJpaRepository.existsByUserAndQuestionComment(user, questionComment);
         validLikeCancel(questionComment, user, commentLikeJpaRepository);
         questionCommentLikeJpaRepository.deleteByUserAndQuestionComment(user, questionComment);
+        if (questionComment.getLikeCount() <= 0) {
+            questionComment.setLikeCount(0);
+        }
         questionComment.setLikeCount(questionComment.getLikeCount() - 1);
         log.info("질문 댓글 좋아요 취소 성공 - 사용자: {} 댓글 ID: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), questionComment.getLikeCount());
         return commentLikeRequest.idx() + "번 질문 댓글 좋아요 취소 완료";
@@ -304,6 +307,9 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         boolean commentLikeJpaRepository = questionReplyCommentLikeJpaRepository.existsByUserAndQuestionReplyComment(user, questionReplyComment);
         validReplyLikeCancel(questionReplyComment, user, commentLikeJpaRepository);
         questionReplyCommentLikeJpaRepository.deleteByUserAndQuestionReplyComment(user, questionReplyComment);
+        if (questionReplyComment.getLikeCount() <= 0) {
+            questionReplyComment.setLikeCount(0);
+        }
         questionReplyComment.setLikeCount(questionReplyComment.getLikeCount() - 1);
         log.info("질문 대댓글 좋아요 취소 성공 - 사용자: {} 댓글 ID: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), questionReplyComment.getLikeCount());
         return commentLikeRequest.idx() + "번 질문 대댓글 좋아요 취소 완료";
