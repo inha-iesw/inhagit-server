@@ -19,6 +19,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static inha.git.common.Constant.mapRoleToPosition;
 import static inha.git.project.domain.QProject.project;
 import static inha.git.user.domain.QUser.user;
 
@@ -105,7 +106,7 @@ public class SearchQueryRepository {
                         p.getId(),
                         p.getTitle(),
                         p.getCreatedAt(),
-                        new SearchUserResponse(p.getUser().getId(), p.getUser().getName()),
+                        new SearchUserResponse(p.getUser().getId(), p.getUser().getName(), mapRoleToPosition(p.getUser().getRole())),
                         new SearchSemesterResponse(p.getSemester().getId(), p.getSemester().getName()),
                         p.getSubjectName(),
                         p.getLikeCount(),
@@ -143,7 +144,7 @@ public class SearchQueryRepository {
                         p.getId(),
                         p.getTitle(),
                         p.getCreatedAt(),
-                        new SearchUserResponse(p.getUser().getId(), p.getUser().getName()),
+                        new SearchUserResponse(p.getUser().getId(), p.getUser().getName(), mapRoleToPosition(p.getUser().getRole())),
                         null,
                         null,
                         null,
@@ -175,7 +176,7 @@ public class SearchQueryRepository {
                         q.getId(),
                         q.getTitle(),
                         q.getCreatedAt(),
-                        new SearchUserResponse(q.getUser().getId(), q.getUser().getName()),
+                        new SearchUserResponse(q.getUser().getId(), q.getUser().getName(), mapRoleToPosition(q.getUser().getRole())),
                         new SearchSemesterResponse(q.getSemester().getId(), q.getSemester().getName()),
                         q.getSubjectName(),
                         q.getLikeCount(),
@@ -212,7 +213,7 @@ public class SearchQueryRepository {
                         t.getId(),
                         t.getTitle(),
                         t.getCreatedAt(),
-                        new SearchUserResponse(t.getTeam().getUser().getId(), t.getTeam().getUser().getName()),
+                        new SearchUserResponse(t.getTeam().getUser().getId(), t.getTeam().getUser().getName(), mapRoleToPosition(t.getTeam().getUser().getRole())),
                         null,
                         null,
                         null,
@@ -244,7 +245,7 @@ public class SearchQueryRepository {
                         n.getId(),
                         n.getTitle(),
                         n.getCreatedAt(),
-                        new SearchUserResponse(n.getUser().getId(), n.getUser().getName()),
+                        new SearchUserResponse(n.getUser().getId(), n.getUser().getName(), mapRoleToPosition(n.getUser().getRole())),
                         null,
                         null,
                         null,

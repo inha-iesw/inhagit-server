@@ -21,6 +21,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static inha.git.college.domain.QCollege.college;
+import static inha.git.common.Constant.mapRoleToPosition;
 import static inha.git.department.domain.QDepartment.department;
 import static inha.git.mapping.domain.QProjectField.projectField;
 import static inha.git.mapping.domain.QUserDepartment.userDepartment;
@@ -83,8 +84,8 @@ public class ProjectQueryRepository {
                                 .toList(),
                         new SearchUserResponse(
                                 p.getUser().getId(),
-                                p.getUser().getName()
-
+                                p.getUser().getName(),
+                                mapRoleToPosition(p.getUser().getRole())
                         )
 
                 ))
@@ -139,7 +140,8 @@ public class ProjectQueryRepository {
                                 .toList(),
                         new SearchUserResponse(
                                 p.getUser().getId(),
-                                p.getUser().getName()
+                                p.getUser().getName(),
+                                mapRoleToPosition(p.getUser().getRole())
                         )
                 ))
                 .toList();
@@ -225,7 +227,8 @@ public class ProjectQueryRepository {
                                 .toList(),
                         new SearchUserResponse(
                                 p.getUser().getId(),
-                                p.getUser().getName()
+                                p.getUser().getName(),
+                                mapRoleToPosition(p.getUser().getRole())
                         )
                 ))
                 .toList();

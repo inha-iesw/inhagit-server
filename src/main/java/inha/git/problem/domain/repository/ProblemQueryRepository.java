@@ -22,6 +22,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.Constant.mapRoleToPosition;
 
 @Repository
 @RequiredArgsConstructor
@@ -52,7 +53,8 @@ public class ProblemQueryRepository {
                        0,
                         new SearchUserResponse(
                                 p.getUser().getId(),
-                                p.getUser().getName()
+                                p.getUser().getName(),
+                                mapRoleToPosition(p.getUser().getRole())
                         )
                 ))
                 .toList();
@@ -108,10 +110,11 @@ public class ProblemQueryRepository {
                                 pr.getTeamRequest().getTeam().getName(),
                                 new SearchUserResponse(
                                         pr.getTeamRequest().getTeam().getUser().getId(),
-                                        pr.getTeamRequest().getTeam().getUser().getName()
+                                        pr.getTeamRequest().getTeam().getUser().getName(),
+                                        mapRoleToPosition(pr.getTeamRequest().getTeam().getUser().getRole())
                                 ),
                                 pr.getTeamRequest().getTeam().getTeamUsers().stream()
-                                        .map(tu -> new SearchUserResponse(tu.getUser().getId(), tu.getUser().getName()))
+                                        .map(tu -> new SearchUserResponse(tu.getUser().getId(), tu.getUser().getName(), mapRoleToPosition(tu.getUser().getRole())))
                                         .toList()
                         );
                     }
@@ -176,7 +179,8 @@ public class ProblemQueryRepository {
                         0,
                         new SearchUserResponse(
                                 p.getUser().getId(),
-                                p.getUser().getName()
+                                p.getUser().getName(),
+                                mapRoleToPosition(p.getUser().getRole())
                         )
                 ))
                 .toList();

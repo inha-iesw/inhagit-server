@@ -16,6 +16,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static inha.git.common.Constant.mapRoleToPosition;
+
 /**
  * 팀 조회 레포지토리
  */
@@ -59,7 +61,8 @@ public class TeamQueryRepository {
                         tu.getCreatedAt(),
                         new SearchUserResponse(
                                 tu.getTeam().getUser().getId(),
-                                tu.getTeam().getUser().getName()
+                                tu.getTeam().getUser().getName(),
+                                mapRoleToPosition(tu.getTeam().getUser().getRole())
                         )
                 ))
                 .toList();

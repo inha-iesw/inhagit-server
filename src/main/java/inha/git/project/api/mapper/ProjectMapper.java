@@ -1,5 +1,6 @@
 package inha.git.project.api.mapper;
 
+import inha.git.common.Constant;
 import inha.git.field.domain.Field;
 import inha.git.mapping.domain.*;
 import inha.git.mapping.domain.id.*;
@@ -16,6 +17,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static inha.git.common.Constant.mapRoleToPosition;
 
 /**
  * ProjectMapper는 Project 엔티티와 관련된 데이터 변환 기능을 제공.
@@ -116,15 +119,26 @@ public interface ProjectMapper {
     @Mapping(target = "registration", source = "registrationRecommendCount")
     SearchRecommendCount projectToSearchRecommendCountResponse(Project project);
 
+
     /**
      * User 엔티티를 SearchUserResponse로 변환
      *
      * @param user 사용자 엔티티
      * @return SearchUserResponse
      */
-    @Mapping(target = "idx", source = "user.id")
-    @Mapping(target = "name", source = "user.name")
-    SearchUserResponse userToSearchUserResponse(User user);
+    default SearchUserResponse userToSearchUserResponse(User user) {
+        if (user == null) {
+            return null;
+        }
+
+        Integer position = mapRoleToPosition(user.getRole());
+
+        return new SearchUserResponse(
+                user.getId(),    // idx
+                user.getName(),  // name
+                position        // position
+        );
+    }
 
     /**
      * Boolean 값을 SearchRecommendState로 변환

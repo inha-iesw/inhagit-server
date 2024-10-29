@@ -17,6 +17,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static inha.git.common.Constant.mapRoleToPosition;
+
 /**
  * 팀 게시글 조회 레포지토리
  */
@@ -59,7 +61,8 @@ public class TeamPostQueryRepository {
                                 q.getTeam().getName(),
                                 new SearchUserResponse(
                                         q.getTeam().getUser().getId(),
-                                        q.getTeam().getUser().getName()
+                                        q.getTeam().getUser().getName(),
+                                        mapRoleToPosition(q.getTeam().getUser().getRole())
                                 )
                         )
                 ))
