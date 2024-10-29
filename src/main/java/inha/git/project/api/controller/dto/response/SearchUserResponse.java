@@ -9,6 +9,9 @@ public record SearchUserResponse(
         Integer idx,
         @NotNull
         @Schema(description = "유저 이름", example = "홍길동")
-        String name
+        String name,
+
+        @Schema(description = "유저 포지션", example = "1")
+        Integer postion
 ) {
 }

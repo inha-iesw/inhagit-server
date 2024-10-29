@@ -26,6 +26,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
 
+import static inha.git.common.Constant.mapRoleToPosition;
+
 /**
  * QuestionMapper는 Question 엔티티와 관련된 데이터 변환 기능을 제공.
  */
@@ -107,14 +109,24 @@ public interface QuestionMapper {
     SearchQuestionResponse questionToSearchQuestionResponse(Question question, List<SearchFieldResponse> fieldList, SearchUserResponse author, SearchSemesterResponse semester, SearchLikeState likeState);
 
     /**
-     * User를 SearchUserResponse로 변환합니다.
+     * User 엔티티를 SearchUserResponse로 변환
      *
-     * @param user User
+     * @param user 사용자 엔티티
      * @return SearchUserResponse
      */
-    @Mapping(target = "idx", source = "user.id")
-    @Mapping(target = "name", source = "user.name")
-    SearchUserResponse userToSearchUserResponse(User user);
+    default SearchUserResponse userToSearchUserResponse(User user) {
+        if (user == null) {
+            return null;
+        }
+
+        Integer position = mapRoleToPosition(user.getRole());
+
+        return new SearchUserResponse(
+                user.getId(),    // idx
+                user.getName(),  // name
+                position        // position
+        );
+    }
 
     /**
      * CreateCommentRequest를 QuestionComment로 변환합니다.

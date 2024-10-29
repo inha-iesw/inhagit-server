@@ -34,6 +34,7 @@ import java.util.List;
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.Constant.*;
+import static inha.git.common.Constant.mapRoleToPosition;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
@@ -307,7 +308,7 @@ public class ProblemServiceImpl implements ProblemService {
                                 request.getCreatedAt(), // 생성 날짜
                                 1, // 타입은 개인 유저
                                 problemSubmitResponse, // ProblemSubmitResponse 추가
-                                new SearchUserResponse(personalRequestUser.getId(), personalRequestUser.getName()), // 유저 정보
+                                new SearchUserResponse(personalRequestUser.getId(), personalRequestUser.getName(),mapRoleToPosition(personalRequestUser.getRole())), // 유저 정보
                                 null // 팀 정보는 null
                         )
                 );
@@ -324,10 +325,10 @@ public class ProblemServiceImpl implements ProblemService {
                                 problemSubmitResponse, // ProblemSubmitResponse 추가
                                 null, // 유저 정보는 null
                                 new SearchTeamRequestProblemResponse(team.getId(), team.getName(),
-                                        new SearchUserResponse(team.getUser().getId(), team.getUser().getName()),
+                                        new SearchUserResponse(team.getUser().getId(), team.getUser().getName(), mapRoleToPosition(team.getUser().getRole())),
                                         team.getTeamUsers().stream()
-                                                .map(tu -> new SearchUserResponse(tu.getUser().getId(), tu.getUser().getName()))
-                                                .toList()
+                                                .map(tu -> new SearchUserResponse(tu.getUser().getId(), tu.getUser().getName(), mapRoleToPosition(tu.getUser().getRole()))
+                                                ).toList()
                                 ) // 팀 정보
                         )
                 );
@@ -382,9 +383,9 @@ public class ProblemServiceImpl implements ProblemService {
                                     request.getAcceptAt(),
                                     null,
                                     new SearchTeamRequestProblemResponse(team.getId(), team.getName(),
-                                            new SearchUserResponse(team.getUser().getId(), team.getUser().getName()),
+                                            new SearchUserResponse(team.getUser().getId(), team.getUser().getName(), mapRoleToPosition(team.getUser().getRole())),
                                             team.getTeamUsers().stream()
-                                                    .map(tu -> new SearchUserResponse(tu.getUser().getId(), tu.getUser().getName()))
+                                                    .map(tu -> new SearchUserResponse(tu.getUser().getId(), tu.getUser().getName(), mapRoleToPosition(tu.getUser().getRole())))
                                                     .toList()
                                     )
                             )

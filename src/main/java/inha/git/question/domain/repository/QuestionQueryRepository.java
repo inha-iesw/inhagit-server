@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static inha.git.common.Constant.mapRoleToPosition;
 import static inha.git.mapping.domain.QQuestionField.questionField;
 import static inha.git.question.domain.QQuestion.question;
 import static inha.git.user.domain.QUser.user;
@@ -71,7 +72,8 @@ public class QuestionQueryRepository {
                                 .toList(),
                         new SearchUserResponse(
                                 q.getUser().getId(),
-                                q.getUser().getName()
+                                q.getUser().getName(),
+                                mapRoleToPosition(q.getUser().getRole())
                         )
                 ))
                 .toList();
@@ -120,7 +122,8 @@ public class QuestionQueryRepository {
                                 .toList(),
                         new SearchUserResponse(
                                 q.getUser().getId(),
-                                q.getUser().getName()
+                                q.getUser().getName(),
+                                mapRoleToPosition(q.getUser().getRole())
                         )
                 ))
                 .toList();
@@ -202,7 +205,8 @@ public class QuestionQueryRepository {
                                 .toList(),
                         new SearchUserResponse(
                                 q.getUser().getId(),
-                                q.getUser().getName()
+                                q.getUser().getName(),
+                                mapRoleToPosition(q.getUser().getRole())
                         )
                 ))
                 .toList();
