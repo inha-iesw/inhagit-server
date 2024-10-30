@@ -18,6 +18,8 @@ public record CreateProjectRequest(
         @ValidParameter
         @Schema(description = "프로젝트 내용", example = "프로젝트 내용")
         String contents,
+
+
         @NotNull(message = "프로젝트 주제를 작성해주세요.")
         @Size(min = 1, max = 30)
         @ValidParameter
@@ -31,6 +33,10 @@ public record CreateProjectRequest(
         @NotNull
         @Schema(description = "학기 인덱스", example = "1")
         Integer semesterIdx,
+
+        @NotNull
+        @Schema(description = "카테고리 인덱스", example = "1")
+        Integer categoryIdx,
 
         @NotNull
         @Schema(description = "공개 여부", example = "true")

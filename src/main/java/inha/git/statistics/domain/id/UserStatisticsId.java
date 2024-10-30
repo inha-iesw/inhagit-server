@@ -23,4 +23,6 @@ public class UserStatisticsId implements Serializable {
     private Integer semesterId;
 
     private Integer fieldId;
+
+    private Integer categoryId;
 }

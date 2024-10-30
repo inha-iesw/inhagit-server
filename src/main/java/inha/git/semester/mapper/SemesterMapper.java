@@ -1,5 +1,6 @@
 package inha.git.semester.mapper;
 
+import inha.git.category.domain.Category;
 import inha.git.college.domain.College;
 import inha.git.department.domain.Department;
 import inha.git.field.domain.Field;
@@ -34,109 +35,121 @@ public interface SemesterMapper {
 
     @Mapping(source = "semester.id", target = "idx")
     SearchSemesterResponse semesterToSearchSemesterResponse(Semester semester);
+
     List<SearchSemesterResponse> semestersToSearchSemesterResponses(List<Semester> semesterList);
 
-    default List<CollegeStatistics> createCollegeStatistics(Semester semester, List<College> colleges, List<Field> fields) {
+    default List<CollegeStatistics> createCollegeStatistics(Semester semester, List<College> colleges, List<Field> fields, List<Category> categories) {
         List<CollegeStatistics> statisticsList = new ArrayList<>();
         for (College college : colleges) {
             for (Field field : fields) {
-                CollegeStatistics statistics = CollegeStatistics.builder()
-                        .id(new CollegeStatisticsStatisticsId(college.getId(), semester.getId(), field.getId()))
-                        .college(college)
-                        .semester(semester)
-                        .field(field)
-                        .projectCount(0)
-                        .githubProjectCount(0)
-                        .questionCount(0)
-                        .problemCount(0)
-                        .teamCount(0)
-                        .patentCount(0)
-                        .projectUserCount(0)
-                        .questionUserCount(0)
-                        .problemUserCount(0)
-                        .teamUserCount(0)
-                        .patentUserCount(0)
-                        .problemParticipationCount(0)
-                        .build();
-                statisticsList.add(statistics);
+                for (Category category : categories) {
+                    CollegeStatistics statistics = CollegeStatistics.builder()
+                            .id(new CollegeStatisticsStatisticsId(college.getId(), semester.getId(), field.getId(), category.getId()))
+                            .college(college)
+                            .semester(semester)
+                            .field(field)
+                            .category(category)
+                            .projectCount(0)
+                            .githubProjectCount(0)
+                            .questionCount(0)
+                            .problemCount(0)
+                            .teamCount(0)
+                            .patentCount(0)
+                            .projectUserCount(0)
+                            .questionUserCount(0)
+                            .problemUserCount(0)
+                            .teamUserCount(0)
+                            .patentUserCount(0)
+                            .problemParticipationCount(0)
+                            .build();
+                    statisticsList.add(statistics);
+                }
             }
         }
         return statisticsList;
     }
 
-    default List<DepartmentStatistics> createDepartmentStatistics(Semester semester, List<Department> departments, List<Field> fields) {
+    default List<DepartmentStatistics> createDepartmentStatistics(Semester semester, List<Department> departments, List<Field> fields, List<Category> categories) {
         List<DepartmentStatistics> statisticsList = new ArrayList<>();
         for (Department department : departments) {
             for (Field field : fields) {
-                DepartmentStatistics statistics = DepartmentStatistics.builder()
-                        .id(new DepartmentStatisticsId(department.getId(), semester.getId(), field.getId()))
-                        .department(department)
-                        .semester(semester)
-                        .field(field)
-                        .projectCount(0)
-                        .githubProjectCount(0)
-                        .questionCount(0)
-                        .problemCount(0)
-                        .teamCount(0)
-                        .patentCount(0)
-                        .projectUserCount(0)
-                        .questionUserCount(0)
-                        .problemUserCount(0)
-                        .teamUserCount(0)
-                        .patentUserCount(0)
-                        .problemParticipationCount(0)
-                        .build();
-                statisticsList.add(statistics);
+                for (Category category : categories) {
+                    DepartmentStatistics statistics = DepartmentStatistics.builder()
+                            .id(new DepartmentStatisticsId(department.getId(), semester.getId(), field.getId(), category.getId()))
+                            .department(department)
+                            .semester(semester)
+                            .field(field)
+                            .category(category)
+                            .projectCount(0)
+                            .githubProjectCount(0)
+                            .questionCount(0)
+                            .problemCount(0)
+                            .teamCount(0)
+                            .patentCount(0)
+                            .projectUserCount(0)
+                            .questionUserCount(0)
+                            .problemUserCount(0)
+                            .teamUserCount(0)
+                            .patentUserCount(0)
+                            .problemParticipationCount(0)
+                            .build();
+                    statisticsList.add(statistics);
+                }
+
             }
         }
         return statisticsList;
     }
 
 
-    default List<UserStatistics> createUserStatistics(Semester semester, List<User> users, List<Field> fields) {
+    default List<UserStatistics> createUserStatistics(Semester semester, List<User> users, List<Field> fields, List<Category> categories) {
         List<UserStatistics> statisticsList = new ArrayList<>();
         for (User user : users) {
             for (Field field : fields) {
-                UserStatistics statistics = UserStatistics.builder()
-                        .id(new UserStatisticsId(user.getId(), semester.getId(), field.getId()))
-                        .user(user)
+                for (Category category : categories) {
+                    UserStatistics statistics = UserStatistics.builder()
+                            .id(new UserStatisticsId(user.getId(), semester.getId(), field.getId(), category.getId()))
+                            .user(user)
+                            .semester(semester)
+                            .field(field)
+                            .category(category)
+                            .projectCount(0)
+                            .githubProjectCount(0)
+                            .questionCount(0)
+                            .problemCount(0)
+                            .teamCount(0)
+                            .patentCount(0)
+                            .build();
+                    statisticsList.add(statistics);
+                }
+            }
+        }
+        return statisticsList;
+    }
+
+    default List<UserCountStatistics> createUserCountStatistics(Semester semester, List<Field> fields, List<Category> categories) {
+        List<UserCountStatistics> statisticsList = new ArrayList<>();
+        for (Field field : fields) {
+            for (Category category : categories) {
+                UserCountStatistics statistics = UserCountStatistics.builder()
+                        .id(new UserCountStatisticsId(semester.getId(), field.getId(), category.getId()))
                         .semester(semester)
                         .field(field)
-                        .projectCount(0)
-                        .githubProjectCount(0)
-                        .questionCount(0)
-                        .problemCount(0)
-                        .teamCount(0)
-                        .patentCount(0)
+                        .userProjectCount(0)
+                        .userQuestionCount(0)
+                        .userProblemCount(0)
+                        .userTeamCount(0)
+                        .userPatentCount(0)
+                        .totalProjectCount(0)
+                        .totalGithubProjectCount(0)
+                        .totalQuestionCount(0)
+                        .totalProblemCount(0)
+                        .totalTeamCount(0)
+                        .totalPatentCount(0)
                         .build();
                 statisticsList.add(statistics);
             }
         }
         return statisticsList;
     }
-
-    default List<UserCountStatistics> createUserCountStatistics(Semester semester, List<Field> fields) {
-        List<UserCountStatistics> statisticsList = new ArrayList<>();
-        for (Field field : fields) {
-            UserCountStatistics statistics = UserCountStatistics.builder()
-                    .id(new UserCountStatisticsId(semester.getId(), field.getId()))
-                    .semester(semester)
-                    .field(field)
-                    .userProjectCount(0)
-                    .userQuestionCount(0)
-                    .userProblemCount(0)
-                    .userTeamCount(0)
-                    .userPatentCount(0)
-                    .totalProjectCount(0)
-                    .totalGithubProjectCount(0)
-                    .totalQuestionCount(0)
-                    .totalProblemCount(0)
-                    .totalTeamCount(0)
-                    .totalPatentCount(0)
-                    .build();
-            statisticsList.add(statistics);
-        }
-        return statisticsList;
-    }
-
 }

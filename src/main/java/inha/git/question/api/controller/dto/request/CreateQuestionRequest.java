@@ -29,6 +29,10 @@ public record CreateQuestionRequest(
 
         @NotNull
         @Schema(description = "학기 인덱스", example = "1")
-        Integer semesterIdx
+        Integer semesterIdx,
+
+        @NotNull
+        @Schema(description = "카테고리 인덱스", example = "1")
+        Integer categoryIdx
 ) {
 }

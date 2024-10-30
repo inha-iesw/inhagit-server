@@ -1,5 +1,6 @@
 package inha.git.project.api.mapper;
 
+import inha.git.category.domain.Category;
 import inha.git.common.Constant;
 import inha.git.field.domain.Field;
 import inha.git.mapping.domain.*;
@@ -41,9 +42,10 @@ public interface ProjectMapper {
     @Mapping(target = "subjectName", source = "createProjectRequest.subject")
     @Mapping(target = "user", source = "user")
     @Mapping(target = "semester", source = "semester")
+    @Mapping(target = "category", source = "category")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "isPublic", source = "createProjectRequest.isPublic")
-    Project createProjectRequestToProject(CreateProjectRequest createProjectRequest, User user, Semester semester);
+    Project createProjectRequestToProject(CreateProjectRequest createProjectRequest, User user, Semester semester, Category category);
 
     /**
      * UpdateProjectRequest를 Project 엔티티로 변환
@@ -55,8 +57,10 @@ public interface ProjectMapper {
     @Mapping(target = "title", source = "updateProjectRequest.title")
     @Mapping(target = "contents", source = "updateProjectRequest.contents")
     @Mapping(target = "semester", source = "semester")
+    @Mapping(target = "category", source = "category")
     @Mapping(target = "isPublic", source = "updateProjectRequest.isPublic")
-    void updateProjectRequestToProject(UpdateProjectRequest updateProjectRequest, @MappingTarget Project project, Semester semester);
+    @Mapping(target = "state", ignore = true)
+    void updateProjectRequestToProject(UpdateProjectRequest updateProjectRequest, @MappingTarget Project project, Semester semester, Category category);
 
     /**
      * Project 엔티티를 ProjectResponse로 변환
@@ -313,8 +317,9 @@ public interface ProjectMapper {
     @Mapping(target = "subjectName", source = "createGithubProjectRequest.subject")
     @Mapping(target = "user", source = "user")
     @Mapping(target = "semester", source = "semester")
+    @Mapping(target = "category", source = "category")
     @Mapping(target = "isPublic", source = "createGithubProjectRequest.isPublic")
-    Project createGithubProjectRequestToProject(CreateGithubProjectRequest createGithubProjectRequest, User user, Semester semester);
+    Project createGithubProjectRequestToProject(CreateGithubProjectRequest createGithubProjectRequest, User user, Semester semester, Category category);
 
 
     SearchPatentResponse toSearchPatentResponse(String applicationNumber, String applicationDate, String inventionTitle,

@@ -1,5 +1,7 @@
 package inha.git.college.service;
 
+import inha.git.category.domain.Category;
+import inha.git.category.domain.repository.CategoryJpaRepository;
 import inha.git.college.controller.dto.request.CreateCollegeRequest;
 import inha.git.college.controller.dto.request.UpdateCollegeRequest;
 import inha.git.college.controller.dto.response.SearchCollegeResponse;
@@ -41,6 +43,7 @@ public class CollegeServiceImpl implements CollegeService {
     private final CollegeStatisticsJpaRepository collegeStatisticsJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
+    private final CategoryJpaRepository categoryJpaRepository;
     private final TotalCollegeStatisticsJpaRepository totalCollegeStatisticsJpaRepository;
     private final DepartmentJpaRepository departmentJpaRepository;
     private final CollegeMapper collegeMapper;
@@ -84,10 +87,13 @@ public class CollegeServiceImpl implements CollegeService {
                 (collegeMapper.createCollegeRequestToCollege(createDepartmentRequest));
         List<Semester> semesters = semesterJpaRepository.findAllByState(ACTIVE);
         List<Field> fields = fieldJpaRepository.findAllByState(ACTIVE);
+        List<Category> categories = categoryJpaRepository.findAllByState(ACTIVE);
         for (Semester semester : semesters) {
             for (Field field : fields) {
-                CollegeStatistics collegeStatistics = collegeMapper.createCollegeStatistics(college, semester, field);
-                collegeStatisticsJpaRepository.save(collegeStatistics);
+                for (Category category : categories) {
+                    CollegeStatistics collegeStatistics = collegeMapper.createCollegeStatistics(college, semester, field, category);
+                    collegeStatisticsJpaRepository.save(collegeStatistics);
+                }
             }
         }
         totalCollegeStatisticsJpaRepository.save(collegeMapper.createTotalCollegeStatistics(college));

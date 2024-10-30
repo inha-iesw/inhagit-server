@@ -1,5 +1,7 @@
 package inha.git.project.api.service;
 
+import inha.git.category.domain.Category;
+import inha.git.category.domain.repository.CategoryJpaRepository;
 import inha.git.common.exceptions.BaseException;
 import inha.git.field.domain.Field;
 import inha.git.field.domain.repository.FieldJpaRepository;
@@ -55,6 +57,7 @@ public class ProjectServiceImpl implements ProjectService {
     private final ProjectFieldJpaRepository projectFieldJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
+    private final CategoryJpaRepository categoryJpaRepository;
     private final ProjectMapper projectMapper;
     private final StatisticsService statisticsService;
     private final IdempotentProvider idempotentProvider;
@@ -80,7 +83,10 @@ public class ProjectServiceImpl implements ProjectService {
 
         Semester semester = semesterJpaRepository.findByIdAndState(createProjectRequest.semesterIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
-        Project project = projectMapper.createProjectRequestToProject(createProjectRequest, user, semester);
+        Category category = categoryJpaRepository.findById(createProjectRequest.categoryIdx())
+                .orElseThrow(() -> new BaseException(CATEGORY_NOT_FOUND));
+
+        Project project = projectMapper.createProjectRequestToProject(createProjectRequest, user, semester, category);
         Project savedProject = projectJpaRepository.saveAndFlush(project);
 
         ProjectUpload projectUpload = projectMapper.createProjectUpload(PROJECT_UPLOAD + folderName, zipFilePath, savedProject);
@@ -91,7 +97,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         List<Field> fields = fieldJpaRepository.findAllById(createProjectRequest.fieldIdxList());
 
-        statisticsService.increaseCount(user, fields, semester,  1);
+        statisticsService.increaseCount(user, fields, semester, category,  1);
         log.info("프로젝트 생성 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), savedProject.getId());
         return projectMapper.projectToProjectResponse(savedProject);
     }
@@ -110,13 +116,17 @@ public class ProjectServiceImpl implements ProjectService {
 
         Semester semester = semesterJpaRepository.findByIdAndState(createGithubProjectRequest.semesterIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
-        Project project = projectMapper.createGithubProjectRequestToProject(createGithubProjectRequest, user, semester);
+
+        Category category = categoryJpaRepository.findById(createGithubProjectRequest.categoryIdx())
+                .orElseThrow(() -> new BaseException(CATEGORY_NOT_FOUND));
+
+        Project project = projectMapper.createGithubProjectRequestToProject(createGithubProjectRequest, user, semester, category);
         Project savedProject = projectJpaRepository.saveAndFlush(project);
 
         List<ProjectField> projectFields = createAndSaveProjectFields(createGithubProjectRequest.fieldIdxList(), savedProject);
         projectFieldJpaRepository.saveAll(projectFields);
         List<Field> fields = fieldJpaRepository.findAllById(createGithubProjectRequest.fieldIdxList());
-        statisticsService.increaseCount(user, fields, semester,  8);
+        statisticsService.increaseCount(user, fields, semester,  category, 8);
         log.info("깃허브 프로젝트 생성 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), savedProject.getId());
         return projectMapper.projectToProjectResponse(savedProject);
     }
@@ -146,6 +156,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         // 변경 전 상태 저장
         Semester originSemester = project.getSemester();
+        Category originCategory = project.getCategory();
         List<Field> originFields = project.getProjectFields().stream()
                 .map(ProjectField::getField)
                 .toList();
@@ -153,13 +164,15 @@ public class ProjectServiceImpl implements ProjectService {
         // 새로운 학기 정보 가져오기
         Semester newSemester = semesterJpaRepository.findByIdAndState(updateProjectRequest.semesterIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
+        Category newCategory = categoryJpaRepository.findById(updateProjectRequest.categoryIdx())
+                .orElseThrow(() -> new BaseException(CATEGORY_NOT_FOUND));
 
         // 새로운 필드 정보 처리
         List<Integer> newFieldIds = updateProjectRequest.fieldIdxList();
         List<Field> newFields = fieldJpaRepository.findAllById(newFieldIds);
 
         // 프로젝트 정보 업데이트
-        projectMapper.updateProjectRequestToProject(updateProjectRequest, project, newSemester);
+        projectMapper.updateProjectRequestToProject(updateProjectRequest, project, newSemester, newCategory);
 
         // 필드 정보 업데이트 (디버깅을 위한 로깅 추가)
         Set<Integer> existingFieldIds = project.getProjectFields().stream()
@@ -212,10 +225,10 @@ public class ProjectServiceImpl implements ProjectService {
         int statisticsValue = isRepoProject ? 8 : 1;
 
         // 이전 상태에 대한 통계 감소
-        statisticsService.decreaseCount(user, originFields, originSemester, statisticsValue);
+        statisticsService.decreaseCount(user, originFields, originSemester, originCategory, statisticsValue);
 
         // 새로운 상태에 대한 통계 증가
-        statisticsService.increaseCount(user, newFields, newSemester, statisticsValue);
+        statisticsService.increaseCount(user, newFields, newSemester, newCategory, statisticsValue);
 
         if (project.getRepoName() == null) {
             ProjectUpload findProjectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
@@ -271,10 +284,10 @@ public class ProjectServiceImpl implements ProjectService {
                 .map(ProjectField::getField)
                 .toList();
         if(project.getRepoName() == null) {
-            statisticsService.decreaseCount(project.getUser(), fields, project.getSemester(), 1);
+            statisticsService.decreaseCount(project.getUser(), fields, project.getSemester(), project.getCategory(), 1);
         }
         else {
-            statisticsService.decreaseCount(project.getUser(), fields, project.getSemester(), 8);
+            statisticsService.decreaseCount(project.getUser(), fields, project.getSemester(), project.getCategory(), 8);
         }
         log.info("프로젝트 삭제 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
         return projectMapper.projectToProjectResponse(project);

@@ -1,5 +1,7 @@
 package inha.git.question.api.service;
 
+import inha.git.category.domain.Category;
+import inha.git.category.domain.repository.CategoryJpaRepository;
 import inha.git.common.exceptions.BaseException;
 import inha.git.field.domain.Field;
 import inha.git.field.domain.repository.FieldJpaRepository;
@@ -64,6 +66,7 @@ public class QuestionServiceImpl implements QuestionService {
     private final QuestionLikeJpaRepository questionLikeJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
+    private final CategoryJpaRepository categoryJpaRepository;
     private final QuestionQueryRepository questionQueryRepository;
     private final IdempotentProvider idempotentProvider;
     private final StatisticsService statisticsService;
@@ -130,13 +133,16 @@ public class QuestionServiceImpl implements QuestionService {
 
         Semester semester = semesterJpaRepository.findByIdAndState(createQuestionRequest.semesterIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
-        Question question = questionMapper.createQuestionRequestToQuestion(createQuestionRequest, user, semester);
+        Category category = categoryJpaRepository.findByIdAndState(createQuestionRequest.categoryIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(CATEGORY_NOT_FOUND));
+
+        Question question = questionMapper.createQuestionRequestToQuestion(createQuestionRequest, user, semester, category);
         Question saveQuestion = questionJpaRepository.save(question);
 
         List<QuestionField> questionFields = createAndSaveQuestionFields(createQuestionRequest.fieldIdxList(), saveQuestion);
         questionFieldJpaRepository.saveAll(questionFields);
         List<Field> fields = fieldJpaRepository.findAllById(createQuestionRequest.fieldIdxList());
-        statisticsService.increaseCount(user, fields, semester, 2);
+        statisticsService.increaseCount(user, fields, semester, category, 2);
         log.info("질문 생성 성공 - 사용자: {} 질문 ID: {}", user.getName(), saveQuestion.getId());
         return questionMapper.questionToQuestionResponse(saveQuestion);
     }
@@ -164,6 +170,8 @@ public class QuestionServiceImpl implements QuestionService {
 
         // 변경 전 상태 저장
         Semester originSemester = question.getSemester();
+        Category originCategory = question.getCategory();
+
         List<Field> originFields = question.getQuestionFields().stream()
                 .map(QuestionField::getField)
                 .toList();
@@ -171,13 +179,15 @@ public class QuestionServiceImpl implements QuestionService {
         // 새로운 학기 정보 가져오기
         Semester newSemester = semesterJpaRepository.findByIdAndState(updateQuestionRequest.semesterIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
+        Category newCategory = categoryJpaRepository.findByIdAndState(updateQuestionRequest.categoryIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(CATEGORY_NOT_FOUND));
 
         // 새로운 필드 정보 처리
         List<Integer> newFieldIds = updateQuestionRequest.fieldIdxList();
         List<Field> newFields = fieldJpaRepository.findAllById(newFieldIds);
 
         // 질문 정보 업데이트
-        questionMapper.updateQuestionRequestToQuestion(updateQuestionRequest, question, newSemester);
+        questionMapper.updateQuestionRequestToQuestion(updateQuestionRequest, question, newSemester, newCategory);
 
         // 필드 정보 업데이트 (최적화된 로직)
         Set<Integer> existingFieldIds = question.getQuestionFields().stream()
@@ -216,9 +226,9 @@ public class QuestionServiceImpl implements QuestionService {
 
         // 통계 업데이트
         // 이전 상태에 대한 통계 감소
-        statisticsService.decreaseCount(user, originFields, originSemester, 2);
+        statisticsService.decreaseCount(user, originFields, originSemester, originCategory, 2);
         // 새로운 상태에 대한 통계 증가
-        statisticsService.increaseCount(user, newFields, newSemester, 2);
+        statisticsService.increaseCount(user, newFields, newSemester, newCategory, 2);
 
         log.info("질문 수정 성공 - 사용자: {} 질문 ID: {}", user.getName(), savedQuestion.getId());
         return questionMapper.questionToQuestionResponse(savedQuestion);
@@ -245,7 +255,7 @@ public class QuestionServiceImpl implements QuestionService {
         List<Field> fields = question.getQuestionFields().stream()
                 .map(QuestionField::getField)
                 .toList();
-        statisticsService.decreaseCount(question.getUser(), fields, question.getSemester(), 2);
+        statisticsService.decreaseCount(question.getUser(), fields, question.getSemester(), question.getCategory(), 2);
         log.info("질문 삭제 성공 - 사용자: {} 질문 ID: {}", user.getName(), questionIdx);
         return questionMapper.questionToQuestionResponse(question);
     }

@@ -1,5 +1,7 @@
 package inha.git.field.api.service;
 
+import inha.git.category.domain.Category;
+import inha.git.category.domain.repository.CategoryJpaRepository;
 import inha.git.college.domain.College;
 import inha.git.college.domain.repository.CollegeJpaRepository;
 import inha.git.common.exceptions.BaseException;
@@ -47,6 +49,7 @@ public class FieldServiceImpl implements FieldService {
     private final CollegeJpaRepository collegeJpaRepository;
     private final CollegeStatisticsJpaRepository collegeStatisticsJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
+    private final CategoryJpaRepository categoryJpaRepository;
     private final UserJpaRepository userJpaRepository;
     private final DepartmentJpaRepository departmentJpaRepository;
     private final DepartmentStatisticsJpaRepository departmentStatisticsJpaRepository;
@@ -79,11 +82,12 @@ public class FieldServiceImpl implements FieldService {
         List<Department> departments = departmentJpaRepository.findAllByState(ACTIVE);
         List<User> users = userJpaRepository.findAllByState(ACTIVE);
         List<Semester> semesters = semesterJpaRepository.findAllByState(ACTIVE);
+        List<Category> categories = categoryJpaRepository.findAllByState(ACTIVE);
 
-        List<CollegeStatistics> statisticsList = fieldMapper.createCollegeStatistics(savedField, colleges, semesters);
-        List<DepartmentStatistics> departmentStatistics = fieldMapper.createDepartmentStatistics(savedField, departments, semesters);
-        List<UserStatistics> userStatistics = fieldMapper.createUserStatistics(savedField, users, semesters);
-        List<UserCountStatistics> userCountStatistics = fieldMapper.createUserCountStatistics(savedField, semesters);
+        List<CollegeStatistics> statisticsList = fieldMapper.createCollegeStatistics(savedField, colleges, semesters, categories);
+        List<DepartmentStatistics> departmentStatistics = fieldMapper.createDepartmentStatistics(savedField, departments, semesters, categories);
+        List<UserStatistics> userStatistics = fieldMapper.createUserStatistics(savedField, users, semesters, categories);
+        List<UserCountStatistics> userCountStatistics = fieldMapper.createUserCountStatistics(savedField, semesters, categories);
         collegeStatisticsJpaRepository.saveAll(statisticsList);
         departmentStatisticsJpaRepository.saveAll(departmentStatistics);
         userStatisticsJpaRepository.saveAll(userStatistics);

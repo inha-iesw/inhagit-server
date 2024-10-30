@@ -1,5 +1,6 @@
 package inha.git.college.mapper;
 
+import inha.git.category.domain.Category;
 import inha.git.college.controller.dto.request.CreateCollegeRequest;
 import inha.git.college.controller.dto.response.SearchCollegeResponse;
 import inha.git.college.domain.College;
@@ -36,9 +37,9 @@ public interface CollegeMapper {
      * @param college College
      * @return SearchCollegeResponse
      */
-    default CollegeStatistics createCollegeStatistics(College college, Semester semester, Field field) {
+    default CollegeStatistics createCollegeStatistics(College college, Semester semester, Field field, Category category) {
         return new CollegeStatistics(
-                new CollegeStatisticsStatisticsId(college.getId(), semester.getId(), field.getId()), college, semester, field, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+                new CollegeStatisticsStatisticsId(college.getId(), semester.getId(), field.getId(), category.getId()), college, semester, field, category, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 
 
