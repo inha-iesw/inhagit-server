@@ -5,6 +5,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
+import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.college.controller.dto.response.SearchCollegeResponse;
 import inha.git.field.api.controller.dto.response.SearchFieldResponse;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
@@ -14,6 +15,7 @@ import inha.git.statistics.domain.QUserCountStatistics;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import static inha.git.category.domain.QCategory.category;
 import static inha.git.college.domain.QCollege.college;
 import static inha.git.department.domain.QDepartment.department;
 import static inha.git.field.domain.QField.field;
@@ -63,6 +65,7 @@ public class ProjectStatisticsQueryRepository {
         SearchDepartmentResponse department = getDepartment(searchCond.departmentIdx());
         SearchFieldResponse field = getField(searchCond.fieldIdx());
         SearchSemesterResponse semester = getSemester(searchCond.semesterIdx());
+        SearchCategoryResponse category = getCategory(searchCond.categoryIdx());
 
         // ProjectStatisticsResponse로 결과 반환
         return new ProjectStatisticsResponse(
@@ -70,6 +73,7 @@ public class ProjectStatisticsQueryRepository {
                 department,
                 field,
                 semester,
+                category,
                 totalProjectCount != null ? totalProjectCount : 0,
                 localProjectCount != null ? localProjectCount : 0,
                 githubProjectCount != null ? githubProjectCount : 0,
@@ -143,6 +147,21 @@ public class ProjectStatisticsQueryRepository {
                 .fetchOne();
     }
 
+    private SearchCategoryResponse getCategory(Integer categoryIdx) {
+        if (categoryIdx == null) {
+            return null; // categoryIdx가 null인 경우 null 반환
+        }
+
+        return queryFactory
+                .select(Projections.constructor(
+                        SearchCategoryResponse.class,
+                        category.id,
+                        category.name
+                ))
+                .from(category)
+                .where(category.id.eq(categoryIdx))
+                .fetchOne();
+    }
 
 
     // 전체 프로젝트 수 계산
@@ -251,7 +270,7 @@ public class ProjectStatisticsQueryRepository {
 
     // 깃허브 프로젝트 수 계산
     private Integer getGithubProjectCount(SearchCond searchCond) {
-        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null && searchCond.categoryIdx() == null) {
             if (searchCond.departmentIdx() != null) {
                 return queryFactory
                         .select(totalDepartmentStatistics.totalGithubProjectCount)
@@ -294,7 +313,7 @@ public class ProjectStatisticsQueryRepository {
 
     // 특허 프로젝트 수 계산
     private Integer getPatentProjectCount(SearchCond searchCond) {
-        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null && searchCond.categoryIdx() == null) {
             if (searchCond.departmentIdx() != null) {
                 return queryFactory
                         .select(totalDepartmentStatistics.totalPatentCount)
@@ -337,7 +356,7 @@ public class ProjectStatisticsQueryRepository {
 
     // 프로젝트 등록한 유저 수 계산
     private Integer getProjectUserCount(SearchCond searchCond) {
-        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null && searchCond.categoryIdx() == null) {
             if (searchCond.departmentIdx() != null) {
                 return queryFactory
                         .select(totalDepartmentStatistics.userProjectCount)
@@ -380,7 +399,7 @@ public class ProjectStatisticsQueryRepository {
 
     // 특허 등록한 유저 수 계산
     private Integer getPatentUserCount(SearchCond searchCond) {
-        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null && searchCond.categoryIdx() == null) {
             if (searchCond.departmentIdx() != null) {
                 return queryFactory
                         .select(totalDepartmentStatistics.userPatentCount)
@@ -438,6 +457,11 @@ public class ProjectStatisticsQueryRepository {
             if (searchCond.fieldIdx() != null) {
                 predicate = predicate.and(userCountStatistics.field.id.eq(searchCond.fieldIdx()));
             }
+
+            // 카테고리 필터링 (전체 조건에서도 적용 가능)
+            if (searchCond.categoryIdx() != null) {
+                predicate = predicate.and(userCountStatistics.category.id.eq(searchCond.categoryIdx()));
+            }
         }
         // 학과 조건이 있을 경우 DepartmentStatistics에서 필터링
         else if (searchCond.departmentIdx() != null) {
@@ -453,6 +477,11 @@ public class ProjectStatisticsQueryRepository {
             if (searchCond.fieldIdx() != null) {
                 predicate = predicate.and(departmentStatistics.field.id.eq(searchCond.fieldIdx()));
             }
+
+            // 카테고리 필터링
+            if (searchCond.categoryIdx() != null) {
+                predicate = predicate.and(departmentStatistics.category.id.eq(searchCond.categoryIdx()));
+            }
         }
         // 단과대 조건이 있을 경우 CollegeStatistics에서 필터링
         else if (searchCond.collegeIdx() != null) {
@@ -467,6 +496,11 @@ public class ProjectStatisticsQueryRepository {
             // 분야 필터링
             if (searchCond.fieldIdx() != null) {
                 predicate = predicate.and(collegeStatistics.field.id.eq(searchCond.fieldIdx()));
+            }
+
+            // 카테고리 필터링
+            if (searchCond.categoryIdx() != null) {
+                predicate = predicate.and(collegeStatistics.category.id.eq(searchCond.categoryIdx()));
             }
         }
 

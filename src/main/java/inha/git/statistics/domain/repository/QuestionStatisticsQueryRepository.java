@@ -4,6 +4,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
+import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.college.controller.dto.response.SearchCollegeResponse;
 import inha.git.field.api.controller.dto.response.SearchFieldResponse;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+import static inha.git.category.domain.QCategory.category;
 import static inha.git.college.domain.QCollege.college;
 import static inha.git.department.domain.QDepartment.department;
 import static inha.git.field.domain.QField.field;
@@ -50,11 +52,13 @@ public class QuestionStatisticsQueryRepository {
         SearchDepartmentResponse department = getDepartment(searchCond.departmentIdx());
         SearchFieldResponse field = getField(searchCond.fieldIdx());
         SearchSemesterResponse semester = getSemester(searchCond.semesterIdx());
+        SearchCategoryResponse category = getCategory(searchCond.categoryIdx());
         return new QuestionStatisticsResponse(
                 college,
                 department,
                 field,
                 semester,
+                category,
                 questionCount != null ? questionCount : 0,
                 userCount != null ? userCount : 0
         );
@@ -124,9 +128,24 @@ public class QuestionStatisticsQueryRepository {
                 .fetchOne();
     }
 
+    private SearchCategoryResponse getCategory(Integer categoryIdx) {
+        if (categoryIdx == null) {
+            return null; // categoryIdx가 null인 경우 null 반환
+        }
+
+        return queryFactory
+                .select(Projections.constructor(
+                        SearchCategoryResponse.class,
+                        category.id,
+                        category.name
+                ))
+                .from(category)
+                .where(category.id.eq(categoryIdx))
+                .fetchOne();
+    }
     // 질문 수 계산
     private Integer getQuestionCount(SearchCond searchCond) {
-        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null && searchCond.categoryIdx() == null) {
             if (searchCond.departmentIdx() != null) {
                 return queryFactory
                         .select(totalDepartmentStatistics.totalQuestionCount)
@@ -169,7 +188,7 @@ public class QuestionStatisticsQueryRepository {
 
     // 멘토링 참여 인원 수 계산
     private Integer getUserCount(SearchCond searchCond) {
-        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null && searchCond.categoryIdx() == null) {
             if (searchCond.departmentIdx() != null) {
                 return queryFactory
                         .select(totalDepartmentStatistics.userQuestionCount)
@@ -227,6 +246,11 @@ public class QuestionStatisticsQueryRepository {
             if (searchCond.fieldIdx() != null) {
                 predicate = predicate.and(userCountStatistics.field.id.eq(searchCond.fieldIdx()));
             }
+
+            // 카테고리 필터링
+            if (searchCond.categoryIdx() != null) {
+                predicate = predicate.and(userCountStatistics.category.id.eq(searchCond.categoryIdx()));
+            }
         }
         // 학과 조건이 있을 경우 DepartmentStatistics에서 필터링
         else if (searchCond.departmentIdx() != null) {
@@ -242,6 +266,11 @@ public class QuestionStatisticsQueryRepository {
             if (searchCond.fieldIdx() != null) {
                 predicate = predicate.and(departmentStatistics.field.id.eq(searchCond.fieldIdx()));
             }
+
+            // 카테고리 필터링
+            if (searchCond.categoryIdx() != null) {
+                predicate = predicate.and(departmentStatistics.category.id.eq(searchCond.categoryIdx()));
+            }
         }
         // 단과대 조건이 있을 경우 CollegeStatistics에서 필터링
         else if (searchCond.collegeIdx() != null) {
@@ -256,6 +285,11 @@ public class QuestionStatisticsQueryRepository {
             // 분야 필터링
             if (searchCond.fieldIdx() != null) {
                 predicate = predicate.and(collegeStatistics.field.id.eq(searchCond.fieldIdx()));
+            }
+
+            // 카테고리 필터링
+            if (searchCond.categoryIdx() != null) {
+                predicate = predicate.and(collegeStatistics.category.id.eq(searchCond.categoryIdx()));
             }
         }
 

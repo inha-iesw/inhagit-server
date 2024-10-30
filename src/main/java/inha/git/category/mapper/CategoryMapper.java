@@ -1,11 +1,11 @@
-package inha.git.semester.mapper;
+package inha.git.category.mapper;
 
+import inha.git.category.controller.dto.request.CreateCategoryRequest;
+import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.category.domain.Category;
 import inha.git.college.domain.College;
 import inha.git.department.domain.Department;
 import inha.git.field.domain.Field;
-import inha.git.semester.controller.dto.request.CreateSemesterRequest;
-import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.semester.domain.Semester;
 import inha.git.statistics.domain.CollegeStatistics;
 import inha.git.statistics.domain.DepartmentStatistics;
@@ -24,25 +24,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * SemesterMapper는 Semester 엔티티와 관련된 데이터 변환 기능을 제공.
+ * CategoryMapper는 Category 엔티티와 관련된 데이터 변환 기능을 제공.
  */
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-public interface SemesterMapper {
+public interface CategoryMapper {
 
     @Mapping(target = "id", ignore = true)
-    Semester createSemesterRequestToSemester(CreateSemesterRequest createDepartmentRequest);
+    Category createCategoryRequestToSemester(CreateCategoryRequest createCategoryRequest);
 
 
-    @Mapping(source = "semester.id", target = "idx")
-    SearchSemesterResponse semesterToSearchSemesterResponse(Semester semester);
+    @Mapping(source = "category.id", target = "idx")
+    SearchCategoryResponse categoryToCategoryResponse(Category category);
 
-    List<SearchSemesterResponse> semestersToSearchSemesterResponses(List<Semester> semesterList);
+    List<SearchCategoryResponse> categoriesToSearchCategoryResponses(List<Category> categoryList);
 
-    default List<CollegeStatistics> createCollegeStatistics(Semester semester, List<College> colleges, List<Field> fields, List<Category> categories) {
+    default List<CollegeStatistics> createCollegeStatistics(Category category, List<College> colleges, List<Field> fields, List<Semester> semesters) {
         List<CollegeStatistics> statisticsList = new ArrayList<>();
         for (College college : colleges) {
-            for (Field field : fields) {
-                for (Category category : categories) {
+            for (Semester semester : semesters) {
+                for (Field field : fields) {
                     CollegeStatistics statistics = CollegeStatistics.builder()
                             .id(new CollegeStatisticsStatisticsId(college.getId(), semester.getId(), field.getId(), category.getId()))
                             .college(college)
@@ -62,6 +62,7 @@ public interface SemesterMapper {
                             .patentUserCount(0)
                             .problemParticipationCount(0)
                             .build();
+
                     statisticsList.add(statistics);
                 }
             }
@@ -69,11 +70,11 @@ public interface SemesterMapper {
         return statisticsList;
     }
 
-    default List<DepartmentStatistics> createDepartmentStatistics(Semester semester, List<Department> departments, List<Field> fields, List<Category> categories) {
+    default List<DepartmentStatistics> createDepartmentStatistics(Category category, List<Department> departments, List<Field> fields, List<Semester> semesters) {
         List<DepartmentStatistics> statisticsList = new ArrayList<>();
         for (Department department : departments) {
-            for (Field field : fields) {
-                for (Category category : categories) {
+            for (Semester semester : semesters) {
+                for (Field field : fields) {
                     DepartmentStatistics statistics = DepartmentStatistics.builder()
                             .id(new DepartmentStatisticsId(department.getId(), semester.getId(), field.getId(), category.getId()))
                             .department(department)
@@ -95,18 +96,16 @@ public interface SemesterMapper {
                             .build();
                     statisticsList.add(statistics);
                 }
-
             }
         }
         return statisticsList;
     }
 
-
-    default List<UserStatistics> createUserStatistics(Semester semester, List<User> users, List<Field> fields, List<Category> categories) {
+    default List<UserStatistics> createUserStatistics(Category category, List<User> users, List<Field> fields, List<Semester> semesters) {
         List<UserStatistics> statisticsList = new ArrayList<>();
         for (User user : users) {
-            for (Field field : fields) {
-                for (Category category : categories) {
+            for (Semester semester : semesters) {
+                for (Field field : fields) {
                     UserStatistics statistics = UserStatistics.builder()
                             .id(new UserStatisticsId(user.getId(), semester.getId(), field.getId(), category.getId()))
                             .user(user)
@@ -127,15 +126,16 @@ public interface SemesterMapper {
         return statisticsList;
     }
 
-    default List<UserCountStatistics> createUserCountStatistics(Semester semester, List<Field> fields, List<Category> categories) {
+    default List<UserCountStatistics> createUserCountStatistics(Category category, List<Field> fields, List<Semester> semesters) {
         List<UserCountStatistics> statisticsList = new ArrayList<>();
-        for (Field field : fields) {
-            for (Category category : categories) {
+        for (Semester semester : semesters) {
+            for (Field field : fields) {
                 UserCountStatistics statistics = UserCountStatistics.builder()
-                        .id(new UserCountStatisticsId(semester.getId(), field.getId(), category.getId()))
+                        .id(new UserCountStatisticsId(semester.getId(), field.getId(), category.getId())) // 복합 키 설정
                         .semester(semester)
                         .field(field)
-                        .userProjectCount(0)
+                        .category(category)
+                        .userProjectCount(0) // 기본 값 설정
                         .userQuestionCount(0)
                         .userProblemCount(0)
                         .userTeamCount(0)
@@ -147,9 +147,12 @@ public interface SemesterMapper {
                         .totalTeamCount(0)
                         .totalPatentCount(0)
                         .build();
+
                 statisticsList.add(statistics);
             }
         }
         return statisticsList;
     }
+
+
 }

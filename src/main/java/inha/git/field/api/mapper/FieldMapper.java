@@ -1,5 +1,6 @@
 package inha.git.field.api.mapper;
 
+import inha.git.category.domain.Category;
 import inha.git.college.domain.College;
 import inha.git.department.domain.Department;
 import inha.git.field.api.controller.dto.request.CreateFieldRequest;
@@ -53,108 +54,117 @@ public interface FieldMapper {
     List<SearchFieldResponse> fieldsToSearchFieldResponses(List<Field> fields);
 
 
-    default List<CollegeStatistics> createCollegeStatistics(Field field, List<College> colleges, List<Semester> semesters) {
+    default List<CollegeStatistics> createCollegeStatistics(Field field, List<College> colleges, List<Semester> semesters, List<Category> categories) {
         List<CollegeStatistics> statisticsList = new ArrayList<>();
         for (College college : colleges) {
             for (Semester semester : semesters) {
-                CollegeStatistics statistics = CollegeStatistics.builder()
-                        .id(new CollegeStatisticsStatisticsId(college.getId(), semester.getId(), field.getId())) // 복합 키 설정
-                        .college(college)
-                        .semester(semester)
-                        .field(field)
-                        .projectCount(0) // 기본 값 설정
-                        .githubProjectCount(0)
-                        .questionCount(0)
-                        .problemCount(0)
-                        .teamCount(0)
-                        .patentCount(0)
-                        .projectUserCount(0)
-                        .questionUserCount(0)
-                        .problemUserCount(0)
-                        .teamUserCount(0)
-                        .patentUserCount(0)
-                        .problemParticipationCount(0)
-                        .build();
+                for (Category category : categories) {
+                    CollegeStatistics statistics = CollegeStatistics.builder()
+                            .id(new CollegeStatisticsStatisticsId(college.getId(), semester.getId(), field.getId(), category.getId()))
+                            .college(college)
+                            .semester(semester)
+                            .field(field)
+                            .category(category)
+                            .projectCount(0)
+                            .githubProjectCount(0)
+                            .questionCount(0)
+                            .problemCount(0)
+                            .teamCount(0)
+                            .patentCount(0)
+                            .projectUserCount(0)
+                            .questionUserCount(0)
+                            .problemUserCount(0)
+                            .teamUserCount(0)
+                            .patentUserCount(0)
+                            .problemParticipationCount(0)
+                            .build();
 
-                statisticsList.add(statistics);
+                    statisticsList.add(statistics);
+                }
             }
         }
         return statisticsList;
     }
 
-    default List<DepartmentStatistics> createDepartmentStatistics(Field savedField, List<Department> departments, List<Semester> semesters) {
+    default List<DepartmentStatistics> createDepartmentStatistics(Field savedField, List<Department> departments, List<Semester> semesters, List<Category> categories) {
         List<DepartmentStatistics> statisticsList = new ArrayList<>();
         for (Department department : departments) {
             for (Semester semester : semesters) {
-                DepartmentStatistics statistics = DepartmentStatistics.builder()
-                        .id(new DepartmentStatisticsId(department.getId(), semester.getId(), savedField.getId())) // 복합 키 설정
-                        .department(department)
-                        .semester(semester)
-                        .field(savedField)
-                        .projectCount(0) // 기본 값 설정
-                        .githubProjectCount(0)
-                        .questionCount(0)
-                        .problemCount(0)
-                        .teamCount(0)
-                        .patentCount(0)
-                        .projectUserCount(0)
-                        .questionUserCount(0)
-                        .problemUserCount(0)
-                        .teamUserCount(0)
-                        .patentUserCount(0)
-                        .problemParticipationCount(0)
-                        .build();
-
-                statisticsList.add(statistics);
+                for (Category category : categories) {
+                    DepartmentStatistics statistics = DepartmentStatistics.builder()
+                            .id(new DepartmentStatisticsId(department.getId(), semester.getId(), savedField.getId(), category.getId()))
+                            .department(department)
+                            .semester(semester)
+                            .field(savedField)
+                            .category(category)
+                            .projectCount(0)
+                            .githubProjectCount(0)
+                            .questionCount(0)
+                            .problemCount(0)
+                            .teamCount(0)
+                            .patentCount(0)
+                            .projectUserCount(0)
+                            .questionUserCount(0)
+                            .problemUserCount(0)
+                            .teamUserCount(0)
+                            .patentUserCount(0)
+                            .problemParticipationCount(0)
+                            .build();
+                    statisticsList.add(statistics);
+                }
             }
         }
         return statisticsList;
     }
 
-    default List<UserStatistics> createUserStatistics(Field savedField, List<User> users, List<Semester> semesters) {
+    default List<UserStatistics> createUserStatistics(Field savedField, List<User> users, List<Semester> semesters, List<Category> categories) {
         List<UserStatistics> statisticsList = new ArrayList<>();
         for (User user : users) {
             for (Semester semester : semesters) {
-                UserStatistics statistics = UserStatistics.builder()
-                        .id(new UserStatisticsId(user.getId(), semester.getId(), savedField.getId())) // 복합 키 설정
-                        .user(user)
-                        .semester(semester)
-                        .field(savedField)
-                        .projectCount(0) // 기본 값 설정
-                        .githubProjectCount(0)
-                        .questionCount(0)
-                        .problemCount(0)
-                        .teamCount(0)
-                        .patentCount(0)
-                        .build();
-
-                statisticsList.add(statistics);
+                for (Category category : categories) {
+                    UserStatistics statistics = UserStatistics.builder()
+                            .id(new UserStatisticsId(user.getId(), semester.getId(), savedField.getId(), category.getId()))
+                            .user(user)
+                            .semester(semester)
+                            .field(savedField)
+                            .category(category)
+                            .projectCount(0)
+                            .githubProjectCount(0)
+                            .questionCount(0)
+                            .problemCount(0)
+                            .teamCount(0)
+                            .patentCount(0)
+                            .build();
+                    statisticsList.add(statistics);
+                }
             }
         }
         return statisticsList;
     }
 
-    default List<UserCountStatistics> createUserCountStatistics(Field savedField, List<Semester> semesters) {
+    default List<UserCountStatistics> createUserCountStatistics(Field savedField, List<Semester> semesters, List<Category> categories) {
         List<UserCountStatistics> statisticsList = new ArrayList<>();
             for (Semester semester : semesters) {
-                UserCountStatistics statistics = UserCountStatistics.builder()
-                        .id(new UserCountStatisticsId(semester.getId(), savedField.getId())) // 복합 키 설정
-                        .semester(semester)
-                        .field(savedField)
-                        .userProjectCount(0) // 기본 값 설정
-                        .userQuestionCount(0)
-                        .userProblemCount(0)
-                        .userTeamCount(0)
-                        .userPatentCount(0)
-                        .totalProjectCount(0)
-                        .totalGithubProjectCount(0)
-                        .totalQuestionCount(0)
-                        .totalProblemCount(0)
-                        .totalTeamCount(0)
-                        .totalPatentCount(0)
-                        .build();
+                for (Category category : categories) {
+                    UserCountStatistics statistics = UserCountStatistics.builder()
+                            .id(new UserCountStatisticsId(semester.getId(), savedField.getId(), category.getId())) // 복합 키 설정
+                            .semester(semester)
+                            .field(savedField)
+                            .userProjectCount(0) // 기본 값 설정
+                            .userQuestionCount(0)
+                            .userProblemCount(0)
+                            .userTeamCount(0)
+                            .userPatentCount(0)
+                            .totalProjectCount(0)
+                            .totalGithubProjectCount(0)
+                            .totalQuestionCount(0)
+                            .totalProblemCount(0)
+                            .totalTeamCount(0)
+                            .totalPatentCount(0)
+                            .build();
 
-                statisticsList.add(statistics);
+                    statisticsList.add(statistics);
+                }
             }
         return statisticsList;
     }

@@ -1,5 +1,6 @@
 package inha.git.question.domain;
 
+import inha.git.category.domain.Category;
 import inha.git.common.BaseEntity;
 import inha.git.mapping.domain.QuestionField;
 import inha.git.semester.domain.Semester;
@@ -53,6 +54,11 @@ public class Question extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "semester_id")
     private Semester semester;
+
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionField> questionFields;

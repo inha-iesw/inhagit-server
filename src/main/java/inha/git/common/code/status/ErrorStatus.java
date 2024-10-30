@@ -130,6 +130,7 @@ public enum ErrorStatus implements BaseErrorCode {
     DEPARTMENT_NOT_BELONG_TO_COLLEGE(HttpStatus.BAD_REQUEST, "DEPARTMENT4001", "해당 학과는 해당 단과대에 속하지 않습니다."),
     COLLEGE_NOT_FOUND(HttpStatus.NOT_FOUND, "COLLEGE4000", "단과대를 찾을 수 없습니다."),
     SEMESTER_NOT_FOUND(HttpStatus.NOT_FOUND, "SEMESTER4000", "학기를 찾을 수 없습니다."),
+    CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "CATEGORY4000", "카테고리를 찾을 수 없습니다."),
     COLLEGE_STATISTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "COLLEGE4001", "단과대 통계를 찾을 수 없습니다."),
     ALREADY_ADMIN(HttpStatus.BAD_REQUEST, "ADMIN4000", "이미 관리자 권한이 있습니다."),
     NOT_ADMIN(HttpStatus.BAD_REQUEST, "ADMIN4001", "이미 관리자 권한이 없습니다."),

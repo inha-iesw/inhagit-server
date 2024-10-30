@@ -1,5 +1,6 @@
 package inha.git.question.api.mapper;
 
+import inha.git.category.domain.Category;
 import inha.git.field.domain.Field;
 import inha.git.mapping.domain.QuestionCommentLike;
 import inha.git.mapping.domain.QuestionField;
@@ -45,9 +46,10 @@ public interface QuestionMapper {
     @Mapping(target = "subjectName", source = "createQuestionRequest.subject")
     @Mapping(target = "user", source = "user")
     @Mapping(target = "semester", source = "semester")
+    @Mapping(target = "category", source = "category")
     @Mapping(target = "likeCount", constant = "0")
     @Mapping(target = "commentCount", constant = "0")
-    Question createQuestionRequestToQuestion(CreateQuestionRequest createQuestionRequest, User user, Semester semester);
+    Question createQuestionRequestToQuestion(CreateQuestionRequest createQuestionRequest, User user, Semester semester, Category category);
 
     /**
      * Question을 QuestionResponse로 변환합니다.
@@ -80,7 +82,9 @@ public interface QuestionMapper {
     @Mapping(target = "title", source = "updateQuestionRequest.title")
     @Mapping(target = "contents", source = "updateQuestionRequest.contents")
     @Mapping(target = "semester", source = "semester")
-    void updateQuestionRequestToQuestion(UpdateQuestionRequest updateQuestionRequest, @MappingTarget Question question, Semester semester);
+    @Mapping(target = "category", source = "category")
+    @Mapping(target = "state", ignore = true)
+    void updateQuestionRequestToQuestion(UpdateQuestionRequest updateQuestionRequest, @MappingTarget Question question, Semester semester, Category category);
 
     /**
      * Field를 SearchFieldResponse로 변환합니다.

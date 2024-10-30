@@ -2,6 +2,7 @@ package inha.git.user.api.mapper;
 
 
 import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
+import inha.git.category.domain.Category;
 import inha.git.common.exceptions.BaseException;
 import inha.git.department.domain.Department;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
@@ -120,8 +121,8 @@ public interface UserMapper {
     CompanySignupResponse userToCompanySignupResponse(User user);
 
 
-    default UserStatistics createUserStatistics(User user, Semester semester, Field field) {
-        return new UserStatistics(new UserStatisticsId(user.getId(), semester.getId(), field.getId()), user, semester, field, 0, 0, 0, 0, 0, 0);
+    default UserStatistics createUserStatistics(User user, Semester semester, Field field, Category category) {
+        return new UserStatistics(new UserStatisticsId(user.getId(), semester.getId(), field.getId(), category.getId()), user, semester, field, category, 0, 0, 0, 0, 0, 0);
     }
 
     /**

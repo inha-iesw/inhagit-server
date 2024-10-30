@@ -1,6 +1,8 @@
 package inha.git.user.api.service;
 
 import inha.git.auth.api.service.MailService;
+import inha.git.category.domain.Category;
+import inha.git.category.domain.repository.CategoryJpaRepository;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
 import inha.git.field.domain.Field;
 import inha.git.field.domain.repository.FieldJpaRepository;
@@ -39,6 +41,7 @@ public class StudentServiceImpl implements StudentService{
     private final DepartmentJpaRepository departmentRepository;
     private final UserStatisticsJpaRepository userStatisticsJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
+    private final CategoryJpaRepository categoryJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
     private final UserMapper userMapper;
     private final MailService mailService;
@@ -62,11 +65,14 @@ public class StudentServiceImpl implements StudentService{
         User savedUser = userJpaRepository.save(user);
         List<Semester> semesters = semesterJpaRepository.findAllByState(ACTIVE);
         List<Field> fields = fieldJpaRepository.findAllByState(ACTIVE);
+        List<Category> categories = categoryJpaRepository.findAllByState(ACTIVE);
 
         for (Semester semester : semesters) {
             for (Field field : fields) {
-                UserStatistics userStatistics = userMapper.createUserStatistics(user, semester, field);
-                userStatisticsJpaRepository.save(userStatistics);
+                for (Category category : categories) {
+                    UserStatistics userStatistics = userMapper.createUserStatistics(user, semester, field, category);
+                    userStatisticsJpaRepository.save(userStatistics);
+                }
             }
         }
         log.info("학생 회원가입 성공 - 이메일: {}", studentSignupRequest.email());

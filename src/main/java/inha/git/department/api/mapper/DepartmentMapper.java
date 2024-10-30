@@ -1,6 +1,7 @@
 package inha.git.department.api.mapper;
 
 import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
+import inha.git.category.domain.Category;
 import inha.git.college.domain.College;
 import inha.git.department.api.controller.dto.request.CreateDepartmentRequest;
 import inha.git.department.domain.Department;
@@ -46,8 +47,8 @@ public interface DepartmentMapper {
      * @param field Field 엔티티
      * @return DepartmentStatistics 엔티티
      */
-    default DepartmentStatistics createDepartmentStatistics(Department department, Semester semester, Field field) {
-        return new DepartmentStatistics(new DepartmentStatisticsId(department.getId(), semester.getId(), field.getId()), department, semester, field, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+    default DepartmentStatistics createDepartmentStatistics(Department department, Semester semester, Field field, Category category) {
+        return new DepartmentStatistics(new DepartmentStatisticsId(department.getId(), semester.getId(), field.getId(), category.getId()), department, semester, field, category, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 
     @Mapping(source = "department.id", target = "departmentId")

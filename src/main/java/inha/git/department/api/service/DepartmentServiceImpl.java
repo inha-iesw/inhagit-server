@@ -1,6 +1,8 @@
 package inha.git.department.api.service;
 
 import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
+import inha.git.category.domain.Category;
+import inha.git.category.domain.repository.CategoryJpaRepository;
 import inha.git.college.domain.College;
 import inha.git.college.domain.repository.CollegeJpaRepository;
 import inha.git.common.exceptions.BaseException;
@@ -42,6 +44,7 @@ public class DepartmentServiceImpl implements DepartmentService{
     private final TotalDepartmentStatisticsJpaRepository totalDepartmentStatisticsJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
+    private final CategoryJpaRepository categoryJpaRepository;
     private final CollegeJpaRepository collegeJpaRepository;
 
     /**
@@ -80,11 +83,14 @@ public class DepartmentServiceImpl implements DepartmentService{
 
         List<Semester> semesters = semesterJpaRepository.findAllByState(ACTIVE);
         List<Field> fields = fieldJpaRepository.findAllByState(ACTIVE);
+        List<Category> categories = categoryJpaRepository.findAllByState(ACTIVE);
 
         for (Semester semester : semesters) {
             for (Field field : fields) {
-                DepartmentStatistics departmentStatistics = departmentMapper.createDepartmentStatistics(department, semester, field);
-                departmentStatisticsJpaRepository.save(departmentStatistics);
+                for (Category category : categories) {
+                    DepartmentStatistics departmentStatistics = departmentMapper.createDepartmentStatistics(department, semester, field, category);
+                    departmentStatisticsJpaRepository.save(departmentStatistics);
+                }
             }
         }
         totalDepartmentStatisticsJpaRepository.save(departmentMapper.createTotalDepartmentStatistics(department));

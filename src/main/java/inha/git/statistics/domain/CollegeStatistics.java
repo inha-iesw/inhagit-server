@@ -1,5 +1,6 @@
 package inha.git.statistics.domain;
 
+import inha.git.category.domain.Category;
 import inha.git.college.domain.College;
 import inha.git.field.domain.Field;
 import inha.git.semester.domain.Semester;
@@ -36,6 +37,11 @@ public class CollegeStatistics {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "field_id", nullable = false)
     private Field field;
+
+    @MapsId("categoryId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     @Column(name = "project_count", nullable = false)
     private Integer projectCount = 0;
