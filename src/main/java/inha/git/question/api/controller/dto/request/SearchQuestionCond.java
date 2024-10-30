@@ -13,6 +13,9 @@ public record SearchQuestionCond(
         @Schema(description = "학기 인덱스", example = "1")
         Integer semesterIdx,
 
+        @Schema(description = "카테고리 인덱스", example = "1")
+        Integer categoryIdx,
+
         @Schema(description = "분야 인덱스", example = "1")
         Integer fieldIdx,
         @Schema(description = "과목", example = "과목명")
