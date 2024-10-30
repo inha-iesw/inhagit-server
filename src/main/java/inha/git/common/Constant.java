@@ -1,5 +1,7 @@
 package inha.git.common;
 
+import inha.git.project.domain.Project;
+import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -131,4 +133,11 @@ public class Constant {
         }
     }
 
+
+    public static boolean hasAccessToProject(Project project, User user) {
+        return project.getIsPublic() ||
+                project.getUser().getId().equals(user.getId()) ||
+                user.getRole().equals(Role.ADMIN) ||
+                user.getRole().equals(Role.PROFESSOR);
+    }
 }

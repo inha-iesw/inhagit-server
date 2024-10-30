@@ -76,6 +76,7 @@ public class ProjectQueryRepository {
                         p.getSubjectName(),
                         p.getLikeCount(),
                         p.getCommentCount(),
+                        p.getIsPublic(),
                         p.getProjectFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),
@@ -132,6 +133,7 @@ public class ProjectQueryRepository {
                         p.getSubjectName(),
                         p.getLikeCount(),
                         p.getCommentCount(),
+                        p.getIsPublic(),
                         p.getProjectFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),
@@ -219,6 +221,7 @@ public class ProjectQueryRepository {
                         p.getSubjectName(),
                         p.getLikeCount(),
                         p.getCommentCount(),
+                        p.getIsPublic(),
                         p.getProjectFields().stream()
                                 .map(f -> new SearchFieldResponse(
                                         f.getField().getId(),

@@ -30,6 +30,7 @@ import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
+import static inha.git.common.Constant.hasAccessToProject;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
@@ -57,6 +58,10 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
     public List<CommentWithRepliesResponse> getAllCommentsByProjectIdx(User user, Integer projectIdx) {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
 
         List<ProjectComment> comments = projectCommentJpaRepository.findAllByProjectAndStateOrderByIdAsc(project, ACTIVE);
         return comments.stream()
@@ -91,6 +96,11 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
 
         Project project = projectJpaRepository.findByIdAndState(createCommentRequest.projectIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
+
         ProjectComment projectComment = projectMapper.toProjectComment(createCommentRequest, user, project);
         projectCommentJpaRepository.save(projectComment);
         project.increaseCommentCount();
@@ -169,10 +179,15 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
 
         ProjectComment projectComment = projectCommentJpaRepository.findByIdAndState(createReplyCommentRequest.commentIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_COMMENT_NOT_FOUND));
+        Project project = projectComment.getProject();
+
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
+
         ProjectReplyComment projectReplyComment = projectMapper.toProjectReplyComment(createReplyCommentRequest, user, projectComment);
         projectReplyCommentJpaRepository.save(projectReplyComment);
 
-        Project project = projectComment.getProject();
         project.increaseCommentCount();
 
         log.info("프로젝트 대댓글 생성 성공 - 사용자: {} 프로젝트 대댓글 내용: {}", user.getName(), createReplyCommentRequest.contents());
@@ -241,6 +256,13 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
 
 
         ProjectComment projectComment = getProjectComment(commentLikeRequest);
+        Project project = projectComment.getProject();
+
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
+
+
         validLike(projectComment, user, projectCommentLikeJpaRepository.existsByUserAndProjectComment(user, projectComment));
         projectCommentLikeJpaRepository.save(projectMapper.createProjectCommentLike(user, projectComment));
         projectComment.setLikeCount(projectComment.getLikeCount() + 1);
@@ -262,6 +284,12 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
 
 
         ProjectComment projectComment = getProjectComment(commentLikeRequest);
+
+        Project project = projectComment.getProject();
+
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
         validLikeCancel(projectComment, user, projectCommentLikeJpaRepository.existsByUserAndProjectComment(user, projectComment));
         projectCommentLikeJpaRepository.deleteByUserAndProjectComment(user, projectComment);
         if (projectComment.getLikeCount() <= 0) {
@@ -285,6 +313,13 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
 
         ProjectReplyComment projectReplyComment = projectReplyCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_COMMENT_REPLY_NOT_FOUND));
+
+        Project project = projectReplyComment.getProjectComment().getProject();
+
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
+
         validReplyLike(projectReplyComment, user, projectReplyCommentLikeJpaRepository.existsByUserAndProjectReplyComment(user, projectReplyComment));
         projectReplyCommentLikeJpaRepository.save(projectMapper.createProjectReplyCommentLike(user, projectReplyComment));
         projectReplyComment.setLikeCount(projectReplyComment.getLikeCount() + 1);
@@ -305,6 +340,13 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
 
         ProjectReplyComment projectReplyComment = projectReplyCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_COMMENT_REPLY_NOT_FOUND));
+
+        Project project = projectReplyComment.getProjectComment().getProject();
+
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
+
         validReplyLikeCancel(projectReplyComment, user, projectReplyCommentLikeJpaRepository.existsByUserAndProjectReplyComment(user, projectReplyComment));
         projectReplyCommentLikeJpaRepository.deleteByUserAndProjectReplyComment(user, projectReplyComment);
         if (projectReplyComment.getLikeCount() <= 0) {
