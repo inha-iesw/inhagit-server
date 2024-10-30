@@ -1,5 +1,6 @@
 package inha.git.project.domain;
 
+import inha.git.category.domain.Category;
 import inha.git.common.BaseEntity;
 import inha.git.mapping.domain.ProjectField;
 import inha.git.semester.domain.Semester;
@@ -70,6 +71,11 @@ public class Project extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "semester_id")
     private Semester semester;
+
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @Builder.Default
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
