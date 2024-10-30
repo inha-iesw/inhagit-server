@@ -3,6 +3,7 @@ package inha.git.project.domain.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.mapping.domain.QProjectField;
 import inha.git.project.api.controller.dto.request.SearchProjectCond;
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static inha.git.category.domain.QCategory.category;
 import static inha.git.college.domain.QCollege.college;
 import static inha.git.common.Constant.mapRoleToPosition;
 import static inha.git.department.domain.QDepartment.department;
@@ -73,6 +75,9 @@ public class ProjectQueryRepository {
                         new SearchSemesterResponse(
                                 p.getSemester().getId(),
                                 p.getSemester().getName()),
+                        new SearchCategoryResponse(
+                                p.getCategory().getId(),
+                                p.getCategory().getName()),
                         p.getSubjectName(),
                         p.getLikeCount(),
                         p.getCommentCount(),
@@ -130,6 +135,9 @@ public class ProjectQueryRepository {
                         new SearchSemesterResponse(
                                 p.getSemester().getId(),
                                 p.getSemester().getName()),
+                        new SearchCategoryResponse(
+                                p.getCategory().getId(),
+                                p.getCategory().getName()),
                         p.getSubjectName(),
                         p.getLikeCount(),
                         p.getCommentCount(),
@@ -175,6 +183,10 @@ public class ProjectQueryRepository {
             condition = condition.and(project.semester.id.eq(searchProjectCond.semesterIdx()));
         }
 
+        if (searchProjectCond.categoryIdx() != null) {
+            condition = condition.and(project.category.id.eq(searchProjectCond.categoryIdx()));
+        }
+
         if (searchProjectCond.fieldIdx() != null) {
             condition = condition.and(projectField.field.id.eq(searchProjectCond.fieldIdx()));
         }
@@ -199,6 +211,7 @@ public class ProjectQueryRepository {
                 .leftJoin(userDepartment.department, department)
                 .leftJoin(department.college, college)
                 .leftJoin(project.semester, semester)
+                .leftJoin(project.category, category)
                 .where(condition)
                 .orderBy(project.id.desc())
                 .offset(pageable.getOffset())
@@ -218,6 +231,9 @@ public class ProjectQueryRepository {
                         new SearchSemesterResponse(
                                 p.getSemester().getId(),
                                 p.getSemester().getName()),
+                        new SearchCategoryResponse(
+                                p.getCategory().getId(),
+                                p.getCategory().getName()),
                         p.getSubjectName(),
                         p.getLikeCount(),
                         p.getCommentCount(),
