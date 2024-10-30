@@ -3,6 +3,7 @@ package inha.git.question.domain.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.question.api.controller.dto.request.SearchQuestionCond;
@@ -17,9 +18,11 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static inha.git.category.domain.QCategory.category;
 import static inha.git.common.Constant.mapRoleToPosition;
 import static inha.git.mapping.domain.QQuestionField.questionField;
 import static inha.git.question.domain.QQuestion.question;
+import static inha.git.semester.domain.QSemester.semester;
 import static inha.git.user.domain.QUser.user;
 
 /**
@@ -62,6 +65,9 @@ public class QuestionQueryRepository {
                                 q.getSemester().getId(),
                                 q.getSemester().getName()
                         ),
+                        new SearchCategoryResponse(
+                                q.getCategory().getId(),
+                                q.getCategory().getName()),
                         q.getLikeCount(),
                         q.getCommentCount(),
                         q.getQuestionFields().stream()
@@ -112,6 +118,9 @@ public class QuestionQueryRepository {
                                 q.getSemester().getId(),
                                 q.getSemester().getName()
                         ),
+                        new SearchCategoryResponse(
+                                q.getCategory().getId(),
+                                q.getCategory().getName()),
                         q.getLikeCount(),
                         q.getCommentCount(),
                         q.getQuestionFields().stream()
@@ -156,6 +165,11 @@ public class QuestionQueryRepository {
             condition = condition.and(question.semester.id.eq(searchQuestionCond.semesterIdx()));
         }
 
+        // 카테고리 조건 추가
+        if (searchQuestionCond.categoryIdx() != null) {
+            condition = condition.and(question.category.id.eq(searchQuestionCond.categoryIdx()));
+        }
+
         // 분야 조건 추가
         if (searchQuestionCond.fieldIdx() != null) {
             condition = condition.and(questionField.field.id.eq(searchQuestionCond.fieldIdx()));
@@ -175,6 +189,8 @@ public class QuestionQueryRepository {
                 .from(question)
                 .leftJoin(question.user, user)
                 .leftJoin(question.questionFields, questionField)
+                .leftJoin(question.semester, semester)
+                .leftJoin(question.category, category)
                 .where(condition)
                 .orderBy(question.id.desc())
                 .offset(pageable.getOffset())
@@ -195,6 +211,9 @@ public class QuestionQueryRepository {
                                 q.getSemester().getId(),
                                 q.getSemester().getName()
                         ),
+                        new SearchCategoryResponse(
+                                q.getCategory().getId(),
+                                q.getCategory().getName()),
                         q.getLikeCount(),
                         q.getCommentCount(),
                         q.getQuestionFields().stream()

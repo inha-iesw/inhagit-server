@@ -1,5 +1,6 @@
 package inha.git.question.api.controller.dto.response;
 
+import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
@@ -27,6 +28,9 @@ public record SearchQuestionsResponse(
 
         @NotNull
         SearchSemesterResponse semester,
+
+        @NotNull
+        SearchCategoryResponse category,
 
         @NotNull
         @Schema(description = "좋아요 수", example = "1")
