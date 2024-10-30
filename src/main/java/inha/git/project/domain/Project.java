@@ -58,6 +58,10 @@ public class Project extends BaseEntity {
     @Column(name = "comment_count")
     private Integer commentCount = 0;
 
+    @Setter
+    @Column(name = "is_public")
+    private Boolean isPublic;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;

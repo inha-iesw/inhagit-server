@@ -38,7 +38,11 @@ public record CreateGithubProjectRequest(
 
         @NotNull
         @Schema(description = "학기 인덱스", example = "1")
-        Integer semesterIdx
+        Integer semesterIdx,
+
+        @NotNull
+        @Schema(description = "공개 여부", example = "true")
+        Boolean isPublic
 
 
 ) {
