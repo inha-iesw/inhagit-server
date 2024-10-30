@@ -112,9 +112,10 @@ public class ProjectController {
     @GetMapping("/{projectIdx}/file")
     @Operation(summary = "프로젝트 파일 조회 API", description = "프로젝트 파일을 조회합니다.")
     public BaseResponse<List<SearchFileResponse>> getProjectFile(
+            @AuthenticationPrincipal User user,
             @PathVariable("projectIdx") Integer projectIdx,
             @RequestParam(value = "path", defaultValue = "/") String path) {
-        return BaseResponse.of(FILE_SEARCH_OK, projectSearchService.getProjectFileByIdx(projectIdx, path));
+        return BaseResponse.of(FILE_SEARCH_OK, projectSearchService.getProjectFileByIdx(user, projectIdx, path));
     }
 
     /**

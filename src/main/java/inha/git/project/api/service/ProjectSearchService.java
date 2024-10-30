@@ -15,6 +15,6 @@ public interface ProjectSearchService {
     Page<SearchProjectsResponse> getCondProjects(SearchProjectCond searchProjectCond, Integer page);
     SearchProjectResponse getProject(User user, Integer projectIdx);
 
-    List<SearchFileResponse> getProjectFileByIdx(Integer projectIdx, String path);
+    List<SearchFileResponse> getProjectFileByIdx(User user, Integer projectIdx, String path);
 
 }

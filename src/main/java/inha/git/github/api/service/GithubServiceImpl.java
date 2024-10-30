@@ -17,6 +17,7 @@ import inha.git.project.api.controller.dto.response.SearchFileResponse;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.user.domain.User;
+import inha.git.user.domain.enums.Role;
 import inha.git.user.domain.repository.UserJpaRepository;
 import inha.git.utils.RedisProvider;
 import lombok.RequiredArgsConstructor;
@@ -164,6 +165,10 @@ public class GithubServiceImpl implements GithubService {
         if (project.getRepoName() == null) {
             log.error("프로젝트의 Github 레포지토리가 없습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), projectIdx);
             throw new BaseException(GITHUB_REPO_NOT_FOUND);
+        }
+
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
         }
 
         // Redis 캐시 키 설정 (프로젝트와 경로에 따라 캐시 구분)

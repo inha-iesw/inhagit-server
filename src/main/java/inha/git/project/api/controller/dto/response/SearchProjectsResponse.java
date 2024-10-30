@@ -37,6 +37,10 @@ public record SearchProjectsResponse(
         @Schema(description = "댓글 수", example = "1")
         Integer commentCount,
 
+        @NotNull
+        @Schema(description = "공개 여부", example = "true")
+        Boolean isPublic,
+
 
         @NotNull
         List<SearchFieldResponse> fieldList,

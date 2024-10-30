@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.Constant.hasAccessToProject;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 /**
@@ -52,6 +53,10 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
 
 
         Project project = getProject(recommendRequest);
+
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
         validRecommend(project, user, foundingRecommendJpaRepository.existsByUserAndProject(user, project));
         foundingRecommendJpaRepository.save(projectMapper.createProjectFoundingRecommend(user, project));
         project.setFoundRecommendCount(project.getFoundingRecommendCount() + 1);
@@ -72,6 +77,9 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         idempotentProvider.isValidIdempotent(List.of("createProjectLike", user.getId().toString(), user.getName(), recommendRequest.idx().toString()));
 
         Project project = getProject(recommendRequest);
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
         validLike(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
         projectLikeJpaRepository.save(projectMapper.createProjectLike(user, project));
         project.setLikeCount(project.getLikeCount() + 1);
@@ -93,6 +101,9 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
 
 
         Project project = getProject(recommendRequest);
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
         validRecommend(project, user, registrationRecommendJpaRepository.existsByUserAndProject(user, project));
         registrationRecommendJpaRepository.save(projectMapper.createProjectRegistrationRecommend(user, project));
         project.setRegistrationRecommendCount(project.getRegistrationRecommendCount() + 1);
@@ -113,6 +124,9 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
         idempotentProvider.isValidIdempotent(List.of("cancelProjectFoundingRecommend", user.getId().toString(), user.getName(), recommendRequest.idx().toString()));
 
         Project project = getProject(recommendRequest);
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
         validRecommendCancel(project, user, foundingRecommendJpaRepository.existsByUserAndProject(user, project));
         foundingRecommendJpaRepository.deleteByUserAndProject(user, project);
         if (project.getFoundingRecommendCount() <= 0) {
@@ -137,6 +151,9 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
 
 
         Project project = getProject(recommendRequest);
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
         validLikeCancel(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
         projectLikeJpaRepository.deleteByUserAndProject(user, project);
         if (project.getLikeCount() <= 0) {
@@ -161,6 +178,9 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
 
 
         Project project = getProject(recommendRequest);
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
         validRecommendCancel(project, user, registrationRecommendJpaRepository.existsByUserAndProject(user, project));
         registrationRecommendJpaRepository.deleteByUserAndProject(user, project);
         if (project.getRegistrationRecommendCount() <= 0) {

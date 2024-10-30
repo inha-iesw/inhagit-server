@@ -42,7 +42,9 @@ public interface ProjectMapper {
     @Mapping(target = "user", source = "user")
     @Mapping(target = "semester", source = "semester")
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "isPublic", source = "createProjectRequest.isPublic")
     Project createProjectRequestToProject(CreateProjectRequest createProjectRequest, User user, Semester semester);
+
     /**
      * UpdateProjectRequest를 Project 엔티티로 변환
      *
@@ -53,6 +55,7 @@ public interface ProjectMapper {
     @Mapping(target = "title", source = "updateProjectRequest.title")
     @Mapping(target = "contents", source = "updateProjectRequest.contents")
     @Mapping(target = "semester", source = "semester")
+    @Mapping(target = "isPublic", source = "updateProjectRequest.isPublic")
     void updateProjectRequestToProject(UpdateProjectRequest updateProjectRequest, @MappingTarget Project project, Semester semester);
 
     /**
@@ -310,6 +313,7 @@ public interface ProjectMapper {
     @Mapping(target = "subjectName", source = "createGithubProjectRequest.subject")
     @Mapping(target = "user", source = "user")
     @Mapping(target = "semester", source = "semester")
+    @Mapping(target = "isPublic", source = "createGithubProjectRequest.isPublic")
     Project createGithubProjectRequestToProject(CreateGithubProjectRequest createGithubProjectRequest, User user, Semester semester);
 
 

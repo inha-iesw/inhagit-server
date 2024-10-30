@@ -16,6 +16,7 @@ import inha.git.project.domain.repository.ProjectUploadJpaRepository;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.semester.mapper.SemesterMapper;
 import inha.git.user.domain.User;
+import inha.git.user.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -39,6 +40,7 @@ import java.util.stream.Stream;
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.*;
+import static inha.git.user.domain.enums.Role.ADMIN;
 
 /**
  * ProjectSearchService는 프로젝트 검색 관련 비즈니스 로직을 처리.
@@ -93,8 +95,13 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
      */
     @Override
     public SearchProjectResponse getProject(User user, Integer projectIdx) {
-        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
-                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+        Project project = findProject(projectIdx);
+
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
+
+
         ProjectUpload projectUpload = getProjectUploadIfNeeded(project, projectIdx);
         SearchSemesterResponse searchSemesterResponse = semesterMapper.semesterToSearchSemesterResponse(project.getSemester());
         List<SearchFieldResponse> searchFieldResponses = projectFieldJpaRepository.findByProject(project)
@@ -125,13 +132,20 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
      * @return 프로젝트 파일 정보
      */
     @Override
-    public List<SearchFileResponse> getProjectFileByIdx(Integer projectIdx, String path) {
+    public List<SearchFileResponse> getProjectFileByIdx(User user, Integer projectIdx, String path) {
+
+
         if (path.contains("..") || path.contains("\0")) {
             throw new BaseException(INVALID_FILE_PATH);
         }
 
-        projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
-                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+        Project project = findProject(projectIdx);
+
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
+
+
         ProjectUpload projectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         String absoluteFilePath = BASE_DIR_SOURCE + projectUpload.getDirectoryName() + '/' + path;
@@ -173,6 +187,17 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
             log.error("Error reading file: " + e.getMessage(), e);
             throw new BaseException(FILE_CONVERT);
         }
+    }
+
+    /**
+     * 프로젝트 찾아오는 함수
+     *
+     * @param projectIdx 프로젝트 번호
+     * @return Project 프로젝트
+     */
+    private Project findProject(Integer projectIdx) {
+        return projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
     }
 
 
