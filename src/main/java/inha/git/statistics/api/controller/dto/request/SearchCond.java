@@ -14,6 +14,9 @@ public record SearchCond(
         Integer semesterIdx,
 
         @Schema(description = "분야 인덱스", example = "1")
-        Integer fieldIdx
+        Integer fieldIdx,
+
+        @Schema(description = "카테고리 인덱스", example = "1")
+        Integer categoryIdx
 ) {
 }

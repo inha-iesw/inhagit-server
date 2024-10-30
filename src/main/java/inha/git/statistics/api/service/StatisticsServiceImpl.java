@@ -1,6 +1,7 @@
 package inha.git.statistics.api.service;
 
 import inha.git.category.domain.Category;
+import inha.git.category.domain.repository.CategoryJpaRepository;
 import inha.git.college.domain.repository.CollegeJpaRepository;
 import inha.git.common.exceptions.BaseException;
 import inha.git.department.domain.Department;
@@ -57,6 +58,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final CollegeJpaRepository collegeJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
+    private final CategoryJpaRepository categoryJpaRepository;
 
 
 
@@ -552,6 +554,10 @@ public class StatisticsServiceImpl implements StatisticsService {
         if(searchCond.semesterIdx() != null) {
             semesterJpaRepository.findByIdAndState(searchCond.semesterIdx(), ACTIVE)
                     .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
+        }
+        if(searchCond.categoryIdx() != null) {
+            categoryJpaRepository.findByIdAndState(searchCond.categoryIdx(), ACTIVE)
+                     .orElseThrow(() -> new BaseException(CATEGORY_NOT_FOUND));
         }
     }
 

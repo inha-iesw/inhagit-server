@@ -1,6 +1,7 @@
 package inha.git.statistics.api.controller.dto.response;
 
 import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
+import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.college.controller.dto.response.SearchCollegeResponse;
 import inha.git.field.api.controller.dto.response.SearchFieldResponse;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
@@ -15,6 +16,7 @@ public record ProjectStatisticsResponse(
         SearchFieldResponse field, // 분야 정보
 
         SearchSemesterResponse semester, // 학기 정보
+        SearchCategoryResponse category, // 카테고리 정보
         @NotNull
         @Schema(description = "전체 프로젝트 수", example = "8")
         Integer totalProjectCount, // 전체 프로젝트 수
