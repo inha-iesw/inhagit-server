@@ -39,6 +39,8 @@ public class Constant {
             "<br>" +
             "인증번호를 제대로 입력해주세요";
 
+    public final static Integer MAX_FAILED_ATTEMPTS = 5;
+    public final static String LOCKED = "locked";
 
     public final static String STUDENT_SIGN_UP_TYPE = "1";
 
