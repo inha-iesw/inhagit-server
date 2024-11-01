@@ -29,6 +29,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -91,20 +93,27 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
                 StatisticsType.DEPARTMENT,
                 semesters, fields, categories);
 
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+        response.setCharacterEncoding("UTF-8");
 
-        String fileName = "ioss_statistics_" + now.format(formatter) + ".xlsx";
-        // 엑셀 파일 출력
+        // 캐시 관련 헤더 추가
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Expires", "0");
+
+        // 파일명 인코딩 처리
+        String encodedFilename;
         try {
-            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
-            workbook.write(response.getOutputStream());
-            workbook.close();
-        } catch (IOException e) {
-            log.error("엑셀 파일 생성 중 오류 발생", e);
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+            String fileName = "ioss_statistics_" + now.format(formatter) + ".xlsx";
+            encodedFilename = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
+        } catch (UnsupportedEncodingException e) {
             throw new BaseException(EXCEL_CREATE_ERROR);
         }
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encodedFilename);
+
     }
 
     // 필터 데이터를 담는 레코드
