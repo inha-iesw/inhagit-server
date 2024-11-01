@@ -2,6 +2,7 @@ package inha.git.statistics.api.service;
 
 import inha.git.category.domain.Category;
 import inha.git.category.domain.repository.CategoryJpaRepository;
+import inha.git.college.domain.College;
 import inha.git.college.domain.repository.CollegeJpaRepository;
 import inha.git.common.exceptions.BaseException;
 import inha.git.department.domain.Department;
@@ -22,11 +23,17 @@ import inha.git.statistics.domain.id.UserCountStatisticsId;
 import inha.git.statistics.domain.id.UserStatisticsId;
 import inha.git.statistics.domain.repository.*;
 import inha.git.user.domain.User;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -534,6 +541,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 //        return statisticsMapper.toProblemStatisticsResponse(userCountStatistics.getTotalProblemCount(), userCountStatistics.getUserProblemCount());
         return null;
     }
+
+
+
 
     private void validateSearchCond(SearchCond searchCond) {
         if(searchCond.collegeIdx() != null) {

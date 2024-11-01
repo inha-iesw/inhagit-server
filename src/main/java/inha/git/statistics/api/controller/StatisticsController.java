@@ -2,18 +2,25 @@ package inha.git.statistics.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
-import inha.git.statistics.api.controller.dto.response.*;
+import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
+import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
+import inha.git.statistics.api.service.StatisticsExcelService;
 import inha.git.statistics.api.service.StatisticsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.io.IOException;
 
-import static inha.git.common.code.status.SuccessStatus.*;
+import static inha.git.common.code.status.SuccessStatus.PROJECT_STATISTICS_SEARCH_OK;
+import static inha.git.common.code.status.SuccessStatus.QUESTION_STATISTICS_SEARCH_OK;
 
 @Slf4j
 @Tag(name = "statistics controller", description = "statistics 관련 API")
@@ -23,6 +30,7 @@ import static inha.git.common.code.status.SuccessStatus.*;
 public class StatisticsController {
 
     private final StatisticsService statisticsService;
+    private final StatisticsExcelService statisticsExcelService;
 
 
     /**
@@ -61,15 +69,19 @@ public class StatisticsController {
         return BaseResponse.of(QUESTION_STATISTICS_SEARCH_OK, statisticsService.getQuestionStatistics(searchCond));
     }
 
-//    @GetMapping("/team")
-//    @Operation(summary = "팀 통계 조회 API", description = "팀 통계를 조회합니다.")
-//    public BaseResponse<TeamStatisticsResponse> getTeamStatistics(@RequestParam(value = "idx", required = false) Integer idx) {
-//        return BaseResponse.of(TEAM_STATISTICS_SEARCH_OK, statisticsService.getTeamStatistics(idx));
-//    }
-//
-//    @GetMapping("/problem")
-//    @Operation(summary = "문제 통계 조회 API", description = "문제 통계를 조회합니다.")
-//    public BaseResponse<ProblemStatisticsResponse> getProblemStatistics(@RequestParam(value = "idx", required = false) Integer idx) {
-//        return BaseResponse.of(PROBLEM_STATISTICS_SEARCH_OK, statisticsService.getProblemStatistics(idx));
-//    }
+
+
+    /**
+     * 엑셀 다운로드
+     *
+     * @param response HttpServletResponse
+     * @throws IOException
+     */
+    @GetMapping("/export/excel")
+    @Operation(summary = "엑셀 다운로드", description = "모든 통계 데이터를 엑셀 파일로 다운로드합니다.")
+    public void exportToExcel(HttpServletResponse response)  {
+        statisticsExcelService.exportToExcelFile(response);
+    }
+
+
 }
