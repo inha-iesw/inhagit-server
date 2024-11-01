@@ -18,6 +18,7 @@ import inha.git.statistics.domain.StatisticsType;
 import inha.git.statistics.domain.repository.ProjectStatisticsQueryRepository;
 import inha.git.statistics.domain.repository.QuestionStatisticsQueryRepository;
 import inha.git.statistics.domain.repository.StatisticsExcelQueryRepository;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -66,7 +67,7 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
      */
     @Override
     public void exportToExcelFile(HttpServletResponse response) {
-        Workbook workbook = new XSSFWorkbook();
+        try (Workbook workbook = new XSSFWorkbook()) {  // try-with-resources 사용
 
         // 기본 데이터 조회
         List<College> colleges = collegeJpaRepository.findAllByState(ACTIVE);
@@ -97,27 +98,36 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
         response.setCharacterEncoding("UTF-8");
 
         // 캐시 관련 헤더 추가
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        response.setHeader("Pragma", "no-cache");
-        response.setHeader("Expires", "0");
-
+        // 파일명 설정
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
         String fileName = "ions_statistics_" + now.format(formatter) + ".xlsx";
 
+        // 응답 헤더 설정
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setCharacterEncoding("UTF-8");
+        String encodedFilename = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name())
+                .replaceAll("\\+", "%20");
+        response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encodedFilename);
+
+        // 캐시 설정
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setHeader("Expires", "0");
+
+        // Security 헤더
         response.setHeader("Content-Security-Policy", "default-src 'self'");
         response.setHeader("X-Content-Type-Options", "nosniff");
         response.setHeader("X-Frame-Options", "DENY");
 
-        String encodedFilename;
-        try {
-            encodedFilename = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
-        } catch (UnsupportedEncodingException e) {
+            try (ServletOutputStream outputStream = response.getOutputStream()) {
+                workbook.write(outputStream);
+                outputStream.flush();
+            }
+
+        } catch (IOException e) {
             throw new BaseException(EXCEL_CREATE_ERROR);
         }
-
-        response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encodedFilename);
 
     }
 
