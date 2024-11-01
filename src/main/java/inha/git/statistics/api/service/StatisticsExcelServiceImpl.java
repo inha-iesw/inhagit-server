@@ -102,8 +102,8 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
         response.setHeader("Expires", "0");
 
         LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
-        String fileName = "ioss_statistics_" + now.format(formatter) + ".xlsx";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+        String fileName = "ions_statistics_" + now.format(formatter) + ".xlsx";
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Security-Policy", "default-src 'self'");
