@@ -3,6 +3,7 @@ package inha.git.statistics.domain.repository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
 import inha.git.category.controller.dto.response.SearchCategoryResponse;
@@ -12,6 +13,7 @@ import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
 import inha.git.statistics.domain.QUserCountStatistics;
+import inha.git.statistics.domain.StatisticsType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

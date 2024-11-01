@@ -14,8 +14,10 @@ import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
+import inha.git.statistics.domain.StatisticsType;
 import inha.git.statistics.domain.repository.ProjectStatisticsQueryRepository;
 import inha.git.statistics.domain.repository.QuestionStatisticsQueryRepository;
+import inha.git.statistics.domain.repository.StatisticsExcelQueryRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.EXCEL_CREATE_ERROR;
 
 /**
@@ -44,24 +47,12 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
 
     private final ProjectStatisticsQueryRepository projectStatisticsQueryRepository;
     private final QuestionStatisticsQueryRepository questionStatisticsQueryRepository;
+    private final StatisticsExcelQueryRepository statisticsExcelQueryRepository;
     private final CollegeJpaRepository collegeJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
     private final CategoryJpaRepository categoryJpaRepository;
     private final DepartmentJpaRepository departmentJpaRepository;
-
-    // 통계 유형을 구분하는 enum
-    private enum StatisticsType {
-        TOTAL("전체"),
-        COLLEGE("단과대별"),
-        DEPARTMENT("학과별");
-
-        private final String prefix;
-
-        StatisticsType(String prefix) {
-            this.prefix = prefix;
-        }
-    }
 
     @Override
     public void exportToExcelFile(HttpServletResponse response) {
@@ -73,6 +64,7 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
         List<Semester> semesters = semesterJpaRepository.findAllByState(ACTIVE);
         List<Field> fields = fieldJpaRepository.findAllByState(ACTIVE);
         List<Category> categories = categoryJpaRepository.findAllByState(ACTIVE);
+
 
         // 1. 전체 통계 (필터 없음)
         createAllStatisticsSheets(workbook, Collections.emptyList(), StatisticsType.TOTAL,
@@ -111,31 +103,45 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
     private void createAllStatisticsSheets(Workbook workbook, List<FilterData> filterDataList,
                                            StatisticsType type, List<Semester> semesters,
                                            List<Field> fields, List<Category> categories) {
-        String prefix = type.prefix;
+        String prefix = type.getPrefix();
 
+        if (type == StatisticsType.TOTAL) {
+            if (!statisticsExcelQueryRepository.hasNonZeroStatistics(type, null)) {
+                return; // 모든 값이 0이면 시트 생성하지 않음
+            }
+        } else {
+            // 필터된 데이터 중 유효한 데이터만 추출
+            filterDataList = filterDataList.stream()
+                    .filter(filter -> statisticsExcelQueryRepository.hasNonZeroStatistics(type, filter.id()))
+                    .toList();
+
+            if (filterDataList.isEmpty()) {
+                return; // 유효한 데이터가 없으면 시트 생성하지 않음
+            }
+        }
         // 1. 기본 통계
-        createBasicStatisticsSheet(workbook, prefix + "_기본통계", filterDataList, type);
+        createBasicStatisticsSheet(workbook, prefix + BASIC_STATISTICS, filterDataList, type);
 
         // 2. 학기별 통계
-        createSemesterStatisticsSheet(workbook, prefix + "_학기별", filterDataList, type, semesters);
+        createSemesterStatisticsSheet(workbook, prefix + SEMESTER_STATISTICS, filterDataList, type, semesters);
 
         // 3. 분야별 통계
-        createFieldStatisticsSheet(workbook, prefix + "_분야별", filterDataList, type, fields);
+        createFieldStatisticsSheet(workbook, prefix + FIELD_STATISTICS, filterDataList, type, fields);
 
         // 4. 카테고리별 통계
-        createCategoryStatisticsSheet(workbook, prefix + "_카테고리별", filterDataList, type, categories);
+        createCategoryStatisticsSheet(workbook, prefix + CATEGORY_STATISTICS, filterDataList, type, categories);
 
         // 5. 학기_분야별 통계
-        createSemesterFieldStatisticsSheet(workbook, prefix + "_학기_분야별", filterDataList, type, semesters, fields);
+        createSemesterFieldStatisticsSheet(workbook, prefix + SEMESTER_STATISTICS + FIELD_STATISTICS, filterDataList, type, semesters, fields);
 
         // 6. 학기_카테고리별 통계
-        createSemesterCategoryStatisticsSheet(workbook, prefix + "_학기_카테고리별", filterDataList, type, semesters, categories);
+        createSemesterCategoryStatisticsSheet(workbook, prefix + SEMESTER_STATISTICS + CATEGORY_STATISTICS, filterDataList, type, semesters, categories);
 
         // 7. 분야_카테고리별 통계
-        createFieldCategoryStatisticsSheet(workbook, prefix + "_분야_카테고리별", filterDataList, type, fields, categories);
+        createFieldCategoryStatisticsSheet(workbook, prefix + FIELD_STATISTICS + CATEGORY_STATISTICS, filterDataList, type, fields, categories);
 
         // 8. 전체_필터링 통계
-        createAllFilterStatisticsSheet(workbook, prefix + "_전체_필터링", filterDataList, type, semesters, fields, categories);
+        createAllFilterStatisticsSheet(workbook, prefix + TOTAL_FILTERING, filterDataList, type, semesters, fields, categories);
     }
 
     // 기본 통계 시트 생성
@@ -147,16 +153,16 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
         // 헤더 설정
         int colIdx = 0;
         if (type != StatisticsType.TOTAL) {
-            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? "단과대" : "학과");
+            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? COLLEGE : DEPARTMENT);
         }
-        headerRow.createCell(colIdx++).setCellValue("전체 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("로컬 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("깃허브 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("특허 수");
-        headerRow.createCell(colIdx++).setCellValue("참여 학생 수");
-        headerRow.createCell(colIdx++).setCellValue("특허 참여 학생 수");
-        headerRow.createCell(colIdx++).setCellValue("질문 수");
-        headerRow.createCell(colIdx++).setCellValue("질문 참여 학생 수");
+        headerRow.createCell(colIdx++).setCellValue(TOTAL_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(LOCAL_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(GITHUB_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(REGISTERED_PATENT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(PROJECT_PARTICIPATING_STUDENT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(PATENT_PARTICIPATING_STUDENT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(QUESTION_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(QUESTION_PARTICIPATING_STUDENT_COUNT);
 
         // 데이터 입력
         int rowIdx = 1;
@@ -188,14 +194,14 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
 
         // 헤더 설정
         if (type != StatisticsType.TOTAL) {
-            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? "단과대" : "학과");
+            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? COLLEGE : DEPARTMENT);
         }
-        headerRow.createCell(colIdx++).setCellValue("학기");
-        headerRow.createCell(colIdx++).setCellValue("전체 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("로컬 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("깃허브 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("특허 수");
-        headerRow.createCell(colIdx++).setCellValue("질문 수");
+        headerRow.createCell(colIdx++).setCellValue(SEMESTER);
+        headerRow.createCell(colIdx++).setCellValue(TOTAL_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(LOCAL_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(GITHUB_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(REGISTERED_PATENT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(QUESTION_COUNT);
 
         // 데이터 입력
         int rowIdx = 1;
@@ -231,14 +237,14 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
 
         // 헤더 설정
         if (type != StatisticsType.TOTAL) {
-            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? "단과대" : "학과");
+            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? COLLEGE : DEPARTMENT);
         }
-        headerRow.createCell(colIdx++).setCellValue("분야");
-        headerRow.createCell(colIdx++).setCellValue("전체 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("로컬 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("깃허브 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("특허 수");
-        headerRow.createCell(colIdx++).setCellValue("질문 수");
+        headerRow.createCell(colIdx++).setCellValue(FIELD);
+        headerRow.createCell(colIdx++).setCellValue(TOTAL_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(LOCAL_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(GITHUB_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(REGISTERED_PATENT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(QUESTION_COUNT);
 
         // 데이터 입력
         int rowIdx = 1;
@@ -274,14 +280,14 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
 
         // 헤더 설정
         if (type != StatisticsType.TOTAL) {
-            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? "단과대" : "학과");
+            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? COLLEGE : DEPARTMENT);
         }
-        headerRow.createCell(colIdx++).setCellValue("카테고리");
-        headerRow.createCell(colIdx++).setCellValue("전체 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("로컬 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("깃허브 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("특허 수");
-        headerRow.createCell(colIdx++).setCellValue("질문 수");
+        headerRow.createCell(colIdx++).setCellValue(CATEGORY);
+        headerRow.createCell(colIdx++).setCellValue(TOTAL_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(LOCAL_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(GITHUB_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(REGISTERED_PATENT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(QUESTION_COUNT);
 
         // 데이터 입력
         int rowIdx = 1;
@@ -317,15 +323,15 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
 
         // 헤더 설정
         if (type != StatisticsType.TOTAL) {
-            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? "단과대" : "학과");
+            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? COLLEGE : DEPARTMENT);
         }
-        headerRow.createCell(colIdx++).setCellValue("학기");
-        headerRow.createCell(colIdx++).setCellValue("분야");
-        headerRow.createCell(colIdx++).setCellValue("전체 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("로컬 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("깃허브 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("특허 수");
-        headerRow.createCell(colIdx++).setCellValue("질문 수");
+        headerRow.createCell(colIdx++).setCellValue(SEMESTER);
+        headerRow.createCell(colIdx++).setCellValue(FIELD);
+        headerRow.createCell(colIdx++).setCellValue(TOTAL_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(LOCAL_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(GITHUB_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(REGISTERED_PATENT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(QUESTION_COUNT);
 
         // 데이터 입력
         int rowIdx = 1;
@@ -347,7 +353,7 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
                                 type == StatisticsType.DEPARTMENT ? filterData.id() : null,
                                 semester.getId(), field.getId(), null
                         );
-                        addFieldRow(row, filterData.name(), field.getName(), cond, 0);
+                        addSemesterFieldRow(row, filterData.name(), semester.getName(), field.getName(), cond, 0);
                     }
                 }
             }
@@ -365,15 +371,15 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
 
         // 헤더 설정
         if (type != StatisticsType.TOTAL) {
-            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? "단과대" : "학과");
+            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? COLLEGE : DEPARTMENT);
         }
-        headerRow.createCell(colIdx++).setCellValue("학기");
-        headerRow.createCell(colIdx++).setCellValue("카테고리");
-        headerRow.createCell(colIdx++).setCellValue("전체 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("로컬 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("깃허브 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("특허 수");
-        headerRow.createCell(colIdx++).setCellValue("질문 수");
+        headerRow.createCell(colIdx++).setCellValue(SEMESTER);
+        headerRow.createCell(colIdx++).setCellValue(CATEGORY);
+        headerRow.createCell(colIdx++).setCellValue(TOTAL_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(LOCAL_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(GITHUB_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(REGISTERED_PATENT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(QUESTION_COUNT);
 
         // 데이터 입력
         int rowIdx = 1;
@@ -395,7 +401,7 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
                                 type == StatisticsType.DEPARTMENT ? filterData.id() : null,
                                 semester.getId(), null, category.getId()
                         );
-                        addCategoryRow(row, filterData.name(), category.getName(), cond, 0);
+                        addSemesterCategoryRow(row, filterData.name(), semester.getName(), category.getName(), cond, 0);
                     }
                 }
             }
@@ -413,15 +419,15 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
 
         // 헤더 설정
         if (type != StatisticsType.TOTAL) {
-            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? "단과대" : "학과");
+            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? COLLEGE : DEPARTMENT);
         }
-        headerRow.createCell(colIdx++).setCellValue("분야");
-        headerRow.createCell(colIdx++).setCellValue("카테고리");
-        headerRow.createCell(colIdx++).setCellValue("전체 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("로컬 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("깃허브 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("특허 수");
-        headerRow.createCell(colIdx++).setCellValue("질문 수");
+        headerRow.createCell(colIdx++).setCellValue(FIELD);
+        headerRow.createCell(colIdx++).setCellValue(CATEGORY);
+        headerRow.createCell(colIdx++).setCellValue(TOTAL_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(LOCAL_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(GITHUB_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(REGISTERED_PATENT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(QUESTION_COUNT);
 
         // 데이터 입력
         int rowIdx = 1;
@@ -443,7 +449,7 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
                                 type == StatisticsType.DEPARTMENT ? filterData.id() : null,
                                 null, field.getId(), category.getId()
                         );
-                        addCategoryRow(row, filterData.name(), category.getName(), cond, 0);
+                        addFieldCategoryRow(row, filterData.name(), field.getName(), category.getName(), cond, 0);
                     }
                 }
             }
@@ -461,18 +467,18 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
 
         // 헤더 설정
         if (type != StatisticsType.TOTAL) {
-            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? "단과대" : "학과");
+            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? COLLEGE : DEPARTMENT);
         }
-        headerRow.createCell(colIdx++).setCellValue("학기");
-        headerRow.createCell(colIdx++).setCellValue("분야");
-        headerRow.createCell(colIdx++).setCellValue("카테고리");
-        headerRow.createCell(colIdx++).setCellValue("전체 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("로컬 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("깃허브 프로젝트");
-        headerRow.createCell(colIdx++).setCellValue("특허 수");
-        headerRow.createCell(colIdx++).setCellValue("참여 학생 수");
-        headerRow.createCell(colIdx++).setCellValue("질문 수");
-        headerRow.createCell(colIdx++).setCellValue("질문 참여 학생 수");
+        headerRow.createCell(colIdx++).setCellValue(SEMESTER);
+        headerRow.createCell(colIdx++).setCellValue(FIELD);
+        headerRow.createCell(colIdx++).setCellValue(CATEGORY);
+        headerRow.createCell(colIdx++).setCellValue(TOTAL_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(LOCAL_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(GITHUB_PROJECT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(REGISTERED_PATENT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(PROJECT_PARTICIPATING_STUDENT_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(QUESTION_COUNT);
+        headerRow.createCell(colIdx++).setCellValue(QUESTION_PARTICIPATING_STUDENT_COUNT);
 
         // 데이터 입력
         int rowIdx = 1;
@@ -681,4 +687,6 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
             sheet.autoSizeColumn(i);
         }
     }
+
+
 }
