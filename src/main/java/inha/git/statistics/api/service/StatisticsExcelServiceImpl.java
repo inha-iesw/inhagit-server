@@ -29,6 +29,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 
@@ -54,6 +56,11 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
     private final CategoryJpaRepository categoryJpaRepository;
     private final DepartmentJpaRepository departmentJpaRepository;
 
+    /**
+     * 통계 엑셀 파일을 생성하여 출력한다.
+     *
+     * @param response HttpServletResponse
+     */
     @Override
     public void exportToExcelFile(HttpServletResponse response) {
         Workbook workbook = new XSSFWorkbook();
@@ -84,10 +91,14 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
                 StatisticsType.DEPARTMENT,
                 semesters, fields, categories);
 
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+
+        String fileName = "ioss_statistics_" + now.format(formatter) + ".xlsx";
         // 엑셀 파일 출력
         try {
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            response.setHeader("Content-Disposition", "attachment; filename=detailed_statistics.xlsx");
+            response.setHeader("Content-Disposition", "attachment; filename=" + fileName);
             workbook.write(response.getOutputStream());
             workbook.close();
         } catch (IOException e) {

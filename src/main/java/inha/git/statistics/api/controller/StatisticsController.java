@@ -78,7 +78,7 @@ public class StatisticsController {
      * @throws IOException
      */
     @GetMapping("/export/excel")
-    @Operation(summary = "엑셀 다운로드", description = "모든 통계 데이터를 엑셀 파일로 다운로드합니다.")
+    @Operation(summary = "엑셀 다운로드 API", description = "모든 통계 데이터를 엑셀 파일로 다운로드합니다.")
     public void exportToExcel(HttpServletResponse response)  {
         statisticsExcelService.exportToExcelFile(response);
     }
