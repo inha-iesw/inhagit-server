@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -100,18 +101,22 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
         response.setHeader("Pragma", "no-cache");
         response.setHeader("Expires", "0");
 
-        // 파일명 인코딩 처리
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+        String fileName = "ioss_statistics_" + now.format(formatter) + ".xlsx";
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Security-Policy", "default-src 'self'");
+        response.setHeader("X-Content-Type-Options", "nosniff");
+        response.setHeader("X-Frame-Options", "DENY");
+
         String encodedFilename;
         try {
-            LocalDateTime now = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
-            String fileName = "ioss_statistics_" + now.format(formatter) + ".xlsx";
             encodedFilename = URLEncoder.encode(fileName, "UTF-8").replaceAll("\\+", "%20");
         } catch (UnsupportedEncodingException e) {
             throw new BaseException(EXCEL_CREATE_ERROR);
         }
 
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encodedFilename);
 
     }
