@@ -168,7 +168,7 @@ public class ProjectStatisticsQueryRepository {
 
     // 전체 프로젝트 수 계산
     private Integer getTotalProjectCount(SearchCond searchCond) {
-        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null && searchCond.categoryIdx() == null) {
             if (searchCond.departmentIdx() != null) {
                 return queryFactory
                         .select(Expressions.numberTemplate(Integer.class,
@@ -229,7 +229,7 @@ public class ProjectStatisticsQueryRepository {
 
     // 로컬 프로젝트 수 계산
     private Integer getLocalProjectCount(SearchCond searchCond) {
-        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null && searchCond.categoryIdx() == null) {
             if (searchCond.departmentIdx() != null) {
                 return queryFactory
                         .select(totalDepartmentStatistics.totalProjectCount)
