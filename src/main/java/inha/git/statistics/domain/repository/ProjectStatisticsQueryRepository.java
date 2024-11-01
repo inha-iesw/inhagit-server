@@ -3,6 +3,7 @@ package inha.git.statistics.domain.repository;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
 import inha.git.category.controller.dto.response.SearchCategoryResponse;
@@ -12,6 +13,7 @@ import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
 import inha.git.statistics.domain.QUserCountStatistics;
+import inha.git.statistics.domain.StatisticsType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -166,7 +168,7 @@ public class ProjectStatisticsQueryRepository {
 
     // 전체 프로젝트 수 계산
     private Integer getTotalProjectCount(SearchCond searchCond) {
-        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null && searchCond.categoryIdx() == null) {
             if (searchCond.departmentIdx() != null) {
                 return queryFactory
                         .select(Expressions.numberTemplate(Integer.class,
@@ -227,7 +229,7 @@ public class ProjectStatisticsQueryRepository {
 
     // 로컬 프로젝트 수 계산
     private Integer getLocalProjectCount(SearchCond searchCond) {
-        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null) {
+        if(searchCond.fieldIdx() == null && searchCond.semesterIdx() == null && searchCond.categoryIdx() == null) {
             if (searchCond.departmentIdx() != null) {
                 return queryFactory
                         .select(totalDepartmentStatistics.totalProjectCount)

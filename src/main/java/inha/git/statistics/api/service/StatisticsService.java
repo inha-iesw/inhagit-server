@@ -6,7 +6,9 @@ import inha.git.semester.domain.Semester;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
 import inha.git.statistics.api.controller.dto.response.*;
 import inha.git.user.domain.User;
+import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface StatisticsService {
@@ -20,6 +22,7 @@ public interface StatisticsService {
     QuestionStatisticsResponse getQuestionStatistics(SearchCond searchCond);
     TeamStatisticsResponse getTeamStatistics(Integer idx);
     ProblemStatisticsResponse getProblemStatistics(Integer idx);
+
 
 
 }

@@ -93,6 +93,12 @@ dependencies {
 	// jackson
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.2'
 
+	// https://mvnrepository.com/artifact/org.apache.poi/poi
+	implementation group: 'org.apache.poi', name: 'poi', version: '4.1.2'
+	implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '4.1.2'
+	// https://mvnrepository.com/artifact/org.apache.tika/tika-core
+	implementation group: 'org.apache.tika', name: 'tika-core', version: '2.3.0'
+
 }
 
 tasks.named('test') {
