@@ -96,15 +96,19 @@ public class SecurityConfig {
                 .requiresChannel(channel -> channel
                 .requestMatchers(r -> r.getHeader("X-Forwarded-Proto") != null)
                 .requiresSecure())
-
                 .csrf(AbstractHttpConfigurer::disable)
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
-                        .xssProtection(xss -> xss.disable())  // Excel 다운로드를 위해 비활성화
-                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'"))
+                        .xssProtection(xss -> xss.disable())
+                        .contentSecurityPolicy(csp -> csp
+                                .policyDirectives("default-src 'self'; " +
+                                        "script-src 'self' 'unsafe-inline'; " +
+                                        "style-src 'self' 'unsafe-inline'; " +
+                                        "img-src 'self' data:; " +
+                                        "font-src 'self' data:; " +
+                                        "object-src 'none'"))
                 )
                 .authorizeHttpRequests(req ->
-
                         req.requestMatchers(WHITE_LIST_URL).permitAll().
                                 requestMatchers(GET, GET_ONLY_WHITE_LIST_URL).permitAll()  // GET 요청만 허용
                                 // 관리자 전용 접근 설정

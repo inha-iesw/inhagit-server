@@ -97,38 +97,34 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
 
         response.setCharacterEncoding("UTF-8");
 
-        // 캐시 관련 헤더 추가
-        // 파일명 설정
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
-        String fileName = "ions_statistics_" + now.format(formatter) + ".xlsx";
+            // 응답 헤더 설정
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setCharacterEncoding("UTF-8");
 
-        // 응답 헤더 설정
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        response.setCharacterEncoding("UTF-8");
-        String encodedFilename = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name())
-                .replaceAll("\\+", "%20");
-        response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encodedFilename);
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+            String fileName = "ioss_statistics_" + now.format(formatter) + ".xlsx";
 
-        // 캐시 설정
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        response.setHeader("Pragma", "no-cache");
-        response.setHeader("Expires", "0");
+            String encodedFilename = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name())
+                    .replaceAll("\\+", "%20");
 
-        // Security 헤더
-        response.setHeader("Content-Security-Policy", "default-src 'self'");
-        response.setHeader("X-Content-Type-Options", "nosniff");
-        response.setHeader("X-Frame-Options", "DENY");
+            // Content-Disposition 헤더 수정
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + encodedFilename);
+
+            // 보안 헤더 설정
+            response.setHeader("X-Content-Type-Options", "nosniff");
+            response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
+            response.setHeader("Pragma", "public");
+            response.setHeader("Expires", "0");
+
 
             try (ServletOutputStream outputStream = response.getOutputStream()) {
                 workbook.write(outputStream);
                 outputStream.flush();
             }
-
         } catch (IOException e) {
             throw new BaseException(EXCEL_CREATE_ERROR);
         }
-
     }
 
     // 필터 데이터를 담는 레코드
