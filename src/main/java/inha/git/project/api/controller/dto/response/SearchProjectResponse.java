@@ -49,6 +49,10 @@ public record SearchProjectResponse(
         String subject,
 
         @NotNull
-        SearchSemesterResponse semester
+        SearchSemesterResponse semester,
+
+        @NotNull
+        @Schema(description = "프로젝트 공개 여부", example = "true")
+        Boolean isPublic
 ) {
 }
