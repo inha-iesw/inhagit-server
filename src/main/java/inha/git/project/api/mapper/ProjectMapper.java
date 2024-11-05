@@ -179,6 +179,7 @@ public interface ProjectMapper {
     @Mapping(target = "repoName", source = "project.repoName")
     @Mapping(target = "createdAt", source = "project.createdAt")
     @Mapping(target = "semester", source = "semester")
+    @Mapping(target = "isPublic", source = "project.isPublic")
     SearchProjectResponse projectToSearchProjectResponse(Project project, ProjectUpload projectUpload, List<SearchFieldResponse> fieldList, SearchRecommendCount recommendCount, SearchUserResponse author, SearchRecommendState recommendState, SearchSemesterResponse semester);
 
     /**
