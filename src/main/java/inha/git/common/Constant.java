@@ -126,6 +126,7 @@ public class Constant {
     //카테고리
     public final static String CATEGORY = "카테고리";
 
+    public final static String CURRICULUM = "교과";
 
     @PostConstruct
     public void init() {
