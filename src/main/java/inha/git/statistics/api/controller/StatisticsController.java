@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -72,12 +73,12 @@ public class StatisticsController {
 
 
     /**
-     * 엑셀 다운로드
+     * 엑셀 다운로드 API
      *
      * @param response HttpServletResponse
-     * @throws IOException
      */
     @GetMapping("/export/excel")
+    @PreAuthorize("hasAnyAuthority('professor:read', 'admin:read')")
     @Operation(summary = "엑셀 다운로드 API", description = "모든 통계 데이터를 엑셀 파일로 다운로드합니다.")
     public void exportToExcel(HttpServletResponse response)  {
         statisticsExcelService.exportToExcelFile(response);

@@ -29,7 +29,6 @@ public record SearchQuestionsResponse(
         @NotNull
         SearchSemesterResponse semester,
 
-        @NotNull
         SearchCategoryResponse category,
 
         @NotNull
