@@ -108,23 +108,23 @@ public class Constant {
     public final static String SEMESTER_STATISTICS = "_학기별";
     public final static String FIELD_STATISTICS = "_분야별";
     public final static String CATEGORY_STATISTICS = "_카테고리별";
-    public final static String TOTAL_FILTERING = "_전체_필터링";
+    public final static String TOTAL_FILTERING = "_모든필터링";
     public final static String COLLEGE = "단과대";
     public final static String DEPARTMENT = "학과";
-    public final static String TOTAL_PROJECT_COUNT = "전체 프로젝트 수";
-    public final static String LOCAL_PROJECT_COUNT = "로컬 프로젝트 수";
-    public final static String GITHUB_PROJECT_COUNT = "깃허브 프로젝트 수";
-    public final static String REGISTERED_PATENT_COUNT = "등록한 특허 수";
-    public final static String PROJECT_PARTICIPATING_STUDENT_COUNT = "프로젝트 참여 학생 수";
-    public final static String PATENT_PARTICIPATING_STUDENT_COUNT = "특허 등록 학생 수";
-    public final static String QUESTION_COUNT = "등록한 질문 수";
-    public final static String QUESTION_PARTICIPATING_STUDENT_COUNT = "질문 참여 학생 수";
+    public final static String TOTAL_PROJECT_COUNT = "total number of I-FOSS ";
+    public final static String LOCAL_PROJECT_COUNT = "local number of I-FOSS ";
+    public final static String GITHUB_PROJECT_COUNT = "github number of I-FOSS ";
+    public final static String REGISTERED_PATENT_COUNT = "number of registered of I-CRM";
+    public final static String PROJECT_PARTICIPATING_STUDENT_COUNT = "number of students participating in the I-FOSS";
+    public final static String PATENT_PARTICIPATING_STUDENT_COUNT = "number of students with registered I-CRM";
+    public final static String QUESTION_COUNT = "number of registered I-SSS";
+    public final static String QUESTION_PARTICIPATING_STUDENT_COUNT = "number of students participating in the I-SSS";
     //학기
-    public final static String SEMESTER = "학기";
+    public final static String SEMESTER = "semester";
     //분야
-    public final static String FIELD = "분야";
+    public final static String FIELD = "field";
     //카테고리
-    public final static String CATEGORY = "카테고리";
+    public final static String CATEGORY = "category";
 
     public final static String CURRICULUM = "교과";
 
