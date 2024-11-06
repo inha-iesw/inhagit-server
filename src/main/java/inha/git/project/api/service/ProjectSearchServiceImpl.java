@@ -1,5 +1,7 @@
 package inha.git.project.api.service;
 
+import inha.git.category.controller.dto.response.SearchCategoryResponse;
+import inha.git.category.mapper.CategoryMapper;
 import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.repository.FoundingRecommendJpaRepository;
 import inha.git.mapping.domain.repository.ProjectFieldJpaRepository;
@@ -56,6 +58,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
     private final ProjectFieldJpaRepository projectFieldJpaRepository;
     private final ProjectMapper projectMapper;
     private final SemesterMapper semesterMapper;
+    private final CategoryMapper categoryMapper;
     private final ProjectQueryRepository projectQueryRepository;
     private final ProjectLikeJpaRepository projectLikeJpaRepository;
     private final FoundingRecommendJpaRepository foundingRecommendJpaRepository;
@@ -104,6 +107,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
 
         ProjectUpload projectUpload = getProjectUploadIfNeeded(project, projectIdx);
         SearchSemesterResponse searchSemesterResponse = semesterMapper.semesterToSearchSemesterResponse(project.getSemester());
+        SearchCategoryResponse searchCategoryResponse = categoryMapper.categoryToCategoryResponse(project.getCategory());
         List<SearchFieldResponse> searchFieldResponses = projectFieldJpaRepository.findByProject(project)
                 .stream()
                 .map(projectField -> projectMapper.projectFieldToSearchFieldResponse(projectField.getField()))
@@ -120,7 +124,7 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
                 (isLike, isRecommendFounding, isRecommendRegistration);
 
         return projectMapper.projectToSearchProjectResponse(
-                project, projectUpload, searchFieldResponses, searchRecommendCountResponse, searchUserResponse, searchRecommendState, searchSemesterResponse
+                project, projectUpload, searchFieldResponses, searchRecommendCountResponse, searchUserResponse, searchRecommendState, searchSemesterResponse, searchCategoryResponse
         );
     }
 

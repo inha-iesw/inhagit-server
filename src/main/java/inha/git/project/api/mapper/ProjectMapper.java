@@ -1,5 +1,6 @@
 package inha.git.project.api.mapper;
 
+import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.category.domain.Category;
 import inha.git.common.Constant;
 import inha.git.field.domain.Field;
@@ -179,8 +180,9 @@ public interface ProjectMapper {
     @Mapping(target = "repoName", source = "project.repoName")
     @Mapping(target = "createdAt", source = "project.createdAt")
     @Mapping(target = "semester", source = "semester")
+    @Mapping(target = "category", source = "category")
     @Mapping(target = "isPublic", source = "project.isPublic")
-    SearchProjectResponse projectToSearchProjectResponse(Project project, ProjectUpload projectUpload, List<SearchFieldResponse> fieldList, SearchRecommendCount recommendCount, SearchUserResponse author, SearchRecommendState recommendState, SearchSemesterResponse semester);
+    SearchProjectResponse projectToSearchProjectResponse(Project project, ProjectUpload projectUpload, List<SearchFieldResponse> fieldList, SearchRecommendCount recommendCount, SearchUserResponse author, SearchRecommendState recommendState, SearchSemesterResponse semester, SearchCategoryResponse category);
 
     /**
      * FoundingRecommend 엔티티 생성

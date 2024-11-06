@@ -43,6 +43,7 @@ public class SecurityConfig {
             "/api/v1/colleges",
             "/api/v1/colleges/{departmentIdx}",
             "/api/v1/semesters",
+            "/api/v1/categories",
             "/api/v1/fields",
             "/api/v1/banners",
             "/banner/**",

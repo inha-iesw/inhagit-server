@@ -1,5 +1,6 @@
 package inha.git.project.api.controller.dto.response;
 
+import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -53,6 +54,9 @@ public record SearchProjectResponse(
 
         @NotNull
         @Schema(description = "프로젝트 공개 여부", example = "true")
-        Boolean isPublic
+        Boolean isPublic,
+
+        @NotNull
+        SearchCategoryResponse category
 ) {
 }
