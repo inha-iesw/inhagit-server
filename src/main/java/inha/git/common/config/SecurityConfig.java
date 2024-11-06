@@ -34,7 +34,7 @@ public class SecurityConfig {
     // 조교 전용 경로
     private static final String ASSISTANT_URL = "/api/v1/assistant/**";
     // 교수 전용 경로
-    private static final String PROFESSOR_URL = "/api/v1/professor/**";
+    private static final String PROFESSOR_URL = "/api/v1/professors/**";
     // 기업 전용 경로
     private static final String COMPANY_URL = "/api/v1/company/**";
 

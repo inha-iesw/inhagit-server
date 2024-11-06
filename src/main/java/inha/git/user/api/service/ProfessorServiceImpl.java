@@ -1,5 +1,6 @@
 package inha.git.user.api.service;
 
+import inha.git.admin.api.controller.dto.response.SearchStudentResponse;
 import inha.git.auth.api.service.MailService;
 import inha.git.category.domain.Category;
 import inha.git.category.domain.repository.CategoryJpaRepository;
@@ -16,9 +17,14 @@ import inha.git.user.api.mapper.UserMapper;
 import inha.git.user.domain.Professor;
 import inha.git.user.domain.User;
 import inha.git.user.domain.repository.ProfessorJpaRepository;
+import inha.git.user.domain.repository.ProfessorQueryRepository;
 import inha.git.user.domain.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +52,20 @@ public class ProfessorServiceImpl implements ProfessorService{
     private final UserMapper userMapper;
     private final MailService mailService;
     private final EmailDomainService emailDomainService;
+    private final ProfessorQueryRepository professorQueryRepository;
+
+    /**
+     * 교수 학생 조회
+     *
+     * @param search 검색어
+     * @param page 페이지
+     * @return 학생 목록
+     */
+    @Override
+    public Page<SearchStudentResponse> getProfessorStudents(String search, Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return professorQueryRepository.searchStudents(search, pageable);
+    }
     /**
      * 교수 회원가입
      *
