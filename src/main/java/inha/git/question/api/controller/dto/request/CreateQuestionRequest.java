@@ -14,7 +14,6 @@ public record CreateQuestionRequest(
         @Schema(description = "질문 제목", example = "질문 제목")
         String title,
         @NotNull(message = "내용을 입력해주세요.")
-        @Size(min = 1, max = 3000)
         @ValidParameter
         @Schema(description = "질문 내용", example = "질문 내용")
         String contents,

@@ -12,7 +12,6 @@ public record CreateNoticeRequest(
         @Schema(description = "제목", example = "공지사항 제목")
         String title,
         @NotNull
-        @Size(min = 1, max = 3000)
         @ValidParameter
         @Schema(description = "내용", example = "공지사항 내용")
         String contents
