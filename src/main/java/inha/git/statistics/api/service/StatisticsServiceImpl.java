@@ -2,9 +2,10 @@ package inha.git.statistics.api.service;
 
 import inha.git.category.domain.Category;
 import inha.git.category.domain.repository.CategoryJpaRepository;
-import inha.git.college.domain.College;
 import inha.git.college.domain.repository.CollegeJpaRepository;
+import inha.git.college.mapper.CollegeMapper;
 import inha.git.common.exceptions.BaseException;
+import inha.git.department.api.mapper.DepartmentMapper;
 import inha.git.department.domain.Department;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
 import inha.git.field.domain.Field;
@@ -15,25 +16,21 @@ import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
-import inha.git.statistics.api.controller.dto.response.*;
+import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
+import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
 import inha.git.statistics.domain.*;
 import inha.git.statistics.domain.id.CollegeStatisticsStatisticsId;
 import inha.git.statistics.domain.id.DepartmentStatisticsId;
 import inha.git.statistics.domain.id.UserCountStatisticsId;
 import inha.git.statistics.domain.id.UserStatisticsId;
 import inha.git.statistics.domain.repository.*;
+import inha.git.user.api.mapper.UserMapper;
 import inha.git.user.domain.User;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -66,7 +63,9 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final FieldJpaRepository fieldJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
     private final CategoryJpaRepository categoryJpaRepository;
-
+    private final UserMapper userMapper;
+    private final DepartmentMapper departmentMapper;
+    private final CollegeMapper collegeMapper;
 
 
     /**
@@ -81,7 +80,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         if (type == 1 || type == 8) {
             if (!hasUploadedAnyProject(user)) {
                 totalUserStatistics.increaseUserProjectCount(); // 사용자 프로젝트 카운트 증가
-                updateDepartmentAndCollegeStatistics(user,
+                createOrUpdateDepartmentAndCollegeStatistics(user, true,
                         TotalDepartmentStatistics::increaseUserProjectCount,
                         TotalCollegeStatistics::increaseUserProjectCount); // 학과 및 단과대 통계 업데이트
             }
@@ -89,12 +88,12 @@ public class StatisticsServiceImpl implements StatisticsService {
             updateTotalStatistics(totalUserStatistics, type);
             if (type == 1) {
                 // 일반 프로젝트 통계 업데이트
-                updateDepartmentAndCollegeStatistics(user,
+                createOrUpdateDepartmentAndCollegeStatistics(user, true,
                         TotalDepartmentStatistics::increaseTotalProjectCount,
                         TotalCollegeStatistics::increaseTotalProjectCount);
             } else {
                 // 깃허브 프로젝트 통계 업데이트
-                updateDepartmentAndCollegeStatistics(user,
+                createOrUpdateDepartmentAndCollegeStatistics(user, true,
                         TotalDepartmentStatistics::increaseTotalGithubProjectCount,
                         TotalCollegeStatistics::increaseTotalGithubProjectCount);
             }
@@ -103,166 +102,82 @@ public class StatisticsServiceImpl implements StatisticsService {
         if (type == 2 ) {
             if (!hasUploadedAnyQuestion(user)) {
                 totalUserStatistics.increaseUserQuestionCount();
-                updateDepartmentAndCollegeStatistics(user,
+                createOrUpdateDepartmentAndCollegeStatistics(user, true,
                         TotalDepartmentStatistics::increaseUserQuestionCount,
                         TotalCollegeStatistics::increaseUserQuestionCount);
             }
             updateTotalStatistics(totalUserStatistics, type);
-            updateDepartmentAndCollegeStatistics(user,
+
+            createOrUpdateDepartmentAndCollegeStatistics(user, true,
                     TotalDepartmentStatistics::increaseTotalQuestionCount,
                     TotalCollegeStatistics::increaseTotalQuestionCount);
         }
         for(Field field: fields) {
-            UserStatistics userStatistics = userStatisticsJpaRepository.findById(new UserStatisticsId(user.getId(), semester.getId(), field.getId(), category.getId()))
-                    .orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
+            UserStatistics userStatistics = userStatisticsJpaRepository
+                    .findById(new UserStatisticsId(user.getId(), semester.getId(), field.getId(), category.getId()))
+                    .orElseGet(() -> userStatisticsJpaRepository.save(userMapper.createUserStatistics(user, semester, field, category)));
             List<UserDepartment> userDepartments = userDepartmentJpaRepository.findByUserId(user.getId()).orElseThrow(() -> new BaseException(USER_DEPARTMENT_NOT_FOUND));
-            UserCountStatistics userCountStatistics= userCountStatisticsJpaRepository.findById(new UserCountStatisticsId(semester.getId(), field.getId(), category.getId())).orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
-
+            UserCountStatistics userCountStatistics = userCountStatisticsJpaRepository
+                    .findById(new UserCountStatisticsId(semester.getId(), field.getId(), category.getId()))
+                    .orElseGet(() -> userCountStatisticsJpaRepository.save(
+                            userMapper.createUserCountStatistics(semester, field, category)));
             if(type == 1){
                 userCountStatistics.increaseTotalProjectCount();
                 if (projectJpaRepository.countByUserAndSemesterAndProjectFields_FieldAndState(user, semester, field, ACTIVE) == 1) {
                     userCountStatistics.increaseUserProjectCount();
                     userDepartments.forEach(userDepartment -> {
-                        departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseProjectUserCount();
-                        collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).increaseProjectUserCount();
+                        getDepartmentStatistics(semester, category, field, userDepartment).increaseProjectUserCount();
+                        getCollegeStatistics(semester, category, field, userDepartment).increaseProjectUserCount();
                     });
                 }
                 userStatistics.increaseProjectCount();
                 userDepartments
                         .forEach(userDepartment -> {
-                            departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseProjectCount();
-                            collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).increaseProjectCount();
+                            getDepartmentStatistics(semester, category, field, userDepartment).increaseProjectCount();
+                            getCollegeStatistics(semester, category, field, userDepartment).increaseProjectCount();
                         });
             }else if(type == 2) {
                 userCountStatistics.increaseTotalQuestionCount();
                 if (userStatistics.getQuestionCount() == 0) {
                     userCountStatistics.increaseUserQuestionCount();
                     userDepartments.forEach(userDepartment -> {
-                        departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseQuestionUserCount();
-                        collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).increaseQuestionUserCount();
+                        getDepartmentStatistics(semester, category, field, userDepartment).increaseQuestionUserCount();
+                        getCollegeStatistics(semester, category, field, userDepartment).increaseQuestionUserCount();
                     });
                 }
                 userStatistics.increaseQuestionCount();
                 userDepartments
                         .forEach(userDepartment -> {
-                            departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseQuestionCount();
-                            collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).increaseQuestionCount();
-                        });
-            }
-            else if(type == 3){
-                userCountStatistics.increaseTotalTeamCount();
-                if (userStatistics.getTeamCount() == 0) {
-                    userCountStatistics.increaseUserTeamCount();
-                    userDepartments.forEach(userDepartment -> {
-                        departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseTeamUserCount();
-                        collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).increaseTeamUserCount();
-                    });
-                }
-                userStatistics.increaseTeamCount();
-                userDepartments
-                        .forEach(userDepartment -> {
-                            departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseTeamCount();
-                            collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).increaseTeamCount();
-                        });
-            }
-            else if (type == 4) {
-                if (userStatistics.getTeamCount() == 0) {
-                    userCountStatistics.increaseUserTeamCount();
-                    userDepartments
-                            .forEach(userDepartment -> {
-                                departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseTeamUserCount();
-                                collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).increaseTeamUserCount();
-                            });
-                }
-                userStatistics.increaseTeamCount();
-            }
-            else if(type == 5) {
-                userCountStatistics.increaseTotalPatentCount();
-                if (userStatistics.getPatentCount() == 0) {
-                    userCountStatistics.increaseUserPatentCount();
-                    userDepartments
-                            .forEach(userDepartment -> {
-                                departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increasePatentUserCount();
-                                collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).increasePatentUserCount();
-                            });
-                }
-                userStatistics.increasePatentCount();
-                userDepartments
-                        .forEach(userDepartment -> {
-                            departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increasePatentCount();
-                            collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).increasePatentCount();
-                        });
-            }
-            else if(type == 6) {
-                userCountStatistics.increaseTotalProblemCount();
-                userDepartments
-                        .forEach(userDepartment -> {
-                            departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseProblemCount();
-                            collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).increaseProblemCount();});
-            }
-            else if(type == 7) {
-                if (userStatistics.getProblemCount() == 0) {
-                    userCountStatistics.increaseUserProblemCount();
-                    userDepartments
-                            .forEach(userDepartment -> {
-                                departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseProblemUserCount();
-                                collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).increaseProblemUserCount();
-                            });
-                }
-                userStatistics.increaseProblemCount();
-                userDepartments
-                        .forEach(userDepartment -> {
-                            departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseProblemParticipationCount();
-                            collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).increaseProblemParticipationCount();
+                            getDepartmentStatistics(semester, category, field, userDepartment).increaseQuestionCount();
+                            getCollegeStatistics(semester, category, field, userDepartment).increaseQuestionCount();
                         });
             } else if(type == 8) {
                 userCountStatistics.increaseTotalGithubProjectCount();
                 if (projectJpaRepository.countByUserAndSemesterAndProjectFields_FieldAndState(user, semester, field, ACTIVE) == 1) {
                     userCountStatistics.increaseUserProjectCount();
                     userDepartments.forEach(userDepartment -> {
-                        departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseProjectUserCount();
-                        collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).increaseProjectUserCount();
+                        getDepartmentStatistics(semester, category, field, userDepartment).increaseProjectUserCount();
+                        getCollegeStatistics(semester, category, field, userDepartment).increaseProjectUserCount();
                     });
                 }
                 userStatistics.increaseGithubProjectCount();
                 userDepartments
                         .forEach(userDepartment -> {
-                            departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).increaseGithubProjectCount();
-                            collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).increaseGithubProjectCount();
+                            getDepartmentStatistics(semester, category, field, userDepartment).increaseGithubProjectCount();
+                            getCollegeStatistics(semester, category, field, userDepartment).increaseGithubProjectCount();
                         });
             }
-
         }
+    }
 
+    private CollegeStatistics getCollegeStatistics(Semester semester, Category category, Field field, UserDepartment userDepartment) {
+        return collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
+                .orElseGet(() -> collegeStatisticsJpaRepository.save((collegeMapper.createCollegeStatistics(userDepartment.getDepartment().getCollege(), semester, field, category))));
+    }
 
+    private DepartmentStatistics getDepartmentStatistics(Semester semester, Category category, Field field, UserDepartment userDepartment) {
+        return departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
+                .orElseGet(() -> departmentStatisticsJpaRepository.save(departmentMapper.createDepartmentStatistics(userDepartment.getDepartment(), semester, field, category)));
     }
 
     /**
@@ -277,7 +192,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         if (type == 1 || type == 8) {
             if (hasUploadedExactlyOneProject(user)) {
                 totalUserStatistics.decreaseUserProjectCount(); // 사용자 프로젝트 카운트 감소
-                updateDepartmentAndCollegeStatistics(user,
+                createOrUpdateDepartmentAndCollegeStatistics(user, false,
                         TotalDepartmentStatistics::decreaseUserProjectCount,
                         TotalCollegeStatistics::decreaseUserProjectCount); // 학과 및 단과대 통계 업데이트
             }
@@ -285,12 +200,12 @@ public class StatisticsServiceImpl implements StatisticsService {
             reverseTotalStatistics(totalUserStatistics, type);
             if (type == 1) {
                 // 일반 프로젝트 통계 업데이트
-                updateDepartmentAndCollegeStatistics(user,
+                createOrUpdateDepartmentAndCollegeStatistics(user, false,
                         TotalDepartmentStatistics::decreaseTotalProjectCount,
                         TotalCollegeStatistics::decreaseTotalProjectCount);
             } else {
                 // 깃허브 프로젝트 통계 업데이트
-                updateDepartmentAndCollegeStatistics(user,
+                createOrUpdateDepartmentAndCollegeStatistics(user, false,
                         TotalDepartmentStatistics::decreaseTotalGithubProjectCount,
                         TotalCollegeStatistics::decreaseTotalGithubProjectCount);
             }
@@ -299,40 +214,39 @@ public class StatisticsServiceImpl implements StatisticsService {
         if (type == 2) {
             if (hasUploadedExactlyOneQuestion(user)) {
                 totalUserStatistics.decreaseUserQuestionCount();
-                updateDepartmentAndCollegeStatistics(user,
+                createOrUpdateDepartmentAndCollegeStatistics(user, false,
                         TotalDepartmentStatistics::decreaseUserQuestionCount,
                         TotalCollegeStatistics::decreaseUserQuestionCount);
             }
             reverseTotalStatistics(totalUserStatistics, type);
-            updateDepartmentAndCollegeStatistics(user,
+            createOrUpdateDepartmentAndCollegeStatistics(user, false,
                     TotalDepartmentStatistics::decreaseTotalQuestionCount,
                     TotalCollegeStatistics::decreaseTotalQuestionCount);
         }
-
         for(Field field: fields) {
-            UserStatistics userStatistics = userStatisticsJpaRepository.findById(new UserStatisticsId(user.getId(), semester.getId(), field.getId(), category.getId()))
-                    .orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
+            UserStatistics userStatistics = userStatisticsJpaRepository
+                    .findById(new UserStatisticsId(user.getId(), semester.getId(), field.getId(), category.getId()))
+                    .orElseGet(() -> userMapper.createUserStatistics(user, semester, field, category));
             List<UserDepartment> userDepartments = userDepartmentJpaRepository.findByUserId(user.getId()).orElseThrow(() -> new BaseException(USER_DEPARTMENT_NOT_FOUND));
-            UserCountStatistics userCountStatistics = userCountStatisticsJpaRepository.findById(new UserCountStatisticsId(semester.getId(), field.getId(), category.getId())).orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
+            UserCountStatistics userCountStatistics = userCountStatisticsJpaRepository
+                    .findById(new UserCountStatisticsId(semester.getId(), field.getId(), category.getId()))
+                    .orElseGet(() -> userCountStatisticsJpaRepository.save(
+                            userMapper.createUserCountStatistics(semester, field, category)));
             if(type == 1) {
                 userCountStatistics.decreaseTotalProjectCount();
                 if (projectJpaRepository.countByUserAndSemesterAndProjectFields_FieldAndState(user, semester, field, ACTIVE) == 0) {
                     userCountStatistics.decreaseUserProjectCount();
                     userDepartments
                             .forEach(userDepartment -> {
-                                departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseProjectUserCount();
-                                collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).decreaseProjectUserCount();
+                                getDepartmentStatistics2(semester, category, field, userDepartment).decreaseProjectUserCount();
+                                getCollegeStatistics2(semester, category, field, userDepartment).decreaseProjectUserCount();
                             });
                 }
                 userStatistics.decreaseProjectCount();
                 userDepartments
                         .forEach(userDepartment -> {
-                            departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseProjectCount();
-                            collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).decreaseProjectCount();
+                            getDepartmentStatistics2(semester, category, field, userDepartment).decreaseProjectCount();
+                            getCollegeStatistics2(semester, category, field, userDepartment).decreaseProjectCount();
                         });
             } else if(type == 2) {
                 userCountStatistics.decreaseTotalQuestionCount();
@@ -340,102 +254,15 @@ public class StatisticsServiceImpl implements StatisticsService {
                     userCountStatistics.decreaseUserQuestionCount();
                     userDepartments
                             .forEach(userDepartment -> {
-                                departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseQuestionUserCount();
-                                collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).decreaseQuestionUserCount();
+                                getDepartmentStatistics2(semester, category, field, userDepartment).decreaseQuestionUserCount();
+                                getCollegeStatistics2(semester, category, field, userDepartment).decreaseQuestionUserCount();
                             });
                 }
                 userStatistics.decreaseQuestionCount();
                 userDepartments
                         .forEach(userDepartment -> {
-                            departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseQuestionCount();
-                            collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).decreaseQuestionCount();
-                        });
-            } else if(type == 3) {
-                userCountStatistics.decreaseTotalTeamCount();
-                if(userStatistics.getTeamCount() == 1) {
-                    userCountStatistics.decreaseUserTeamCount();
-                    userDepartments
-                            .forEach(userDepartment -> {
-                                departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseTeamUserCount();
-                                collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).decreaseTeamUserCount();
-                            });
-                }
-                userStatistics.decreaseTeamCount();
-                userDepartments
-                        .forEach(userDepartment -> {
-                            departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseTeamCount();
-                            collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).decreaseTeamCount();
-                        });
-            } else if (type == 4) {
-                if(userStatistics.getTeamCount() == 1) {
-                    userCountStatistics.decreaseUserTeamCount();
-                    userDepartments
-                            .forEach(userDepartment -> {
-                                departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseTeamUserCount();
-                                collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).decreaseTeamUserCount();
-                            });
-                }
-            }
-            else if(type == 5) {
-                userCountStatistics.decreaseTotalPatentCount();
-                if(userStatistics.getPatentCount() == 1) {
-                    userCountStatistics.decreaseUserPatentCount();
-                    userStatistics.decreasePatentCount();
-                    userDepartments
-                            .forEach(userDepartment -> {
-                                departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreasePatentUserCount();
-                                collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).decreasePatentUserCount();
-                            });
-                }
-                userStatistics.decreasePatentCount();
-                userDepartments
-                        .forEach(userDepartment -> {
-                            departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreasePatentCount();
-                            collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).decreasePatentCount();
-                        });
-            }
-            else if(type == 6) {
-                userCountStatistics.decreaseTotalProblemCount();
-                userDepartments
-                        .forEach(userDepartment -> {
-                            departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseProblemCount();
-                            collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).decreaseProblemCount();
-                        });
-            }
-            else if(type == 7) {
-                if(userStatistics.getProblemCount() == 1) {
-                    userCountStatistics.decreaseUserProblemCount();
-                    userDepartments
-                            .forEach(userDepartment -> {
-                                departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseProblemUserCount();
-                                collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).decreaseProblemUserCount();
-                            });
-                }
-                userStatistics.decreaseProblemCount();
-                userDepartments
-                        .forEach(userDepartment -> {
-                            departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseProblemParticipationCount();
-                            collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).decreaseProblemParticipationCount();
+                            getDepartmentStatistics2(semester, category, field, userDepartment).decreaseQuestionCount();
+                            getCollegeStatistics2(semester, category, field, userDepartment).decreaseQuestionCount();
                         });
             } else if(type == 8) {
                 userCountStatistics.decreaseTotalGithubProjectCount();
@@ -443,43 +270,30 @@ public class StatisticsServiceImpl implements StatisticsService {
                     userCountStatistics.decreaseUserProjectCount();
                     userDepartments
                             .forEach(userDepartment -> {
-                                departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseProjectUserCount();
-                                collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                        .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).decreaseProjectUserCount();
+                                getDepartmentStatistics2(semester, category, field, userDepartment).decreaseProjectUserCount();
+                                getCollegeStatistics2(semester, category, field, userDepartment).decreaseProjectUserCount();
                             });
                 }
                 userStatistics.decreaseGithubProjectCount();
                 userDepartments
                         .forEach(userDepartment -> {
-                            departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND)).decreaseGithubProjectCount();
-                            collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
-                                    .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND)).decreaseGithubProjectCount();
+                            getDepartmentStatistics2(semester, category, field, userDepartment).decreaseGithubProjectCount();
+                            getCollegeStatistics2(semester, category, field, userDepartment).decreaseGithubProjectCount();
                         });
             }
         }
 
     }
 
-    /**
-     * 학과별 전체 통계 정보를 조회한다.
-     *
-     * @return List<HomeStatisticsResponse>
-     */
-    @Override
-    public List<HomeStatisticsResponse> getStatistics() {
-//        return departmentJpaRepository.findAllByState(ACTIVE)
-//                .stream()
-//                .map(department -> {
-//                    DepartmentStatistics departmentStatistics = departmentStatisticsJpaRepository.findById(department.getId())
-//                            .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND));
-//                    return statisticsMapper.toHomeStatisticsResponse(department,  departmentStatistics);
-//                })
-//                .toList();
-        return null;
+    private CollegeStatistics getCollegeStatistics2(Semester semester, Category category, Field field, UserDepartment userDepartment) {
+        return collegeStatisticsJpaRepository.findById(new CollegeStatisticsStatisticsId(userDepartment.getDepartment().getCollege().getId(), semester.getId(), field.getId(), category.getId()))
+                .orElseThrow(() -> new BaseException(COLLEGE_STATISTICS_NOT_FOUND));
     }
 
+    private DepartmentStatistics getDepartmentStatistics2(Semester semester, Category category, Field field, UserDepartment userDepartment) {
+        return departmentStatisticsJpaRepository.findById(new DepartmentStatisticsId(userDepartment.getDepartment().getId(), semester.getId(), field.getId(), category.getId()))
+                .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND));
+    }
 
     /**
      * 프로젝트 통계 정보를 조회한다.
@@ -508,43 +322,6 @@ public class StatisticsServiceImpl implements StatisticsService {
         return questionStatisticsQueryRepository.getQuestionStatistics(searchCond);
     }
 
-    @Override
-    public TeamStatisticsResponse getTeamStatistics(Integer idx) {
-//        if (idx != null) {
-//            return departmentJpaRepository.findByIdAndState(idx, ACTIVE)
-//                    .map(department -> {
-//                        DepartmentStatistics departmentStatistics = departmentStatisticsJpaRepository.findById(department.getId())
-//                                .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND));
-//                        return statisticsMapper.toTeamStatisticsResponse(departmentStatistics.getTeamCount(), departmentStatistics.getTeamUserCount());
-//                    })
-//                    .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
-//        }
-//        UserCountStatistics userCountStatistics = userCountStatisticsJpaRepository.findById(1)
-//                .orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
-//        return statisticsMapper.toTeamStatisticsResponse(userCountStatistics.getTotalTeamCount(), userCountStatistics.getUserTeamCount());
-        return null;
-    }
-
-    @Override
-    public ProblemStatisticsResponse getProblemStatistics(Integer idx) {
-//        if (idx != null) {
-//            return departmentJpaRepository.findByIdAndState(idx, ACTIVE)
-//                    .map(department -> {
-//                        DepartmentStatistics departmentStatistics = departmentStatisticsJpaRepository.findById(department.getId())
-//                                .orElseThrow(() -> new BaseException(DEPARTMENT_STATISTICS_NOT_FOUND));
-//                        return statisticsMapper.toProblemStatisticsResponse(departmentStatistics.getProblemCount(), departmentStatistics.getProblemUserCount());
-//                    })
-//                    .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND));
-//        }
-//        UserCountStatistics userCountStatistics = userCountStatisticsJpaRepository.findById(1)
-//                .orElseThrow(() -> new BaseException(USER_COUNT_STATISTICS_NOT_FOUND));
-//        return statisticsMapper.toProblemStatisticsResponse(userCountStatistics.getTotalProblemCount(), userCountStatistics.getUserProblemCount());
-        return null;
-    }
-
-
-
-
     private void validateSearchCond(SearchCond searchCond) {
         if(searchCond.collegeIdx() != null) {
             collegeJpaRepository.findByIdAndState(searchCond.collegeIdx(), ACTIVE)
@@ -569,30 +346,6 @@ public class StatisticsServiceImpl implements StatisticsService {
             categoryJpaRepository.findByIdAndState(searchCond.categoryIdx(), ACTIVE)
                      .orElseThrow(() -> new BaseException(CATEGORY_NOT_FOUND));
         }
-    }
-
-    // 학과 및 단과대 통계 업데이트
-    private void updateDepartmentAndCollegeStatistics(User user, Consumer<TotalDepartmentStatistics> departmentUpdater, Consumer<TotalCollegeStatistics> collegeUpdater) {
-        List<UserDepartment> userDepartments = userDepartmentJpaRepository.findByUserId(user.getId()).orElseThrow(() -> new BaseException(USER_DEPARTMENT_NOT_FOUND));
-        userDepartments.stream()
-                .map(userDepartment -> userDepartment.getDepartment())  // Department 객체 추출
-                .peek(department -> {
-                    // 학과 통계 업데이트
-                    totalDepartmentStatisticsJpaRepository.findById(department.getId())
-                            .ifPresentOrElse(
-                                    departmentUpdater,
-                                    () -> { throw new BaseException(TOTAL_DEPARTMENT_STATISTICS_NOT_FOUND); }
-                            );
-                })
-                .map(department -> department.getCollege().getId())  // Department에서 CollegeId 추출
-                .forEach(collegeId -> {
-                    // 단과대 통계 업데이트
-                    totalCollegeStatisticsJpaRepository.findById(collegeId)
-                            .ifPresentOrElse(
-                                    collegeUpdater,
-                                    () -> { throw new BaseException(TOTAL_COLLEGE_STATISTICS_NOT_FOUND); }
-                            );
-                });
     }
 
     // 전체 통계 업데이트
@@ -641,5 +394,34 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private boolean hasUploadedExactlyOneQuestion(User user) {
         return userStatisticsJpaRepository.countByUserIdAndQuestionCount(user.getId(), 1) == 1;
+    }
+
+
+    /**
+     * 학과 및 단과대 통계를 생성하거나 업데이트
+     */
+    private void createOrUpdateDepartmentAndCollegeStatistics(User user, boolean isIncrease,
+                                                              Consumer<TotalDepartmentStatistics> departmentUpdater,
+                                                              Consumer<TotalCollegeStatistics> collegeUpdater) {
+        List<UserDepartment> userDepartments = userDepartmentJpaRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new BaseException(USER_DEPARTMENT_NOT_FOUND));
+
+        userDepartments.stream()
+                .map(UserDepartment::getDepartment)
+                .forEach(department -> {
+                    // 학과 통계 생성 또는 업데이트
+                    TotalDepartmentStatistics deptStats = totalDepartmentStatisticsJpaRepository
+                            .findById(department.getId())
+                            .orElseGet(() -> totalDepartmentStatisticsJpaRepository.save(
+                                    departmentMapper.createTotalDepartmentStatistics(department)));
+                    departmentUpdater.accept(deptStats);
+
+                    // 단과대 통계 생성 또는 업데이트
+                    TotalCollegeStatistics collegeStats = totalCollegeStatisticsJpaRepository
+                            .findById(department.getCollege().getId())
+                            .orElseGet(() -> totalCollegeStatisticsJpaRepository.save(
+                                    collegeMapper.createTotalCollegeStatistics(department.getCollege())));
+                    collegeUpdater.accept(collegeStats);
+                });
     }
 }
