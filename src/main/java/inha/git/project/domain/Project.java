@@ -37,7 +37,6 @@ public class Project extends BaseEntity {
     private String title;
 
     @Setter
-    @Lob
     @Column(nullable = false)
     private String contents;
 
