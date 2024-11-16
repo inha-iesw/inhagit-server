@@ -1,5 +1,6 @@
 package inha.git.common.config;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -9,10 +10,13 @@ import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @Profile({"local", "dev"})
+@EnableWebMvc  // 추가
+@OpenAPIDefinition // 추가
 public class SwaggerConfig implements WebMvcConfigurer {
     private static final String SECURITY_SCHEME_NAME = "authorization";	// 추가
 

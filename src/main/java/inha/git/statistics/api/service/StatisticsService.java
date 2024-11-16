@@ -16,13 +16,8 @@ public interface StatisticsService {
     void increaseCount(User user, List<Field> fields, Semester semester, Category category, Integer type);
 
     void decreaseCount(User user, List<Field> fields, Semester semester, Category category, Integer type);
-
-    List<HomeStatisticsResponse> getStatistics();
     ProjectStatisticsResponse getProjectStatistics(SearchCond searchCond);
     QuestionStatisticsResponse getQuestionStatistics(SearchCond searchCond);
-    TeamStatisticsResponse getTeamStatistics(Integer idx);
-    ProblemStatisticsResponse getProblemStatistics(Integer idx);
-
 
 
 }

@@ -1,8 +1,6 @@
 package inha.git.department.api.service;
 
 import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
-import inha.git.category.domain.Category;
-import inha.git.category.domain.repository.CategoryJpaRepository;
 import inha.git.college.domain.College;
 import inha.git.college.domain.repository.CollegeJpaRepository;
 import inha.git.common.exceptions.BaseException;
@@ -11,12 +9,6 @@ import inha.git.department.api.controller.dto.request.UpdateDepartmentRequest;
 import inha.git.department.api.mapper.DepartmentMapper;
 import inha.git.department.domain.Department;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
-import inha.git.field.domain.Field;
-import inha.git.field.domain.repository.FieldJpaRepository;
-import inha.git.semester.domain.Semester;
-import inha.git.semester.domain.repository.SemesterJpaRepository;
-import inha.git.statistics.domain.DepartmentStatistics;
-import inha.git.statistics.domain.repository.DepartmentStatisticsJpaRepository;
 import inha.git.statistics.domain.repository.TotalDepartmentStatisticsJpaRepository;
 import inha.git.user.domain.User;
 import lombok.RequiredArgsConstructor;
@@ -40,11 +32,7 @@ import static inha.git.common.code.status.ErrorStatus.*;
 public class DepartmentServiceImpl implements DepartmentService{
     private final DepartmentJpaRepository departmentJpaRepository;
     private final DepartmentMapper departmentMapper;
-    private final DepartmentStatisticsJpaRepository departmentStatisticsJpaRepository;
     private final TotalDepartmentStatisticsJpaRepository totalDepartmentStatisticsJpaRepository;
-    private final SemesterJpaRepository semesterJpaRepository;
-    private final FieldJpaRepository fieldJpaRepository;
-    private final CategoryJpaRepository categoryJpaRepository;
     private final CollegeJpaRepository collegeJpaRepository;
 
     /**
@@ -80,19 +68,6 @@ public class DepartmentServiceImpl implements DepartmentService{
                 throw new BaseException(DEPARTMENT_NOT_BELONG_TO_COLLEGE);
         }
         Department savedDepartment = departmentJpaRepository.save(department);
-
-        List<Semester> semesters = semesterJpaRepository.findAllByState(ACTIVE);
-        List<Field> fields = fieldJpaRepository.findAllByState(ACTIVE);
-        List<Category> categories = categoryJpaRepository.findAllByState(ACTIVE);
-
-        for (Semester semester : semesters) {
-            for (Field field : fields) {
-                for (Category category : categories) {
-                    DepartmentStatistics departmentStatistics = departmentMapper.createDepartmentStatistics(department, semester, field, category);
-                    departmentStatisticsJpaRepository.save(departmentStatistics);
-                }
-            }
-        }
         totalDepartmentStatisticsJpaRepository.save(departmentMapper.createTotalDepartmentStatistics(department));
         log.info("학과 생성 성공 - 관리자: {} 학과명: {}", admin.getName(), savedDepartment.getName());
         return savedDepartment.getName() + " 학과가 생성되었습니다.";
