@@ -1,31 +1,14 @@
 package inha.git.semester.service;
 
-import inha.git.category.domain.Category;
-import inha.git.category.domain.repository.CategoryJpaRepository;
-import inha.git.college.domain.College;
-import inha.git.college.domain.repository.CollegeJpaRepository;
 import inha.git.common.BaseEntity;
 import inha.git.common.exceptions.BaseException;
-import inha.git.department.domain.Department;
-import inha.git.department.domain.repository.DepartmentJpaRepository;
-import inha.git.field.domain.Field;
-import inha.git.field.domain.repository.FieldJpaRepository;
 import inha.git.semester.controller.dto.request.CreateSemesterRequest;
 import inha.git.semester.controller.dto.request.UpdateSemesterRequest;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.semester.mapper.SemesterMapper;
-import inha.git.statistics.domain.CollegeStatistics;
-import inha.git.statistics.domain.DepartmentStatistics;
-import inha.git.statistics.domain.UserCountStatistics;
-import inha.git.statistics.domain.UserStatistics;
-import inha.git.statistics.domain.repository.CollegeStatisticsJpaRepository;
-import inha.git.statistics.domain.repository.DepartmentStatisticsJpaRepository;
-import inha.git.statistics.domain.repository.UserCountStatisticsJpaRepository;
-import inha.git.statistics.domain.repository.UserStatisticsJpaRepository;
 import inha.git.user.domain.User;
-import inha.git.user.domain.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -49,15 +32,6 @@ public class SemesterServiceImpl implements SemesterService {
 
     private final SemesterJpaRepository semesterJpaRepository;
     private final SemesterMapper semesterMapper;
-    private final CollegeStatisticsJpaRepository collegeStatisticsJpaRepository;
-    private final CollegeJpaRepository collegeJpaRepository;
-    private final FieldJpaRepository fieldJpaRepository;
-    private final CategoryJpaRepository categoryJpaRepository;
-    private final UserJpaRepository userJpaRepository;
-    private final DepartmentJpaRepository departmentJpaRepository;
-    private final DepartmentStatisticsJpaRepository departmentStatisticsJpaRepository;
-    private final UserStatisticsJpaRepository userStatisticsJpaRepository;
-    private final UserCountStatisticsJpaRepository userCountStatisticsJpaRepository;
 
 
     /**
@@ -81,23 +55,6 @@ public class SemesterServiceImpl implements SemesterService {
     @Transactional
     public String createSemester(User admin, CreateSemesterRequest createDepartmentRequest) {
         Semester semester = semesterJpaRepository.save(semesterMapper.createSemesterRequestToSemester(createDepartmentRequest));
-
-        List<College> colleges = collegeJpaRepository.findAllByState(ACTIVE);
-        List<Department> departments = departmentJpaRepository.findAllByState(ACTIVE);
-        List<User> users = userJpaRepository.findAllByState(ACTIVE);
-        List<Field> fields = fieldJpaRepository.findAllByState(ACTIVE);
-        List<Category> categories = categoryJpaRepository.findAllByState(ACTIVE);
-
-        List<CollegeStatistics> statisticsList = semesterMapper.createCollegeStatistics(semester, colleges, fields, categories);
-        List<DepartmentStatistics> departmentStatistics = semesterMapper.createDepartmentStatistics(semester, departments, fields, categories);
-        List<UserStatistics> userStatistics = semesterMapper.createUserStatistics(semester, users, fields, categories);
-        List<UserCountStatistics> userCountStatistics = semesterMapper.createUserCountStatistics(semester, fields, categories);
-
-        collegeStatisticsJpaRepository.saveAll(statisticsList);
-        departmentStatisticsJpaRepository.saveAll(departmentStatistics);
-        userStatisticsJpaRepository.saveAll(userStatistics);
-        userCountStatisticsJpaRepository.saveAll(userCountStatistics);
-
         log.info("학기 생성 성공 - 관리자: {} 학기명: {}", admin.getName(), createDepartmentRequest.name());
         return semester.getName() + " 학기가 생성되었습니다.";
     }

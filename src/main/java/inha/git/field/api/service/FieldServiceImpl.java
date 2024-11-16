@@ -1,30 +1,13 @@
 package inha.git.field.api.service;
 
-import inha.git.category.domain.Category;
-import inha.git.category.domain.repository.CategoryJpaRepository;
-import inha.git.college.domain.College;
-import inha.git.college.domain.repository.CollegeJpaRepository;
 import inha.git.common.exceptions.BaseException;
-import inha.git.department.domain.Department;
-import inha.git.department.domain.repository.DepartmentJpaRepository;
 import inha.git.field.api.controller.dto.request.CreateFieldRequest;
 import inha.git.field.api.controller.dto.request.UpdateFieldRequest;
 import inha.git.field.api.controller.dto.response.SearchFieldResponse;
 import inha.git.field.api.mapper.FieldMapper;
 import inha.git.field.domain.Field;
 import inha.git.field.domain.repository.FieldJpaRepository;
-import inha.git.semester.domain.Semester;
-import inha.git.semester.domain.repository.SemesterJpaRepository;
-import inha.git.statistics.domain.CollegeStatistics;
-import inha.git.statistics.domain.DepartmentStatistics;
-import inha.git.statistics.domain.UserCountStatistics;
-import inha.git.statistics.domain.UserStatistics;
-import inha.git.statistics.domain.repository.CollegeStatisticsJpaRepository;
-import inha.git.statistics.domain.repository.DepartmentStatisticsJpaRepository;
-import inha.git.statistics.domain.repository.UserCountStatisticsJpaRepository;
-import inha.git.statistics.domain.repository.UserStatisticsJpaRepository;
 import inha.git.user.domain.User;
-import inha.git.user.domain.repository.UserJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -46,15 +29,6 @@ import static inha.git.common.code.status.ErrorStatus.FIELD_NOT_FOUND;
 public class FieldServiceImpl implements FieldService {
 
     private final FieldJpaRepository fieldJpaRepository;
-    private final CollegeJpaRepository collegeJpaRepository;
-    private final CollegeStatisticsJpaRepository collegeStatisticsJpaRepository;
-    private final SemesterJpaRepository semesterJpaRepository;
-    private final CategoryJpaRepository categoryJpaRepository;
-    private final UserJpaRepository userJpaRepository;
-    private final DepartmentJpaRepository departmentJpaRepository;
-    private final DepartmentStatisticsJpaRepository departmentStatisticsJpaRepository;
-    private final UserStatisticsJpaRepository userStatisticsJpaRepository;
-    private final UserCountStatisticsJpaRepository userCountStatisticsJpaRepository;
     private final FieldMapper fieldMapper;
 
     /**
@@ -78,21 +52,6 @@ public class FieldServiceImpl implements FieldService {
     public String createField(User admin, CreateFieldRequest createFieldRequest) {
         Field field = fieldMapper.createFieldRequestToField(createFieldRequest);
         Field savedField = fieldJpaRepository.save(field);
-        List<College> colleges = collegeJpaRepository.findAllByState(ACTIVE);
-        List<Department> departments = departmentJpaRepository.findAllByState(ACTIVE);
-        List<User> users = userJpaRepository.findAllByState(ACTIVE);
-        List<Semester> semesters = semesterJpaRepository.findAllByState(ACTIVE);
-        List<Category> categories = categoryJpaRepository.findAllByState(ACTIVE);
-
-        List<CollegeStatistics> statisticsList = fieldMapper.createCollegeStatistics(savedField, colleges, semesters, categories);
-        List<DepartmentStatistics> departmentStatistics = fieldMapper.createDepartmentStatistics(savedField, departments, semesters, categories);
-        List<UserStatistics> userStatistics = fieldMapper.createUserStatistics(savedField, users, semesters, categories);
-        List<UserCountStatistics> userCountStatistics = fieldMapper.createUserCountStatistics(savedField, semesters, categories);
-        collegeStatisticsJpaRepository.saveAll(statisticsList);
-        departmentStatisticsJpaRepository.saveAll(departmentStatistics);
-        userStatisticsJpaRepository.saveAll(userStatistics);
-        userCountStatisticsJpaRepository.saveAll(userCountStatistics);
-
         log.info("분야 생성 성공 - 관리자: {} 분야명: {}", admin.getName(), field.getName());
         return savedField.getName() + " 분야가 생성되었습니다.";
     }
