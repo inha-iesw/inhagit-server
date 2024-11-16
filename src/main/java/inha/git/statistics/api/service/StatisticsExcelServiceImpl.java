@@ -17,6 +17,7 @@ import inha.git.statistics.api.controller.dto.response.QuestionStatisticsRespons
 import inha.git.statistics.domain.StatisticsType;
 import inha.git.statistics.domain.repository.ProjectStatisticsQueryRepository;
 import inha.git.statistics.domain.repository.QuestionStatisticsQueryRepository;
+import inha.git.statistics.domain.repository.StatisticsExcelQueryRepository;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -51,6 +53,7 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
 
     private final ProjectStatisticsQueryRepository projectStatisticsQueryRepository;
     private final QuestionStatisticsQueryRepository questionStatisticsQueryRepository;
+    private final StatisticsExcelQueryRepository statisticsExcelQueryRepository;
     private final CollegeJpaRepository collegeJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
     private final SemesterJpaRepository semesterJpaRepository;
@@ -133,6 +136,20 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
                                            List<Field> fields, List<Category> categories) {
         String prefix = type.getPrefix();
 
+        if (type == StatisticsType.TOTAL) {
+            if (!statisticsExcelQueryRepository.hasNonZeroStatistics(type, null)) {
+                return; // 모든 값이 0이면 시트 생성하지 않음
+            }
+        } else {
+            // 필터된 데이터 중 유효한 데이터만 추출
+            filterDataList = filterDataList.stream()
+                    .filter(filter -> statisticsExcelQueryRepository.hasNonZeroStatistics(type, filter.id()))
+                    .toList();
+
+            if (filterDataList.isEmpty()) {
+                return; // 유효한 데이터가 없으면 시트 생성하지 않음
+            }
+        }
         // 1. 기본 통계
         createBasicStatisticsSheet(workbook, prefix + BASIC_STATISTICS, filterDataList, type);
 
