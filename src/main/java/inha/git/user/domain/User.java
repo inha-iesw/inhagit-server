@@ -53,6 +53,9 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "blocked_at")
     private LocalDateTime blockedAt;
 
+    @Column(name = "report_count")
+    private int reportCount;
+
     @Column(length = 10)
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -151,5 +154,9 @@ public class User extends BaseEntity implements UserDetails {
 
     public void setBlockedAt(LocalDateTime blockedAt) {
         this.blockedAt = blockedAt;
+    }
+
+    public void increaseReportCount() {
+        this.reportCount++;
     }
 }

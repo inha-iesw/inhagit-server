@@ -13,6 +13,10 @@ public record CreateReportRequest(
         Integer reportReasonId,
 
         @NotNull
+        @Schema(description = "신고 대상 id", example = "1")
+        Integer reportedId,
+
+        @NotNull
         @Schema(description = "신고 설명", example = "신고합니다.")
         String description
 ) {

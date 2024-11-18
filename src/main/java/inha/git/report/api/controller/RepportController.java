@@ -30,6 +30,15 @@ public class RepportController {
 
     private final ReportService reportService;
 
+    /**
+     * 신고 API
+     *
+     * <p>특정 유저를 신고합니다.</p>
+     *
+     * @param user 사용자
+     * @param createReportRequest 신고 생성 요청
+     * @return ReportResponse
+     */
     @PostMapping
     @Operation(summary = "신고 API", description = "특정 유저를 신고합니다.")
     public BaseResponse<ReportResponse> createReport(@AuthenticationPrincipal User user,
