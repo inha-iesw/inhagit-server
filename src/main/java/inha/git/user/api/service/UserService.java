@@ -1,6 +1,8 @@
 package inha.git.user.api.service;
 
 
+import inha.git.bug_report.api.controller.dto.request.SearchBugReportCond;
+import inha.git.bug_report.api.controller.dto.response.SearchBugReportsResponse;
 import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
 import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
 import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
@@ -19,8 +21,7 @@ public interface UserService {
     Page<SearchMyTeamsResponse> getUserTeams(User user, Integer userIdx, Integer page);
     Page<SearchProblemsResponse> getUserProblems(User user, Integer userIdx, Integer page);
     Page<SearchReportResponse> getUserReports(User user, Integer userIdx, Integer page);
+    Page<SearchBugReportsResponse> getUserBugReports(User user, Integer userIdx, SearchBugReportCond searchBugReportCond, Integer page);
     UserResponse changePassword(Integer id, UpdatePwRequest updatePwRequest);
-
-
 
 }

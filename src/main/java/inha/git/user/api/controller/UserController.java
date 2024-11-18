@@ -1,5 +1,7 @@
 package inha.git.user.api.controller;
 
+import inha.git.bug_report.api.controller.dto.request.SearchBugReportCond;
+import inha.git.bug_report.api.controller.dto.response.SearchBugReportsResponse;
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
@@ -180,6 +182,28 @@ public class UserController {
             throw new BaseException(INVALID_PAGE);
         }
         return BaseResponse.of(MY_PAGE_REPORT_SEARCH_OK, userService.getUserReports(user, userIdx, page - 1));
+    }
+
+    /**
+     * 특정 유저의 버그 제보 조회 API
+     *
+     * <p>특정 유저의 버그 제보를 조회.</p>
+     *
+     * @param user 인증된 유저 정보
+     * @param page 페이지 번호
+     *
+     * @return 특정 유저의 버그 제보 조회 결과를 포함하는 BaseResponse<Page<SearchBugReportsResponse>>
+     */
+    @GetMapping("/{userIdx}/bug-reports")
+    @Operation(summary = "특정 유저의 버그 제보 조회 API", description = "특정 유저의 버그 제보를 조회합니다.")
+    public BaseResponse <Page<SearchBugReportsResponse>> getUserBugReports(@AuthenticationPrincipal User user,
+                                                                    @PathVariable("userIdx") Integer userIdx,
+                                                                    @Validated @ModelAttribute SearchBugReportCond searchBugReportCond,
+                                                                    @RequestParam("page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(MY_PAGE_BUG_REPORT_SEARCH_OK, userService.getUserBugReports(user, userIdx, searchBugReportCond,  page - 1));
     }
     /**
      * 학생 회원가입 API

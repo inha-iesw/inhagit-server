@@ -8,6 +8,9 @@ import inha.git.admin.api.controller.dto.response.SearchCompanyResponse;
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
 import inha.git.admin.api.controller.dto.response.SearchStudentResponse;
 import inha.git.admin.api.controller.dto.response.SearchUserResponse;
+import inha.git.bug_report.api.controller.dto.request.SearchBugReportCond;
+import inha.git.bug_report.api.controller.dto.response.SearchBugReportsResponse;
+import inha.git.bug_report.domain.BugReport;
 import inha.git.common.BaseEntity.State;
 import inha.git.mapping.domain.QUserDepartment;
 import inha.git.report.api.controller.dto.response.ReportReasonResponse;
@@ -30,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static inha.git.bug_report.domain.QBugReport.bugReport;
 import static inha.git.common.Constant.mapRoleToPosition;
 import static inha.git.report.domain.QReport.report;
 import static inha.git.report.domain.QReportReason.reportReason;
@@ -279,6 +283,58 @@ public class AdminQueryRepository {
                 })
                 .toList();
 
+        return new PageImpl<>(content, pageable, total);
+    }
+
+    /**
+     * 버그 리포트 검색
+     *
+     * @param searchBugReportCond 버그 리포트 검색 조건
+     * @param pageable            페이지 정보
+     * @return 버그 리포트 목록
+     */
+    public Page<SearchBugReportsResponse> searchBugReports(SearchBugReportCond searchBugReportCond, Pageable pageable) {
+        // 동적 조건 생성을 위한 기본 설정
+        BooleanExpression condition = bugReport.isNotNull();
+
+        // 제목 검색 조건
+        if (searchBugReportCond.title() != null && !searchBugReportCond.title().isEmpty()) {
+            condition = condition.and(bugReport.title.containsIgnoreCase(searchBugReportCond.title()));
+        }
+
+        // 버그 상태 검색 조건
+        if (searchBugReportCond.bugStatus() != null) {
+            condition = condition.and(bugReport.bugStatus.eq(searchBugReportCond.bugStatus()));
+        }
+
+        // 버그 리포트 목록 조회 쿼리
+        JPAQuery<BugReport> query = queryFactory
+                .select(bugReport)
+                .from(bugReport)
+                .leftJoin(bugReport.user)
+                .where(condition)
+                .orderBy(bugReport.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        // 결과 리스트 및 총 개수 가져오기
+        List<BugReport> bugReports = query.fetch();
+        long total = query.fetchCount();
+
+        // SearchBugReportsResponse 변환
+        List<SearchBugReportsResponse> content = bugReports.stream()
+                .map(report -> new SearchBugReportsResponse(
+                        report.getId(),
+                        report.getTitle(),
+                        report.getCreatedAt(),
+                        report.getBugStatus(),
+                        new inha.git.project.api.controller.dto.response.SearchUserResponse(
+                                report.getUser().getId(),
+                                report.getUser().getName(),
+                                mapRoleToPosition(report.getUser().getRole())
+                        )
+                ))
+                .toList();
         return new PageImpl<>(content, pageable, total);
     }
 }

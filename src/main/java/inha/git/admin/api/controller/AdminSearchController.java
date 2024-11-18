@@ -6,6 +6,8 @@ import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
 import inha.git.admin.api.controller.dto.response.SearchStudentResponse;
 import inha.git.admin.api.controller.dto.response.SearchUserResponse;
 import inha.git.admin.api.service.AdminSearchService;
+import inha.git.bug_report.api.controller.dto.request.SearchBugReportCond;
+import inha.git.bug_report.api.controller.dto.response.SearchBugReportsResponse;
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.report.api.controller.dto.response.SearchReportResponse;
@@ -159,5 +161,27 @@ public class AdminSearchController {
         }
         log.info("{} 관리자 신고 검색 - 페이지: {}", user.getName(), page);
         return BaseResponse.of(REPORT_SEARCH_OK, adminSearchService.getAdminReports(searchReportCond, page - 1));
+    }
+
+    /**
+     * 버그 제보 조회 API
+     *
+     * <p>버그 제보 조회 API입니다.</p>
+     *
+     * @param searchBugReportCond 버그 제보 검색 조건
+     * @param page 페이지 번호
+     * @return 검색된 버그 제보 정보를 포함하는 BaseResponse<Page<SearchBugReportsResponse>>
+     */
+    @GetMapping("/bug-report")
+    @Operation(summary = "버그 제보 조회 API(관리자 전용)", description = "관리자 전용 버그 제보 조회 API입니다")
+    public BaseResponse<Page<SearchBugReportsResponse>> getAdminBugReports(
+            @AuthenticationPrincipal User user,
+            @Validated @ModelAttribute SearchBugReportCond searchBugReportCond,
+            @RequestParam("page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        log.info("{} 관리자 버그 제보 조회 - 페이지: {}", user.getName(), page);
+        return BaseResponse.of(BUG_REPORT_SEARCH_OK, adminSearchService.getAdminBugReports(searchBugReportCond, page - 1));
     }
 }
