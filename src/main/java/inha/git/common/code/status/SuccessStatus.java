@@ -59,6 +59,9 @@ public enum SuccessStatus implements BaseCode {
     FIELD_DELETE_OK(HttpStatus.OK, "FIELD2002", "분야 삭제 성공"),
     FIELD_SEARCH_OK(HttpStatus.OK, "FIELD2000", "분야 전체 조회 성공"),
 
+    //이미지 생성
+    IMAGE_CREATE_OK(HttpStatus.CREATED, "IMAGE2010", "이미지 생성 성공"),
+
     COLLEGE_CREATE_OK(HttpStatus.CREATED, "COLLEGE2010", "단과대 생성 성공"),
     COLLEGE_SEARCH_OK(HttpStatus.OK, "COLLEGE2000", "단과대 전체 조회 성공"),
     COLLEGE_UPDATE_OK(HttpStatus.OK, "COLLEGE2001", "단과대 수정 성공"),
@@ -80,6 +83,9 @@ public enum SuccessStatus implements BaseCode {
     NOTICE_DELETE_OK(HttpStatus.OK, "NOTICE2002", "공지 삭제 성공"),
     NOTICE_SEARCH_OK(HttpStatus.OK, "NOTICE2000", "공지 전체 조회 성공"),
     NOTICE_DETAIL_OK(HttpStatus.OK, "NOTICE2003", "공지 상세 조회 성공"),
+
+    //신고
+    REPORT_CREATE_OK(HttpStatus.CREATED, "REPORT2010", "신고 생성 성공"),
 
     PROJECT_CREATE_OK(HttpStatus.CREATED, "PROJECT2010", "프로젝트 생성 성공"),
     PROJECT_UPDATE_OK(HttpStatus.OK, "PROJECT2001", "프로젝트 수정 성공"),

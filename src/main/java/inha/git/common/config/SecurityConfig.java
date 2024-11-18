@@ -47,6 +47,7 @@ public class SecurityConfig {
             "/api/v1/fields",
             "/api/v1/banners",
             "/banner/**",
+            "/image/**",
             "/evidence/**",
             "/problem-file/**",
             "/project/**",
