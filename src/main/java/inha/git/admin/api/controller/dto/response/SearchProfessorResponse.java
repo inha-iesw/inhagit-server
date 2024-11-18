@@ -43,7 +43,10 @@ public record SearchProfessorResponse(
         List<SearchDepartmentResponse> departmentList,
 
         @Schema(description = "교수 계정 승인일", example = "2024-05-31 04:26:56.831000 +00:00")
-        LocalDateTime acceptedAt
+        LocalDateTime acceptedAt,
+
+        @Schema(description = "신고당한 횟수", example = "0")
+        Integer reportCount
 ) {
     @QueryProjection
     public SearchProfessorResponse(User user, Professor professor) {
@@ -57,7 +60,8 @@ public record SearchProfessorResponse(
                 user.getUserDepartments().stream()
                         .map(ud -> new SearchDepartmentResponse(ud.getDepartment().getId(), ud.getDepartment().getName()))
                         .toList(),
-                professor != null ? professor.getAcceptedAt() : null
+                professor != null ? professor.getAcceptedAt() : null,
+                user.getReportCount()
         );
     }
 

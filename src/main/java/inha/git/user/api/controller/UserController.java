@@ -5,6 +5,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
 import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
 import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
+import inha.git.report.api.controller.dto.response.SearchReportResponse;
 import inha.git.team.api.controller.dto.response.SearchMyTeamsResponse;
 import inha.git.user.api.controller.dto.request.CompanySignupRequest;
 import inha.git.user.api.controller.dto.request.ProfessorSignupRequest;
@@ -158,6 +159,27 @@ public class UserController {
             throw new BaseException(INVALID_PAGE);
         }
         return BaseResponse.of(MY_PAGE_PROBLEM_SEARCH_OK, userService.getUserProblems(user, userIdx,page - 1));
+    }
+
+    /**
+     * 특정 유저의 신고 조회 API
+     *
+     * <p>특정 유저의 신고를 조회.</p>
+     *
+     * @param user 인증된 유저 정보
+     * @param page 페이지 번호
+     *
+     * @return 특정 유저의 신고 조회 결과를 포함하는 BaseResponse<Page<SearchReportResponse>>
+     */
+    @GetMapping("/{userIdx}/reports")
+    @Operation(summary = "특정 유저의 신고 조회 API", description = "특정 유저의 신고를 조회합니다.")
+    public BaseResponse <Page<SearchReportResponse>> getUserReports(@AuthenticationPrincipal User user,
+                                                                    @PathVariable("userIdx") Integer userIdx,
+                                                                    @RequestParam("page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(MY_PAGE_REPORT_SEARCH_OK, userService.getUserReports(user, userIdx, page - 1));
     }
     /**
      * 학생 회원가입 API

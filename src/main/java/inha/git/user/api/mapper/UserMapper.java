@@ -41,6 +41,7 @@ public interface UserMapper {
      * @return User
      */
     @Mapping(target = "role", constant = "USER")
+    @Mapping(target = "reportCount", constant = "0")
     User studentSignupRequestToUser(StudentSignupRequest studentSignupRequest);
 
     /**
@@ -50,6 +51,7 @@ public interface UserMapper {
      * @return User
      */
     @Mapping(target = "role", constant = "PROFESSOR")
+    @Mapping(target = "reportCount", constant = "0")
     User professorSignupRequestToUser(ProfessorSignupRequest professorSignupRequest);
 
     /**
@@ -59,6 +61,7 @@ public interface UserMapper {
      * @return User
      */
     @Mapping(target = "role", constant = "COMPANY")
+    @Mapping(target = "reportCount", constant = "0")
     User companySignupRequestToUser(CompanySignupRequest companySignupRequest);
 
     /**

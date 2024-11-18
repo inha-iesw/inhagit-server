@@ -39,7 +39,10 @@ public record SearchStudentResponse(
         LocalDateTime createdAt,
         @NotNull
         @Schema(description = "학과 목록", example = "[{\"departmentId\":1,\"departmentName\":\"컴퓨터공학과\"}]")
-        List<SearchDepartmentResponse> departmentList
+        List<SearchDepartmentResponse> departmentList,
+
+        @Schema(description = "신고당한 횟수", example = "0")
+        Integer reportCount
 
 ) {
     @QueryProjection
@@ -53,7 +56,8 @@ public record SearchStudentResponse(
                 user.getCreatedAt(),
                 user.getUserDepartments().stream()
                         .map(ud -> new SearchDepartmentResponse(ud.getDepartment().getId(), ud.getDepartment().getName()))
-                        .toList()
+                        .toList(),
+                user.getReportCount()
         );
     }
 
