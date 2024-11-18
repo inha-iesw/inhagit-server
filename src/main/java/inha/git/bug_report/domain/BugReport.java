@@ -38,4 +38,8 @@ public class BugReport extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    public void setBugStatus(BugStatus bugStatus) {
+        this.bugStatus = bugStatus;
+    }
 }

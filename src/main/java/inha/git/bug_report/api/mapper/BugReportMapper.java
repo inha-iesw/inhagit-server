@@ -3,12 +3,16 @@ package inha.git.bug_report.api.mapper;
 import inha.git.bug_report.api.controller.dto.request.CreateBugReportRequest;
 import inha.git.bug_report.api.controller.dto.request.UpdateBugReportRequest;
 import inha.git.bug_report.api.controller.dto.response.BugReportResponse;
+import inha.git.bug_report.api.controller.dto.response.SearchBugReportResponse;
 import inha.git.bug_report.domain.BugReport;
+import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
+
+import static inha.git.common.Constant.mapRoleToPosition;
 
 
 /**
@@ -49,4 +53,32 @@ public interface BugReportMapper {
     @Mapping(target = "contents", source = "updateBugReportRequest.contents")
     void updateBugReportRequestToBugReport(@MappingTarget BugReport bugReport, UpdateBugReportRequest updateBugReportRequest);
 
+
+    /**
+     * bugReportToSearchBugReportResponse는 BugReport를 SearchBugReportResponse로 변환하는 메소드.
+     * @param bugReport
+     * @param author
+     * @return SearchBugReportResponse
+     */
+    @Mapping(target = "idx", source = "bugReport.id")
+    SearchBugReportResponse bugReportToSearchBugReportResponse(BugReport bugReport, SearchUserResponse author);
+
+    /**
+     * userToSearchUserResponse는 User를 SearchUserResponse로 변환하는 메소드.
+     * @param user
+     * @return SearchUserResponse
+     */
+    default SearchUserResponse userToSearchUserResponse(User user) {
+        if (user == null) {
+            return null;
+        }
+
+        Integer position = mapRoleToPosition(user.getRole());
+
+        return new SearchUserResponse(
+                user.getId(),    // idx
+                user.getName(),  // name
+                position        // position
+        );
+    }
 }

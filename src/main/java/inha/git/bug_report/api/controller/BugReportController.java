@@ -3,6 +3,7 @@ package inha.git.bug_report.api.controller;
 import inha.git.bug_report.api.controller.dto.request.CreateBugReportRequest;
 import inha.git.bug_report.api.controller.dto.request.UpdateBugReportRequest;
 import inha.git.bug_report.api.controller.dto.response.BugReportResponse;
+import inha.git.bug_report.api.controller.dto.response.SearchBugReportResponse;
 import inha.git.bug_report.api.service.BugReportService;
 import inha.git.common.BaseResponse;
 import inha.git.user.domain.User;
@@ -28,6 +29,20 @@ public class BugReportController {
 
     private final BugReportService bannerService;
 
+    /**
+     * 버그 제보 목록 조회 API
+     *
+     * <p>버그 제보 목록을 조회합니다.</p>
+     *
+     * @param user User
+     * @return 버그 제보 목록을 포함하는 BaseResponse<List<SearchBugReportResponse>>
+     */
+    @GetMapping("/{bugReportId}")
+    @Operation(summary = "버그 제보 상세 조회 API", description = "버그 제보를 조회합니다.")
+    public BaseResponse<SearchBugReportResponse> getBugReport(@AuthenticationPrincipal User user,
+                                                              @PathVariable("bugReportId") Integer bugReportId) {
+        return BaseResponse.of(BUG_REPORT_GET_OK, bannerService.getBugReport(user, bugReportId));
+    }
 
     /**
      * 버그 제보 API
