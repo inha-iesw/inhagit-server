@@ -5,6 +5,9 @@ import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Notice 엔티티는 애플리케이션의 공지사항 정보를 나타냄.
@@ -32,6 +35,10 @@ public class Notice extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "notice", fetch = FetchType.LAZY)
+    private List<NoticeAttachment> noticeAttachments = new ArrayList<>();
 
     public void updateNotice(String title, String contents) {
         this.title = title;

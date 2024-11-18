@@ -8,12 +8,15 @@ import inha.git.notice.api.controller.dto.response.SearchNoticeResponse;
 import inha.git.notice.api.controller.dto.response.SearchNoticesResponse;
 import inha.git.notice.api.mapper.NoticeMapper;
 import inha.git.notice.domain.Notice;
+import inha.git.notice.domain.NoticeAttachment;
+import inha.git.notice.domain.repository.NoticeAttachmentJpaRepository;
 import inha.git.notice.domain.repository.NoticeJpaRepository;
 import inha.git.notice.domain.repository.NoticeQueryRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.user.domain.repository.UserJpaRepository;
 import inha.git.utils.IdempotentProvider;
+import inha.git.utils.file.FilePath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,11 +25,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 import static inha.git.common.BaseEntity.State.INACTIVE;
-import static inha.git.common.Constant.CREATE_AT;
+import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 /**
@@ -39,6 +45,7 @@ import static inha.git.common.code.status.ErrorStatus.*;
 public class NoticeServiceImpl implements NoticeService {
 
     private final NoticeJpaRepository noticeJpaRepository;
+    private final NoticeAttachmentJpaRepository noticeAttachmentRepository;
     private final NoticeMapper noticeMapper;
     private final NoticeQueryRepository noticeQueryRepository;
     private final UserJpaRepository userJpaRepository;
@@ -72,15 +79,32 @@ public class NoticeServiceImpl implements NoticeService {
      *
      * @param user 사용자
      * @param createNoticeRequest 공지 생성 요청
+     * @param attachmentList 첨부 파일 리스트
      * @return 생성된 공지 이름
      */
     @Override
-    public String createNotice(User user, CreateNoticeRequest createNoticeRequest) {
+    public String createNotice(User user, CreateNoticeRequest createNoticeRequest, List<MultipartFile> attachmentList) {
         idempotentProvider.isValidIdempotent(List.of("createNoticeRequest", user.getId().toString(), user.getName(), createNoticeRequest.title(), createNoticeRequest.contents()));
 
         Notice notice = noticeMapper.createNoticeRequestToNotice(user, createNoticeRequest);
+        Notice savedNotice = noticeJpaRepository.save(notice);
+
+        if (attachmentList != null && !attachmentList.isEmpty()) {
+            savedNotice.getNoticeAttachments().addAll(
+                    attachmentList.stream()
+                            .map(file -> {
+                                String originalFileName = file.getOriginalFilename();
+                                String storedFileUrl = FilePath.storeFile(file, ATTACHMENT);
+                                registerRollbackCleanup(storedFileUrl);
+                                NoticeAttachment attachment = noticeMapper.createNoticeAttachmentRequestToNoticeAttachment(originalFileName, storedFileUrl, savedNotice
+                                );
+                                return noticeAttachmentRepository.save(attachment);
+                            })
+                            .toList()
+            );
+        }
         log.info("공지 생성 성공 - 사용자: {} 공지 제목: {}", user.getName(), notice.getTitle());
-        return noticeJpaRepository.save(notice).getTitle() + " 공지가 생성되었습니다.";
+        return savedNotice.getTitle() + " 공지가 생성되었습니다.";
     }
 
     /**
@@ -145,5 +169,24 @@ public class NoticeServiceImpl implements NoticeService {
     private Notice findNotice(Integer noticeIdx) {
         return noticeJpaRepository.findByIdAndState(noticeIdx, BaseEntity.State.ACTIVE)
                 .orElseThrow(() -> new BaseException(NOTICE_NOT_FOUND));
+    }
+
+    private void registerRollbackCleanup(String zipFilePath) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+            @Override
+            public void afterCompletion(int status) {
+                if (status == STATUS_ROLLED_BACK) {
+                    log.info("트랜잭션 롤백 시 파일 삭제 로직 실행");
+                    log.info(BASE_DIR_SOURCE_2 + zipFilePath);
+                    boolean isFileDeleted = FilePath.deleteFile(BASE_DIR_SOURCE_2 + zipFilePath);
+
+                    if (isFileDeleted ) {
+                        log.info("파일이 성공적으로 삭제되었습니다.");
+                    } else {
+                        log.error("파일 또는 디렉토리 삭제에 실패했습니다.");
+                    }
+                }
+            }
+        });
     }
 }
