@@ -32,6 +32,9 @@ public class Notice extends BaseEntity {
     @Column(nullable = false, length = 3000)
     private String contents;
 
+    @Column(name = "has_attachment",nullable = false)
+    private Boolean hasAttachment;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -53,5 +56,9 @@ public class Notice extends BaseEntity {
     public void setNoticeAttachments(ArrayList<NoticeAttachment> noticeAttachments) {
         this.noticeAttachments = noticeAttachments;
         noticeAttachments.forEach(noticeAttachment -> noticeAttachment.setNotice(this));  // 양방향 연관관계 설정
+    }
+
+    public void setHasAttachment(Boolean hasAttachment) {
+        this.hasAttachment = hasAttachment;
     }
 }

@@ -49,6 +49,7 @@ public class NoticeQueryRepository {
                         n.getId(),
                         n.getTitle(),
                         n.getCreatedAt(),
+                        n.getHasAttachment(),
                         new SearchNoticeUserResponse(
                                 n.getUser().getId(),
                                 n.getUser().getName()

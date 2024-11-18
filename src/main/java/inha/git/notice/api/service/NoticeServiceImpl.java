@@ -91,6 +91,7 @@ public class NoticeServiceImpl implements NoticeService {
         Notice savedNotice = noticeJpaRepository.save(notice);
 
         if (attachmentList != null && !attachmentList.isEmpty()) {
+            savedNotice.setHasAttachment(true);
             savedNotice.getNoticeAttachments().addAll(
                     attachmentList.stream()
                             .map(file -> {
@@ -127,6 +128,7 @@ public class NoticeServiceImpl implements NoticeService {
 
         // 기존 첨부파일들의 실제 파일 삭제 및 DB에서 삭제
         if (attachmentList != null && !attachmentList.isEmpty()) {
+            notice.setHasAttachment(true);
             notice.getNoticeAttachments().forEach(attachment -> {
                 // 실제 파일 삭제
                 FilePath.deleteFile(BASE_DIR_SOURCE_2 + attachment.getStoredFileUrl());

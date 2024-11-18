@@ -25,6 +25,8 @@ public interface NoticeMapper {
      */
     @Mapping(target = "user", source = "user")
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "hasAttachment", constant = "false")
+    @Mapping(target = "noticeAttachments", ignore = true)
     Notice createNoticeRequestToNotice(User user, CreateNoticeRequest createNoticeRequest);
 
     /**
