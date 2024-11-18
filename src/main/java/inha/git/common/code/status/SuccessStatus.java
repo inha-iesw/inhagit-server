@@ -88,6 +88,7 @@ public enum SuccessStatus implements BaseCode {
     REPORT_TYPE_GET_OK(HttpStatus.OK, "REPORT2000", "신고 타입 조회 성공"),
     REPORT_REASON_GET_OK(HttpStatus.OK, "REPORT2001", "신고 원인 조회 성공"),
     REPORT_DELETE_OK(HttpStatus.OK, "REPORT2002", "신고 삭제 성공"),
+    REPORT_SEARCH_OK(HttpStatus.OK, "REPORT2003", "신고 조회 성공"),
 
     PROJECT_CREATE_OK(HttpStatus.CREATED, "PROJECT2010", "프로젝트 생성 성공"),
     PROJECT_UPDATE_OK(HttpStatus.OK, "PROJECT2001", "프로젝트 수정 성공"),

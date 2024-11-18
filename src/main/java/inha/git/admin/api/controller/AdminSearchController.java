@@ -1,5 +1,6 @@
 package inha.git.admin.api.controller;
 
+import inha.git.admin.api.controller.dto.request.SearchReportCond;
 import inha.git.admin.api.controller.dto.response.SearchCompanyResponse;
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
 import inha.git.admin.api.controller.dto.response.SearchStudentResponse;
@@ -7,6 +8,7 @@ import inha.git.admin.api.controller.dto.response.SearchUserResponse;
 import inha.git.admin.api.service.AdminSearchService;
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
+import inha.git.report.api.controller.dto.response.SearchReportResponse;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
@@ -134,5 +137,27 @@ public class AdminSearchController {
             @PathVariable("userIdx") Integer userIdx) {
         log.info("{} 관리자 유저 조회 - 조회할 유저: {}", user.getName(), userIdx);
         return BaseResponse.of(USER_DETAIL_OK, adminSearchService.getAdminUser(userIdx));
+    }
+
+    /**
+     * 신고 조회 API
+     *
+     * <p>신고 조회 API입니다.</p>
+     *
+     * @param searchReportCond 신고 검색 조건
+     * @param page 페이지 번호
+     * @return 검색된 신고 정보를 포함하는 BaseResponse<Page<SearchReportResponse>>
+     */
+    @GetMapping("/report")
+    @Operation(summary = "신고 조회 API(관리자 전용)", description = "관리자 전용 신고 조회 API입니다")
+    public BaseResponse<Page<SearchReportResponse>> getAdminReports(
+            @AuthenticationPrincipal User user,
+            @Validated @ModelAttribute SearchReportCond searchReportCond,
+            @RequestParam("page") Integer page) {
+        if (page < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        log.info("{} 관리자 신고 검색 - 페이지: {}", user.getName(), page);
+        return BaseResponse.of(REPORT_SEARCH_OK, adminSearchService.getAdminReports(searchReportCond, page - 1));
     }
 }

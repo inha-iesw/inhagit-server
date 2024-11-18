@@ -103,12 +103,12 @@ public class ReportServiceImpl implements ReportService{
         ReportReason reportReason = reportReasonJpaRepository.findById(createReportRequest.reportReasonId())
                 .orElseThrow(() -> new BaseException(REPORT_REASON_NOT_FOUND));
 
-        if (reportJpaRepository.existsByReporterIdAndReportedIdAndReportTypeAndState(
-                user.getId(), createReportRequest.reportedId(), reportType, ACTIVE)) {
+        if (reportJpaRepository.existsByReporterIdAndReportedUserIdAndReportedIdAndReportTypeAndState(
+                user.getId(), reportedUser.getId(), createReportRequest.reportedId(), reportType, ACTIVE)) {
             throw new BaseException(DUPLICATE_REPORT);
         }
 
-        Report report = reportMapper.createReportRequestToReport(user, createReportRequest, reportType, reportReason);
+        Report report = reportMapper.createReportRequestToReport(user, reportedUser,  createReportRequest, reportType, reportReason);
         Report savedReport = reportJpaRepository.save(report);
         // 5. 응답 변환 및 반환
         return reportMapper.toReportResponse(savedReport);
@@ -128,7 +128,8 @@ public class ReportServiceImpl implements ReportService{
         if (!user.getRole().equals(ADMIN) && !report.getReporterId().equals(user.getId())) {
             throw new BaseException(CANNOT_DELETE_REPORT);
         }
-        User reportedUser = validateReportType(report.getReporterId(), report.getReportedId(), report.getReportType());
+        User reportedUser = userJpaRepository.findById(report.getReportedUserId())
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
         reportedUser.decreaseReportCount();
         userJpaRepository.save(reportedUser);
 

@@ -3,12 +3,17 @@ package inha.git.admin.domain.repository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import inha.git.admin.api.controller.dto.request.SearchReportCond;
 import inha.git.admin.api.controller.dto.response.SearchCompanyResponse;
 import inha.git.admin.api.controller.dto.response.SearchProfessorResponse;
 import inha.git.admin.api.controller.dto.response.SearchStudentResponse;
 import inha.git.admin.api.controller.dto.response.SearchUserResponse;
 import inha.git.common.BaseEntity.State;
 import inha.git.mapping.domain.QUserDepartment;
+import inha.git.report.api.controller.dto.response.ReportReasonResponse;
+import inha.git.report.api.controller.dto.response.ReportTypeResponse;
+import inha.git.report.api.controller.dto.response.SearchReportResponse;
+import inha.git.report.domain.Report;
 import inha.git.user.domain.QCompany;
 import inha.git.user.domain.QProfessor;
 import inha.git.user.domain.QUser;
@@ -22,6 +27,13 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static inha.git.common.Constant.mapRoleToPosition;
+import static inha.git.report.domain.QReport.report;
+import static inha.git.report.domain.QReportReason.reportReason;
+import static inha.git.report.domain.QReportType.reportType;
 
 @Repository
 @RequiredArgsConstructor
@@ -160,5 +172,113 @@ public class AdminQueryRepository {
     }
 
 
+    /**
+     * 신고 검색
+     *
+     * @param searchReportCond 신고 검색 조건
+     * @param pageable         페이지 정보
+     * @return 신고 목록
+     */
+    public Page<SearchReportResponse> searchReports(SearchReportCond searchReportCond, Pageable pageable) {
+        // 기본 조건 설정
+        BooleanExpression condition = report.isNotNull();
+        QUser reporter = new QUser("reporter");
+        QUser reported = new QUser("reported");
 
+        // 동적 조건 추가
+        if (searchReportCond.reportTypeIdx() != null) {
+            condition = condition.and(report.reportType.id.eq(searchReportCond.reportTypeIdx()));
+        }
+
+        if (searchReportCond.reportReasonIdx() != null) {
+            condition = condition.and(report.reportReason.id.eq(searchReportCond.reportReasonIdx()));
+        }
+
+        if (searchReportCond.reporterId() != null) {
+            condition = condition.and(report.reporterId.eq(searchReportCond.reporterId()));
+        }
+
+        if (searchReportCond.reportedUserId() != null) {
+            condition = condition.and(report.reportedUserId.eq(searchReportCond.reportedUserId()));
+        }
+
+        // 메인 쿼리 구성
+        JPAQuery<Report> query = queryFactory
+                .select(report)
+                .from(report)
+                .leftJoin(report.reportType, reportType)
+                .leftJoin(report.reportReason, reportReason)
+                // reporter와 reported user를 각각 조인
+                .leftJoin(reporter).on(report.reporterId.eq(reporter.id))
+                .leftJoin(reported).on(report.reportedUserId.eq(reported.id))
+                .where(condition)
+                .orderBy(report.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        // 결과 및 총 개수 조회
+        List<Report> reports = query.fetch();
+        long total = query.fetchCount();
+
+        // User 정보를 한 번에 조회
+        List<Integer> reporterIds = reports.stream()
+                .map(Report::getReporterId)
+                .distinct()
+                .toList();
+        List<Integer> reportedIds = reports.stream()
+                .map(Report::getReportedUserId)
+                .distinct()
+                .toList();
+
+        // User 정보 조회
+        Map<Integer, User> reporterMap = queryFactory
+                .selectFrom(QUser.user)
+                .where(QUser.user.id.in(reporterIds))
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(User::getId, user -> user));
+
+        Map<Integer, User> reportedMap = queryFactory
+                .selectFrom(QUser.user)
+                .where(QUser.user.id.in(reportedIds))
+                .fetch()
+                .stream()
+                .collect(Collectors.toMap(User::getId, user -> user));
+
+        // SearchReportResponse로 변환
+        List<SearchReportResponse> content = reports.stream()
+                .map(r -> {
+                    User reporterUser = reporterMap.get(r.getReporterId());
+                    User reportedUser = reportedMap.get(r.getReportedUserId());
+
+                    return new SearchReportResponse(
+                            r.getId(),
+                            new ReportTypeResponse(
+                                    r.getReportType().getId(),
+                                    r.getReportType().getName()
+                            ),
+                            new ReportReasonResponse(
+                                    r.getReportReason().getId(),
+                                    r.getReportReason().getName()
+                            ),
+                            new inha.git.project.api.controller.dto.response.SearchUserResponse(
+                                    reporterUser.getId(),
+                                    reporterUser.getName(),
+                                    mapRoleToPosition(reporterUser.getRole())
+                            ),
+                            new inha.git.project.api.controller.dto.response.SearchUserResponse(
+                                    reportedUser.getId(),
+                                    reportedUser.getName(),
+                                    mapRoleToPosition(reportedUser.getRole())
+                            ),
+                            r.getDescription(),
+                            r.getState(),
+                            r.getCreatedAt(),
+                            r.getDeletedAt()
+                    );
+                })
+                .toList();
+
+        return new PageImpl<>(content, pageable, total);
+    }
 }

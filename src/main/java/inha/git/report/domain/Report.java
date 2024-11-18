@@ -36,6 +36,9 @@ public class Report extends BaseEntity {
     @Column(name = "reporter_id", nullable = false)
     private Integer reporterId; // 신고한 사용자 ID
 
+    @Column(name = "reported_user_id", nullable = false)
+    private Integer reportedUserId;
+
     @Column(name = "description")
     private String description; // 추가적인 신고 설명 (선택 사항)
 

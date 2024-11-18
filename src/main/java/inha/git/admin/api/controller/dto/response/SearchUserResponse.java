@@ -33,7 +33,10 @@ public record SearchUserResponse(
 
         @NotNull
         @Schema(description = "계정 생성일", example = "2024-05-31 04:26:56.831000 +00:00")
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+
+        @Schema(description = "신고당한 횟수", example = "0")
+        Integer reportCount
 ) {
     @QueryProjection
     public SearchUserResponse(User user) {
@@ -43,7 +46,8 @@ public record SearchUserResponse(
                 user.getName(),
                 mapRoleToPosition(user.getRole()),
                 user.getBlockedAt() != null,
-                user.getCreatedAt()
+                user.getCreatedAt(),
+                user.getReportCount()
         );
     }
 

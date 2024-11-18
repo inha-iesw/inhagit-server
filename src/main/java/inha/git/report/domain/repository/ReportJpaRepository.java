@@ -12,7 +12,7 @@ import java.util.Optional;
  */
 public interface ReportJpaRepository extends JpaRepository<Report, Integer> {
 
-    Boolean existsByReporterIdAndReportedIdAndReportTypeAndState(Integer reporterId, Integer reportedId, ReportType reportType, State state);
+    Boolean existsByReporterIdAndReportedUserIdAndReportedIdAndReportTypeAndState(Integer reporterId, Integer reportedUserId, Integer reportedId, ReportType reportType, State state);
 
     Optional<Report> findByIdAndState(Integer reportId, State state);
 }

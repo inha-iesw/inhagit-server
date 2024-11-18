@@ -32,8 +32,9 @@ public interface ReportMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "reportedId", source = "createReportRequest.reportedId")
     @Mapping(target = "reporterId", source = "user.id")
+    @Mapping(target = "reportedUserId", source = "reportedUser.id")
     @Mapping(target = "description", source = "createReportRequest.description")
-    Report createReportRequestToReport(User user, CreateReportRequest createReportRequest, ReportType reportType, ReportReason reportReason);
+    Report createReportRequestToReport(User user, User reportedUser, CreateReportRequest createReportRequest, ReportType reportType, ReportReason reportReason);
 
     /**
      * Report를 ReportResponse로 변환

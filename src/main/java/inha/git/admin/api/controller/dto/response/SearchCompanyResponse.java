@@ -45,7 +45,10 @@ public record SearchCompanyResponse(
         @Schema(description = "증빙파일", example = "/file/user/8/evidence")
         String evidence,
         @Schema(description = "기업 계정 승인일", example = "2024-05-31 04:26:56.831000 +00:00")
-        LocalDateTime acceptedAt
+        LocalDateTime acceptedAt,
+
+        @Schema(description = "신고당한 횟수", example = "0")
+        Integer reportCount
 ) {
     @QueryProjection
     public SearchCompanyResponse(User user, Company company) {
@@ -58,7 +61,8 @@ public record SearchCompanyResponse(
                 user.getCreatedAt(),
                 company.getAffiliation(),
                 company.getEvidenceFilePath(),
-                company != null ? company.getAcceptedAt() : null
+                company != null ? company.getAcceptedAt() : null,
+                user.getReportCount()
 
         );
     }
