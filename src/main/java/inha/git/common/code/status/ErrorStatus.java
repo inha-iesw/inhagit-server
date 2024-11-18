@@ -39,6 +39,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
     NOT_EXIST_BUG_REPORT(HttpStatus.BAD_REQUEST, "BUG_REPORT4000", "존재하지 않는 버그 제보입니다."),
     NOT_AUTHORIZED_BUG_REPORT(HttpStatus.BAD_REQUEST, "BUG_REPORT4001", "버그 제보를 수정할 권한이 없습니다."),
+    NOT_ALLOWED_DELETE_BUG_REPORT(HttpStatus.BAD_REQUEST, "BUG_REPORT4002", "버그 제보를 삭제할 권한이 없습니다."),
 
     EMPTY_JWT(HttpStatus.UNAUTHORIZED, "JWT4000", "JWT를 입력해주세요"),
     INVALID_JWT(HttpStatus.UNAUTHORIZED, "JWT4001", "유효하지 않은 JWT입니다."),

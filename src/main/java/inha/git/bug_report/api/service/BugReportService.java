@@ -10,5 +10,5 @@ import inha.git.user.domain.User;
 public interface BugReportService {
     BugReportResponse createBugReport(User user, CreateBugReportRequest createBugReportRequest);
     BugReportResponse updateBugReport(User user, Integer bugReportId, UpdateBugReportRequest updateBugReportRequest);
-
+    BugReportResponse deleteBugReport(User user, Integer bugReportId);
 }

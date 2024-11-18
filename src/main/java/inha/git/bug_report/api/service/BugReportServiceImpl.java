@@ -18,8 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
-import static inha.git.common.code.status.ErrorStatus.NOT_AUTHORIZED_BUG_REPORT;
-import static inha.git.common.code.status.ErrorStatus.NOT_EXIST_BUG_REPORT;
+import static inha.git.common.BaseEntity.State.INACTIVE;
+import static inha.git.common.code.status.ErrorStatus.*;
 import static inha.git.user.domain.enums.Role.ADMIN;
 
 
@@ -69,6 +69,28 @@ public class BugReportServiceImpl implements BugReportService {
         }
         bugReportMapper.updateBugReportRequestToBugReport(bugReport, updateBugReportRequest);
         log.info("버그 제보 수정 성공 - 사용자: {} 버그제보 ID: {}", user.getName(), bugReport.getId());
+        return bugReportMapper.bugReportToBugReportResponse(bugReport);
+    }
+
+    /**
+     * deleteBugReport는 버그 제보를 삭제하는 메소드.
+     * @param user User
+     * @param bugReportId Integer
+     * @return BugReportResponse
+     */
+    @Override
+    public BugReportResponse deleteBugReport(User user, Integer bugReportId) {
+        idempotentProvider.isValidIdempotent(List.of("deleteBugReport", user.getName(), user.getId().toString(), bugReportId.toString()));
+
+        BugReport bugReport = bugReportJpaRepository.findByIdAndState(bugReportId, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_BUG_REPORT));
+        if(!bugReport.getUser().getId().equals(user.getId()) && !user.getRole().equals(ADMIN)) {
+            throw new BaseException(NOT_ALLOWED_DELETE_BUG_REPORT);
+        }
+        bugReport.setState(INACTIVE);
+        bugReport.setDeletedAt();
+
+        log.info("버그 제보 삭제 성공 - 사용자: {} 버그제보 ID: {}", user.getName(), bugReport.getId());
         return bugReportMapper.bugReportToBugReportResponse(bugReport);
     }
 }

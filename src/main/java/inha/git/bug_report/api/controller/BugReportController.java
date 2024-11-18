@@ -14,8 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import static inha.git.common.code.status.SuccessStatus.BUG_REPORT_CREATE_OK;
-import static inha.git.common.code.status.SuccessStatus.BUG_REPORT_UPDATE_OK;
+import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
  * BugReportController는 버그 제보 관련 엔드포인트를 처리.
@@ -64,5 +63,22 @@ public class BugReportController {
                                                            @RequestBody @Validated UpdateBugReportRequest updateBugReportRequest) {
         log.info("버그 제보 수정 요청 - 사용자: {}", user.getName());
         return BaseResponse.of(BUG_REPORT_UPDATE_OK, bannerService.updateBugReport(user, bugReportId, updateBugReportRequest));
+    }
+
+    /**
+     * 버그 제보 삭제 API
+     *
+     * <p>버그 제보를 삭제합니다.</p>
+     *
+     * @param user User
+     * @param bugReportId Integer
+     * @return 삭제된 버그 제보 정보를 포함하는 BaseResponse<BugReportResponse>
+     */
+    @DeleteMapping("{bugReportId}")
+    @Operation(summary = "버그 제보 삭제 API", description = "버그 제보를 삭제합니다.")
+    public BaseResponse<BugReportResponse> deleteBugReport(@AuthenticationPrincipal User user,
+                                                           @PathVariable("bugReportId") Integer bugReportId) {
+        log.info("버그 제보 삭제 요청 - 사용자: {}", user.getName());
+        return BaseResponse.of(BUG_REPORT_DELETE_OK, bannerService.deleteBugReport(user, bugReportId));
     }
 }
