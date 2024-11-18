@@ -4,6 +4,7 @@ import inha.git.common.BaseEntity;
 import inha.git.common.exceptions.BaseException;
 import inha.git.notice.api.controller.dto.request.CreateNoticeRequest;
 import inha.git.notice.api.controller.dto.request.UpdateNoticeRequest;
+import inha.git.notice.api.controller.dto.response.SearchNoticeAttachmentResponse;
 import inha.git.notice.api.controller.dto.response.SearchNoticeResponse;
 import inha.git.notice.api.controller.dto.response.SearchNoticesResponse;
 import inha.git.notice.api.mapper.NoticeMapper;
@@ -72,7 +73,10 @@ public class NoticeServiceImpl implements NoticeService {
         Notice notice = findNotice(noticeIdx);
         User user = userJpaRepository.findById(notice.getUser().getId())
                 .orElseThrow(() -> new BaseException(NOT_FIND_USER));
-        return noticeMapper.noticeToSearchNoticeResponse(notice, noticeMapper.userToSearchNoticeUserResponse(user));
+        List<SearchNoticeAttachmentResponse> noticeAttachments = notice.getNoticeAttachments().stream()
+                .map(noticeMapper::noticeAttachmentToSearchNoticeAttachmentResponse)
+                .toList();
+        return noticeMapper.noticeToSearchNoticeResponse(notice, noticeMapper.userToSearchNoticeUserResponse(user), noticeAttachments);
     }
 
     /**
@@ -127,8 +131,8 @@ public class NoticeServiceImpl implements NoticeService {
         notice.updateNotice(updateNoticeRequest.title(), updateNoticeRequest.contents());
 
         // 기존 첨부파일들의 실제 파일 삭제 및 DB에서 삭제
-        if (attachmentList != null && !attachmentList.isEmpty()) {
-            notice.setHasAttachment(true);
+        if (notice.getNoticeAttachments() != null && !notice.getNoticeAttachments().isEmpty()) {
+            notice.setHasAttachment(false);
             notice.getNoticeAttachments().forEach(attachment -> {
                 // 실제 파일 삭제
                 FilePath.deleteFile(BASE_DIR_SOURCE_2 + attachment.getStoredFileUrl());
@@ -136,6 +140,10 @@ public class NoticeServiceImpl implements NoticeService {
                 noticeAttachmentRepository.delete(attachment);
             });
             notice.setNoticeAttachments(new ArrayList<>());
+        }
+
+        if (attachmentList != null && !attachmentList.isEmpty()) {
+            notice.setHasAttachment(true);
             notice.getNoticeAttachments().addAll(
                     attachmentList.stream()
                             .map(file -> {

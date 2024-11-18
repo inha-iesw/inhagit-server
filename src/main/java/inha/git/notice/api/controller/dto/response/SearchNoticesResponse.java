@@ -1,7 +1,5 @@
 package inha.git.notice.api.controller.dto.response;
 
-import com.querydsl.core.annotations.QueryProjection;
-import inha.git.notice.domain.Notice;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
