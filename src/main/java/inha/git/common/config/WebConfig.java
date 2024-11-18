@@ -31,18 +31,20 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/banner/**")
+        registry.addResourceHandler("/api/v1/banner/**")
                 .addResourceLocations(fileUrl + "/banner/");
-        registry.addResourceHandler("/evidence/**")
+        registry.addResourceHandler("/api/v1/evidence/**")
                 .addResourceLocations(fileUrl + "/evidence/");
-        registry.addResourceHandler("/problem-file/**")
+        registry.addResourceHandler("/api/v1/problem-file/**")
                 .addResourceLocations(fileUrl + "/problem-file/");
-        registry.addResourceHandler("/project/**")
+        registry.addResourceHandler("/api/v1/project/**")
                 .addResourceLocations(fileUrl + "/project/");
-        registry.addResourceHandler("/project-zip/**")
+        registry.addResourceHandler("/api/v1/project-zip/**")
                 .addResourceLocations(fileUrl + "/project-zip/");
-        registry.addResourceHandler("/image/**")
+        registry.addResourceHandler("/api/v1/image/**")
                 .addResourceLocations(fileUrl + "/image/");
+        registry.addResourceHandler("/api/v1/attachment/**")
+                .addResourceLocations(fileUrl + "/attachment/");
     }
 
 }
