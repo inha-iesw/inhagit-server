@@ -2,6 +2,7 @@ package inha.git.report.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.report.api.controller.dto.request.CreateReportRequest;
+import inha.git.report.api.controller.dto.response.ReportReasonResponse;
 import inha.git.report.api.controller.dto.response.ReportResponse;
 import inha.git.report.api.controller.dto.response.ReportTypeResponse;
 import inha.git.report.api.service.ReportService;
@@ -16,8 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static inha.git.common.code.status.SuccessStatus.REPORT_CREATE_OK;
-import static inha.git.common.code.status.SuccessStatus.REPORT_TYPE_GET_OK;
+import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
  * RepportController는 report 관련 엔드포인트를 처리.
@@ -35,6 +35,19 @@ public class RepportController {
     @Operation(summary = "신고 타입 조회 API", description = "신고 타입을 조회합니다.")
     public BaseResponse<List<ReportTypeResponse>> getReportTypes() {
         return BaseResponse.of(REPORT_TYPE_GET_OK, reportService.getReportTypes());
+    }
+
+    /**
+     * 신고 원인 조회 API
+     *
+     * <p>신고 원인을 조회합니다.</p>
+     *
+     * @return List<ReportReasonResponse>
+     */
+    @GetMapping("/reportReasons")
+    @Operation(summary = "신고 원인 조회 API", description = "신고 원인을 조회합니다.")
+    public BaseResponse<List<ReportReasonResponse>> getReportReasons() {
+        return BaseResponse.of(REPORT_REASON_GET_OK, reportService.getReportReasons());
     }
 
     /**

@@ -1,6 +1,7 @@
 package inha.git.report.api.mapper;
 
 import inha.git.report.api.controller.dto.request.CreateReportRequest;
+import inha.git.report.api.controller.dto.response.ReportReasonResponse;
 import inha.git.report.api.controller.dto.response.ReportResponse;
 import inha.git.report.api.controller.dto.response.ReportTypeResponse;
 import inha.git.report.domain.Report;
@@ -60,4 +61,21 @@ public interface ReportMapper {
      */
     @Mapping(target = "idx", source = "id")
     ReportTypeResponse toReportTypeResponse(ReportType reportType);
+
+    /**
+     * ReportReason을 ReportReasonResponse로 변환
+     *
+     * @param reportReasons 신고 원인
+     * @return ReportReasonResponse
+     */
+    List<ReportReasonResponse> toReportReasonResponseList(List<ReportReason> reportReasons);
+
+    /**
+     * ReportReason을 ReportReasonResponse로 변환
+     *
+     * @param reportReason 신고 원인
+     * @return ReportReasonResponse
+     */
+    @Mapping(target = "idx", source = "id")
+    ReportReasonResponse toReportReasonResponse(ReportReason reportReason);
 }

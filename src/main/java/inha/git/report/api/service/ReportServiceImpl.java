@@ -14,6 +14,7 @@ import inha.git.question.domain.repository.QuestionCommentJpaRepository;
 import inha.git.question.domain.repository.QuestionJpaRepository;
 import inha.git.question.domain.repository.QuestionReplyCommentJpaRepository;
 import inha.git.report.api.controller.dto.request.CreateReportRequest;
+import inha.git.report.api.controller.dto.response.ReportReasonResponse;
 import inha.git.report.api.controller.dto.response.ReportResponse;
 import inha.git.report.api.controller.dto.response.ReportTypeResponse;
 import inha.git.report.api.mapper.ReportMapper;
@@ -66,6 +67,16 @@ public class ReportServiceImpl implements ReportService{
     @Override
     public List<ReportTypeResponse> getReportTypes() {
         return reportMapper.toReportTypeResponseList(reportTypeJpaRepository.findAll());
+    }
+
+    /**
+     * 신고 원인 조회
+     *
+     * @return List<ReportReasonResponse>
+     */
+    @Override
+    public List<ReportReasonResponse> getReportReasons() {
+        return reportMapper.toReportReasonResponseList(reportReasonJpaRepository.findAll());
     }
 
     /**
