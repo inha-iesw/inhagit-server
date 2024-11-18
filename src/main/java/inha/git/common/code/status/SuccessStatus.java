@@ -176,6 +176,8 @@ public enum SuccessStatus implements BaseCode {
     PW_CHANGE_OK(HttpStatus.OK, "USER2005", "비밀번호 변경 성공"),
     MY_PAGE_REPORT_SEARCH_OK(HttpStatus.OK, "USER2006", "마이페이지 신고 조회 성공"),
 
+    BUG_REPORT_CREATE_OK(HttpStatus.CREATED, "BUG_REPORT2010", "버그 제보 성공"),
+
     PROJECT_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2000", "프로젝트 통계 조회 성공"),
     TEAM_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2001", "팀 통계 조회 성공"),
     QUESTION_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2002", "질문 통계 조회 성공"),

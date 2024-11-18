@@ -123,6 +123,9 @@ public class ReportServiceImpl implements ReportService{
      */
     @Override
     public ReportResponse deleteReport(User user, Integer reportId) {
+
+        idempotentProvider.isValidIdempotent(List.of("deleteReport", user.getId().toString(), user.getName(), reportId.toString()));
+
         Report report = reportJpaRepository.findByIdAndState(reportId, ACTIVE)
                 .orElseThrow(() -> new BaseException(REPORT_NOT_FOUND));
         if (!user.getRole().equals(ADMIN) && !report.getReporterId().equals(user.getId())) {

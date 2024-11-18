@@ -34,4 +34,8 @@ public class BugReport extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "bug_status", nullable = false, length = 20)
     private BugStatus bugStatus;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 }
