@@ -3,6 +3,7 @@ package inha.git.report.api.controller;
 import inha.git.common.BaseResponse;
 import inha.git.report.api.controller.dto.request.CreateReportRequest;
 import inha.git.report.api.controller.dto.response.ReportResponse;
+import inha.git.report.api.controller.dto.response.ReportTypeResponse;
 import inha.git.report.api.service.ReportService;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,12 +12,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 import static inha.git.common.code.status.SuccessStatus.REPORT_CREATE_OK;
+import static inha.git.common.code.status.SuccessStatus.REPORT_TYPE_GET_OK;
 
 /**
  * RepportController는 report 관련 엔드포인트를 처리.
@@ -29,6 +30,12 @@ import static inha.git.common.code.status.SuccessStatus.REPORT_CREATE_OK;
 public class RepportController {
 
     private final ReportService reportService;
+
+    @GetMapping("/reportTypes")
+    @Operation(summary = "신고 타입 조회 API", description = "신고 타입을 조회합니다.")
+    public BaseResponse<List<ReportTypeResponse>> getReportTypes() {
+        return BaseResponse.of(REPORT_TYPE_GET_OK, reportService.getReportTypes());
+    }
 
     /**
      * 신고 API
