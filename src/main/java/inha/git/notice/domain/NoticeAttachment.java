@@ -30,4 +30,8 @@ public class NoticeAttachment {
     @JoinColumn(name = "notice_id", nullable = false)
     private Notice notice;
 
+    public void setNotice(Notice notice) {
+        this.notice = notice;
+        notice.getNoticeAttachments().add(this);  // 양방향 연관관계 설정
+    }
 }

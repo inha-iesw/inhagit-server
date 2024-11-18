@@ -99,17 +99,19 @@ public class NoticeController {
      * @param user 로그인한 사용자 정보
      * @param noticeIdx 공지 인덱스
      * @param updateNoticeRequest 공지 수정 요청 정보
+     * @param attachmentList 첨부파일 리스트
      *
      * @return 공지 수정 결과를 포함하는 BaseResponse<String>
      */
-    @PutMapping("/{noticeIdx}")
+    @PutMapping(value = "/{noticeIdx}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("hasAuthority('assistant:update')")
     @Operation(summary = "공지 수정(조교, 교수, 관리자 전용) API", description = "공지를 수정합니다.")
     public BaseResponse<String> updateNotice(@AuthenticationPrincipal User user,
                                              @PathVariable("noticeIdx") Integer noticeIdx,
-                                             @Validated @RequestBody UpdateNoticeRequest updateNoticeRequest) {
+                                             @Validated @RequestPart("updateNoticeRequest")  UpdateNoticeRequest updateNoticeRequest,
+                                             @RequestPart(value = "attachmentList",required = false) List<MultipartFile> attachmentList) {
         log.info("공지 수정 - 사용자: {} 공지 제목: {}", user.getName(), updateNoticeRequest.title());
-        return BaseResponse.of(NOTICE_UPDATE_OK, noticeService.updateNotice(user, noticeIdx, updateNoticeRequest));
+        return BaseResponse.of(NOTICE_UPDATE_OK, noticeService.updateNotice(user, noticeIdx, updateNoticeRequest, attachmentList));
     }
 
     /**

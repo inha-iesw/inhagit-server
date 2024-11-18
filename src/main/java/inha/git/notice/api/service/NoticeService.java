@@ -14,7 +14,7 @@ public interface NoticeService {
     Page<SearchNoticesResponse> getNotices(Integer page);
     String createNotice(User user, CreateNoticeRequest createNoticeRequest, List<MultipartFile> attachmentList);
 
-    String updateNotice(User user, Integer noticeIdx, UpdateNoticeRequest updateNoticeRequest);
+    String updateNotice(User user, Integer noticeIdx, UpdateNoticeRequest updateNoticeRequest, List<MultipartFile> attachmentList);
 
     String deleteNotice(User user, Integer noticeIdx);
 

@@ -29,6 +29,7 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static inha.git.common.BaseEntity.State.INACTIVE;
@@ -115,13 +116,42 @@ public class NoticeServiceImpl implements NoticeService {
      * @param user 사용자
      * @param noticeIdx 공지 인덱스
      * @param updateNoticeRequest 공지 수정 요청
+     * @param attachmentList 첨부 파일 리스트
      * @return 수정된 공지 이름
      */
     @Override
-    public String updateNotice(User user, Integer noticeIdx, UpdateNoticeRequest updateNoticeRequest) {
+    public String updateNotice(User user, Integer noticeIdx, UpdateNoticeRequest updateNoticeRequest, List<MultipartFile> attachmentList) {
         Notice notice = findNotice(noticeIdx);
         validateUserAuthorization(user, notice);
         notice.updateNotice(updateNoticeRequest.title(), updateNoticeRequest.contents());
+
+        // 기존 첨부파일들의 실제 파일 삭제 및 DB에서 삭제
+        if (attachmentList != null && !attachmentList.isEmpty()) {
+            notice.getNoticeAttachments().forEach(attachment -> {
+                // 실제 파일 삭제
+                FilePath.deleteFile(BASE_DIR_SOURCE_2 + attachment.getStoredFileUrl());
+                // DB에서 삭제
+                noticeAttachmentRepository.delete(attachment);
+            });
+            notice.setNoticeAttachments(new ArrayList<>());
+            notice.getNoticeAttachments().addAll(
+                    attachmentList.stream()
+                            .map(file -> {
+                                String originalFileName = file.getOriginalFilename();
+                                String storedFileUrl = FilePath.storeFile(file, ATTACHMENT);
+                                // 트랜잭션 롤백 시 파일 삭제를 위한 등록
+                                registerRollbackCleanup(storedFileUrl);
+                                NoticeAttachment attachment = noticeMapper.createNoticeAttachmentRequestToNoticeAttachment(
+                                        originalFileName,
+                                        storedFileUrl,
+                                        notice
+                                );
+                                return noticeAttachmentRepository.save(attachment);
+                            })
+                            .toList()
+            );
+        }
+
         log.info("공지 수정 성공 - 사용자: {} 공지 제목: {}", user.getName(), notice.getTitle());
         return noticeJpaRepository.save(notice).getTitle() + " 공지가 수정되었습니다.";
     }
