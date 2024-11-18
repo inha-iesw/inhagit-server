@@ -41,6 +41,8 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations(fileUrl + "/project/");
         registry.addResourceHandler("/project-zip/**")
                 .addResourceLocations(fileUrl + "/project-zip/");
+        registry.addResourceHandler("/image/**")
+                .addResourceLocations(fileUrl + "/image/");
     }
 
 }
