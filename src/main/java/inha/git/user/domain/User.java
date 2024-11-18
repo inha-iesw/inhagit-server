@@ -159,4 +159,9 @@ public class User extends BaseEntity implements UserDetails {
     public void increaseReportCount() {
         this.reportCount++;
     }
+
+    public void decreaseReportCount() {
+        if(this.reportCount > 0)
+            this.reportCount--;
+    }
 }

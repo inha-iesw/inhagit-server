@@ -13,7 +13,5 @@ public interface ReportService {
     List<ReportTypeResponse> getReportTypes();
     List<ReportReasonResponse> getReportReasons();
     ReportResponse createReport(User user, CreateReportRequest createReportRequest);
-
-
-
+    ReportResponse deleteReport(User user, Integer reportId);
 }

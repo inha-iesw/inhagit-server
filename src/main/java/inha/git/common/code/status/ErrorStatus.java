@@ -61,6 +61,8 @@ public enum ErrorStatus implements BaseErrorCode {
     REPORT_REASON_NOT_FOUND(HttpStatus.NOT_FOUND, "REPORT4001", "신고 사유를 찾을 수 없습니다."),
     DUPLICATE_REPORT(HttpStatus.BAD_REQUEST, "REPORT4002", "이미 신고한 게시글입니다."),
     CANNOT_REPORT_MYSELF(HttpStatus.BAD_REQUEST, "REPORT4003", "자신을 신고할 수 없습니다."),
+    REPORT_NOT_FOUND(HttpStatus.NOT_FOUND, "REPORT4004", "신고를 찾을 수 없습니다."),
+    CANNOT_DELETE_REPORT(HttpStatus.BAD_REQUEST, "REPORT4005", "신고를 삭제할 수 없습니다."),
 
     S3_UPLOAD(HttpStatus.BAD_REQUEST, "S3UPLOAD4001", "S3 파일 업로드 실패."),
     FAILED_TO_CONVERT_MULTIPARTFILE_RESOURCE(HttpStatus.BAD_REQUEST, "FILE4000", "MultipartFileResource 변환에 실패하였습니다."),

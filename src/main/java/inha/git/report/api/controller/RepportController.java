@@ -65,4 +65,19 @@ public class RepportController {
                                                      @RequestBody @Validated CreateReportRequest createReportRequest) {
         return BaseResponse.of(REPORT_CREATE_OK, reportService.createReport(user, createReportRequest));
     }
+
+    /**
+     * 신고 취소/삭제 API
+     *
+     * <p>신고를 취소/삭제합니다.</p>
+     *
+     * @param reportId 신고 ID
+     * @return ReportResponse
+     */
+    @DeleteMapping("/{reportId}")
+    @Operation(summary = "신고 취소/삭제 API", description = "신고를 취소/삭제합니다.")
+    public BaseResponse<ReportResponse> deleteReport(@AuthenticationPrincipal User user,
+                                                     @PathVariable("reportId") Integer reportId) {
+        return BaseResponse.of(REPORT_DELETE_OK, reportService.deleteReport(user, reportId));
+    }
 }

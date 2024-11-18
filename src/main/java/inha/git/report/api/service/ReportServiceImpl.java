@@ -34,7 +34,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
+import static inha.git.user.domain.enums.Role.ADMIN;
 
 /**
  * ReportServiceImpl은 ReportService 인터페이스를 구현.
@@ -100,14 +103,38 @@ public class ReportServiceImpl implements ReportService{
         ReportReason reportReason = reportReasonJpaRepository.findById(createReportRequest.reportReasonId())
                 .orElseThrow(() -> new BaseException(REPORT_REASON_NOT_FOUND));
 
-        if (reportJpaRepository.existsByReporterIdAndReportedIdAndReportType(
-                user.getId(), createReportRequest.reportedId(), reportType)) {
+        if (reportJpaRepository.existsByReporterIdAndReportedIdAndReportTypeAndState(
+                user.getId(), createReportRequest.reportedId(), reportType, ACTIVE)) {
             throw new BaseException(DUPLICATE_REPORT);
         }
 
         Report report = reportMapper.createReportRequestToReport(user, createReportRequest, reportType, reportReason);
         Report savedReport = reportJpaRepository.save(report);
         // 5. 응답 변환 및 반환
+        return reportMapper.toReportResponse(savedReport);
+    }
+
+    /**
+     * 신고 삭제
+     *
+     * @param user 사용자
+     * @param reportId 신고 ID
+     * @return ReportResponse
+     */
+    @Override
+    public ReportResponse deleteReport(User user, Integer reportId) {
+        Report report = reportJpaRepository.findByIdAndState(reportId, ACTIVE)
+                .orElseThrow(() -> new BaseException(REPORT_NOT_FOUND));
+        if (!user.getRole().equals(ADMIN) && !report.getReporterId().equals(user.getId())) {
+            throw new BaseException(CANNOT_DELETE_REPORT);
+        }
+        User reportedUser = validateReportType(report.getReporterId(), report.getReportedId(), report.getReportType());
+        reportedUser.decreaseReportCount();
+        userJpaRepository.save(reportedUser);
+
+        report.setDeletedAt();
+        report.setState(INACTIVE);
+        Report savedReport = reportJpaRepository.save(report);
         return reportMapper.toReportResponse(savedReport);
     }
 
