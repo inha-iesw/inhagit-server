@@ -37,6 +37,9 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_STUDENT_NUMBER(HttpStatus.BAD_REQUEST, "USER4010", "학번/사번으로 이루어질 수 없습니다."),
     ACCOUNT_LOCKED(HttpStatus.BAD_REQUEST, "USER4011", "비밀번호 5회 연속 실패로 계정이 잠겼습니다. 10분 뒤에 다시 시도해주세요."),
 
+    NOT_EXIST_BUG_REPORT(HttpStatus.BAD_REQUEST, "BUG_REPORT4000", "존재하지 않는 버그 제보입니다."),
+    NOT_AUTHORIZED_BUG_REPORT(HttpStatus.BAD_REQUEST, "BUG_REPORT4001", "버그 제보를 수정할 권한이 없습니다."),
+
     EMPTY_JWT(HttpStatus.UNAUTHORIZED, "JWT4000", "JWT를 입력해주세요"),
     INVALID_JWT(HttpStatus.UNAUTHORIZED, "JWT4001", "유효하지 않은 JWT입니다."),
     INVALID_USER_JWT(HttpStatus.FORBIDDEN, "JWT4002", "권한이 없는 유저의 접근입니다."),

@@ -2,8 +2,10 @@ package inha.git.bug_report.domain.repository;
 
 
 import inha.git.bug_report.domain.BugReport;
+import inha.git.common.BaseEntity.State;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
 
 
 /**
@@ -11,5 +13,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface BugReportJpaRepository extends JpaRepository<BugReport, Integer> {
 
-
+    Optional<BugReport> findByIdAndState(Integer bugReportId, State state);
 }

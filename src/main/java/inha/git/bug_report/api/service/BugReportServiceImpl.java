@@ -1,11 +1,14 @@
 package inha.git.bug_report.api.service;
 
 import inha.git.bug_report.api.controller.dto.request.CreateBugReportRequest;
+import inha.git.bug_report.api.controller.dto.request.UpdateBugReportRequest;
 import inha.git.bug_report.api.controller.dto.response.BugReportResponse;
 import inha.git.bug_report.api.mapper.BugReportMapper;
 import inha.git.bug_report.domain.BugReport;
 import inha.git.bug_report.domain.repository.BugReportJpaRepository;
+import inha.git.common.exceptions.BaseException;
 import inha.git.user.domain.User;
+import inha.git.user.domain.enums.Role;
 import inha.git.utils.IdempotentProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.code.status.ErrorStatus.NOT_AUTHORIZED_BUG_REPORT;
+import static inha.git.common.code.status.ErrorStatus.NOT_EXIST_BUG_REPORT;
+import static inha.git.user.domain.enums.Role.ADMIN;
 
 
 /**
@@ -41,5 +49,26 @@ public class BugReportServiceImpl implements BugReportService {
         BugReport savedBugReport = bugReportJpaRepository.save(bugReport);
         log.info("버그 제보 성공 - 사용자: {} 버그제보  ID: {}", user.getName(), savedBugReport.getId());
         return bugReportMapper.bugReportToBugReportResponse(savedBugReport);
+    }
+
+    /**
+     * updateBugReport는 버그 제보를 수정하는 메소드.
+     * @param user User
+     * @param bugReportId Integer
+     * @param updateBugReportRequest UpdateBugReportRequest
+     * @return BugReportResponse
+     */
+    @Override
+    public BugReportResponse updateBugReport(User user, Integer bugReportId, UpdateBugReportRequest updateBugReportRequest) {
+        idempotentProvider.isValidIdempotent(List.of("updateBugReportRequest", user.getName(), user.getId().toString(), bugReportId.toString(), updateBugReportRequest.title()));
+
+        BugReport bugReport = bugReportJpaRepository.findByIdAndState(bugReportId, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_BUG_REPORT));
+        if(!bugReport.getUser().getId().equals(user.getId())) {
+            throw new BaseException(NOT_AUTHORIZED_BUG_REPORT);
+        }
+        bugReportMapper.updateBugReportRequestToBugReport(bugReport, updateBugReportRequest);
+        log.info("버그 제보 수정 성공 - 사용자: {} 버그제보 ID: {}", user.getName(), bugReport.getId());
+        return bugReportMapper.bugReportToBugReportResponse(bugReport);
     }
 }

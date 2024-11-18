@@ -1,11 +1,13 @@
 package inha.git.bug_report.api.mapper;
 
 import inha.git.bug_report.api.controller.dto.request.CreateBugReportRequest;
+import inha.git.bug_report.api.controller.dto.request.UpdateBugReportRequest;
 import inha.git.bug_report.api.controller.dto.response.BugReportResponse;
 import inha.git.bug_report.domain.BugReport;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 
@@ -36,4 +38,15 @@ public interface BugReportMapper {
      */
     @Mapping(target = "idx", source = "id")
     BugReportResponse bugReportToBugReportResponse(BugReport bugReport);
+
+
+    /**
+     * updateBugReportRequestToBugReport는 UpdateBugReportRequest를 BugReport로 변환하는 메소드.
+     * @param bugReport
+     * @param updateBugReportRequest
+     */
+    @Mapping(target = "title", source = "updateBugReportRequest.title")
+    @Mapping(target = "contents", source = "updateBugReportRequest.contents")
+    void updateBugReportRequestToBugReport(@MappingTarget BugReport bugReport, UpdateBugReportRequest updateBugReportRequest);
+
 }
