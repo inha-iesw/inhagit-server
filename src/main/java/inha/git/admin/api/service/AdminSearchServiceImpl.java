@@ -1,10 +1,14 @@
 package inha.git.admin.api.service;
 
+import inha.git.admin.api.controller.dto.request.SearchReportCond;
 import inha.git.admin.api.controller.dto.response.*;
 import inha.git.admin.domain.repository.AdminQueryRepository;
+import inha.git.bug_report.api.controller.dto.request.SearchBugReportCond;
+import inha.git.bug_report.api.controller.dto.response.SearchBugReportsResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.UserDepartment;
 import inha.git.mapping.domain.repository.UserDepartmentJpaRepository;
+import inha.git.report.api.controller.dto.response.SearchReportResponse;
 import inha.git.statistics.domain.UserStatistics;
 import inha.git.statistics.domain.repository.UserStatisticsJpaRepository;
 import inha.git.user.api.mapper.UserMapper;
@@ -121,5 +125,31 @@ public class AdminSearchServiceImpl implements AdminSearchService {
                     .toList());
             return userMapper.toSearchNonCompanyUserResponse(user, totalProjectCount, totalQuestionCount, totalTeamCount, searchDepartmentResponses, position, user.getGithubToken() != null);
         }
+    }
+
+    /**
+     * 관리자 신고 조회
+     *
+     * @param searchReportCond 신고 검색 조건
+     * @param page 페이지
+     * @return 신고 목록
+     */
+    @Override
+    public Page<SearchReportResponse> getAdminReports(SearchReportCond searchReportCond, Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return adminQueryRepository.searchReports(searchReportCond, pageable);
+    }
+
+    /**
+     * 관리자 버그 제보 조회
+     *
+     * @param searchBugReportCond 버그 제보 검색 조건
+     * @param page 페이지
+     * @return 버그 제보 목록
+     */
+    @Override
+    public Page<SearchBugReportsResponse> getAdminBugReports(SearchBugReportCond searchBugReportCond, Integer page) {
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return adminQueryRepository.searchBugReports(searchBugReportCond, pageable);
     }
 }

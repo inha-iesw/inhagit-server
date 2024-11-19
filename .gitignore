@@ -48,3 +48,5 @@ source/**
 src/main/java/inha/git/InitData.java
 logs
 logback-spring.xml
+
+src/main/java/inha/git/common/config/SwaggerConfig.java

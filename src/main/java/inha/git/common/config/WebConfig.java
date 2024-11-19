@@ -15,14 +15,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("http://localhost:3001","http://localhost", "http://localhost:80",
-                        "http://localhost:3000", "http://165.246.21.231:3000",
-                        "http://165.246.21.231:80", "http://165.246.21.231",
-                        "https://165.246.21.231",
-                        "https://oss.inha.ac.kr",
-                        "https://oss.inha.ac.kr:3000",
-                        "https://oss.inha.ac.kr:80",
-                        "https://oss.inha.ac.kr:443")
+                .allowedOriginPatterns("http://localhost:3000","http://localhost", "http://165.246.21.232", "http://165.246.21.231", "https://oss.inha.ac.kr")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH")
                 .allowedHeaders("*")
                 .allowCredentials(true);
@@ -31,16 +24,20 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/banner/**")
+        registry.addResourceHandler("/api/v1/banner/**")
                 .addResourceLocations(fileUrl + "/banner/");
-        registry.addResourceHandler("/evidence/**")
+        registry.addResourceHandler("/api/v1/evidence/**")
                 .addResourceLocations(fileUrl + "/evidence/");
-        registry.addResourceHandler("/problem-file/**")
+        registry.addResourceHandler("/api/v1/problem-file/**")
                 .addResourceLocations(fileUrl + "/problem-file/");
-        registry.addResourceHandler("/project/**")
+        registry.addResourceHandler("/api/v1/project/**")
                 .addResourceLocations(fileUrl + "/project/");
-        registry.addResourceHandler("/project-zip/**")
+        registry.addResourceHandler("/api/v1/project-zip/**")
                 .addResourceLocations(fileUrl + "/project-zip/");
+        registry.addResourceHandler("/api/v1/image/**")
+                .addResourceLocations(fileUrl + "/image/");
+        registry.addResourceHandler("/api/v1/attachment/**")
+                .addResourceLocations(fileUrl + "/attachment/");
     }
 
 }

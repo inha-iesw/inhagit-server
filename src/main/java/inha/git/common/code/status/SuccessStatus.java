@@ -59,6 +59,9 @@ public enum SuccessStatus implements BaseCode {
     FIELD_DELETE_OK(HttpStatus.OK, "FIELD2002", "분야 삭제 성공"),
     FIELD_SEARCH_OK(HttpStatus.OK, "FIELD2000", "분야 전체 조회 성공"),
 
+    //이미지 생성
+    IMAGE_CREATE_OK(HttpStatus.CREATED, "IMAGE2010", "이미지 생성 성공"),
+
     COLLEGE_CREATE_OK(HttpStatus.CREATED, "COLLEGE2010", "단과대 생성 성공"),
     COLLEGE_SEARCH_OK(HttpStatus.OK, "COLLEGE2000", "단과대 전체 조회 성공"),
     COLLEGE_UPDATE_OK(HttpStatus.OK, "COLLEGE2001", "단과대 수정 성공"),
@@ -80,6 +83,12 @@ public enum SuccessStatus implements BaseCode {
     NOTICE_DELETE_OK(HttpStatus.OK, "NOTICE2002", "공지 삭제 성공"),
     NOTICE_SEARCH_OK(HttpStatus.OK, "NOTICE2000", "공지 전체 조회 성공"),
     NOTICE_DETAIL_OK(HttpStatus.OK, "NOTICE2003", "공지 상세 조회 성공"),
+
+    REPORT_CREATE_OK(HttpStatus.CREATED, "REPORT2010", "신고 생성 성공"),
+    REPORT_TYPE_GET_OK(HttpStatus.OK, "REPORT2000", "신고 타입 조회 성공"),
+    REPORT_REASON_GET_OK(HttpStatus.OK, "REPORT2001", "신고 원인 조회 성공"),
+    REPORT_DELETE_OK(HttpStatus.OK, "REPORT2002", "신고 삭제 성공"),
+    REPORT_SEARCH_OK(HttpStatus.OK, "REPORT2003", "신고 조회 성공"),
 
     PROJECT_CREATE_OK(HttpStatus.CREATED, "PROJECT2010", "프로젝트 생성 성공"),
     PROJECT_UPDATE_OK(HttpStatus.OK, "PROJECT2001", "프로젝트 수정 성공"),
@@ -165,6 +174,14 @@ public enum SuccessStatus implements BaseCode {
     MY_PAGE_TEAM_SEARCH_OK(HttpStatus.OK, "USER2003", "마이페이지 팀 조회 성공"),
     MY_PAGE_PROBLEM_SEARCH_OK(HttpStatus.OK, "USER2004", "마이페이지 문제 조회 성공"),
     PW_CHANGE_OK(HttpStatus.OK, "USER2005", "비밀번호 변경 성공"),
+    MY_PAGE_REPORT_SEARCH_OK(HttpStatus.OK, "USER2006", "마이페이지 신고 조회 성공"),
+    MY_PAGE_BUG_REPORT_SEARCH_OK(HttpStatus.OK, "USER2007", "마이페이지 버그 제보 조회 성공"),
+
+    BUG_REPORT_CREATE_OK(HttpStatus.CREATED, "BUG_REPORT2010", "버그 제보 성공"),
+    BUG_REPORT_UPDATE_OK(HttpStatus.OK, "BUG_REPORT2001", "버그 제보 수정 성공"),
+    BUG_REPORT_DELETE_OK(HttpStatus.OK, "BUG_REPORT2002", "버그 제보 삭제 성공"),
+    BUG_REPORT_GET_OK(HttpStatus.OK, "BUG_REPORT2000", "버그 제보 조회 성공"),
+    BUG_REPORT_SEARCH_OK(HttpStatus.OK, "BUG_REPORT2003", "버그 제보 전체 조회 성공"),
 
     PROJECT_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2000", "프로젝트 통계 조회 성공"),
     TEAM_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2001", "팀 통계 조회 성공"),

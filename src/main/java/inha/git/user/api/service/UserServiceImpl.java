@@ -1,6 +1,9 @@
 package inha.git.user.api.service;
 
 import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
+import inha.git.bug_report.api.controller.dto.request.SearchBugReportCond;
+import inha.git.bug_report.api.controller.dto.response.SearchBugReportsResponse;
+import inha.git.bug_report.domain.repository.BugReportQueryRepository;
 import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.UserDepartment;
 import inha.git.mapping.domain.repository.UserDepartmentJpaRepository;
@@ -10,6 +13,8 @@ import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
 import inha.git.project.domain.repository.ProjectQueryRepository;
 import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
 import inha.git.question.domain.repository.QuestionQueryRepository;
+import inha.git.report.api.controller.dto.response.SearchReportResponse;
+import inha.git.report.domain.repository.ReportQueryRepository;
 import inha.git.statistics.domain.UserStatistics;
 import inha.git.statistics.domain.repository.UserStatisticsJpaRepository;
 import inha.git.team.api.controller.dto.response.SearchMyTeamsResponse;
@@ -54,8 +59,10 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final ProjectQueryRepository projectQueryRepository;
     private final QuestionQueryRepository questionQueryRepository;
+    private final ReportQueryRepository reportQueryRepository;
     private final TeamQueryRepository teamQueryRepository;
     private final ProblemQueryRepository problemQueryRepository;
+    private final BugReportQueryRepository bugReportQueryRepository;
 
     /**
      * 사용자 정보 조회
@@ -145,6 +152,35 @@ public class UserServiceImpl implements UserService {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return problemQueryRepository.getUserProblems(findUser.getId(), pageable);
 
+    }
+
+    /**
+     * 사용자 신고 조회
+     *
+     * @param user 사용자 정보
+     * @param page 페이지 번호
+     * @return 사용자 신고 조회 결과
+     */
+    @Override
+    public Page<SearchReportResponse> getUserReports(User user, Integer userIdx, Integer page) {
+        User findUser = validUser(user, userIdx);
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return reportQueryRepository.getUserReports(findUser.getId(), pageable);
+    }
+
+    /**
+     * 사용자 버그 리포트 조회
+     *
+     * @param user 사용자 정보
+     * @param searchBugReportCond 버그 리포트 검색 조건
+     * @param page 페이지 번호
+     * @return 사용자 버그 리포트 조회 결과
+     */
+    @Override
+    public Page<SearchBugReportsResponse> getUserBugReports(User user, Integer userIdx, SearchBugReportCond searchBugReportCond, Integer page) {
+        User findUser = validUser(user, userIdx);
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return bugReportQueryRepository.getUserBugReports(findUser.getId(), searchBugReportCond, pageable);
     }
 
     /**

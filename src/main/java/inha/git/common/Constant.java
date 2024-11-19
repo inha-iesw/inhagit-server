@@ -128,6 +128,9 @@ public class Constant {
 
     public final static String CURRICULUM = "교과";
 
+    public final static String IMAGE = "image";
+    public final static String ATTACHMENT = "attachment";
+
     @PostConstruct
     public void init() {
         basedir = basedirValue;
