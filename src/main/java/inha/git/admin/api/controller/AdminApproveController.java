@@ -2,6 +2,7 @@ package inha.git.admin.api.controller;
 
 import inha.git.admin.api.controller.dto.request.*;
 import inha.git.admin.api.service.AdminApproveService;
+import inha.git.bug_report.api.controller.dto.response.BugReportResponse;
 import inha.git.common.BaseResponse;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,10 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static inha.git.common.code.status.SuccessStatus.*;
 
@@ -124,4 +122,23 @@ public class AdminApproveController {
         log.info("유저 차단 해제 - 관리자: {}, 차단 해제할 유저: {}", user.getName(), userUnblockRequest.userIdx());
         return BaseResponse.of(USER_UNBLOCK_OK, adminApproveService.unblockUser(user, userUnblockRequest));
     }
+
+    /**
+     * 버그 제보 상태 변경 API
+     *
+     * <p>버그 제보 상태를 변경합니다.</p>
+     *
+     * @param bugReportId 버그 제보 ID
+     * @param changeBugReportStateRequest 버그 제보 상태 변경 요청
+     * @return 변경된 버그 제보 정보를 포함하는 BaseResponse<BugReportResponse>
+     */
+    @PostMapping("/bugReport/{bugReportId}")
+    @Operation(summary = "버그 제보 상태 변경 API(관리자 전용)", description = "버그 제보 상태를 변경합니다.")
+    public BaseResponse<BugReportResponse> changeBugReportState(@AuthenticationPrincipal User user,
+                                                               @PathVariable("bugReportId") Integer bugReportId,
+                                                               @Validated @RequestBody ChangeBugReportStateRequest changeBugReportStateRequest) {
+        log.info("버그 제보 상태 변경 - 관리자: {}, 버그 제보 ID: {}", user.getName(), bugReportId);
+        return BaseResponse.of(BUG_REPORT_STATE_CHANGE_OK, adminApproveService.changeBugReportState(user, bugReportId, changeBugReportStateRequest));
+    }
+
 }
