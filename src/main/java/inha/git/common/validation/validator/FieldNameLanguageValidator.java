@@ -9,7 +9,7 @@ import jakarta.validation.ConstraintValidatorContext;
  */
 public class FieldNameLanguageValidator implements ConstraintValidator<FieldNameLanguage, String> {
 
-    private static final String KOREAN_ENGLISH_REGEX = "^[a-zA-Z가-힣\\s]+$";
+    private static final String KOREAN_ENGLISH_REGEX = "^[a-zA-Z가-힣\\s/]*$";
 
     @Override
     public void initialize(FieldNameLanguage constraintAnnotation) {
