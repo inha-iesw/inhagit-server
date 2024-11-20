@@ -10,7 +10,7 @@ import jakarta.validation.ConstraintValidatorContext;
 public class PasswordValidator implements ConstraintValidator<ValidPassword, String> {
 
     // 사용자 비밀번호 정규 표현식 = 8~20글자 하나 이상의 알파벳, 하나 이상의 숫자, 하나 이상의 특수 문자
-    private static final String PASSWORD_REGEX = "^(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,20}$";
+    private static final String PASSWORD_REGEX = "^(?=.*?[0-9])(?=.*?[#?!@$%^&*\\-_]).{8,20}$";
 
     @Override
     public void initialize(ValidPassword constraintAnnotation) {}

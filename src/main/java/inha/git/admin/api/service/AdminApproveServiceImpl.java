@@ -1,6 +1,10 @@
 package inha.git.admin.api.service;
 
 import inha.git.admin.api.controller.dto.request.*;
+import inha.git.bug_report.api.controller.dto.response.BugReportResponse;
+import inha.git.bug_report.api.mapper.BugReportMapper;
+import inha.git.bug_report.domain.BugReport;
+import inha.git.bug_report.domain.repository.BugReportJpaRepository;
 import inha.git.common.exceptions.BaseException;
 import inha.git.user.domain.Company;
 import inha.git.user.domain.Professor;
@@ -30,6 +34,8 @@ public class AdminApproveServiceImpl implements AdminApproveService {
     private final UserJpaRepository userJpaRepository;
     private final CompanyJpaRepository companyJpaRepository;
     private final ProfessorJpaRepository professorJpaRepository;
+    private final BugReportJpaRepository bugReportJpaRepository;
+    private final BugReportMapper bugReportMapper;
     private final IdempotentProvider idempotentProvider;
 
 
@@ -268,6 +274,25 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         return userUnblockRequest.userIdx() + ": 유저 차단 해제 완료";
     }
 
+    /**
+     * 버그 제보 상태 변경
+     *
+     * @param user 사용자
+     * @param bugReportId 버그 제보 ID
+     * @param changeBugReportStateRequest 버그 제보 상태 변경 요청
+     * @return 버그 제보 응답
+     */
+    @Override
+    public BugReportResponse changeBugReportState(User user, Integer bugReportId, ChangeBugReportStateRequest changeBugReportStateRequest) {
+        idempotentProvider.isValidIdempotent(List.of("changeBugReportStateRequest", user.getName(), user.getId().toString(), bugReportId.toString()));
+
+        BugReport bugReport = bugReportJpaRepository.findByIdAndState(bugReportId, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_BUG_REPORT));
+        bugReport.setBugStatus(changeBugReportStateRequest.bugStatus());
+        BugReport savedBugReport = bugReportJpaRepository.save(bugReport);
+        log.info("버그 제보 상태 변경 성공 - 사용자: {} 버그제보 ID: {}", user.getName(), bugReport.getId());
+        return bugReportMapper.bugReportToBugReportResponse(savedBugReport);
+    }
 
     /**
      * 유저 조회

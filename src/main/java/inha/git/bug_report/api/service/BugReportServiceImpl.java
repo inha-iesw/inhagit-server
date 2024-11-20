@@ -53,10 +53,6 @@ public class BugReportServiceImpl implements BugReportService {
         if(!bugReport.getUser().getId().equals(user.getId()) && !user.getRole().equals(ADMIN)) {
             throw new BaseException(FORBIDDEN);
         }
-
-        if(bugReport.getBugStatus().equals(UNCONFIRMED)) {
-            bugReport.setBugStatus(CONFIRMING);
-        }
         BugReport savedBugReport = bugReportJpaRepository.save(bugReport);
         SearchUserResponse author = bugReportMapper.userToSearchUserResponse(bugReport.getUser());
         return bugReportMapper.bugReportToSearchBugReportResponse(savedBugReport, author);
