@@ -295,7 +295,7 @@ public class AdminQueryRepository {
      */
     public Page<SearchBugReportsResponse> searchBugReports(SearchBugReportCond searchBugReportCond, Pageable pageable) {
         // 동적 조건 생성을 위한 기본 설정
-        BooleanExpression condition = bugReport.isNotNull();
+        BooleanExpression condition = bugReport.state.eq(State.ACTIVE);
 
         // 제목 검색 조건
         if (searchBugReportCond.title() != null && !searchBugReportCond.title().isEmpty()) {

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static inha.git.bug_report.domain.QBugReport.bugReport;
+import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.Constant.mapRoleToPosition;
 
 @Repository
@@ -33,8 +34,8 @@ public class BugReportQueryRepository {
      * @return 버그 리포트 목록
      */
     public Page<SearchBugReportsResponse> getUserBugReports(Integer userId, SearchBugReportCond searchBugReportCond, Pageable pageable) {
-        // 기본 조건: 특정 사용자의 버그 리포트
-        BooleanExpression condition = bugReport.user.id.eq(userId);
+        // 기본 조건: 특정 사용자의 버그 리포트 + ACTIVE
+        BooleanExpression condition = bugReport.user.id.eq(userId).and(bugReport.state.eq(ACTIVE));
 
         // 제목 검색 조건
         if (searchBugReportCond.title() != null && !searchBugReportCond.title().isEmpty()) {
