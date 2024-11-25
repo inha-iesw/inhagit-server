@@ -19,6 +19,5 @@ public interface StatisticsService {
     ProjectStatisticsResponse getProjectStatistics(SearchCond searchCond);
     QuestionStatisticsResponse getQuestionStatistics(SearchCond searchCond);
 
-    List<BatchCollegeStatisticsResponse> getBatchStatistics();
 
 }
