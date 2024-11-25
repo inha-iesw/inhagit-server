@@ -16,6 +16,7 @@ import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
+import inha.git.statistics.api.controller.dto.response.BatchCollegeStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
 import inha.git.statistics.domain.*;
@@ -58,6 +59,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final CollegeStatisticsJpaRepository collegeStatisticsJpaRepository;
     private final ProjectStatisticsQueryRepository projectStatisticsQueryRepository;
     private final QuestionStatisticsQueryRepository questionStatisticsQueryRepository;
+    private final BatchStatisticsQueryRepository batchStatisticsQueryRepository;
     private final DepartmentJpaRepository departmentJpaRepository;
     private final CollegeJpaRepository collegeJpaRepository;
     private final FieldJpaRepository fieldJpaRepository;
@@ -320,6 +322,17 @@ public class StatisticsServiceImpl implements StatisticsService {
     public QuestionStatisticsResponse getQuestionStatistics(SearchCond searchCond) {
         validateSearchCond(searchCond);
         return questionStatisticsQueryRepository.getQuestionStatistics(searchCond);
+    }
+
+    /**
+     * 단과대별 학기별 통계를 조회한다.
+     *
+     * @return List<BatchCollegeStatisticsResponse>
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<BatchCollegeStatisticsResponse> getBatchStatistics() {
+        return batchStatisticsQueryRepository.getBatchStatistics();
     }
 
     private void validateSearchCond(SearchCond searchCond) {

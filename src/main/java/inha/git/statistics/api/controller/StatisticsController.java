@@ -2,6 +2,7 @@ package inha.git.statistics.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
+import inha.git.statistics.api.controller.dto.response.BatchCollegeStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
 import inha.git.statistics.api.service.StatisticsExcelService;
@@ -19,9 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.List;
 
-import static inha.git.common.code.status.SuccessStatus.PROJECT_STATISTICS_SEARCH_OK;
-import static inha.git.common.code.status.SuccessStatus.QUESTION_STATISTICS_SEARCH_OK;
+import static inha.git.common.code.status.SuccessStatus.*;
 
 @Slf4j
 @Tag(name = "statistics controller", description = "statistics 관련 API")
@@ -56,6 +57,17 @@ public class StatisticsController {
     @Operation(summary = "프로젝트 통계 조회 API", description = "프로젝트 통계를 조회합니다.")
     public BaseResponse<ProjectStatisticsResponse> getProjectStatistics(@Validated @ModelAttribute SearchCond searchCond) {
         return BaseResponse.of(PROJECT_STATISTICS_SEARCH_OK, statisticsService.getProjectStatistics(searchCond));
+    }
+
+    /**
+     * 단과대별 학기별 통계 일괄 조회 API
+     *
+     * @return BaseResponse<List<BatchCollegeStatisticsResponse>>
+     */
+    @GetMapping("/batch")
+    @Operation(summary = "단과대별 학기별 통계 일괄 조회 API", description = "모든 단과대의 학기별 통계를 한 번에 조회합니다.")
+    public BaseResponse<List<BatchCollegeStatisticsResponse>> getBatchStatistics() {
+        return BaseResponse.of(BATCH_STATISTICS_SEARCH_OK, statisticsService.getBatchStatistics());
     }
 
     /**
