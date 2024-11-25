@@ -4,6 +4,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.college.controller.dto.response.SearchCollegeResponse;
+import inha.git.common.BaseEntity;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.statistics.api.controller.dto.response.BatchCollegeStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.CollegeStatisticsData;
@@ -16,6 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static inha.git.college.domain.QCollege.college;
+import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.semester.domain.QSemester.semester;
 import static inha.git.statistics.domain.QCollegeStatistics.collegeStatistics;
 
@@ -32,6 +34,7 @@ public class BatchStatisticsQueryRepository {
                         college.id,
                         college.name))
                 .from(college)
+                .where(college.state.eq(ACTIVE))
                 .fetch();
 
         // 2. 모든 학기 정보 조회
@@ -40,6 +43,7 @@ public class BatchStatisticsQueryRepository {
                         semester.id,
                         semester.name))
                 .from(semester)
+                .where(semester.state.eq(ACTIVE))
                 .orderBy(semester.id.asc())
                 .fetch();
 
@@ -62,8 +66,8 @@ public class BatchStatisticsQueryRepository {
                                 "COALESCE(SUM({0}), 0)",
                                 collegeStatistics.patentCount),
                         Expressions.numberTemplate(Integer.class,
-                                "COALESCE(COUNT({0}), 0)",
-                                collegeStatistics.id)))
+                                "COALESCE(SUM({0}), 0)",
+                                collegeStatistics.questionCount)))
                 .from(collegeStatistics)
                 .groupBy(collegeStatistics.college.id, collegeStatistics.semester.id)
                 .fetch();
