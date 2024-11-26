@@ -6,7 +6,7 @@ import jakarta.validation.ConstraintValidatorContext;
 
 public class ValidInhaEmailValidator implements ConstraintValidator<ValidInhaEmail, String> {
 
-    private static final String EMAIL_PATTERN = "^[a-zA-Z](?!\\d+$)[a-zA-Z0-9]+$";
+    private static final String EMAIL_PATTERN = "^(?!\\d+$)[a-zA-Z0-9._%+\\-!]+$";
 
     @Override
     public void initialize(ValidInhaEmail constraintAnnotation) {
