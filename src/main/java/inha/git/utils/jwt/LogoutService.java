@@ -10,31 +10,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Service;
+import inha.git.common.exceptions.BaseException;
 
 import static inha.git.common.Constant.HEADER_AUTHORIZATION;
 import static inha.git.common.Constant.TOKEN_PREFIX;
 
-
-/**
- * LogoutService는 사용자가 로그아웃할 때 JWT를 처리하는 서비스.
- */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class LogoutService implements LogoutHandler {
-
   private final JwtProvider jwtProvider;
   private final RedisProvider redisProvider;
 
   @Value("${jwt.expiration}")
   private Long expiration;
-  /**
-   * 사용자가 로그아웃할 때 실행되는 메서드.
-   *
-   * @param request        HTTP 요청 객체
-   * @param response       HTTP 응답 객체
-   * @param authentication 인증 객체
-   */
+
   @Override
   public void logout(
           HttpServletRequest request,
@@ -42,15 +32,31 @@ public class LogoutService implements LogoutHandler {
           Authentication authentication
   ) {
     final String authHeader = request.getHeader(HEADER_AUTHORIZATION);
-    final String jwt;
-    if (authHeader == null ||!authHeader.startsWith(TOKEN_PREFIX)) {
+
+    if (authHeader == null || !authHeader.startsWith(TOKEN_PREFIX)) {
       return;
     }
-    jwt = authHeader.substring(7);
-    String username = jwtProvider.extractUsername(jwt);
-    log.info("사용자 {} 로그아웃 성공", username);
-    redisProvider.deleteValueOps(username);
-    redisProvider.setDataExpire(jwt, jwt, expiration);
-    SecurityContextHolder.clearContext();
+
+    try {
+      final String jwt = authHeader.substring(7);
+      String username = jwtProvider.extractUsername(jwt);
+
+      // Redis에서 사용자 정보 삭제
+      redisProvider.deleteValueOps(username);
+      // 토큰 블랙리스트 처리
+      redisProvider.setDataExpire(jwt, jwt, expiration);
+
+      log.info("사용자 {} 로그아웃 성공", username);
+
+    } catch (BaseException e) {
+      // 토큰이 만료된 경우
+      log.info("만료된 토큰으로 로그아웃 시도");
+    } catch (Exception e) {
+      // 기타 예외 발생 시
+      log.error("로그아웃 처리 중 오류 발생", e);
+    } finally {
+      // 항상 SecurityContext를 클리어
+      SecurityContextHolder.clearContext();
+    }
   }
 }
