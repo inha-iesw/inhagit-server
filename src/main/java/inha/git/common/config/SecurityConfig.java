@@ -39,6 +39,8 @@ public class SecurityConfig {
     private static final String COMPANY_URL = "/api/v1/company/**";
 
     private static final String[] GET_ONLY_WHITE_LIST_URL = {
+            "/api/v1/notices",
+            "/api/v1/notices/{noticeIdx}",
             "/api/v1/departments",
             "/api/v1/reports/reportTypes",
             "/api/v1/reports/reportReasons",
