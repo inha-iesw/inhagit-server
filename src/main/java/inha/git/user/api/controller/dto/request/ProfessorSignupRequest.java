@@ -36,7 +36,7 @@ public record ProfessorSignupRequest(
 
         @NotEmpty(message = "사번 필수 입력 항목입니다.")
         @ValidUserNumber
-        @UserNumberUnique
+        //@UserNumberUnique
         @ValidParameter
         @Size(min = 6, max = 6, message = "사번은 6자리 숫자여야 합니다.")
         @Schema(description = "사번", example = "221121")
