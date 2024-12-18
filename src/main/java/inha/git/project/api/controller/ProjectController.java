@@ -53,15 +53,19 @@ public class ProjectController {
      * <p>프로젝트 전체를 조회합니다.</p>
      *
      * @param page 페이지 번호
+     * @param size 페이지 사이즈
      * @return 검색된 프로젝트 정보를 포함하는 BaseResponse<Page<SearchProjectsResponse>>
      */
     @GetMapping
     @Operation(summary = "프로젝트 전체 조회 API", description = "프로젝트 전체를 조회합니다.")
-    public BaseResponse<Page<SearchProjectsResponse>> getProjects(@RequestParam("page") Integer page) {
+    public BaseResponse<Page<SearchProjectsResponse>> getProjects(@RequestParam("page") Integer page, @RequestParam("size") Integer size) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(PROJECT_SEARCH_OK, projectSearchService.getProjects(page - 1));
+        if (size < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(PROJECT_SEARCH_OK, projectSearchService.getProjects(page - 1, size - 1));
     }
 
     /**

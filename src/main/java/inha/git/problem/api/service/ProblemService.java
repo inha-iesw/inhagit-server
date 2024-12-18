@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ProblemService {
-    Page<SearchProblemsResponse> getProblems(Integer page);
+    Page<SearchProblemsResponse> getProblems(Integer page, Integer size);
     SearchProblemResponse getProblem(Integer problemIdx);
     ProblemResponse createProblem(User user, CreateProblemRequest createProblemRequest, MultipartFile file);
     ProblemResponse updateProblem(User user, Integer problemIdx, UpdateProblemRequest updateProblemRequest, MultipartFile file);

@@ -37,13 +37,26 @@ public class ProblemController {
 
     private final ProblemService problemService;
 
+    /**
+     * 문제 목록 조회 API
+     *
+     * <p>문제 목록을 조회합니다.</p>
+     *
+     * @param page 페이지 번호
+     * @param size 페이지 사이즈
+     * @return 문제 목록 조회 결과를 포함하는 BaseResponse<Page<SearchProblemsResponse>>
+     */
     @GetMapping
     @Operation(summary = "문제 목록 조회 API", description = "문제 목록을 조회합니다.")
-    public BaseResponse<Page<SearchProblemsResponse>> getProblems(@RequestParam("page") Integer page) {
+    public BaseResponse<Page<SearchProblemsResponse>> getProblems(@RequestParam("page") Integer page,
+                                                                  @RequestParam("size") Integer size) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(PROBLEM_SEARCH_OK, problemService.getProblems(page - 1));
+        if (size < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(PROBLEM_SEARCH_OK, problemService.getProblems(page - 1, size - 1));
     }
 
     /**

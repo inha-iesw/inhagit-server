@@ -58,12 +58,13 @@ public class NoticeServiceImpl implements NoticeService {
      * 공지 조회
      *
      * @param page 페이지 번호
+     * @param size 페이지 사이즈
      * @return 공지 페이지
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<SearchNoticesResponse> getNotices(Integer page) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+    public Page<SearchNoticesResponse> getNotices(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return noticeQueryRepository.getNotices(pageable);
     }
 

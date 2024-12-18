@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface ProjectSearchService {
 
-    Page<SearchProjectsResponse> getProjects(Integer page);
+    Page<SearchProjectsResponse> getProjects(Integer page, Integer size);
     Page<SearchProjectsResponse> getCondProjects(SearchProjectCond searchProjectCond, Integer page);
     SearchProjectResponse getProject(User user, Integer projectIdx);
 
