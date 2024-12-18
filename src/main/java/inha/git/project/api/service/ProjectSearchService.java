@@ -12,7 +12,7 @@ import java.util.List;
 public interface ProjectSearchService {
 
     Page<SearchProjectsResponse> getProjects(Integer page, Integer size);
-    Page<SearchProjectsResponse> getCondProjects(SearchProjectCond searchProjectCond, Integer page);
+    Page<SearchProjectsResponse> getCondProjects(SearchProjectCond searchProjectCond, Integer page, Integer size);
     SearchProjectResponse getProject(User user, Integer projectIdx);
 
     List<SearchFileResponse> getProjectFileByIdx(User user, Integer projectIdx, String path);

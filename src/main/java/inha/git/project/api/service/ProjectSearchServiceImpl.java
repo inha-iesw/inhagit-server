@@ -82,11 +82,12 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
      *
      * @param searchProjectCond 검색 조건
      * @param page              페이지 번호
+     * @param size 페이지 사이즈
      * @return 검색된 프로젝트 정보 페이지
      */
     @Override
-    public Page<SearchProjectsResponse> getCondProjects(SearchProjectCond searchProjectCond, Integer page) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+    public Page<SearchProjectsResponse> getCondProjects(SearchProjectCond searchProjectCond, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return projectQueryRepository.getCondProjects(searchProjectCond, pageable);
     }
 
