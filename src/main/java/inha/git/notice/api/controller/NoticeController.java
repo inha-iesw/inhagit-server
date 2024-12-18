@@ -43,16 +43,19 @@ public class NoticeController {
      * <p>공지를 조회.</p>
      *
      * @param page 페이지 번호
-     *
+     * @param size 페이지 사이즈
      * @return 공지 조회 결과를 포함하는 BaseResponse<Page<SearchNoticeResponse>>
      */
     @GetMapping
     @Operation(summary = "공지 조회 API", description = "공지를 조회합니다.")
-    public BaseResponse<Page<SearchNoticesResponse>> getNotices(@RequestParam("page") Integer page) {
+    public BaseResponse<Page<SearchNoticesResponse>> getNotices(@RequestParam("page") Integer page, @RequestParam("size") Integer size) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(NOTICE_SEARCH_OK, noticeService.getNotices(page - 1));
+        if (size < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(NOTICE_SEARCH_OK, noticeService.getNotices(page - 1, size - 1));
     }
 
     /**

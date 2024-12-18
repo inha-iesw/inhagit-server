@@ -60,11 +60,12 @@ public class ProblemServiceImpl implements ProblemService {
      * 문제 목록 조회
      *
      * @param page 페이지
+     * @param size 사이즈
      * @return 문제 목록
      */
     @Override
-    public Page<SearchProblemsResponse> getProblems(Integer page) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+    public Page<SearchProblemsResponse> getProblems(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return problemQueryRepository.getProblems(pageable);
     }
 
