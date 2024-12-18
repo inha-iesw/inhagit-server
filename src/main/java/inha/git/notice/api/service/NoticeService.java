@@ -11,7 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface NoticeService {
-    Page<SearchNoticesResponse> getNotices(Integer page);
+    Page<SearchNoticesResponse> getNotices(Integer page, Integer size);
     String createNotice(User user, CreateNoticeRequest createNoticeRequest, List<MultipartFile> attachmentList);
 
     String updateNotice(User user, Integer noticeIdx, UpdateNoticeRequest updateNoticeRequest, List<MultipartFile> attachmentList);
