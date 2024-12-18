@@ -75,16 +75,20 @@ public class ProjectController {
      *
      * @param searchProjectCond 프로젝트 검색 조건
      * @param page              페이지 번호
+     * @param size              size 페이지 사이즈
      * @return 검색된 프로젝트 정보를 포함하는 BaseResponse<Page<SearchProjectsResponse>>
      */
     @GetMapping("/cond")
     @Operation(summary = "프로젝트 조건 조회 API", description = "프로젝트 조건에 맞게 조회합니다.")
     public BaseResponse<Page<SearchProjectsResponse>> getCondProjects(@Validated @ModelAttribute SearchProjectCond searchProjectCond,
-                                                                      @RequestParam("page") Integer page) {
+                                                                      @RequestParam("page") Integer page, @RequestParam("size") Integer size) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(PROJECT_SEARCH_CONDITION_OK, projectSearchService.getCondProjects(searchProjectCond, page - 1));
+        if (size < 1) {
+            throw new BaseException(INVALID_PAGE);
+        }
+        return BaseResponse.of(PROJECT_SEARCH_CONDITION_OK, projectSearchService.getCondProjects(searchProjectCond, page - 1, size - 1));
     }
 
 

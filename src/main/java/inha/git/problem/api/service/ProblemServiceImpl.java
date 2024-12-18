@@ -156,11 +156,12 @@ public class ProblemServiceImpl implements ProblemService {
      *
      * @param problemIdx 문제 인덱스
      * @param page 페이지
+     * @param size 사이즈
      * @return 문제 신청 목록
      */
     @Override
-    public Page<SearchRequestProblemResponse> getRequestProblems(Integer problemIdx, Integer page) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+    public Page<SearchRequestProblemResponse> getRequestProblems(Integer problemIdx, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return problemQueryRepository.getRequestProblems(problemIdx, pageable);
     }
 
