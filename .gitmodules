@@ -1,0 +1,3 @@
+[submodule "inhagit-server-secret"]
+	path = inhagit-server-secret
+	url = https://github.com/inha-iesw/inhagit-server-secret.git

@@ -53,3 +53,7 @@ src/main/java/inha/git/common/config/SwaggerConfig.java
 
 
 docs/**
+
+.gitmodules
+
+inhagit-server-secret/**
