@@ -11,6 +11,12 @@ on:
       - 'build.gradle'
       - '**/*.java'
 
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+
 jobs:
   deploy-docs:
     # PR이 머지됐을 때만 실행
