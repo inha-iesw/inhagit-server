@@ -1,4 +1,3 @@
-# .github/workflows/docs.yml
 name: Deploy Documentation
 
 on:
@@ -6,17 +5,11 @@ on:
     branches:
       - develop
     types: [closed]
-    paths:
-      - 'src/**'
-      - 'build.gradle'
-      - '**/*.java'
 
 jobs:
   deploy-docs:
-    # PR이 머지됐을 때만 실행
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -46,7 +39,6 @@ jobs:
           publish_dir: ./build/docs/javadoc
           commit_message: |
             docs: update documentation from PR #${{ github.event.pull_request.number }}
-            
             PR Title: ${{ github.event.pull_request.title }}
             Merged by: ${{ github.event.pull_request.merged_by.login }}
           user_name: 'github-actions[bot]'
