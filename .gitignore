@@ -50,3 +50,6 @@ logs
 logback-spring.xml
 
 src/main/java/inha/git/common/config/SwaggerConfig.java
+
+
+docs/**
