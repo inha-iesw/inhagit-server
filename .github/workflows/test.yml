@@ -1,0 +1,16 @@
+name: Test Workflow
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  test-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log PR Event
+        run: |
+          echo "Event type: ${{ github.event_name }}"
+          echo "PR number: ${{ github.event.pull_request.number }}"
+          echo "PR merged: ${{ github.event.pull_request.merged }}"
+          echo "Current branch: ${{ github.ref }}"
