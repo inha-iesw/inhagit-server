@@ -2,17 +2,16 @@ spring:
   config:
     activate:
       on-profile: local
-    import: optional:file:./inhagit-server-secret/application-local.yml
+    import: optional:file:${SPRING_CONFIG_LOCATION}application-local.yml
 ---
 spring:
   config:
     activate:
       on-profile: dev
-    import: optional:file:./inhagit-server-secret/application-dev.yml
+    import: optional:file:${SPRING_CONFIG_LOCATION}application-dev.yml
 ---
 spring:
   config:
     activate:
       on-profile: prod
-    import: optional:file:./inhagit-server-secret/application-prod.yml
----
+    import: optional:file:${SPRING_CONFIG_LOCATION}application-prod.yml
