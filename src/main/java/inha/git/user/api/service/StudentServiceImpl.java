@@ -33,7 +33,6 @@ public class StudentServiceImpl implements StudentService{
     private final MailService mailService;
     private final EmailDomainService emailDomainService;
 
-
     /**
      * 학생 회원가입
      *

@@ -76,11 +76,12 @@ public class QuestionServiceImpl implements QuestionService {
      * 질문 전체 조회
      *
      * @param page Integer
+     * @param size Integer
      * @return Page<SearchQuestionsResponse>
      */
     @Override
-    public Page<SearchQuestionsResponse> getQuestions(Integer page) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+    public Page<SearchQuestionsResponse> getQuestions(Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return questionQueryRepository.getQuestions(pageable);
     }
 
@@ -89,11 +90,12 @@ public class QuestionServiceImpl implements QuestionService {
      *
      * @param searchQuestionCond SearchQuestionCond
      * @param page               Integer
+     * @param size               Integer
      * @return Page<SearchQuestionsResponse>
      */
     @Override
-    public Page<SearchQuestionsResponse> getCondQuestions(SearchQuestionCond searchQuestionCond, Integer page) {
-        Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+    public Page<SearchQuestionsResponse> getCondQuestions(SearchQuestionCond searchQuestionCond, Integer page, Integer size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return questionQueryRepository.getCondQuestions(searchQuestionCond, pageable);
     }
 

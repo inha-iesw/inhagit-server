@@ -22,8 +22,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import static inha.git.common.code.status.ErrorStatus.COMPANY_CANNOT_CREATE_QUESTION;
-import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
+import static inha.git.common.code.status.ErrorStatus.*;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
@@ -45,15 +44,19 @@ public class QuestionController {
      * <p>질문 전체를 조회합니다.</p>
      *
      * @param page Integer
+     * @param size Integer
      * @return 검색된 질문 정보를 포함하는 BaseResponse<Page<SearchQuestionsResponse>>
      */
     @GetMapping
     @Operation(summary = "질문 전체 조회 API", description = "질문 전체를 조회합니다.")
-    public BaseResponse<Page<SearchQuestionsResponse>> getQuestions(@RequestParam("page") Integer page) {
+    public BaseResponse<Page<SearchQuestionsResponse>> getQuestions(@RequestParam("page") Integer page, @RequestParam("size") Integer size) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(QUESTION_SEARCH_OK, questionService.getQuestions(page - 1));
+        if (size < 1) {
+            throw new BaseException(INVALID_SIZE);
+        }
+        return BaseResponse.of(QUESTION_SEARCH_OK, questionService.getQuestions(page - 1, size - 1));
     }
 
     /**
@@ -62,16 +65,20 @@ public class QuestionController {
      * <p>질문 조건에 맞게 조회합니다.</p>
      *
      * @param page Integer
+     * @param size Integer
      * @param searchQuestionCond SearchQuestionCond
      * @return 검색된 질문 정보를 포함하는 BaseResponse<Page<SearchQuestionsResponse>>
      */
     @GetMapping("/cond")
     @Operation(summary = "질문 조건 조회 API", description = "질문 조건에 맞게 조회합니다.")
-    public BaseResponse<Page<SearchQuestionsResponse>> getCondQuestions(@RequestParam("page") Integer page, SearchQuestionCond searchQuestionCond) {
+    public BaseResponse<Page<SearchQuestionsResponse>> getCondQuestions(@RequestParam("page") Integer page, @RequestParam("size") Integer size , SearchQuestionCond searchQuestionCond) {
         if (page < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(QUESTION_SEARCH_OK, questionService.getCondQuestions(searchQuestionCond, page - 1));
+        if (size < 1) {
+            throw new BaseException(INVALID_SIZE);
+        }
+        return BaseResponse.of(QUESTION_SEARCH_OK, questionService.getCondQuestions(searchQuestionCond, page - 1, size - 1));
     }
 
     /**

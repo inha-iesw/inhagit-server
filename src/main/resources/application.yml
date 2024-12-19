@@ -1,0 +1,17 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+    import: optional:file:${SPRING_CONFIG_LOCATION}application-local.yml
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+    import: optional:file:${SPRING_CONFIG_LOCATION}application-dev.yml
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+    import: optional:file:${SPRING_CONFIG_LOCATION}application-prod.yml

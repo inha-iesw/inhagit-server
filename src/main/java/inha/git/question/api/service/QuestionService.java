@@ -11,8 +11,8 @@ import inha.git.user.domain.User;
 import org.springframework.data.domain.Page;
 
 public interface QuestionService {
-    Page<SearchQuestionsResponse> getQuestions(Integer page);
-    Page<SearchQuestionsResponse> getCondQuestions(SearchQuestionCond searchQuestionCond, Integer page);
+    Page<SearchQuestionsResponse> getQuestions(Integer page, Integer size);
+    Page<SearchQuestionsResponse> getCondQuestions(SearchQuestionCond searchQuestionCond, Integer page, Integer size);
     SearchQuestionResponse getQuestion(User user, Integer questionIdx);
     QuestionResponse createQuestion(User user, CreateQuestionRequest createQuestionRequest);
     QuestionResponse updateQuestion(User user, Integer questionIdx, UpdateQuestionRequest updateQuestionRequest);

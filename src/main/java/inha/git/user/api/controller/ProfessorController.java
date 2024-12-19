@@ -27,6 +27,7 @@ import static inha.git.common.code.status.SuccessStatus.STUDENT_SEARCH_OK;
 public class ProfessorController {
 
     private final ProfessorService professorService;
+
     /**
      * 교수 전용 학생 검색 API
      *
