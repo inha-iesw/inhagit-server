@@ -1,4 +1,3 @@
-# .github/workflows/docs.yml
 name: Deploy Documentation
 
 on:
@@ -13,16 +12,12 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
-  issues: write
-
 
 jobs:
   deploy-docs:
-    # PR이 머지됐을 때만 실행
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -57,14 +52,3 @@ jobs:
             Merged by: ${{ github.event.pull_request.merged_by.login }}
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
-
-      - name: Comment on PR
-        uses: actions/github-script@v6
-        with:
-          script: |
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: '📚 Documentation has been updated and deployed to https://inha-iesw.github.io/inhagit-server-docs'
-            })
