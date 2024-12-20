@@ -10,7 +10,6 @@ import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.user.domain.repository.ProfessorJpaRepository;
 import inha.git.user.domain.repository.UserJpaRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
