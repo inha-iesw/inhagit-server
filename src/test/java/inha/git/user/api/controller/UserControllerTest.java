@@ -1,8 +1,11 @@
 package inha.git.user.api.controller;
 
 import inha.git.common.BaseResponse;
+import inha.git.user.api.controller.dto.request.ProfessorSignupRequest;
 import inha.git.user.api.controller.dto.request.StudentSignupRequest;
+import inha.git.user.api.controller.dto.response.ProfessorSignupResponse;
 import inha.git.user.api.controller.dto.response.StudentSignupResponse;
+import inha.git.user.api.service.ProfessorService;
 import inha.git.user.api.service.StudentService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -26,6 +29,9 @@ class UserControllerTest {
 
     @Mock
     private StudentService studentService;
+
+    @Mock
+    private ProfessorService professorService;
 
     @Nested
     @DisplayName("학생 회원가입 테스트")
@@ -55,6 +61,37 @@ class UserControllerTest {
                     "홍길동",
                     "password2@",
                     "12241234",
+                    List.of(1)
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("교수 회원가입 테스트")
+    class ProfessorSignupTest {
+        @Test
+        @DisplayName("교수 회원가입 성공")
+        void professorSignup_Success() {
+            // given
+            ProfessorSignupRequest request = createValidProfessorSignupRequest();
+            ProfessorSignupResponse expectedResponse = new ProfessorSignupResponse(1);
+            given(professorService.professorSignup(request))
+                    .willReturn(expectedResponse);
+
+            // when
+            BaseResponse<ProfessorSignupResponse> response = userController.professorSignup(request);
+
+            // then
+            assertThat(response.getResult()).isEqualTo(expectedResponse);
+            verify(professorService).professorSignup(request);
+        }
+
+        private ProfessorSignupRequest createValidProfessorSignupRequest() {
+            return new ProfessorSignupRequest(
+                    "professor@inha.ac.kr",
+                    "홍길동",
+                    "password2@",
+                    "221121",
                     List.of(1)
             );
         }

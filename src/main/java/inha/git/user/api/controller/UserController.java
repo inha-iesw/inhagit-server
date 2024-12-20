@@ -32,7 +32,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
@@ -217,7 +216,7 @@ public class UserController {
      *
      * @param professorSignupRequest 교수 회원가입 요청 정보 (이메일, 비밀번호, 이름, 사번, 학과 정보 등)
      * @return BaseResponse<ProfessorSignupResponse> 가입된 교수 정보를 포함한 응답
-     * @throws  BaseException 이메일 중복, 유효하지 않은 학과 정보, 이메일 인증 실패 등의 경우
+     * @throws BaseException 이메일 중복, 유효하지 않은 학과 정보, 이메일 인증 실패 등의 경우
      */
     @PostMapping("/professor")
     @Operation(summary = "교수 회원가입 API", description = "교수 회원가입을 처리합니다.")
