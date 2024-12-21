@@ -43,13 +43,22 @@ public class MailServiceImpl implements MailService {
 
 
     /**
-     * 이메일 인증을 처리.
+     * 이메일 인증번호를 발송합니다.
      *
-     * @param emailRequest 이메일 인증 요청 정보
+     * <p>
+     * 처리 과정:
+     * 1. 이메일 도메인 검증 (학생/교수 타입인 경우)
+     * 2. 기존 인증번호가 있다면 삭제
+     * 3. 새로운 인증번호(6자리) 생성
+     * 4. 이메일 발송
+     * 5. Redis에 인증번호 저장 (3분 유효)
+     * </p>
      *
-     * @return 이메일 인증 결과
+     * @param emailRequest 이메일 주소와 인증 타입을 포함한 요청
+     * @return 이메일 전송 완료 메시지
+     * @throws BaseException INVALID_EMAIL_DOMAIN: 유효하지 않은 이메일 도메인인 경우,
+     *                      EMAIL_SEND_FAIL: 이메일 전송 실패한 경우
      */
-
     public String mailSend(EmailRequest emailRequest) {
         if(emailRequest.type() == 1 || emailRequest.type() == 3) {
             log.info("이메일 도메인 검증 : {}", emailRequest.email());
@@ -68,11 +77,21 @@ public class MailServiceImpl implements MailService {
     }
 
     /**
-     * 비밀번호 찾기 이메일 전송
+     * 비밀번호 찾기를 위한 인증 이메일을 전송합니다.
      *
-     * @param findPasswordRequest 비밀번호 찾기 요청 정보
+     * <p>
+     * 처리 과정:
+     * 1. 이메일 존재 여부 확인
+     * 2. 기존 인증번호가 있다면 삭제
+     * 3. 새로운 인증번호 생성
+     * 4. 이메일 전송
+     * 5. Redis에 인증번호 저장 (3분 유효)
+     * </p>
      *
-     * @return 비밀번호 찾기 이메일 전송 결과
+     * @param findPasswordRequest 비밀번호 찾기 이메일 전송 요청 정보
+     * @return 이메일 전송 완료 메시지
+     * @throws BaseException EMAIL_NOT_FOUND: 존재하지 않는 이메일인 경우
+     *                      EMAIL_SEND_FAIL: 이메일 전송 실패한 경우
      */
     @Override
     public String findPasswordMailSend(FindPasswordRequest findPasswordRequest) {
@@ -90,12 +109,24 @@ public class MailServiceImpl implements MailService {
         return "이메일 전송 완료";
     }
 
+
     /**
-     * 이메일 인증을 처리.
+     * 이메일 인증번호의 유효성을 검증합니다.
      *
-     * @param emailCheckRequest 이메일 인증 요청 정보
+     * <p>
+     * 처리 과정:
+     * 1. 이메일 도메인 검증 (학생/교수 타입인 경우)
+     * 2. Redis에서 저장된 인증번호 조회
+     * 3. 인증번호 만료 여부 확인
+     * 4. 인증번호 일치 여부 확인
+     * 5. 인증 성공 시 verification 정보 Redis에 저장 (1시간 유효)
+     * </p>
      *
-     * @return 이메일 인증 결과
+     * @param emailCheckRequest 이메일 주소, 인증번호, 인증 타입을 포함한 요청
+     * @return 인증 성공 여부
+     * @throws BaseException EMAIL_AUTH_EXPIRED: 인증번호가 만료된 경우,
+     *                      EMAIL_AUTH_NOT_MATCH: 인증번호가 일치하지 않는 경우,
+     *                      INVALID_EMAIL_DOMAIN: 유효하지 않은 이메일 도메인인 경우
      */
     @Override
     public Boolean mailSendCheck(EmailCheckRequest emailCheckRequest) {
@@ -119,11 +150,22 @@ public class MailServiceImpl implements MailService {
     }
 
     /**
-     * 비밀번호 찾기 이메일 인증을 처리.
+     * 비밀번호 찾기 이메일 인증번호를 검증합니다.
      *
-     * @param findPasswordCheckRequest 비밀번호 찾기 이메일 인증 요청 정보
+     * <p>
+     * 처리 과정:
+     * 1. 이메일 존재 여부 확인
+     * 2. Redis에서 저장된 인증번호 조회
+     * 3. 인증번호 만료 여부 확인
+     * 4. 인증번호 일치 여부 확인
+     * 5. 인증 성공 시 verification 정보 Redis에 저장 (1시간 유효)
+     * </p>
      *
-     * @return 비밀번호 찾기 이메일 인증 결과
+     * @param findPasswordCheckRequest 비밀번호 찾기 인증번호 확인 요청 정보
+     * @return 인증 성공 여부
+     * @throws BaseException EMAIL_NOT_FOUND: 존재하지 않는 이메일인 경우
+     *                      EMAIL_AUTH_EXPIRED: 인증번호가 만료된 경우
+     *                      EMAIL_AUTH_NOT_MATCH: 인증번호가 일치하지 않는 경우
      */
     @Override
     public Boolean findPasswordMailSendCheck(FindPasswordCheckRequest findPasswordCheckRequest) {

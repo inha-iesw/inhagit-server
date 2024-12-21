@@ -1,6 +1,7 @@
 package inha.git.auth.api.controller;
 
 import inha.git.auth.api.controller.dto.request.*;
+import inha.git.auth.api.controller.dto.response.FindEmailResponse;
 import inha.git.auth.api.controller.dto.response.LoginResponse;
 import inha.git.auth.api.service.AuthService;
 import inha.git.auth.api.service.MailService;
@@ -30,26 +31,8 @@ class AuthControllerTest {
     private MailService mailService;
 
     @Nested
-    @DisplayName("로그인 테스트")
-    class LoginTest {
-
-        @Test
-        @DisplayName("로그인 성공")
-        void login_Success() {
-            // given
-            LoginRequest request = createValidLoginRequest();
-            LoginResponse expectedResponse = new LoginResponse(1, "Bearer test.token");
-
-            given(authService.login(request))
-                    .willReturn(expectedResponse);
-
-            // when
-            BaseResponse<LoginResponse> response = authController.login(request);
-
-            // then
-            assertThat(response.getResult()).isEqualTo(expectedResponse);
-            verify(authService).login(request);
-        }
+    @DisplayName("이메일 인증 테스트")
+    class emailTest {
 
         @Test
         @DisplayName("이메일 인증 성공")
@@ -85,13 +68,6 @@ class AuthControllerTest {
             verify(mailService).mailSendCheck(request);
         }
 
-        private LoginRequest createValidLoginRequest() {
-            return new LoginRequest(
-                    "test@test.com",
-                    "password123!"
-            );
-        }
-
         private EmailRequest createValidEmailRequest() {
             return new EmailRequest(
                     "test@test.com",
@@ -104,6 +80,70 @@ class AuthControllerTest {
                     "test@test.com",
                     1,
                     "123456"
+            );
+        }
+
+    }
+
+    @Nested
+    @DisplayName("로그인 테스트")
+    class LoginTest {
+
+        @Test
+        @DisplayName("로그인 성공")
+        void login_Success() {
+            // given
+            LoginRequest request = createValidLoginRequest();
+            LoginResponse expectedResponse = new LoginResponse(1, "Bearer test.token");
+
+            given(authService.login(request))
+                    .willReturn(expectedResponse);
+
+            // when
+            BaseResponse<LoginResponse> response = authController.login(request);
+
+            // then
+            assertThat(response.getResult()).isEqualTo(expectedResponse);
+            verify(authService).login(request);
+        }
+
+
+
+        private LoginRequest createValidLoginRequest() {
+            return new LoginRequest(
+                    "test@test.com",
+                    "password123!"
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("이메일 찾기 테스트")
+    class FindEmailTest {
+
+        @Test
+        @DisplayName("학번과 이름으로 이메일 찾기 성공")
+        void findEmail_Success() {
+            // given
+            FindEmailRequest request = createValidFindEmailRequest();
+            FindEmailResponse expectedResponse = new FindEmailResponse("test@inha.edu");
+
+            given(authService.findEmail(request))
+                    .willReturn(expectedResponse);
+
+            // when
+            BaseResponse<FindEmailResponse> response = authController.findEmail(request);
+
+            // then
+            assertThat(response.getResult()).isEqualTo(expectedResponse);
+            verify(authService).findEmail(request);
+        }
+
+
+        private FindEmailRequest createValidFindEmailRequest() {
+            return new FindEmailRequest(
+                    "12345678",  // 학번
+                    "홍길동"    // 이름
             );
         }
     }
