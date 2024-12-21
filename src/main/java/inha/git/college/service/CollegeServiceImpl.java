@@ -23,7 +23,8 @@ import static inha.git.common.code.status.ErrorStatus.COLLEGE_NOT_FOUND;
 import static inha.git.common.code.status.ErrorStatus.DEPARTMENT_NOT_FOUND;
 
 /**
- * CollegeServiceImpl는 CollegeService 인터페이스를 구현하는 클래스.
+ * 단과대학 관련 비즈니스 로직을 처리하는 서비스 구현체입니다.
+ * 단과대학의 조회, 생성, 수정, 삭제 및 관련 통계 처리를 담당합니다.
  */
 @Service
 @RequiredArgsConstructor
@@ -37,9 +38,9 @@ public class CollegeServiceImpl implements CollegeService {
     private final CollegeMapper collegeMapper;
 
     /**
-     * 단과대 전체 조회
+     * 모든 활성화된 단과대학을 조회합니다.
      *
-     * @return 단과대 전체 조회 결과
+     * @return 단과대학 목록
      */
     @Override
     public List<SearchCollegeResponse> getColleges() {
@@ -48,10 +49,12 @@ public class CollegeServiceImpl implements CollegeService {
 
 
     /**
-     * 단과대 조회
+     * 특정 학과가 속한 단과대학을 조회합니다.
      *
-     * @param departmentIdx 단과대 인덱스
-     * @return 단과대 조회 결과
+     * @param departmentIdx 조회할 학과의 식별자
+     * @return 해당 학과의 단과대학 정보
+     * @throws BaseException DEPARTMENT_NOT_FOUND: 학과를 찾을 수 없는 경우,
+     *                      COLLEGE_NOT_FOUND: 단과대학을 찾을 수 없는 경우
      */
     @Override
     public SearchCollegeResponse getCollege(Integer departmentIdx) {
@@ -63,10 +66,12 @@ public class CollegeServiceImpl implements CollegeService {
     }
 
     /**
-     * 단과대 생성
+     * 새로운 단과대학을 생성합니다.
+     * 단과대학 생성과 함께 관련 통계 정보도 함께 생성됩니다.
      *
-     * @param createDepartmentRequest 단과대 생성 요청
-     * @return 생성된 단과대 이름
+     * @param admin 생성을 요청한 관리자 정보
+     * @param createDepartmentRequest 생성할 단과대학 정보
+     * @return 단과대학 생성 완료 메시지
      */
     @Override
     @Transactional
@@ -80,11 +85,13 @@ public class CollegeServiceImpl implements CollegeService {
 
 
     /**
-     * 단과대 이름 수정
+     * 단과대학의 이름을 수정합니다.
      *
-     * @param collegeIdx 단과대 인덱스
-     * @param updateCollegeRequest 단과대 수정 요청
-     * @return 수정된 단과대 이름
+     * @param admin 수정을 요청한 관리자 정보
+     * @param collegeIdx 수정할 단과대학의 식별자
+     * @param updateCollegeRequest 새로운 단과대학 정보
+     * @return 단과대학 수정 완료 메시지
+     * @throws BaseException COLLEGE_NOT_FOUND: 단과대학을 찾을 수 없는 경우
      */
     @Override
     @Transactional
@@ -97,10 +104,13 @@ public class CollegeServiceImpl implements CollegeService {
     }
 
     /**
-     * 단과대 삭제
+     * 단과대학을 삭제(비활성화) 처리합니다.
+     * 실제 삭제가 아닌 상태 변경 및 삭제 일시 기록으로 처리됩니다.
      *
-     * @param collegeIdx 단과대 인덱스
-     * @return 삭제된 단과대 이름
+     * @param admin 삭제를 요청한 관리자 정보
+     * @param collegeIdx 삭제할 단과대학의 식별자
+     * @return 단과대학 삭제 완료 메시지
+     * @throws BaseException COLLEGE_NOT_FOUND: 단과대학을 찾을 수 없는 경우
      */
     @Override
     @Transactional
