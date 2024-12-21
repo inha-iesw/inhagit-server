@@ -6,6 +6,7 @@ import inha.git.auth.api.controller.dto.response.LoginResponse;
 import inha.git.auth.api.service.AuthService;
 import inha.git.auth.api.service.MailService;
 import inha.git.common.BaseResponse;
+import inha.git.common.exceptions.BaseException;
 import inha.git.user.api.controller.dto.response.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,7 +19,8 @@ import static inha.git.common.code.status.SuccessStatus.*;
 
 
 /**
- * AuthController는 인증 관련 엔드포인트를 처리.
+ * 인증 관련 API를 처리하는 컨트롤러입니다.
+ * 로그인, 이메일 인증, 비밀번호 찾기 등 인증이 필요 없는 엔드포인트를 제공합니다.
  */
 @Slf4j
 @Tag(name = "auth controller", description = "인증 필요 없는 API")
@@ -32,13 +34,11 @@ public class AuthController {
 
 
     /**
-     * 이메일 인증 API
+     * 회원가입 및 인증을 위한 이메일 인증번호를 발송합니다.
      *
-     * <p>이메일 인증을 처리.</p>
-     *
-     * @param emailRequest 이메일 인증 요청 정보
-     *
-     * @return 이메일 인증 결과를 포함하는 BaseResponse<String>
+     * @param emailRequest 이메일 주소와 인증 타입(회원가입/비밀번호 찾기 등)을 포함한 요청
+     * @return 이메일 발송 결과 메시지
+     * @throws BaseException EMAIL_SEND_FAIL: 이메일 발송 실패 시
      */
     @PostMapping ("/number")
     @Operation(summary = "이메일 인증 API",description = "이메일 인증을 처리합니다.")
@@ -48,48 +48,47 @@ public class AuthController {
     }
 
     /**
-     * 이메일 인증 확인 API
+     * 발송된 이메일 인증번호의 유효성을 검증합니다.
      *
-     * <p>이메일 인증 확인을 처리.</p>
-     *
-     * @param emailCheckRequest 이메일 인증 확인 요청 정보
-     *
-     * @return 이메일 인증 확인 결과를 포함하는 BaseResponse<Boolean>
+     * @param emailCheckRequest 이메일 주소, 인증번호, 인증 타입을 포함한 요청
+     * @return 인증 성공 여부 (true/false)
+     * @throws BaseException EMAIL_AUTH_EXPIRED: 인증 시간 만료,
+     *                      EMAIL_AUTH_NOT_MATCH: 인증번호 불일치
      */
     @PostMapping("/number/check")
-    @Operation(summary = "이메일 인증 확인 API",description = "이메일 인증 확인을 처리합니다.")
+    @Operation(summary = "이메일 인증 확인 API",description = "입력받은 인증번호의 유효성을 검증합니다.")
     public BaseResponse<Boolean> mailSendCheck(@RequestBody @Valid EmailCheckRequest emailCheckRequest) {
         log.info("이메일 인증 확인 이메일 : {}", emailCheckRequest.email());
         return BaseResponse.of(EMAIL_AUTH_OK, mailService.mailSendCheck(emailCheckRequest));
     }
 
     /**
-     * 로그인 API
+     * 사용자 로그인을 처리합니다.
+     * 로그인 성공 시 JWT 토큰을 발급합니다.
      *
-     * <p>로그인을 처리.</p>
-     *
-     * @param loginRequest 로그인 요청 정보
-     *
-     * @return 로그인 결과를 포함하는 BaseResponse<LoginResponse>
+     * @param loginRequest 이메일과 비밀번호를 포함한 로그인 요청
+     * @return JWT 토큰과 사용자 정보를 포함한 응답
+     * @throws BaseException ACCOUNT_LOCKED: 계정 잠김,
+     *                      EMAIL_NOT_FOUND: 존재하지 않는 이메일
+     *                      BLOCKED_USER: 차단된 사용자
+     *                      NOT_APPROVED_USER: 승인되지 않은 사용자
      */
     @PostMapping("/login")
-    @Operation(summary = "로그인 API",description = "로그인을 처리합니다.")
+    @Operation(summary = "로그인 API",description = "이메일/비밀번호로 로그인을 처리합니다.")
     public BaseResponse<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest) {
         log.info("로그인 시도 이메일 : {}", loginRequest.email());
         return BaseResponse.of(LOGIN_OK, authService.login(loginRequest));
     }
 
     /**
-     * 아이디 찾기 API
+     * 학번과 이름으로 사용자의 이메일(아이디)을 찾습니다.
      *
-     * <p>아이디 찾기를 처리.</p>
-     *
-     * @param findEmailRequest 아이디 찾기 요청 정보
-     *
-     * @return 아이디 찾기 결과를 포함하는 BaseResponse<FindEmailResponse>
+     * @param findEmailRequest 학번과 이름을 포함한 요청
+     * @return 찾은 이메일 정보
+     * @throws BaseException USER_NOT_FOUND: 일치하는 사용자 정보가 없는 경우
      */
     @PostMapping("/find/email")
-    @Operation(summary = "아이디 찾기 API",description = "아이디 찾기를 처리합니다.")
+    @Operation(summary = "아이디 찾기 API",description = "학번과 이름으로 이메일을 찾습니다.")
     public BaseResponse<FindEmailResponse> findEmail(@RequestBody @Valid FindEmailRequest findEmailRequest) {
         log.info("아이디 찾기 시도 학번 : {} 이름 : {}", findEmailRequest.userNumber(), findEmailRequest.name());
         return BaseResponse.of(FIND_EMAIL_OK, authService.findEmail(findEmailRequest));
@@ -97,13 +96,13 @@ public class AuthController {
 
 
     /**
-     * 비밀번호 찾기 이메일 인증 API
+     * 비밀번호 찾기를 위한 이메일 인증번호를 발송합니다.
+     * 가입된 이메일인 경우에만 인증번호가 발송됩니다.
      *
-     * <p>비밀번호 찾기 이메일 인증을 처리.</p>
-     *
-     * @param findPasswordRequest 비밀번호 찾기 이메일 인증 요청 정보
-     *
-     * @return 비밀번호 찾기 이메일 인증 결과를 포함하는 BaseResponse<String>
+     * @param findPasswordRequest 이메일 주소를 포함한 요청
+     * @return 이메일 발송 결과 메시지
+     * @throws BaseException EMAIL_NOT_FOUND: 가입되지 않은 이메일인 경우,
+     *                      EMAIL_SEND_FAIL: 이메일 발송 실패
      */
     @PostMapping ("/find/pw")
     @Operation(summary = "비밀번호 찾기 이메일 인증 API",description = "비밀번호 찾기 이메일 인증을 처리합니다.")
@@ -113,13 +112,12 @@ public class AuthController {
     }
 
     /**
-     * 비밀번호 찾기 이메일 인증 확인 API
+     * 비밀번호 찾기를 위해 발송된 인증번호를 검증합니다.
      *
-     * <p>비밀번호 찾기 이메일 인증 확인을 처리.</p>
-     *
-     * @param fdindPasswordCheckRequest 비밀번호 찾기 이메일 인증 확인 요청 정보
-     *
-     * @return 비밀번호 찾기 이메일 인증 확인 결과를 포함하는 BaseResponse<Boolean>
+     * @param fdindPasswordCheckRequest 이메일과 인증번호를 포함한 요청
+     * @return 인증 성공 여부 (true/false)
+     * @throws BaseException EMAIL_AUTH_EXPIRED: 인증 시간 만료,
+     *                      EMAIL_AUTH_NOT_MATCH: 인증번호 불일치
      */
     @PostMapping ("/find/pw/check")
     @Operation(summary = "비밀번호 찾기 이메일 인증 확인 API",description = "비밀번호 찾기 이메일 인증 확인을 처리합니다.")
@@ -129,13 +127,13 @@ public class AuthController {
     }
 
     /**
-     * 비밀번호 변경 API
+     * 이메일 인증 후 새로운 비밀번호로 변경합니다.
+     * 이메일 인증이 완료된 경우에만 비밀번호 변경이 가능합니다.
      *
-     * <p>비밀번호 변경을 처리.</p>
-     *
-     * @param changePasswordRequest 비밀번호 변경 요청 정보
-     *
-     * @return 비밀번호 변경 결과를 포함하는 BaseResponse<UserResponse>
+     * @param changePasswordRequest 이메일과 새로운 비밀번호를 포함한 요청
+     * @return 비밀번호가 변경된 사용자 정보
+     * @throws BaseException EMAIL_AUTH_NOT_FOUND: 이메일 인증이 완료되지 않은 경우,
+     *                      EMAIL_NOT_FOUND: 존재하지 않는 이메일
      */
     @PostMapping("/find/pw/change")
     @Operation(summary = "비밀번호 변경 API",description = "비밀번호 변경을 처리합니다.")
@@ -143,9 +141,4 @@ public class AuthController {
         log.info("비밀번호 변경 이메일 : {}", changePasswordRequest.email());
         return BaseResponse.of(CHANGE_PASSWORD_OK, authService.changePassword(changePasswordRequest));
     }
-
-
-
-
-
 }
