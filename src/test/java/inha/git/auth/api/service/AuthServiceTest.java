@@ -4,6 +4,7 @@ import inha.git.auth.api.controller.dto.request.LoginRequest;
 import inha.git.auth.api.controller.dto.response.LoginResponse;
 import inha.git.auth.api.mapper.AuthMapper;
 import inha.git.common.exceptions.BaseException;
+import inha.git.user.domain.Company;
 import inha.git.user.domain.Professor;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
@@ -14,23 +15,27 @@ import inha.git.utils.RedisProvider;
 import inha.git.utils.jwt.JwtProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;  // JUnit5 import로 변경
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.Constant.MAX_FAILED_ATTEMPTS;
 import static inha.git.common.Constant.TOKEN_PREFIX;
 import static inha.git.common.code.status.ErrorStatus.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -134,9 +139,61 @@ class AuthServiceTest {
                     .willReturn(Optional.of(professor));
 
             // when & then
-            org.junit.jupiter.api.Assertions.assertThrows(BaseException.class, () -> authService.login(request))
+            assertThrows(BaseException.class, () -> authService.login(request))
                     .getErrorReason()
                     .equals(NOT_APPROVED_USER);
+        }
+
+        @Test
+        @DisplayName("기업 회원 로그인 성공")
+        void login_Company_Success() {
+            // given
+            LoginRequest request = createLoginRequest();
+            User user = createUser(Role.COMPANY);
+            Company company = createTestCompany(user, true);  // 승인된 기업
+            String accessToken = "test.access.token";
+            LoginResponse expectedResponse = createLoginResponse(user, accessToken);
+
+            given(userJpaRepository.findByEmailAndState(request.email(), ACTIVE))
+                    .willReturn(Optional.of(user));
+            given(redisProvider.getValueOps("lockout:" + request.email()))
+                    .willReturn(null);
+            given(companyJpaRepository.findByUserId(user.getId()))
+                    .willReturn(Optional.of(company));
+            given(jwtProvider.generateToken(user))
+                    .willReturn(accessToken);
+            given(authMapper.userToLoginResponse(user, TOKEN_PREFIX + accessToken))
+                    .willReturn(expectedResponse);
+
+            // when
+            LoginResponse response = authService.login(request);
+
+            // then
+            assertThat(response).isEqualTo(expectedResponse);
+            verify(authenticationManager).authenticate(any());
+        }
+
+        @Test
+        @DisplayName("승인되지 않은 기업 회원 로그인 실패")
+        void login_NotApprovedCompany_ThrowsException() {
+            // given
+            LoginRequest request = createLoginRequest();
+            User user = createUser(Role.COMPANY);
+            Company company = createTestCompany(user, false);  // 승인되지 않은 기업
+
+            given(userJpaRepository.findByEmailAndState(request.email(), ACTIVE))
+                    .willReturn(Optional.of(user));
+            given(redisProvider.getValueOps("lockout:" + request.email()))
+                    .willReturn(null);
+            given(companyJpaRepository.findByUserId(user.getId()))
+                    .willReturn(Optional.of(company));
+
+            // when & then
+            BaseException exception = assertThrows(BaseException.class,
+                    () -> authService.login(request));
+
+            assertThat(exception.getErrorReason().getMessage())
+                    .isEqualTo(NOT_APPROVED_USER.getMessage());
         }
 
         @Test
@@ -152,7 +209,7 @@ class AuthServiceTest {
                     .willReturn("LOCKED");
 
             // when & then
-            org.junit.jupiter.api.Assertions.assertThrows(BaseException.class, () -> authService.login(request))
+            assertThrows(BaseException.class, () -> authService.login(request))
                     .getErrorReason()
                     .equals(ACCOUNT_LOCKED);
         }
@@ -170,9 +227,76 @@ class AuthServiceTest {
                     .willReturn(null);
 
             // when & then
-            org.junit.jupiter.api.Assertions.assertThrows(BaseException.class, () -> authService.login(request))
+            assertThrows(BaseException.class, () -> authService.login(request))
                     .getErrorReason()
                     .equals(BLOCKED_USER);
+        }
+
+        @Test
+        @DisplayName("비밀번호 실패 횟수 초과로 계정 잠금")
+        void login_ExceedMaxFailedAttempts_AccountLocked() {
+            // given
+            LoginRequest request = createLoginRequest();
+            User user = createUser(Role.USER);
+
+            given(userJpaRepository.findByEmailAndState(request.email(), ACTIVE))
+                    .willReturn(Optional.of(user));
+            given(redisProvider.getValueOps("lockout:" + request.email()))
+                    .willReturn(null);
+            given(redisProvider.getValueOps("failedAttempts:" + request.email()))
+                    .willReturn(String.valueOf(MAX_FAILED_ATTEMPTS - 1));
+            doThrow(new BadCredentialsException("Invalid credentials"))
+                    .when(authenticationManager)
+                    .authenticate(any());
+
+            // when & then
+            BaseException exception = assertThrows(BaseException.class,
+                    () -> authService.login(request));
+
+            assertThat(exception.getErrorReason().getMessage())
+                    .isEqualTo(ACCOUNT_LOCKED.getMessage());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 이메일로 로그인 시도")
+        void login_NonExistentEmail_ThrowsException() {
+            // given
+            LoginRequest request = createLoginRequest();
+            given(userJpaRepository.findByEmailAndState(request.email(), ACTIVE))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            BaseException exception = assertThrows(BaseException.class,
+                    () -> authService.login(request));
+
+            assertThat(exception.getErrorReason().getMessage())
+                    .isEqualTo(NOT_FIND_USER.getMessage());
+        }
+
+        @Test
+        @DisplayName("Redis 작업 실패 시 예외 발생")
+        void login_RedisOperationFails_ThrowsException() {
+            // given
+            LoginRequest request = createLoginRequest();
+            User user = createUser(Role.USER);
+
+            given(userJpaRepository.findByEmailAndState(request.email(), ACTIVE))
+                    .willReturn(Optional.of(user));
+            given(redisProvider.getValueOps(anyString()))
+                    .willThrow(new RuntimeException("Redis connection failed"));
+
+            // when & then
+            assertThrows(RuntimeException.class,
+                    () -> authService.login(request));
+        }
+
+        private Company createTestCompany(User user, boolean isApproved) {
+            return Company.builder()
+                    .id(1)
+                    .user(user)
+                    .affiliation("테스트기업")
+                    .acceptedAt(isApproved ? LocalDateTime.now() : null)
+                    .build();
         }
 
         private LoginRequest createLoginRequest() {
