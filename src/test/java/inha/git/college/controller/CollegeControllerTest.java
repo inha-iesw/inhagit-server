@@ -1,9 +1,10 @@
-package inha.git.college.service;
+package inha.git.college.controller;
 
 import inha.git.college.controller.CollegeController;
 import inha.git.college.controller.dto.request.CreateCollegeRequest;
 import inha.git.college.controller.dto.request.UpdateCollegeRequest;
 import inha.git.college.controller.dto.response.SearchCollegeResponse;
+import inha.git.college.service.CollegeService;
 import inha.git.common.BaseResponse;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;

@@ -23,7 +23,8 @@ import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 /**
- * DepartmentServiceImpl는 DepartmentService 인터페이스를 구현하는 클래스.
+ * 학과 관련 비즈니스 로직을 처리하는 서비스 구현체입니다.
+ * 학과의 조회, 생성, 수정, 삭제 및 관련 통계 처리를 담당합니다.
  */
 @Service
 @RequiredArgsConstructor
@@ -36,10 +37,20 @@ public class DepartmentServiceImpl implements DepartmentService{
     private final CollegeJpaRepository collegeJpaRepository;
 
     /**
-     * 학과 전체 조회
+     * 학과 목록을 조회합니다.
      *
-     * @param collegeIdx 대학 인덱스
-     * @return 학과 전체 조회 결과
+     * <p>
+     * 단과대학 ID가 제공된 경우:<br>
+     * 1. 단과대학 존재 여부 확인<br>
+     * 2. 해당 단과대학에 속한 학과만 조회<br>
+     *<br>
+     * 단과대학 ID가 제공되지 않은 경우:<br>
+     * 1. 모든 활성화된 학과 조회<br>
+     * </p>
+     *
+     * @param collegeIdx 조회할 단과대학 ID (선택적)
+     * @return 학과 목록
+     * @throws BaseException COLLEGE_NOT_FOUND: 단과대학을 찾을 수 없는 경우
      */
     @Override
     public List<SearchDepartmentResponse> getDepartments(Integer collegeIdx) {
@@ -52,10 +63,22 @@ public class DepartmentServiceImpl implements DepartmentService{
     }
 
     /**
-     * 학과 생성
+     * 새로운 학과를 생성합니다.
      *
-     * @param createDepartmentRequest 학과 생성 요청
-     * @return 생성된 학과 이름
+     * <p>
+     * 처리 과정:<br>
+     * 1. 단과대학 존재 여부 확인<br>
+     * 2. 학과 엔티티 생성<br>
+     * 3. 단과대학-학과 연관관계 검증<br>
+     * 4. 학과 정보 저장<br>
+     * 5. 학과 통계 정보 생성<br>
+     * </p>
+     *
+     * @param admin 생성을 요청한 관리자 정보
+     * @param createDepartmentRequest 생성할 학과 정보
+     * @return 학과 생성 완료 메시지
+     * @throws BaseException COLLEGE_NOT_FOUND: 단과대학을 찾을 수 없는 경우,
+     *                      DEPARTMENT_NOT_BELONG_TO_COLLEGE: 학과와 단과대학 정보가 일치하지 않는 경우
      */
     @Override
     @Transactional
@@ -74,11 +97,13 @@ public class DepartmentServiceImpl implements DepartmentService{
     }
 
     /**
-     * 학과 이름 변경
+     * 학과명을 수정합니다.
      *
-     * @param departmentIdx 학과 인덱스
-     * @param updateDepartmentRequest 학과 이름 변경 요청
-     * @return 변경된 학과 이름
+     * @param admin 수정을 요청한 관리자 정보
+     * @param departmentIdx 수정할 학과의 식별자
+     * @param updateDepartmentRequest 새로운 학과명
+     * @return 학과명 수정 완료 메시지
+     * @throws BaseException DEPARTMENT_NOT_FOUND: 학과를 찾을 수 없는 경우
      */
     @Override
     @Transactional
@@ -90,6 +115,15 @@ public class DepartmentServiceImpl implements DepartmentService{
         return department.getName() + " 학과 이름이 변경되었습니다.";
     }
 
+    /**
+     * 학과를 삭제(비활성화) 처리합니다.
+     * 실제 삭제가 아닌 상태 변경 및 삭제 일시 기록으로 처리됩니다.
+     *
+     * @param admin 삭제를 요청한 관리자 정보
+     * @param departmentIdx 삭제할 학과의 식별자
+     * @return 학과 삭제 완료 메시지
+     * @throws BaseException DEPARTMENT_NOT_FOUND: 학과를 찾을 수 없는 경우
+     */
     @Override
     @Transactional
     public String deleteDepartment(User admin, Integer departmentIdx) {
