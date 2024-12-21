@@ -156,12 +156,20 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * 비밀번호 변경 API
+     * 비밀번호 찾기 후 새로운 비밀번호로 변경하는 서비스입니다.
      *
-     * <p>비밀번호를 변경합니다.</p>
+     * <p>
+     * 처리 과정:
+     * 1. 이메일 인증 상태 확인
+     * 2. 사용자 존재 여부 확인
+     * 3. 새로운 비밀번호 암호화
+     * 4. 비밀번호 업데이트
+     * </p>
      *
-     * @param changePasswordRequest 비밀번호 변경 요청 정보
-     * @return 비밀번호 변경 결과를 포함하는 UserResponse
+     * @param changePasswordRequest 이메일과 새로운 비밀번호가 포함된 요청
+     * @return UserResponse 비밀번호가 변경된 사용자의 정보
+     * @throws BaseException EMAIL_AUTH_NOT_FOUND: 이메일 인증이 완료되지 않은 경우,
+     *                      NOT_FIND_USER: 존재하지 않는 이메일이거나 활성 상태가 아닌 경우
      */
     @Override
     public UserResponse changePassword(ChangePasswordRequest changePasswordRequest) {

@@ -1,9 +1,11 @@
 package inha.git.auth.api.service;
 
+import inha.git.auth.api.controller.dto.request.ChangePasswordRequest;
 import inha.git.auth.api.controller.dto.request.LoginRequest;
 import inha.git.auth.api.controller.dto.response.LoginResponse;
 import inha.git.auth.api.mapper.AuthMapper;
 import inha.git.common.exceptions.BaseException;
+import inha.git.user.api.controller.dto.response.UserResponse;
 import inha.git.user.domain.Company;
 import inha.git.user.domain.Professor;
 import inha.git.user.domain.User;
@@ -22,26 +24,30 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
-import static inha.git.common.Constant.MAX_FAILED_ATTEMPTS;
-import static inha.git.common.Constant.TOKEN_PREFIX;
+import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
     @InjectMocks
     private AuthServiceImpl authService;
+
+    @Mock
+    private MailService mailService;
 
     @Mock
     private UserJpaRepository userJpaRepository;
@@ -54,6 +60,9 @@ class AuthServiceTest {
 
     @Mock
     private CompanyJpaRepository companyJpaRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @Mock
     private JwtProvider jwtProvider;
@@ -344,5 +353,90 @@ class AuthServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("비밀번호 변경 테스트")
+    class ChangePasswordTest {
+
+        @Test
+        @DisplayName("이메일 인증 후 비밀번호 변경 성공")
+        void changePassword_Success() {
+            // given
+            ChangePasswordRequest request = new ChangePasswordRequest(
+                    "test@test.com",
+                    "newPassword123!"
+            );
+            User user = createUser();
+            UserResponse expectedResponse = new UserResponse(1);
+
+            willDoNothing().given(mailService).emailAuth(anyString(), anyString());
+            given(userJpaRepository.findByEmailAndState(request.email(), ACTIVE))
+                    .willReturn(Optional.of(user));
+            given(passwordEncoder.encode(request.pw()))
+                    .willReturn("encodedPassword");
+            given(authMapper.userToUserResponse(user))
+                    .willReturn(expectedResponse);
+
+            // when
+            UserResponse response = authService.changePassword(request);
+
+            // then
+            assertThat(response).isEqualTo(expectedResponse);
+            verify(mailService).emailAuth(request.email(), PASSWORD_TYPE.toString());
+            verify(passwordEncoder).encode(request.pw());
+            verify(userJpaRepository).findByEmailAndState(request.email(), ACTIVE);
+        }
+
+        @Test
+        @DisplayName("이메일 인증되지 않은 경우 실패")
+        void changePassword_NotAuthenticated_ThrowsException() {
+            // given
+            ChangePasswordRequest request = new ChangePasswordRequest(
+                    "test@test.com",
+                    "newPassword123!"
+            );
+
+            doThrow(new BaseException(EMAIL_AUTH_NOT_FOUND))
+                    .when(mailService)
+                    .emailAuth(anyString(), anyString());
+
+            // when & then
+            BaseException exception = assertThrows(BaseException.class, () ->
+                    authService.changePassword(request));
+
+            assertThat(exception.getErrorReason().getMessage())
+                    .isEqualTo(EMAIL_AUTH_NOT_FOUND.getMessage());
+            verify(userJpaRepository, never()).findByEmailAndState(anyString(), any());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 이메일로 변경 시도")
+        void changePassword_UserNotFound_ThrowsException() {
+            // given
+            ChangePasswordRequest request = new ChangePasswordRequest(
+                    "test@test.com",
+                    "newPassword123!"
+            );
+
+            willDoNothing().given(mailService).emailAuth(anyString(), anyString());
+            given(userJpaRepository.findByEmailAndState(request.email(), ACTIVE))
+                    .willReturn(Optional.empty());
+
+            // when & then
+            BaseException exception = assertThrows(BaseException.class, () ->
+                    authService.changePassword(request));
+
+            assertThat(exception.getErrorReason().getMessage())
+                    .isEqualTo(NOT_FIND_USER.getMessage());
+            verify(passwordEncoder, never()).encode(anyString());
+        }
+
+        private User createUser() {
+            return User.builder()
+                    .id(1)
+                    .email("test@test.com")
+                    .name("홍길동")
+                    .build();
+        }
+    }
 
 }

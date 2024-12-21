@@ -6,6 +6,7 @@ import inha.git.auth.api.controller.dto.response.LoginResponse;
 import inha.git.auth.api.service.AuthService;
 import inha.git.auth.api.service.MailService;
 import inha.git.common.BaseResponse;
+import inha.git.user.api.controller.dto.response.UserResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -197,6 +198,32 @@ class AuthControllerTest {
                     "test@test.com",
                     "123456"
             );
+        }
+    }
+
+    @Nested
+    @DisplayName("비밀번호 변경 테스트")
+    class ChangePasswordTest {
+
+        @Test
+        @DisplayName("비밀번호 변경 성공")
+        void changePassword_Success() {
+            // given
+            ChangePasswordRequest request = new ChangePasswordRequest(
+                    "test@test.com",
+                    "newPassword123!"
+            );
+            UserResponse expectedResponse = new UserResponse(1);
+
+            given(authService.changePassword(request))
+                    .willReturn(expectedResponse);
+
+            // when
+            BaseResponse<UserResponse> response = authController.findPassword(request);
+
+            // then
+            assertThat(response.getResult()).isEqualTo(expectedResponse);
+            verify(authService).changePassword(request);
         }
     }
 }
