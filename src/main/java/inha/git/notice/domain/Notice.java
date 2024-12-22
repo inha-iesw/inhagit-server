@@ -53,7 +53,7 @@ public class Notice extends BaseEntity {
         user.getNotices().add(this);  // 양방향 연관관계 설정
     }
 
-    public void setNoticeAttachments(ArrayList<NoticeAttachment> noticeAttachments) {
+    public void setNoticeAttachments(List<NoticeAttachment> noticeAttachments) {
         this.noticeAttachments = noticeAttachments;
         noticeAttachments.forEach(noticeAttachment -> noticeAttachment.setNotice(this));  // 양방향 연관관계 설정
     }

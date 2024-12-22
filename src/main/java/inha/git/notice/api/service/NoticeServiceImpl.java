@@ -38,7 +38,8 @@ import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 /**
- * NoticeServiceImpl는 NoticeService 인터페이스를 구현하는 클래스.
+ * 공지사항 관련 비즈니스 로직을 처리하는 서비스 구현체입니다.
+ * 공지사항의 조회, 생성, 수정, 삭제 및 첨부파일 관리 기능을 제공합니다.
  */
 @Service
 @RequiredArgsConstructor
@@ -55,11 +56,17 @@ public class NoticeServiceImpl implements NoticeService {
 
 
     /**
-     * 공지 조회
+     * 공지사항 목록을 페이징하여 조회합니다.
      *
-     * @param page 페이지 번호
-     * @param size 페이지 사이즈
-     * @return 공지 페이지
+     * <p>
+     * 처리 과정:<br>
+     * 1. 페이지 정보로 Pageable 객체 생성 (작성일 기준 내림차순 정렬)<br>
+     * 2. QueryDSL을 사용하여 페이징된 공지사항 목록 조회<br>
+     * </p>
+     *
+     * @param page 조회할 페이지 번호 (0부터 시작)
+     * @param size 페이지당 항목 수
+     * @return 페이징된 공지사항 목록
      */
     @Override
     @Transactional(readOnly = true)
@@ -68,6 +75,22 @@ public class NoticeServiceImpl implements NoticeService {
         return noticeQueryRepository.getNotices(pageable);
     }
 
+    /**
+     * 특정 공지사항의 상세 정보를 조회합니다.
+     *
+     * <p>
+     * 처리 과정:<br>
+     * 1. 공지사항 ID로 공지사항 조회<br>
+     * 2. 작성자 정보 조회<br>
+     * 3. 첨부파일 정보 매핑<br>
+     * 4. 응답 DTO 생성 및 반환<br>
+     * </p>
+     *
+     * @param noticeIdx 조회할 공지사항 ID
+     * @return 공지사항 상세 정보
+     * @throws BaseException NOT_FIND_USER: 작성자를 찾을 수 없는 경우
+     *                      NOTICE_NOT_FOUND: 공지사항을 찾을 수 없는 경우
+     */
     @Override
     @Transactional(readOnly = true)
     public SearchNoticeResponse getNotice(Integer noticeIdx) {
@@ -81,12 +104,20 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     /**
-     * 공지 생성
+     * 새로운 공지사항을 생성합니다.
      *
-     * @param user 사용자
-     * @param createNoticeRequest 공지 생성 요청
-     * @param attachmentList 첨부 파일 리스트
-     * @return 생성된 공지 이름
+     * <p>
+     * 처리 과정:<br>
+     * 1. 중복 요청 검증<br>
+     * 2. 공지사항 엔티티 생성 및 저장<br>
+     * 3. 첨부파일이 있는 경우 파일 저장 및 엔티티 생성<br>
+     * 4. 트랜잭션 롤백 시 파일 삭제 등록<br>
+     * </p>
+     *
+     * @param user 생성을 요청한 사용자 정보
+     * @param createNoticeRequest 생성할 공지사항 정보
+     * @param attachmentList 첨부파일 목록 (선택적)
+     * @return 공지사항 생성 완료 메시지
      */
     @Override
     public String createNotice(User user, CreateNoticeRequest createNoticeRequest, List<MultipartFile> attachmentList) {
@@ -115,15 +146,24 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     /**
-     * 공지 수정
+     * 기존 공지사항을 수정합니다.
      *
-     * <p>관리자는 모든 공지를 수정할 수 있고, 공지 작성자는 자신의 공지만 수정할 수 있습니다.</p>
+     * <p>
+     * 처리 과정:<br>
+     * 1. 공지사항 조회 및 권한 검증<br>
+     * 2. 제목, 내용 수정<br>
+     * 3. 기존 첨부파일 삭제 (파일 시스템 및 DB)<br>
+     * 4. 새로운 첨부파일 저장 (있는 경우)<br>
+     * 5. 트랜잭션 롤백 시 파일 삭제 등록<br>
+     * </p>
      *
-     * @param user 사용자
-     * @param noticeIdx 공지 인덱스
-     * @param updateNoticeRequest 공지 수정 요청
-     * @param attachmentList 첨부 파일 리스트
-     * @return 수정된 공지 이름
+     * @param user 수정을 요청한 사용자 정보
+     * @param noticeIdx 수정할 공지사항 ID
+     * @param updateNoticeRequest 수정할 내용
+     * @param attachmentList 새로운 첨부파일 목록 (선택적)
+     * @return 공지사항 수정 완료 메시지
+     * @throws BaseException NOTICE_NOT_FOUND: 공지사항을 찾을 수 없는 경우
+     *                      NOTICE_NOT_AUTHORIZED: 수정 권한이 없는 경우
      */
     @Override
     public String updateNotice(User user, Integer noticeIdx, UpdateNoticeRequest updateNoticeRequest, List<MultipartFile> attachmentList) {
@@ -168,13 +208,20 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     /**
-     * 공지 삭제
+     * 공지사항을 삭제(비활성화) 처리합니다.
      *
-     * <p>관리자는 모든 공지를 삭제할 수 있고, 공지 작성자는 자신의 공지만 삭제할 수 있습니다.</p>
+     * <p>
+     * 처리 과정:<br>
+     * 1. 공지사항 조회 및 권한 검증<br>
+     * 2. 상태를 INACTIVE로 변경<br>
+     * 3. 삭제 시간 기록<br>
+     * </p>
      *
-     * @param user 사용자
-     * @param noticeIdx 공지 인덱스
-     * @return 삭제된 공지 이름
+     * @param user 삭제를 요청한 사용자 정보
+     * @param noticeIdx 삭제할 공지사항 ID
+     * @return 공지사항 삭제 완료 메시지
+     * @throws BaseException NOTICE_NOT_FOUND: 공지사항을 찾을 수 없는 경우
+     *                      NOTICE_NOT_AUTHORIZED: 삭제 권한이 없는 경우
      */
     @Override
     public String deleteNotice(User user, Integer noticeIdx) {
@@ -212,6 +259,11 @@ public class NoticeServiceImpl implements NoticeService {
                 .orElseThrow(() -> new BaseException(NOTICE_NOT_FOUND));
     }
 
+    /**
+     * 트랜잭션 롤백 시 파일 삭제 로직 등록
+     *
+     * @param zipFilePath 파일 경로
+     */
     private void registerRollbackCleanup(String zipFilePath) {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
