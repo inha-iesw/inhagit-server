@@ -1,6 +1,7 @@
 package inha.git.semester.controller;
 
 import inha.git.common.BaseResponse;
+import inha.git.common.exceptions.BaseException;
 import inha.git.semester.controller.dto.request.CreateSemesterRequest;
 import inha.git.semester.controller.dto.request.UpdateSemesterRequest;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
@@ -20,7 +21,8 @@ import java.util.List;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
- * SemesterController는 semester 관련 엔드포인트를 처리.
+ * 학기 관련 API를 처리하는 컨트롤러입니다.
+ * 학기의 조회, 생성, 수정, 삭제 기능을 제공합니다.
  */
 @Slf4j
 @Tag(name = "semester controller", description = "semester 관련 API")
@@ -32,9 +34,13 @@ public class SemesterController {
     private final SemesterService semesterService;
 
     /**
-     * 학기 전체 조회 API
+     * <p>
+     * 전체 학기 목록을 조회합니다.<br>
+     * 활성화된 모든 학기의 정보를 조회하여 반환합니다.<br>
+     * 학기명을 기준으로 오름차순 정렬된 결과를 제공합니다.<br>
+     * </p>
      *
-     * @return 학기 전체
+     * @return 학기 목록을 포함한 응답
      */
     @GetMapping
     @Operation(summary = "학기 전체 조회 API", description = "학기 전체를 조회합니다.")
@@ -44,26 +50,37 @@ public class SemesterController {
 
 
     /**
-     * 학기 생성 API
+     * <p>
+     * 새로운 학기를 생성합니다.<br>
+     * 관리자 권한을 가진 사용자만 접근 가능합니다.<br>
+     * 관리자는 새로운 학기를 생성할 수 있으며, 생성된 학기는 활성화 상태가 됩니다.<br>
+     * </p>
      *
-     * @param createDepartmentRequest 학기 생성 요청
-     * @return 생성된 학기 이름
+     * @param user 현재 인증된 관리자 정보
+     * @param createSemesterRequest 생성할 학기 정보 (학기명)
+     * @return 학기 생성 결과 메시지
      */
     @PostMapping
     @PreAuthorize("hasAuthority('admin:create')")
     @Operation(summary = "학기 생성(관리자 전용) API", description = "학기를 생성합니다.(관리자 전용)")
     public BaseResponse<String> createSemester(@AuthenticationPrincipal User user,
-                                               @Validated @RequestBody CreateSemesterRequest createDepartmentRequest) {
-        log.info("학기 생성 - 관리자: {} 학기명: {}", user.getName(), createDepartmentRequest.name());
-        return BaseResponse.of(SEMESTER_CREATE_OK, semesterService.createSemester(user, createDepartmentRequest));
+                                               @Validated @RequestBody CreateSemesterRequest createSemesterRequest) {
+        log.info("학기 생성 - 관리자: {} 학기명: {}", user.getName(), createSemesterRequest.name());
+        return BaseResponse.of(SEMESTER_CREATE_OK, semesterService.createSemester(user, createSemesterRequest));
     }
 
     /**
-     * 학기 수정 API
+     * <p>
+     * 학기명을 수정합니다.<br>
+     * 관리자 권한을 가진 사용자만 접근 가능합니다.<br>
+     * 관리자는 기존 학기의 이름을 새로운 이름으로 변경할 수 있습니다.<br>
+     * </p>
      *
-     * @param semesterIdx 학기 인덱스
-     * @param updateSemesterRequest 학기 수정 요청
-     * @return 수정된 학기 이름
+     * @param user 현재 인증된 관리자 정보
+     * @param semesterIdx 수정할 학기의 식별자
+     * @param updateSemesterRequest 새로운 학기명
+     * @return 학기명 수정 결과 메시지
+     * @throws BaseException SEMESTER_NOT_FOUND: 학기를 찾을 수 없는 경우
      */
     @PutMapping("/{semesterIdx}")
     @PreAuthorize("hasAuthority('admin:update')")
@@ -76,9 +93,17 @@ public class SemesterController {
     }
 
     /**
-     * 학기 목록 조회 API
+     * <p>
+     * 학기를 삭제(비활성화) 처리합니다.
+     * 관리자 권한을 가진 사용자만 접근 가능합니다.
+     * 실제 삭제가 아닌 소프트 삭제로 처리됩니다.
+     * 삭제된 학기는 비활성화 상태로 변경되며, 삭제 시간이 기록됩니다.
+     * </p>
      *
-     * @return 학기 목록
+     * @param user 현재 인증된 관리자 정보
+     * @param semesterIdx 삭제할 학기의 식별자
+     * @return 학기 삭제 결과 메시지
+     * @throws BaseException SEMESTER_NOT_FOUND: 학기를 찾을 수 없는 경우
      */
     @DeleteMapping("/{semesterIdx}")
     @PreAuthorize("hasAuthority('admin:delete')")
