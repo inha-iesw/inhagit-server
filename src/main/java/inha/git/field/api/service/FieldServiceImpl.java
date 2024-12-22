@@ -20,7 +20,8 @@ import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.FIELD_NOT_FOUND;
 
 /**
- * FieldServiceImpl는 FieldService 인터페이스를 구현하는 클래스.
+ * FieldService 인터페이스를 구현하는 서비스 클래스입니다.
+ * 분야의 조회, 생성, 수정, 삭제 등의 비즈니스 로직을 처리합니다.
  */
 @Service
 @RequiredArgsConstructor
@@ -32,9 +33,15 @@ public class FieldServiceImpl implements FieldService {
     private final FieldMapper fieldMapper;
 
     /**
-     * 분야 전체 조회
+     * 활성화된 모든 분야를 조회합니다.
      *
-     * @return 분야 전체 조회 결과
+     * <p>
+     * 처리 과정:<br>
+     * 1. ACTIVE 상태의 모든 분야를 조회<br>
+     * 2. 조회된 분야 엔티티들을 DTO로 변환<br>
+     * </p>
+     *
+     * @return 분야 정보 목록 (SearchFieldResponse)
      */
     @Override
     public List<SearchFieldResponse> getFields() {
@@ -42,10 +49,18 @@ public class FieldServiceImpl implements FieldService {
     }
 
     /**
-     * 분야 생성
+     * 새로운 분야를 생성합니다.
      *
-     * @param createFieldRequest 분야 생성 요청
-     * @return 생성된 분야 이름
+     * <p>
+     * 처리 과정:<br>
+     * 1. 요청 DTO를 분야 엔티티로 변환<br>
+     * 2. 분야 엔티티 저장<br>
+     * 3. 생성 결과 메시지 반환<br>
+     * </p>
+     *
+     * @param admin 생성을 요청한 관리자 정보
+     * @param createFieldRequest 생성할 분야 정보
+     * @return 분야 생성 완료 메시지
      */
     @Override
     @Transactional
@@ -57,11 +72,21 @@ public class FieldServiceImpl implements FieldService {
     }
 
     /**
-     * 분야 이름 변경
+     * 분야명을 수정합니다.
      *
-     * @param fieldIdx 분야 인덱스
-     * @param updateFieldRequest 분야 이름 변경 요청
-     * @return 변경된 분야 이름
+     * <p>
+     * 처리 과정:<br>
+     * 1. ID와 상태로 분야 조회<br>
+     * 2. 분야 존재 여부 확인<br>
+     * 3. 분야명 수정<br>
+     * 4. 수정 결과 메시지 반환<br>
+     * </p>
+     *
+     * @param admin 수정을 요청한 관리자 정보
+     * @param fieldIdx 수정할 분야의 식별자
+     * @param updateFieldRequest 새로운 분야명 정보
+     * @return 분야명 수정 완료 메시지
+     * @throws BaseException FIELD_NOT_FOUND: 분야를 찾을 수 없는 경우
      */
     @Override
     public String updateField(User admin, Integer fieldIdx, UpdateFieldRequest updateFieldRequest) {
@@ -73,10 +98,21 @@ public class FieldServiceImpl implements FieldService {
     }
 
     /**
-     * 분야 삭제
+     * 분야를 삭제(비활성화) 처리합니다.
      *
-     * @param fieldIdx 분야 인덱스
-     * @return 삭제된 분야 이름
+     * <p>
+     * 처리 과정:<br>
+     * 1. ID와 상태로 분야 조회<br>
+     * 2. 분야 존재 여부 확인<br>
+     * 3. 분야 상태를 INACTIVE로 변경<br>
+     * 4. 삭제 시간 기록<br>
+     * 5. 삭제 결과 메시지 반환<br>
+     * </p>
+     *
+     * @param admin 삭제를 요청한 관리자 정보
+     * @param fieldIdx 삭제할 분야의 식별자
+     * @return 분야 삭제 완료 메시지
+     * @throws BaseException FIELD_NOT_FOUND: 분야를 찾을 수 없는 경우
      */
     @Override
     @Transactional

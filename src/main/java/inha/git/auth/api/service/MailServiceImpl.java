@@ -46,12 +46,12 @@ public class MailServiceImpl implements MailService {
      * 이메일 인증번호를 발송합니다.
      *
      * <p>
-     * 처리 과정:
-     * 1. 이메일 도메인 검증 (학생/교수 타입인 경우)
-     * 2. 기존 인증번호가 있다면 삭제
-     * 3. 새로운 인증번호(6자리) 생성
-     * 4. 이메일 발송
-     * 5. Redis에 인증번호 저장 (3분 유효)
+     * 처리 과정:<br>
+     * 1. 이메일 도메인 검증 (학생/교수 타입인 경우)<br>
+     * 2. 기존 인증번호가 있다면 삭제<br>
+     * 3. 새로운 인증번호(6자리) 생성<br>
+     * 4. 이메일 발송<br>
+     * 5. Redis에 인증번호 저장 (3분 유효)<br>
      * </p>
      *
      * @param emailRequest 이메일 주소와 인증 타입을 포함한 요청
@@ -80,12 +80,12 @@ public class MailServiceImpl implements MailService {
      * 비밀번호 찾기를 위한 인증 이메일을 전송합니다.
      *
      * <p>
-     * 처리 과정:
-     * 1. 이메일 존재 여부 확인
-     * 2. 기존 인증번호가 있다면 삭제
-     * 3. 새로운 인증번호 생성
-     * 4. 이메일 전송
-     * 5. Redis에 인증번호 저장 (3분 유효)
+     * 처리 과정:<br>
+     * 1. 이메일 존재 여부 확인<br>
+     * 2. 기존 인증번호가 있다면 삭제<br>
+     * 3. 새로운 인증번호 생성<br>
+     * 4. 이메일 전송<br>
+     * 5. Redis에 인증번호 저장 (3분 유효)<br>
      * </p>
      *
      * @param findPasswordRequest 비밀번호 찾기 이메일 전송 요청 정보
@@ -114,12 +114,12 @@ public class MailServiceImpl implements MailService {
      * 이메일 인증번호의 유효성을 검증합니다.
      *
      * <p>
-     * 처리 과정:
-     * 1. 이메일 도메인 검증 (학생/교수 타입인 경우)
-     * 2. Redis에서 저장된 인증번호 조회
-     * 3. 인증번호 만료 여부 확인
-     * 4. 인증번호 일치 여부 확인
-     * 5. 인증 성공 시 verification 정보 Redis에 저장 (1시간 유효)
+     * 처리 과정:<br>
+     * 1. 이메일 도메인 검증 (학생/교수 타입인 경우)<br>
+     * 2. Redis에서 저장된 인증번호 조회<br>
+     * 3. 인증번호 만료 여부 확인<br>
+     * 4. 인증번호 일치 여부 확인<br>
+     * 5. 인증 성공 시 verification 정보 Redis에 저장 (1시간 유효)<br>
      * </p>
      *
      * @param emailCheckRequest 이메일 주소, 인증번호, 인증 타입을 포함한 요청
@@ -153,12 +153,12 @@ public class MailServiceImpl implements MailService {
      * 비밀번호 찾기 이메일 인증번호를 검증합니다.
      *
      * <p>
-     * 처리 과정:
-     * 1. 이메일 존재 여부 확인
-     * 2. Redis에서 저장된 인증번호 조회
-     * 3. 인증번호 만료 여부 확인
-     * 4. 인증번호 일치 여부 확인
-     * 5. 인증 성공 시 verification 정보 Redis에 저장 (1시간 유효)
+     * 처리 과정:<br>
+     * 1. 이메일 존재 여부 확인<br>
+     * 2. Redis에서 저장된 인증번호 조회<br>
+     * 3. 인증번호 만료 여부 확인<br>
+     * 4. 인증번호 일치 여부 확인<br>
+     * 5. 인증 성공 시 verification 정보 Redis에 저장 (1시간 유효)<br>
      * </p>
      *
      * @param findPasswordCheckRequest 비밀번호 찾기 인증번호 확인 요청 정보
@@ -191,10 +191,12 @@ public class MailServiceImpl implements MailService {
     /**
      * 이메일을 전송합니다.
      *
-     * @param setFrom 이메일의 발신자 주소
-     * @param toMail 이메일의 수신자 주소
-     * @param title 이메일의 제목
-     * @param content 이메일의 내용
+     * @param setFrom 보내는 사람
+     * @param toMail 받는 사람
+     * @param title 제목
+     * @param content 내용
+     * @param authNumber 인증번호
+     * @param type 인증 타입
      */
     public void postMailSend(String setFrom, String toMail, String title, String content, int authNumber, Integer type) {
         MimeMessage message = mailSender.createMimeMessage();
@@ -224,6 +226,12 @@ public class MailServiceImpl implements MailService {
                 .getAsInt();
     }
 
+    /**
+     * 이메일 인증을 처리합니다.
+     *
+     * @param email 이메일 주소
+     * @param userPosition 사용자 포지션
+     */
     public void emailAuth(String email, String userPosition) {
         String verificationKey = "verification-" + email + "-" + userPosition;
         String verificationStatus = redisProvider.getValueOps(verificationKey);
