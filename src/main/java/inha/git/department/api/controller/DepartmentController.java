@@ -35,8 +35,6 @@ public class DepartmentController {
 
     /**
      * 학과 목록을 조회합니다.
-     * 단과대학 ID가 제공되면 해당 단과대학의 학과만 조회하고,
-     * 제공되지 않으면 모든 학과를 조회합니다.
      *
      * @param collegeIdx 조회할 단과대학 ID (선택적)
      * @return 학과 목록을 포함한 응답
@@ -50,7 +48,6 @@ public class DepartmentController {
 
     /**
      * 새로운 학과를 생성합니다.
-     * 관리자 권한을 가진 사용자만 접근 가능합니다.
      *
      * @param user 현재 인증된 관리자 정보
      * @param createDepartmentRequest 생성할 학과 정보 (학과명, 단과대학 ID)
@@ -69,7 +66,6 @@ public class DepartmentController {
 
     /**
      * 학과명을 수정합니다.
-     * 관리자 권한을 가진 사용자만 접근 가능합니다.
      *
      * @param user 현재 인증된 관리자 정보
      * @param departmentIdx 수정할 학과의 식별자
@@ -89,8 +85,6 @@ public class DepartmentController {
 
     /**
      * 학과를 삭제(비활성화) 처리합니다.
-     * 관리자 권한을 가진 사용자만 접근 가능합니다.
-     * 실제 삭제가 아닌 소프트 삭제로 처리됩니다.
      *
      * @param user 현재 인증된 관리자 정보
      * @param departmentIdx 삭제할 학과의 식별자

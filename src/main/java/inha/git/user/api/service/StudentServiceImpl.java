@@ -37,16 +37,6 @@ public class StudentServiceImpl implements StudentService{
     /**
      * 학생 회원가입을 처리합니다.
      *
-     * <p>
-     * 다음과 같은 절차로 회원가입을 진행합니다:
-     * 1. 이메일 도메인 검증
-     * 2. 이메일 인증 확인
-     * 3. 사용자 정보 생성
-     * 4. 학과 정보 매핑
-     * 5. 비밀번호 암호화
-     * 6. 사용자 정보 저장
-     * </p>
-     *
      * @param studentSignupRequest 학생 회원가입 요청 정보 (이메일, 비밀번호, 이름, 학번, 학과 정보)
      * @return StudentSignupResponse 가입된 학생 정보를 포함한 응답
      * @throws BaseException 다음의 경우에 발생:

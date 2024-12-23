@@ -38,13 +38,6 @@ public class SemesterServiceImpl implements SemesterService {
     /**
      * 활성화된 모든 학기를 조회합니다.
      *
-     * <p>
-     * 처리 과정:<br>
-     * 1. ACTIVE 상태의 모든 학기를 조회<br>
-     * 2. 학기명 기준 오름차순으로 정렬<br>
-     * 3. 조회된 학기 엔티티들을 DTO로 변환<br>
-     * </p>
-     *
      * @return 학기 정보 목록 (SearchSemesterResponse)
      */
     @Override
@@ -55,13 +48,6 @@ public class SemesterServiceImpl implements SemesterService {
 
     /**
      * 새로운 학기를 생성합니다.
-     *
-     * <p>
-     * 처리 과정:<br>
-     * 1. 요청 DTO를 학기 엔티티로 변환<br>
-     * 2. 학기 엔티티 저장<br>
-     * 3. 생성 결과 메시지 반환<br>
-     * </p>
      *
      * @param admin 생성을 요청한 관리자 정보
      * @param createSemesterRequest 생성할 학기 정보
@@ -77,14 +63,6 @@ public class SemesterServiceImpl implements SemesterService {
 
     /**
      * 학기명을 수정합니다.
-     *
-     * <p>
-     * 처리 과정:<br>
-     * 1. ID와 상태로 학기 조회<br>
-     * 2. 학기 존재 여부 확인<br>
-     * 3. 학기명 수정<br>
-     * 4. 수정 결과 메시지 반환<br>
-     * </p>
      *
      * @param admin 수정을 요청한 관리자 정보
      * @param semesterIdx 수정할 학기의 식별자
@@ -105,15 +83,6 @@ public class SemesterServiceImpl implements SemesterService {
 
     /**
      * 학기를 삭제(비활성화) 처리합니다.
-     *
-     * <p>
-     * 처리 과정:<br>
-     * 1. ID와 상태로 학기 조회<br>
-     * 2. 학기 존재 여부 확인<br>
-     * 3. 학기 상태를 INACTIVE로 변경<br>
-     * 4. 삭제 시간 기록<br>
-     * 5. 삭제 결과 메시지 반환<br>
-     * </p>
      *
      * @param admin 삭제를 요청한 관리자 정보
      * @param semesterIdx 삭제할 학기의 식별자

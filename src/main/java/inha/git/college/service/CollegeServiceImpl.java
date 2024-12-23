@@ -67,7 +67,6 @@ public class CollegeServiceImpl implements CollegeService {
 
     /**
      * 새로운 단과대학을 생성합니다.
-     * 단과대학 생성과 함께 관련 통계 정보도 함께 생성됩니다.
      *
      * @param admin 생성을 요청한 관리자 정보
      * @param createDepartmentRequest 생성할 단과대학 정보
@@ -105,7 +104,6 @@ public class CollegeServiceImpl implements CollegeService {
 
     /**
      * 단과대학을 삭제(비활성화) 처리합니다.
-     * 실제 삭제가 아닌 상태 변경 및 삭제 일시 기록으로 처리됩니다.
      *
      * @param admin 삭제를 요청한 관리자 정보
      * @param collegeIdx 삭제할 단과대학의 식별자

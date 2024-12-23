@@ -35,12 +35,6 @@ public class FieldServiceImpl implements FieldService {
     /**
      * 활성화된 모든 분야를 조회합니다.
      *
-     * <p>
-     * 처리 과정:<br>
-     * 1. ACTIVE 상태의 모든 분야를 조회<br>
-     * 2. 조회된 분야 엔티티들을 DTO로 변환<br>
-     * </p>
-     *
      * @return 분야 정보 목록 (SearchFieldResponse)
      */
     @Override
@@ -50,13 +44,6 @@ public class FieldServiceImpl implements FieldService {
 
     /**
      * 새로운 분야를 생성합니다.
-     *
-     * <p>
-     * 처리 과정:<br>
-     * 1. 요청 DTO를 분야 엔티티로 변환<br>
-     * 2. 분야 엔티티 저장<br>
-     * 3. 생성 결과 메시지 반환<br>
-     * </p>
      *
      * @param admin 생성을 요청한 관리자 정보
      * @param createFieldRequest 생성할 분야 정보
@@ -73,14 +60,6 @@ public class FieldServiceImpl implements FieldService {
 
     /**
      * 분야명을 수정합니다.
-     *
-     * <p>
-     * 처리 과정:<br>
-     * 1. ID와 상태로 분야 조회<br>
-     * 2. 분야 존재 여부 확인<br>
-     * 3. 분야명 수정<br>
-     * 4. 수정 결과 메시지 반환<br>
-     * </p>
      *
      * @param admin 수정을 요청한 관리자 정보
      * @param fieldIdx 수정할 분야의 식별자
@@ -99,15 +78,6 @@ public class FieldServiceImpl implements FieldService {
 
     /**
      * 분야를 삭제(비활성화) 처리합니다.
-     *
-     * <p>
-     * 처리 과정:<br>
-     * 1. ID와 상태로 분야 조회<br>
-     * 2. 분야 존재 여부 확인<br>
-     * 3. 분야 상태를 INACTIVE로 변경<br>
-     * 4. 삭제 시간 기록<br>
-     * 5. 삭제 결과 메시지 반환<br>
-     * </p>
      *
      * @param admin 삭제를 요청한 관리자 정보
      * @param fieldIdx 삭제할 분야의 식별자

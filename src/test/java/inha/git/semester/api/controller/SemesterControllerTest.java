@@ -1,6 +1,7 @@
-package inha.git.semester.controller;
+package inha.git.semester.api.controller;
 
 import inha.git.common.BaseResponse;
+import inha.git.semester.controller.SemesterController;
 import inha.git.semester.controller.dto.request.CreateSemesterRequest;
 import inha.git.semester.controller.dto.request.UpdateSemesterRequest;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
@@ -21,6 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+@DisplayName("학기 컨트롤러 테스트")
 @ExtendWith(MockitoExtension.class)
 class SemesterControllerTest {
 

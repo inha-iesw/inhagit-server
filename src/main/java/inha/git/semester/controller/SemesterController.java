@@ -34,11 +34,7 @@ public class SemesterController {
     private final SemesterService semesterService;
 
     /**
-     * <p>
-     * 전체 학기 목록을 조회합니다.<br>
-     * 활성화된 모든 학기의 정보를 조회하여 반환합니다.<br>
-     * 학기명을 기준으로 오름차순 정렬된 결과를 제공합니다.<br>
-     * </p>
+     * 전체 학기 목록을 조회합니다.
      *
      * @return 학기 목록을 포함한 응답
      */
@@ -50,11 +46,7 @@ public class SemesterController {
 
 
     /**
-     * <p>
      * 새로운 학기를 생성합니다.<br>
-     * 관리자 권한을 가진 사용자만 접근 가능합니다.<br>
-     * 관리자는 새로운 학기를 생성할 수 있으며, 생성된 학기는 활성화 상태가 됩니다.<br>
-     * </p>
      *
      * @param user 현재 인증된 관리자 정보
      * @param createSemesterRequest 생성할 학기 정보 (학기명)
@@ -70,11 +62,7 @@ public class SemesterController {
     }
 
     /**
-     * <p>
      * 학기명을 수정합니다.<br>
-     * 관리자 권한을 가진 사용자만 접근 가능합니다.<br>
-     * 관리자는 기존 학기의 이름을 새로운 이름으로 변경할 수 있습니다.<br>
-     * </p>
      *
      * @param user 현재 인증된 관리자 정보
      * @param semesterIdx 수정할 학기의 식별자
@@ -93,12 +81,7 @@ public class SemesterController {
     }
 
     /**
-     * <p>
      * 학기를 삭제(비활성화) 처리합니다.
-     * 관리자 권한을 가진 사용자만 접근 가능합니다.
-     * 실제 삭제가 아닌 소프트 삭제로 처리됩니다.
-     * 삭제된 학기는 비활성화 상태로 변경되며, 삭제 시간이 기록됩니다.
-     * </p>
      *
      * @param user 현재 인증된 관리자 정보
      * @param semesterIdx 삭제할 학기의 식별자

@@ -40,6 +40,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.*;
 
+@DisplayName("인증 서비스 테스트")
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 

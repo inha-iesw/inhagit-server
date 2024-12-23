@@ -52,7 +52,8 @@ import static inha.git.common.Constant.CURRICULUM;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 /**
- * QuestionServiceImpl은 question 관련 비즈니스 로직을 처리.
+ * 질문 관련 비즈니스 로직을 처리하는 서비스 구현체입니다.
+ * 질문의 조회, 생성, 수정, 삭제 및 관련 통계 처리를 담당합니다.
  */
 @Service
 @RequiredArgsConstructor
@@ -73,11 +74,11 @@ public class QuestionServiceImpl implements QuestionService {
     private final StatisticsService statisticsService;
 
     /**
-     * 질문 전체 조회
+     * 전체 질문을 페이징하여 조회합니다.
      *
-     * @param page Integer
-     * @param size Integer
-     * @return Page<SearchQuestionsResponse>
+     * @param page 조회할 페이지 번호 (0부터 시작)
+     * @param size 페이지당 항목 수
+     * @return 페이징된 질문 목록
      */
     @Override
     public Page<SearchQuestionsResponse> getQuestions(Integer page, Integer size) {
@@ -104,6 +105,7 @@ public class QuestionServiceImpl implements QuestionService {
      *
      * @param questionIdx Integer
      * @return SearchQuestionResponse
+     * @throws BaseException QUESTION_NOT_FOUND: 질문을 찾을 수 없는 경우
      */
     @Override
     public SearchQuestionResponse getQuestion(User user, Integer questionIdx) {
@@ -126,6 +128,10 @@ public class QuestionServiceImpl implements QuestionService {
      * @param user                  User
      * @param createQuestionRequest CreateQuestionRequest
      * @return QuestionResponse
+     * @throws BaseException SEMESTER_NOT_FOUND: 학기를 찾을 수 없는 경우
+     *                     CATEGORY_NOT_FOUND: 카테고리를 찾을 수 없는 경우
+     *                     FIELD_NOT_FOUND: 필드를 찾을 수 없는 경우
+     *                     QUESTION_NOT_AUTHORIZED: 질문 수정 권한이 없는 경우
      */
     @Override
     @Transactional
@@ -157,6 +163,11 @@ public class QuestionServiceImpl implements QuestionService {
      * @param questionIdx         Integer
      * @param updateQuestionRequest UpdateQuestionRequest
      * @return QuestionResponse
+     * @throws BaseException SEMESTER_NOT_FOUND: 학기를 찾을 수 없는 경우
+     *                    FIELD_NOT_FOUND: 필드를 찾을 수 없는 경우
+     *                    QUESTION_NOT_AUTHORIZED: 질문 수정 권한이 없는 경우
+     *                    FIELD_NOT_FOUND: 필드를 찾을 수 없는 경우
+     *                    QUESTION_NOT_FOUND: 질문을 찾을 수 없는 경우
      */
     @Override
     @Transactional
@@ -240,6 +251,8 @@ public class QuestionServiceImpl implements QuestionService {
      * @param user        User
      * @param questionIdx Integer
      * @return QuestionResponse
+     * @throws BaseException QUESTION_DELETE_NOT_AUTHORIZED: 질문 삭제 권한이 없는 경우
+     *                    QUESTION_NOT_FOUND: 질문을 찾을 수 없는 경우
      */
     @Override
     @Transactional
@@ -267,6 +280,9 @@ public class QuestionServiceImpl implements QuestionService {
      * @param user        User
      * @param likeRequest LikeRequest
      * @return String
+     * @throws BaseException QUESTION_NOT_FOUND: 질문을 찾을 수 없는 경우
+     *                   MY_QUESTION_LIKE: 내 질문은 좋아요할 수 없는 경우
+     *                   QUESTION_ALREADY_LIKE: 이미 좋아요한 질문인 경우
      */
     @Override
     @Transactional
@@ -290,6 +306,10 @@ public class QuestionServiceImpl implements QuestionService {
      * @param user        User
      * @param likeRequest LikeRequest
      * @return String
+     * @throws BaseException QUESTION_NOT_FOUND: 질문을 찾을 수 없는 경우
+     *                    MY_QUESTION_LIKE: 내 질문은 좋아요할 수 없는 경우
+     *                    QUESTION_NOT_LIKE: 좋아요하지 않은 질문인 경우
+     *
      */
     @Override
     @Transactional

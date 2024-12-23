@@ -58,12 +58,6 @@ public class NoticeServiceImpl implements NoticeService {
     /**
      * 공지사항 목록을 페이징하여 조회합니다.
      *
-     * <p>
-     * 처리 과정:<br>
-     * 1. 페이지 정보로 Pageable 객체 생성 (작성일 기준 내림차순 정렬)<br>
-     * 2. QueryDSL을 사용하여 페이징된 공지사항 목록 조회<br>
-     * </p>
-     *
      * @param page 조회할 페이지 번호 (0부터 시작)
      * @param size 페이지당 항목 수
      * @return 페이징된 공지사항 목록
@@ -77,14 +71,6 @@ public class NoticeServiceImpl implements NoticeService {
 
     /**
      * 특정 공지사항의 상세 정보를 조회합니다.
-     *
-     * <p>
-     * 처리 과정:<br>
-     * 1. 공지사항 ID로 공지사항 조회<br>
-     * 2. 작성자 정보 조회<br>
-     * 3. 첨부파일 정보 매핑<br>
-     * 4. 응답 DTO 생성 및 반환<br>
-     * </p>
      *
      * @param noticeIdx 조회할 공지사항 ID
      * @return 공지사항 상세 정보
@@ -105,14 +91,6 @@ public class NoticeServiceImpl implements NoticeService {
 
     /**
      * 새로운 공지사항을 생성합니다.
-     *
-     * <p>
-     * 처리 과정:<br>
-     * 1. 중복 요청 검증<br>
-     * 2. 공지사항 엔티티 생성 및 저장<br>
-     * 3. 첨부파일이 있는 경우 파일 저장 및 엔티티 생성<br>
-     * 4. 트랜잭션 롤백 시 파일 삭제 등록<br>
-     * </p>
      *
      * @param user 생성을 요청한 사용자 정보
      * @param createNoticeRequest 생성할 공지사항 정보
@@ -147,15 +125,6 @@ public class NoticeServiceImpl implements NoticeService {
 
     /**
      * 기존 공지사항을 수정합니다.
-     *
-     * <p>
-     * 처리 과정:<br>
-     * 1. 공지사항 조회 및 권한 검증<br>
-     * 2. 제목, 내용 수정<br>
-     * 3. 기존 첨부파일 삭제 (파일 시스템 및 DB)<br>
-     * 4. 새로운 첨부파일 저장 (있는 경우)<br>
-     * 5. 트랜잭션 롤백 시 파일 삭제 등록<br>
-     * </p>
      *
      * @param user 수정을 요청한 사용자 정보
      * @param noticeIdx 수정할 공지사항 ID
@@ -209,13 +178,6 @@ public class NoticeServiceImpl implements NoticeService {
 
     /**
      * 공지사항을 삭제(비활성화) 처리합니다.
-     *
-     * <p>
-     * 처리 과정:<br>
-     * 1. 공지사항 조회 및 권한 검증<br>
-     * 2. 상태를 INACTIVE로 변경<br>
-     * 3. 삭제 시간 기록<br>
-     * </p>
      *
      * @param user 삭제를 요청한 사용자 정보
      * @param noticeIdx 삭제할 공지사항 ID

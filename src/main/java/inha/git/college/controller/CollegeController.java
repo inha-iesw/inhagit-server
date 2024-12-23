@@ -35,7 +35,6 @@ public class CollegeController {
 
     /**
      * 모든 단과대학 목록을 조회합니다.
-     * 활성화된 단과대학만 조회됩니다.
      *
      * @return 단과대학 목록을 포함한 응답
      */
@@ -61,7 +60,6 @@ public class CollegeController {
 
     /**
      * 새로운 단과대학을 생성합니다.
-     * 관리자 권한을 가진 사용자만 접근 가능합니다.
      *
      * @param user 현재 인증된 관리자 정보
      * @param createDepartmentRequest 생성할 단과대학 정보 (단과대학명)
@@ -79,7 +77,6 @@ public class CollegeController {
 
     /**
      * 기존 단과대학의 정보를 수정합니다.
-     * 관리자 권한을 가진 사용자만 접근 가능합니다.
      *
      * @param user 현재 인증된 관리자 정보
      * @param collegeIdx 수정할 단과대학의 식별자

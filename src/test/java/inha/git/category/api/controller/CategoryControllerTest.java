@@ -1,5 +1,6 @@
-package inha.git.category.controller;
+package inha.git.category.api.controller;
 
+import inha.git.category.controller.CategoryController;
 import inha.git.category.controller.dto.request.CreateCategoryRequest;
 import inha.git.category.controller.dto.request.UpdateCategoryRequest;
 import inha.git.category.controller.dto.response.SearchCategoryResponse;
@@ -22,6 +23,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+@DisplayName("카테고리 컨트롤러 테스트")
 @ExtendWith(MockitoExtension.class)
 class CategoryControllerTest {
 

@@ -1,4 +1,4 @@
-package inha.git.college.service;
+package inha.git.college.api.service;
 
 import inha.git.college.controller.dto.request.CreateCollegeRequest;
 import inha.git.college.controller.dto.request.UpdateCollegeRequest;
@@ -6,6 +6,7 @@ import inha.git.college.controller.dto.response.SearchCollegeResponse;
 import inha.git.college.domain.College;
 import inha.git.college.domain.repository.CollegeJpaRepository;
 import inha.git.college.mapper.CollegeMapper;
+import inha.git.college.service.CollegeServiceImpl;
 import inha.git.common.exceptions.BaseException;
 import inha.git.department.domain.Department;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
@@ -32,6 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+@DisplayName("단과대 서비스 테스트")
 @ExtendWith(MockitoExtension.class)
 class CollegeServiceTest {
 

@@ -1,4 +1,4 @@
-package inha.git.semester.service;
+package inha.git.semester.api.service;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.semester.controller.dto.request.CreateSemesterRequest;
@@ -7,6 +7,7 @@ import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.semester.mapper.SemesterMapper;
+import inha.git.semester.service.SemesterServiceImpl;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +31,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+@DisplayName("학기 서비스 테스트")
 @ExtendWith(MockitoExtension.class)
 class SemesterServiceTest {
 

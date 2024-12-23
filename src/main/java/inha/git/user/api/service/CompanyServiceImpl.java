@@ -39,17 +39,6 @@ public class CompanyServiceImpl implements CompanyService{
     /**
      * 기업 회원가입을 처리합니다.
      *
-     * <p>
-     * 다음과 같은 절차로 회원가입을 진행합니다:
-     * 1. 이메일 인증 확인
-     * 2. 사용자 정보 생성
-     * 3. 비밀번호 암호화
-     * 4. 사용자 정보 저장
-     * 5. 사업자등록증 파일 저장
-     * 6. 기업 정보 생성 및 연관관계 설정
-     * 7. 기업 정보 저장
-     * </p>
-     *
      * @param companySignupRequest 기업 회원가입 요청 정보 (이메일, 비밀번호, 이름, 회사명)
      * @param evidence 사업자등록증 파일
      * @return CompanySignupResponse 가입된 기업 정보를 포함한 응답

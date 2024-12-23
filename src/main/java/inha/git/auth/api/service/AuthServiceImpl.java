@@ -54,18 +54,6 @@ public class AuthServiceImpl implements AuthService {
     /**
      * 사용자 로그인을 처리하는 서비스입니다.
      *
-     * <p>
-     * 로그인 과정:
-     * 1. 이메일로 사용자 조회
-     * 2. 계정 잠금 상태 확인
-     * 3. 비밀번호 검증
-     *    - 실패 시 실패 횟수 증가
-     *    - 최대 실패 횟수 초과 시 계정 잠금
-     * 4. 차단된 사용자 확인
-     * 5. 교수/기업 회원의 경우 승인 여부 확인
-     * 6. JWT 토큰 발급
-     * </p>
-     *
      * @param loginRequest 이메일과 비밀번호를 포함한 로그인 요청 정보
      * @return LoginResponse JWT 토큰과 사용자 정보를 포함한 로그인 응답
      * @throws BaseException 다음의 경우에 발생:
@@ -136,13 +124,6 @@ public class AuthServiceImpl implements AuthService {
     /**
      * 학번과 이름으로 사용자의 이메일을 찾는 서비스입니다.
      *
-     * <p>
-     * 사용자의 학번과 이름을 받아서:
-     * 1. 해당하는 사용자가 존재하는지 확인
-     * 2. 존재하는 경우 사용자의 이메일 정보를 반환
-     * 3. 존재하지 않는 경우 예외 발생
-     * </p>
-     *
      * @param findEmailRequest 학번과 이름이 포함된 이메일 찾기 요청 정보
      * @return FindEmailResponse 찾은 사용자의 이메일 정보
      * @throws BaseException NOT_FIND_USER - 해당하는 학번과 이름을 가진 사용자가 존재하지 않는 경우
@@ -157,14 +138,6 @@ public class AuthServiceImpl implements AuthService {
 
     /**
      * 비밀번호 찾기 후 새로운 비밀번호로 변경하는 서비스입니다.
-     *
-     * <p>
-     * 처리 과정:
-     * 1. 이메일 인증 상태 확인
-     * 2. 사용자 존재 여부 확인
-     * 3. 새로운 비밀번호 암호화
-     * 4. 비밀번호 업데이트
-     * </p>
      *
      * @param changePasswordRequest 이메일과 새로운 비밀번호가 포함된 요청
      * @return UserResponse 비밀번호가 변경된 사용자의 정보

@@ -1,4 +1,4 @@
-package inha.git.category.service;
+package inha.git.category.api.service;
 
 import inha.git.category.controller.dto.request.CreateCategoryRequest;
 import inha.git.category.controller.dto.request.UpdateCategoryRequest;
@@ -6,6 +6,7 @@ import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.category.domain.Category;
 import inha.git.category.domain.repository.CategoryJpaRepository;
 import inha.git.category.mapper.CategoryMapper;
+import inha.git.category.service.CategoryServiceImpl;
 import inha.git.common.BaseEntity;
 import inha.git.common.exceptions.BaseException;
 import inha.git.user.domain.User;
@@ -32,6 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+@DisplayName("카테고리 서비스 테스트")
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceTest {
 

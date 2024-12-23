@@ -59,17 +59,6 @@ public class ProfessorServiceImpl implements ProfessorService{
     /**
      * 교수 회원가입을 처리합니다.
      *
-     * <p>
-     * 다음과 같은 절차로 회원가입을 진행합니다:
-     * 1. 이메일 도메인 검증 (@inha.ac.kr)
-     * 2. 이메일 인증 확인
-     * 3. 사용자 정보 생성
-     * 4. 학과 정보 매핑
-     * 5. 비밀번호 암호화
-     * 6. 교수 정보 생성 및 연관관계 설정
-     * 7. 교수/사용자 정보 저장
-     * </p>
-     *
      * @param professorSignupRequest 교수 회원가입 요청 정보 (이메일, 비밀번호, 이름, 사번, 학과 정보)
      * @return ProfessorSignupResponse 가입된 교수 정보를 포함한 응답
      * @throws BaseException 다음의 경우에 발생:

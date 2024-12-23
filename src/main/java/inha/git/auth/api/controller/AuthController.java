@@ -64,7 +64,6 @@ public class AuthController {
 
     /**
      * 사용자 로그인을 처리합니다.
-     * 로그인 성공 시 JWT 토큰을 발급합니다.
      *
      * @param loginRequest 이메일과 비밀번호를 포함한 로그인 요청
      * @return JWT 토큰과 사용자 정보를 포함한 응답
@@ -97,7 +96,6 @@ public class AuthController {
 
     /**
      * 비밀번호 찾기를 위한 이메일 인증번호를 발송합니다.
-     * 가입된 이메일인 경우에만 인증번호가 발송됩니다.
      *
      * @param findPasswordRequest 이메일 주소를 포함한 요청
      * @return 이메일 발송 결과 메시지
@@ -128,7 +126,6 @@ public class AuthController {
 
     /**
      * 이메일 인증 후 새로운 비밀번호로 변경합니다.
-     * 이메일 인증이 완료된 경우에만 비밀번호 변경이 가능합니다.
      *
      * @param changePasswordRequest 이메일과 새로운 비밀번호를 포함한 요청
      * @return 비밀번호가 변경된 사용자 정보

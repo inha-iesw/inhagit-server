@@ -80,7 +80,6 @@ public class UserController {
 
     /**
      * 특정 사용자가 참여중인 프로젝트 목록을 조회합니다.
-     * 페이징 처리되어 있으며, 생성일자 기준 내림차순으로 정렬됩니다.
      *
      * @param user 현재 인증된 사용자 정보
      * @param userIdx 조회할 대상 사용자의 식별자
@@ -99,7 +98,6 @@ public class UserController {
 
     /**
      * 특정 사용자가 작성한 질문 목록을 조회합니다.
-     * 페이징 처리되어 있으며, 생성일자 기준 내림차순으로 정렬됩니다.
      *
      * @param user 현재 인증된 사용자 정보
      * @param userIdx 조회할 대상 사용자의 식별자
@@ -118,7 +116,6 @@ public class UserController {
 
     /**
      * 특정 사용자가 참여중인 팀 목록을 조회합니다.
-     * 페이징 처리되어 있으며, 생성일자 기준 내림차순으로 정렬됩니다.
      *
      * @param user 현재 인증된 사용자 정보
      * @param userIdx 조회할 대상 사용자의 식별자
@@ -138,7 +135,6 @@ public class UserController {
 
     /**
      * 특정 사용자가 참여중인 문제 목록을 조회합니다.
-     * 페이징 처리되어 있으며, 생성일자 기준 내림차순으로 정렬됩니다.
      *
      * @param user 현재 인증된 사용자 정보
      * @param userIdx 조회할 대상 사용자의 식별자
@@ -157,7 +153,6 @@ public class UserController {
 
     /**
      * 특정 사용자가 작성한 신고 목록을 조회합니다.
-     * 페이징 처리되어 있으며, 생성일자 기준 내림차순으로 정렬됩니다.
      *
      * @param user 현재 인증된 사용자 정보
      * @param userIdx 조회할 대상 사용자의 식별자
@@ -176,7 +171,6 @@ public class UserController {
 
     /**
      * 특정 사용자가 작성한 버그 제보 목록을 조회합니다.
-     * 페이징 처리되어 있으며, 생성일자 기준 내림차순으로 정렬됩니다.
      *
      * @param user 현재 인증된 사용자 정보
      * @param userIdx 조회할 대상 사용자의 식별자
@@ -197,7 +191,6 @@ public class UserController {
 
     /**
      * 학생 회원가입을 처리합니다.
-     * 이메일 인증과 학과 정보 매핑 과정이 포함됩니다.
      *
      * @param studentSignupRequest 학생 회원가입 요청 정보 (이메일, 비밀번호, 이름, 학번, 학과 정보 등)
      * @return BaseResponse<StudentSignupResponse> 가입된 학생 정보를 포함한 응답
@@ -212,7 +205,6 @@ public class UserController {
 
     /**
      * 교수 회원가입을 처리합니다.
-     * 이메일 인증과 학과 정보 매핑 과정이 포함됩니다.
      *
      * @param professorSignupRequest 교수 회원가입 요청 정보 (이메일, 비밀번호, 이름, 사번, 학과 정보 등)
      * @return BaseResponse<ProfessorSignupResponse> 가입된 교수 정보를 포함한 응답
@@ -227,7 +219,6 @@ public class UserController {
 
     /**
      * 기업 회원가입을 처리합니다.
-     * 이메일 인증과 과정이 포함됩니다.
      *
      * @param companySignupRequest 기업 회원가입 요청 정보 (이메일, 비밀번호, 이름, 회사명 등)
      * @param evidence 사업자등록증 파일

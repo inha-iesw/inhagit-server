@@ -39,15 +39,6 @@ public class DepartmentServiceImpl implements DepartmentService{
     /**
      * 학과 목록을 조회합니다.
      *
-     * <p>
-     * 단과대학 ID가 제공된 경우:<br>
-     * 1. 단과대학 존재 여부 확인<br>
-     * 2. 해당 단과대학에 속한 학과만 조회<br>
-     *<br>
-     * 단과대학 ID가 제공되지 않은 경우:<br>
-     * 1. 모든 활성화된 학과 조회<br>
-     * </p>
-     *
      * @param collegeIdx 조회할 단과대학 ID (선택적)
      * @return 학과 목록
      * @throws BaseException COLLEGE_NOT_FOUND: 단과대학을 찾을 수 없는 경우
@@ -64,15 +55,6 @@ public class DepartmentServiceImpl implements DepartmentService{
 
     /**
      * 새로운 학과를 생성합니다.
-     *
-     * <p>
-     * 처리 과정:<br>
-     * 1. 단과대학 존재 여부 확인<br>
-     * 2. 학과 엔티티 생성<br>
-     * 3. 단과대학-학과 연관관계 검증<br>
-     * 4. 학과 정보 저장<br>
-     * 5. 학과 통계 정보 생성<br>
-     * </p>
      *
      * @param admin 생성을 요청한 관리자 정보
      * @param createDepartmentRequest 생성할 학과 정보
@@ -117,7 +99,6 @@ public class DepartmentServiceImpl implements DepartmentService{
 
     /**
      * 학과를 삭제(비활성화) 처리합니다.
-     * 실제 삭제가 아닌 상태 변경 및 삭제 일시 기록으로 처리됩니다.
      *
      * @param admin 삭제를 요청한 관리자 정보
      * @param departmentIdx 삭제할 학과의 식별자

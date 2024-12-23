@@ -33,6 +33,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
+@DisplayName("공지사항 컨트롤러 테스트")
 @ExtendWith(MockitoExtension.class)
 class NoticeControllerTest {
 
