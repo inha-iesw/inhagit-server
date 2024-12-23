@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+@DisplayName("분야 컨트롤러 테스트")
 @ExtendWith(MockitoExtension.class)
 class FieldControllerTest {
 

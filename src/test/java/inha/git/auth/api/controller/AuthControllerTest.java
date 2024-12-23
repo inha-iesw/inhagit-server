@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+@DisplayName("인증 컨트롤러 테스트")
 @ExtendWith(MockitoExtension.class)
 class AuthControllerTest {
 

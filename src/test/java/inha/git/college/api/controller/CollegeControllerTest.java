@@ -1,4 +1,4 @@
-package inha.git.college.controller;
+package inha.git.college.api.controller;
 
 import inha.git.college.controller.CollegeController;
 import inha.git.college.controller.dto.request.CreateCollegeRequest;
@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
+@DisplayName("단과대 컨트롤러 테스트")
 @ExtendWith(MockitoExtension.class)
 class CollegeControllerTest {
 

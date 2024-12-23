@@ -34,8 +34,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     /**
-     * 전체 카테고리 목록을 조회합니다.
-     * 카테고리는 이름 기준으로 오름차순 정렬됩니다.
+     * 전체 카테고리 목록을 이름 기준으로 오름차순 조회합니다.
      *
      * @return 활성 상태인 모든 카테고리 정보를 포함하는 응답
      */
@@ -48,7 +47,6 @@ public class CategoryController {
 
     /**
      * 새로운 카테고리를 생성합니다.
-     * 관리자 권한을 가진 사용자만 접근 가능합니다.
      *
      * @param user 현재 인증된 관리자 정보
      * @param createCategoryRequest 생성할 카테고리 정보 (카테고리명)
@@ -66,7 +64,6 @@ public class CategoryController {
 
     /**
      * 기존 카테고리의 이름을 수정합니다.
-     * 관리자 권한을 가진 사용자만 접근 가능합니다.
      *
      * @param user 현재 인증된 관리자 정보
      * @param categoryIdx 수정할 카테고리의 식별자
@@ -85,9 +82,7 @@ public class CategoryController {
     }
 
     /**
-     * 카테고리를 삭제 처리합니다.
-     * 관리자 권한을 가진 사용자만 접근 가능합니다.
-     * 실제 삭제가 아닌 소프트 삭제(상태 변경)로 처리됩니다.
+     * 카테고리를 소프트 삭제(상태 변경) 처리합니다.
      *
      * @param user 현재 인증된 관리자 정보
      * @param categoryIdx 삭제할 카테고리의 식별자

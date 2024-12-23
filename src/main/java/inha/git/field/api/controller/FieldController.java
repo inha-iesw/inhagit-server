@@ -34,10 +34,6 @@ public class FieldController {
     private final FieldService fieldService;
 
     /**
-     * <p>
-     * 전체 분야 목록을 조회합니다.<br>
-     * 활성화된 모든 분야의 정보를 조회하여 반환합니다.<br>
-     * </p>
      *
      * @return 분야 목록을 포함한 응답
      */
@@ -48,11 +44,7 @@ public class FieldController {
     }
 
     /**
-     * </p>
      * 새로운 분야를 생성합니다.<br>
-     * 관리자 권한을 가진 사용자만 접근 가능합니다.<br>
-     * 관리자는 새로운 분야를 생성할 수 있으며, 생성된 분야는 활성화 상태가 됩니다.<br>
-     * </p>
      *
      * @param user 현재 인증된 관리자 정보
      * @param createFieldRequest 생성할 분야 정보 (분야명)
@@ -70,9 +62,6 @@ public class FieldController {
     /**
      * <p>
      * 분야명을 수정합니다.<br>
-     * 관리자 권한을 가진 사용자만 접근 가능합니다.<br>
-     * 관리자는 기존 분야의 이름을 새로운 이름으로 변경할 수 있습니다.<br>
-     * </p>
      *
      * @param user 현재 인증된 관리자 정보
      * @param fieldIdx 수정할 분야의 식별자
@@ -93,10 +82,6 @@ public class FieldController {
     /**
      * <p>
      * 분야를 삭제(비활성화) 처리합니다.<br>
-     * 관리자 권한을 가진 사용자만 접근 가능합니다.<br>
-     * 실제 삭제가 아닌 소프트 삭제로 처리됩니다.<br>
-     * 삭제된 분야는 비활성화 상태로 변경되며, 삭제 시간이 기록됩니다.<br>
-     * </p>
      *
      * @param user 현재 인증된 관리자 정보
      * @param fieldIdx 삭제할 분야의 식별자

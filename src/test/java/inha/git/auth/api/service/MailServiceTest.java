@@ -34,6 +34,7 @@ import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+@DisplayName("메일 서비스 테스트")
 @ExtendWith(MockitoExtension.class)
 class MailServiceTest {
 

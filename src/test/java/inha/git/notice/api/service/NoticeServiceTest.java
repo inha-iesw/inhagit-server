@@ -49,6 +49,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
+@DisplayName("공지사항 서비스 테스트")
 @ExtendWith(MockitoExtension.class)
 class NoticeServiceTest {
 

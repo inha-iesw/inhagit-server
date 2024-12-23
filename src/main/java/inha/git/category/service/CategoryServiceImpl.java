@@ -36,13 +36,6 @@ public class CategoryServiceImpl implements CategoryService {
     /**
      * 모든 활성 상태 카테고리를 조회합니다.
      *
-     * <p>
-     * 처리 과정:<br>
-     * 1. 활성 상태인 카테고리 조회<br>
-     * 2. 이름 기준 오름차순 정렬<br>
-     * 3. 응답 DTO로 변환<br>
-     * </p>
-     *
      * @return 카테고리 목록
      */
     @Override
@@ -53,12 +46,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     /**
      * 새로운 카테고리를 생성하는 서비스입니다.
-     *
-     * <p>
-     * 처리 과정:<br>
-     * 1. 카테고리 엔티티 생성<br>
-     * 2. 데이터베이스에 저장<br>
-     * </p>
      *
      * @param admin 카테고리를 생성하는 관리자 정보
      * @param createCategoryRequest 생성할 카테고리 정보
@@ -74,12 +61,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     /**
      * 카테고리의 이름을 수정하는 서비스입니다.
-     *
-     * <p>
-     * 처리 과정:<br>
-     * 1. 카테고리 존재 여부 확인<br>
-     * 2. 카테고리 이름 업데이트<br>
-     * </p>
      *
      * @param admin 수정을 요청한 관리자 정보
      * @param categoryIdx 수정할 카테고리의 식별자
@@ -100,13 +81,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     /**
      * 카테고리를 삭제(비활성화) 처리하는 서비스입니다.
-     *
-     * <p>
-     * 처리 과정:<br>
-     * 1. 카테고리 존재 여부 확인<br>
-     * 2. 상태를 INACTIVE로 변경<br>
-     * 3. 삭제 일시 기록<br>
-     * </p>
      *
      * @param admin 삭제를 요청한 관리자 정보
      * @param categoryIdx 삭제할 카테고리의 식별자
