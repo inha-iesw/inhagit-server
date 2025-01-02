@@ -1,1 +1,1 @@
-# inhagit-server-2
+# inhagit-server

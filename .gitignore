@@ -35,3 +35,25 @@ out/
 
 ### VS Code ###
 .vscode/
+
+
+application-local.yml
+application-dev.yml
+application-prod.yml
+
+src/main/generated/
+
+source/**
+
+src/main/java/inha/git/InitData.java
+logs
+logback-spring.xml
+
+src/main/java/inha/git/common/config/SwaggerConfig.java
+
+
+docs/**
+
+.gitmodules
+
+inhagit-server-secret/**
