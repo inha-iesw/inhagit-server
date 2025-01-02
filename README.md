@@ -79,7 +79,7 @@ Local 혹은 GitHub과 연동하여 프로젝트를 관리하고, 멘토링, 특
 
 | <img src="https://profilinator.rishav.dev/skills-assets/java-original-wordmark.svg" alt="Java" width="50px" height="50px" /> | <img src="https://www.seekpng.com/png/full/8-80775_spring-logo-png-transparent-spring-java.png" alt="Spring Boot" width="50px" height="50px" /> | <img src="https://profilinator.rishav.dev/skills-assets/postgresql-original-wordmark.svg" alt="PostgreSQL" width="50px" height="50px" /> | <img src="https://profilinator.rishav.dev/skills-assets/redis-original-wordmark.svg" alt="Redis" width="50px" height="50px" /> |
 | :--------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------: |
-|                                                             Java                                                             |                                                                   Spring Boot                                                                   |                                                               PostgreSQL                                                               |                                                             Redis                                                              |
+|                                                             Java17                                                             |                                                                   Spring Boot3.3.2                                                                   |                                                               PostgreSQL                                                               |                                                             Redis                                                              |
 
 | <img src="https://res.cloudinary.com/postman/image/upload/t_team_logo/v1629869194/team/2893aede23f01bfcbd2319326bc96a6ed0524eba759745ed6d73405a3a8b67a8" alt="Postman" width="50px" height="50px" /> | <img src="https://upload.wikimedia.org/wikipedia/commons/a/ab/Swagger-logo.png" alt="Swagger" width="50px" height="50px" /> | <img src="https://profilinator.rishav.dev/skills-assets/nginx-original.svg" alt="NGiNX" width="50px" height="50px" /> |
 | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------: |
@@ -103,11 +103,12 @@ Local 혹은 GitHub과 연동하여 프로젝트를 관리하고, 멘토링, 특
 
 <div id="4"></div>
 
+
 ## 📂 프로젝트 구성도
 
 |                                   아키텍처(Architecture)                                   |
 | :----------------------------------------------------------------------------------------: |
-| <img src="./readme_assets/architecture.png" alt="아키텍처(Architecture)" width="1000px" /> |
+|<img width="1000" alt="아키텍처" src="https://github.com/user-attachments/assets/ca88a0cd-4643-4e41-947c-aaa160986554" />|
 
 |                              개체-관계 모델(ERD)                               |
 | :----------------------------------------------------------------------------: |
