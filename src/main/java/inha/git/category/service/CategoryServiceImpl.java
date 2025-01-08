@@ -22,7 +22,7 @@ import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.CATEGORY_NOT_FOUND;
 
 /**
- * SemesterServiceImpl는 SemesterService 인터페이스를 구현하는 클래스.
+ * 카테고리 관련 비즈니스 로직을 처리하는 서비스 구현체입니다.
  */
 @Service
 @RequiredArgsConstructor
@@ -34,9 +34,9 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryMapper categoryMapper;
 
     /**
-     * 카테고리 전체 조회
+     * 모든 활성 상태 카테고리를 조회합니다.
      *
-     * @return 카테고리 전체 조회 결과
+     * @return 카테고리 목록
      */
     @Override
     public List<SearchCategoryResponse> getCategories() {
@@ -45,10 +45,11 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     /**
-     * 카테고리 생성
+     * 새로운 카테고리를 생성하는 서비스입니다.
      *
-     * @param createCategoryRequest 카테고리 생성 요청
-     * @return 생성된 카테고리 이름
+     * @param admin 카테고리를 생성하는 관리자 정보
+     * @param createCategoryRequest 생성할 카테고리 정보
+     * @return 카테고리 생성 완료 메시지
      */
     @Override
     @Transactional
@@ -59,11 +60,13 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     /**
-     * 카테고리 이름 수정
+     * 카테고리의 이름을 수정하는 서비스입니다.
      *
-     * @param categoryIdx 카테고리 인덱스
-     * @param updateCategoryRequest 카테고리 수정 요청
-     * @return 수정된 카테고리 이름
+     * @param admin 수정을 요청한 관리자 정보
+     * @param categoryIdx 수정할 카테고리의 식별자
+     * @param updateCategoryRequest 새로운 카테고리 정보
+     * @return 카테고리 수정 완료 메시지
+     * @throws BaseException CATEGORY_NOT_FOUND: 카테고리를 찾을 수 없는 경우
      */
     @Override
     @Transactional
@@ -77,10 +80,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     /**
-     * 카테고리 삭제
+     * 카테고리를 삭제(비활성화) 처리하는 서비스입니다.
      *
-     * @param categoryIdx 카테고리 인덱스
-     * @return 삭제된 카테고리 이름
+     * @param admin 삭제를 요청한 관리자 정보
+     * @param categoryIdx 삭제할 카테고리의 식별자
+     * @return 카테고리 삭제 완료 메시지
+     * @throws BaseException CATEGORY_NOT_FOUND: 카테고리를 찾을 수 없는 경우
      */
     @Override
     @Transactional

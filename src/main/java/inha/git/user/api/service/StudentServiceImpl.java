@@ -18,7 +18,8 @@ import static inha.git.common.Constant.STUDENT_TYPE;
 
 
 /**
- * StudentServiceImpl은 학생 관련 비즈니스 로직을 처리하는 서비스 클래스.
+ * 학생 관련 비즈니스 로직을 처리하는 서비스 구현체입니다.
+ * 학생 회원가입과 관련된 도메인 로직을 수행합니다.
  */
 @Service
 @RequiredArgsConstructor
@@ -34,10 +35,14 @@ public class StudentServiceImpl implements StudentService{
     private final EmailDomainService emailDomainService;
 
     /**
-     * 학생 회원가입
+     * 학생 회원가입을 처리합니다.
      *
-     * @param studentSignupRequest 학생 회원가입 요청 정보
-     * @return 학생 회원가입 결과
+     * @param studentSignupRequest 학생 회원가입 요청 정보 (이메일, 비밀번호, 이름, 학번, 학과 정보)
+     * @return StudentSignupResponse 가입된 학생 정보를 포함한 응답
+     * @throws BaseException 다음의 경우에 발생:
+     *      - INVALID_EMAIL_DOMAIN: 유효하지 않은 이메일 도메인
+     *      - EMAIL_AUTH_NOT_FOUND: 이메일 인증이 완료되지 않은 경우
+     *      - DEPARTMENT_NOT_FOUND: 존재하지 않는 학과인 경우
      */
     @Transactional
     @Override

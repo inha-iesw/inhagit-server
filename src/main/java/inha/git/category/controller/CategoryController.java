@@ -5,6 +5,7 @@ import inha.git.category.controller.dto.request.UpdateCategoryRequest;
 import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.category.service.CategoryService;
 import inha.git.common.BaseResponse;
+import inha.git.common.exceptions.BaseException;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,7 +21,8 @@ import java.util.List;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
- * CategoryController는 category 관련 엔드포인트를 처리.
+ * 카테고리(교과/비교과/기타) 관련 API를 처리하는 컨트롤러입니다.
+ * 카테고리 조회 기능을 제공합니다.
  */
 @Slf4j
 @Tag(name = "category controller", description = "category 관련 API")
@@ -32,9 +34,9 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     /**
-     * 카테고리 전체 조회 API
+     * 전체 카테고리 목록을 이름 기준으로 오름차순 조회합니다.
      *
-     * @return 카테고리 전체
+     * @return 활성 상태인 모든 카테고리 정보를 포함하는 응답
      */
     @GetMapping
     @Operation(summary = "카테고리 전체 조회 API", description = "카테고리 전체를 조회합니다.")
@@ -44,10 +46,12 @@ public class CategoryController {
 
 
     /**
-     * 카테고리 생성 API
+     * 새로운 카테고리를 생성합니다.
      *
-     * @param createCategoryRequest 카테고리 생성 요청
-     * @return 생성된 카테고리 이름
+     * @param user 현재 인증된 관리자 정보
+     * @param createCategoryRequest 생성할 카테고리 정보 (카테고리명)
+     * @return 카테고리 생성 결과 메시지
+     * @throws BaseException 관리자 권한이 없는 경우
      */
     @PostMapping
     @PreAuthorize("hasAuthority('admin:create')")
@@ -59,11 +63,13 @@ public class CategoryController {
     }
 
     /**
-     * 카테고리 수정 API
+     * 기존 카테고리의 이름을 수정합니다.
      *
-     * @param categoryIdx 카테고리 인덱스
-     * @param updateCategoryRequest 학기 수정 요청
-     * @return 수정된 학기 이름
+     * @param user 현재 인증된 관리자 정보
+     * @param categoryIdx 수정할 카테고리의 식별자
+     * @param updateCategoryRequest 수정할 카테고리 정보 (새로운 카테고리명)
+     * @return 카테고리 수정 결과 메시지
+     * @throws BaseException CATEGORY_NOT_FOUND: 카테고리를 찾을 수 없는 경우
      */
     @PutMapping("/{categoryIdx}")
     @PreAuthorize("hasAuthority('admin:update')")
@@ -76,10 +82,12 @@ public class CategoryController {
     }
 
     /**
-     * 카테고리 삭제 API
+     * 카테고리를 소프트 삭제(상태 변경) 처리합니다.
      *
-     * @param categoryIdx 카테고리 인덱스
-     * @return 삭제된 카테고리 이름
+     * @param user 현재 인증된 관리자 정보
+     * @param categoryIdx 삭제할 카테고리의 식별자
+     * @return 카테고리 삭제 결과 메시지
+     * @throws BaseException CATEGORY_NOT_FOUND: 카테고리를 찾을 수 없는 경우
      */
     @DeleteMapping("/{categoryIdx}")
     @PreAuthorize("hasAuthority('admin:delete')")

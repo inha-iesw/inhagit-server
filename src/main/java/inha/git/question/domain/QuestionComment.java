@@ -6,6 +6,7 @@ import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -44,9 +45,13 @@ public class QuestionComment extends BaseEntity {
     }
 
     @OneToMany(mappedBy = "questionComment", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<QuestionReplyComment> replies;
+    private List<QuestionReplyComment> replies = new ArrayList<>();
 
     public void setLikeCount(Integer likeCount) {
         this.likeCount = likeCount;
+    }
+
+    public void setQuestion(Question question) {
+        this.question = question;
     }
 }

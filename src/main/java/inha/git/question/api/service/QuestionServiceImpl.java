@@ -33,6 +33,8 @@ import inha.git.user.domain.enums.Role;
 import inha.git.utils.IdempotentProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -52,7 +54,8 @@ import static inha.git.common.Constant.CURRICULUM;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 /**
- * QuestionServiceImpl은 question 관련 비즈니스 로직을 처리.
+ * 질문 관련 비즈니스 로직을 처리하는 서비스 구현체입니다.
+ * 질문의 조회, 생성, 수정, 삭제 및 관련 통계 처리를 담당합니다.
  */
 @Service
 @RequiredArgsConstructor
@@ -73,11 +76,11 @@ public class QuestionServiceImpl implements QuestionService {
     private final StatisticsService statisticsService;
 
     /**
-     * 질문 전체 조회
+     * 전체 질문을 페이징하여 조회합니다.
      *
-     * @param page Integer
-     * @param size Integer
-     * @return Page<SearchQuestionsResponse>
+     * @param page 조회할 페이지 번호 (0부터 시작)
+     * @param size 페이지당 항목 수
+     * @return 페이징된 질문 목록
      */
     @Override
     public Page<SearchQuestionsResponse> getQuestions(Integer page, Integer size) {
@@ -104,6 +107,7 @@ public class QuestionServiceImpl implements QuestionService {
      *
      * @param questionIdx Integer
      * @return SearchQuestionResponse
+     * @throws BaseException QUESTION_NOT_FOUND: 질문을 찾을 수 없는 경우
      */
     @Override
     public SearchQuestionResponse getQuestion(User user, Integer questionIdx) {
@@ -126,6 +130,10 @@ public class QuestionServiceImpl implements QuestionService {
      * @param user                  User
      * @param createQuestionRequest CreateQuestionRequest
      * @return QuestionResponse
+     * @throws BaseException SEMESTER_NOT_FOUND: 학기를 찾을 수 없는 경우
+     *                     CATEGORY_NOT_FOUND: 카테고리를 찾을 수 없는 경우
+     *                     FIELD_NOT_FOUND: 필드를 찾을 수 없는 경우
+     *                     QUESTION_NOT_AUTHORIZED: 질문 수정 권한이 없는 경우
      */
     @Override
     @Transactional
@@ -157,6 +165,11 @@ public class QuestionServiceImpl implements QuestionService {
      * @param questionIdx         Integer
      * @param updateQuestionRequest UpdateQuestionRequest
      * @return QuestionResponse
+     * @throws BaseException SEMESTER_NOT_FOUND: 학기를 찾을 수 없는 경우
+     *                    FIELD_NOT_FOUND: 필드를 찾을 수 없는 경우
+     *                    QUESTION_NOT_AUTHORIZED: 질문 수정 권한이 없는 경우
+     *                    FIELD_NOT_FOUND: 필드를 찾을 수 없는 경우
+     *                    QUESTION_NOT_FOUND: 질문을 찾을 수 없는 경우
      */
     @Override
     @Transactional
@@ -240,6 +253,8 @@ public class QuestionServiceImpl implements QuestionService {
      * @param user        User
      * @param questionIdx Integer
      * @return QuestionResponse
+     * @throws BaseException QUESTION_DELETE_NOT_AUTHORIZED: 질문 삭제 권한이 없는 경우
+     *                    QUESTION_NOT_FOUND: 질문을 찾을 수 없는 경우
      */
     @Override
     @Transactional
@@ -267,21 +282,24 @@ public class QuestionServiceImpl implements QuestionService {
      * @param user        User
      * @param likeRequest LikeRequest
      * @return String
+     * @throws BaseException QUESTION_NOT_FOUND: 질문을 찾을 수 없는 경우
+     *                   MY_QUESTION_LIKE: 내 질문은 좋아요할 수 없는 경우
+     *                   QUESTION_ALREADY_LIKE: 이미 좋아요한 질문인 경우
      */
     @Override
     @Transactional
     public String createQuestionLike(User user, LikeRequest likeRequest) {
-
-        idempotentProvider.isValidIdempotent(List.of("createQuestionLike", user.getId().toString(), user.getName(), likeRequest.idx().toString()));
-
-
-        Question question = questionJpaRepository.findByIdAndState(likeRequest.idx(), ACTIVE)
-                .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
-        validLike(question, user, questionLikeJpaRepository.existsByUserAndQuestion(user, question));
-        questionLikeJpaRepository.save(questionMapper.createQuestionLike(user, question));
-        question.setLikeCount(question.getLikeCount() + 1);
-        log.info("질문 좋아요 성공 - 사용자: {} 질문 ID: {} 좋아요 개수 : {}", user.getName(), likeRequest.idx(), question.getLikeCount());
-        return likeRequest.idx() + "번 질문 좋아요 완료";
+        Question question = getQuestion(user, likeRequest);
+        try{
+            validLike(question, user, questionLikeJpaRepository.existsByUserAndQuestion(user, question));
+            questionLikeJpaRepository.save(questionMapper.createQuestionLike(user, question));
+            question.setLikeCount(question.getLikeCount() + 1);
+            log.info("질문 좋아요 성공 - 사용자: {} 질문 ID: {} 좋아요 개수 : {}", user.getName(), likeRequest.idx(), question.getLikeCount());
+            return likeRequest.idx() + "번 질문 좋아요 완료";
+        } catch(DataIntegrityViolationException e) {
+            log.error("질문 좋아요 중복 발생 - 사용자: {} 댓글 ID: {}", user.getName(), likeRequest.idx());
+            throw new BaseException(ALREADY_LIKE);
+        }
     }
 
     /**
@@ -290,22 +308,26 @@ public class QuestionServiceImpl implements QuestionService {
      * @param user        User
      * @param likeRequest LikeRequest
      * @return String
+     * @throws BaseException QUESTION_NOT_FOUND: 질문을 찾을 수 없는 경우
+     *                    MY_QUESTION_LIKE: 내 질문은 좋아요할 수 없는 경우
+     *                    QUESTION_NOT_LIKE: 좋아요하지 않은 질문인 경우
+     *
      */
     @Override
     @Transactional
     public String questionLikeCancel(User user, LikeRequest likeRequest) {
-
-        idempotentProvider.isValidIdempotent(List.of("questionLikeCancel", user.getId().toString(), user.getName(), likeRequest.idx().toString()));
-
-        Question question = questionJpaRepository.findByIdAndState(likeRequest.idx(), ACTIVE)
-                .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
-        validLikeCancel(question, user, questionLikeJpaRepository.existsByUserAndQuestion(user, question));
-        questionLikeJpaRepository.deleteByUserAndQuestion(user, question);
-        question.setLikeCount(question.getLikeCount() - 1);
-        log.info("질문 좋아요 취소 성공 - 사용자: {} 질문 ID: {} 좋아요 개수 : {}", user.getName(), likeRequest.idx(), question.getLikeCount());
-        return likeRequest.idx() + "번 프로젝트 좋아요 취소 완료";
+        Question question = getQuestion(user, likeRequest);
+        try{
+            validLikeCancel(question, user, questionLikeJpaRepository.existsByUserAndQuestion(user, question));
+            questionLikeJpaRepository.deleteByUserAndQuestion(user, question);
+            question.setLikeCount(question.getLikeCount() - 1);
+            log.info("질문 좋아요 취소 성공 - 사용자: {} 질문 ID: {} 좋아요 개수 : {}", user.getName(), likeRequest.idx(), question.getLikeCount());
+            return likeRequest.idx() + "번 프로젝트 좋아요 취소 완료";
+        } catch(DataIntegrityViolationException e) {
+            log.error("질문 좋아요 취소 중복 발생 - 사용자: {} 댓글 ID: {}", user.getName(), likeRequest.idx());
+            throw new BaseException(QUESTION_NOT_LIKE);
+        }
     }
-
 
     /**
      * 질문 생성시 필드 생성
@@ -323,13 +345,6 @@ public class QuestionServiceImpl implements QuestionService {
                 }).toList();
     }
 
-    /**
-     * 좋아요 유효성 검사
-     *
-     * @param question Question
-     * @param user     User
-     * @param questionLikeJpaRepository 질문 좋아요 레포지토리
-     */
     private void validLike(Question question, User user, boolean questionLikeJpaRepository) {
         if (question.getUser().getId().equals(user.getId())) {
             log.error("내 질문은 좋아요할 수 없습니다. - 사용자: {} 질문 ID: {}", user.getName(), question.getId());
@@ -350,5 +365,17 @@ public class QuestionServiceImpl implements QuestionService {
             log.error("좋아요하지 않은 질문입니다. - 사용자: {} 질문 ID: {}", user.getName(), question.getId());
             throw new BaseException(QUESTION_NOT_LIKE);
         }
+    }
+
+    private Question getQuestion(User user, LikeRequest likeRequest) {
+        Question question;
+        try {
+            question = questionJpaRepository.findByIdAndStateWithPessimisticLock(likeRequest.idx(), ACTIVE)
+                    .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
+        } catch (PessimisticLockingFailureException e) {
+            log.error("질문 좋아요 추천 락 획득 실패- 사용자: {} 댓글 ID: {}", user.getName(), likeRequest.idx());
+            throw new BaseException(TEMPORARY_UNAVAILABLE);
+        }
+        return question;
     }
 }
