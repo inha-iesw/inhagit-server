@@ -124,7 +124,6 @@ public enum ErrorStatus implements BaseErrorCode {
     PROJECT_NOT_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4020", "좋아요하지 않은 프로젝트입니다."),
     PROJECT_NOT_PUBLIC(HttpStatus.BAD_REQUEST, "PROJECT4021", "비공개 프로젝트입니다."),
     ALREADY_RECOMMENDED(HttpStatus.BAD_REQUEST, "PROJECT4022", "이미 추천한 프로젝트입니다."),
-
     TEMPORARY_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "SERVICE4000", "일시적으로 서비스를 이용할 수 없습니다."),
 
     ALREADY_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4017", "이미 좋아요한 댓글입니다."),

@@ -18,6 +18,8 @@ import inha.git.user.domain.enums.Role;
 import inha.git.utils.IdempotentProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -233,16 +235,17 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      */
     @Override
     public String questionCommentLike(User user, CommentLikeRequest commentLikeRequest) {
-
-        idempotentProvider.isValidIdempotent(List.of("questionCommentLike", user.getId().toString(), user.getName(), commentLikeRequest.idx().toString()));
-
-
-        QuestionComment questionComment = getQuestionComment(commentLikeRequest);
-        validLike(questionComment, user, questionCommentLikeJpaRepository.existsByUserAndQuestionComment(user, questionComment));
-        questionCommentLikeJpaRepository.save(questionMapper.createQuestionCommentLike(user, questionComment));
-        questionComment.setLikeCount(questionComment.getLikeCount() + 1);
-        log.info("질문 댓글 좋아요 성공 - 사용자: {} 댓글 ID: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), questionComment.getLikeCount());
-        return commentLikeRequest.idx() + "번 질문 댓글 좋아요 완료";
+        QuestionComment questionComment = getQuestionComment(user, commentLikeRequest);
+        try {
+            validLike(questionComment, user, questionCommentLikeJpaRepository.existsByUserAndQuestionComment(user, questionComment));
+            questionCommentLikeJpaRepository.save(questionMapper.createQuestionCommentLike(user, questionComment));
+            questionComment.setLikeCount(questionComment.getLikeCount() + 1);
+            log.info("질문 댓글 좋아요 성공 - 사용자: {} 댓글 ID: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), questionComment.getLikeCount());
+            return commentLikeRequest.idx() + "번 질문 댓글 좋아요 완료";
+        } catch(DataIntegrityViolationException e) {
+            log.error("질문 댓글 좋아요 중복 발생 - 사용자: {} 댓글 ID: {}", user.getName(), commentLikeRequest.idx());
+            throw new BaseException(ALREADY_LIKE);
+        }
     }
 
     /**
@@ -254,19 +257,21 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      */
     @Override
     public String questionCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest) {
-
-        idempotentProvider.isValidIdempotent(List.of("questionCommentLikeCancel", user.getId().toString(), user.getName(), commentLikeRequest.idx().toString()));
-
-        QuestionComment questionComment = getQuestionComment(commentLikeRequest);
-        boolean commentLikeJpaRepository = questionCommentLikeJpaRepository.existsByUserAndQuestionComment(user, questionComment);
-        validLikeCancel(questionComment, user, commentLikeJpaRepository);
-        questionCommentLikeJpaRepository.deleteByUserAndQuestionComment(user, questionComment);
-        if (questionComment.getLikeCount() <= 0) {
-            questionComment.setLikeCount(0);
+        QuestionComment questionComment = getQuestionComment(user, commentLikeRequest);
+        try {
+            boolean commentLikeJpaRepository = questionCommentLikeJpaRepository.existsByUserAndQuestionComment(user, questionComment);
+            validLikeCancel(questionComment, user, commentLikeJpaRepository);
+            questionCommentLikeJpaRepository.deleteByUserAndQuestionComment(user, questionComment);
+            if (questionComment.getLikeCount() <= 0) {
+                questionComment.setLikeCount(0);
+            }
+            questionComment.setLikeCount(questionComment.getLikeCount() - 1);
+            log.info("질문 댓글 좋아요 취소 성공 - 사용자: {} 댓글 ID: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), questionComment.getLikeCount());
+            return commentLikeRequest.idx() + "번 질문 댓글 좋아요 취소 완료";
+        } catch(DataIntegrityViolationException e) {
+            log.error("질문 댓글 좋아요 취소 중복 발생 - 사용자: {} 댓글 ID: {}", user.getName(), commentLikeRequest.idx());
+            throw new BaseException(NOT_LIKE);
         }
-        questionComment.setLikeCount(questionComment.getLikeCount() - 1);
-        log.info("질문 댓글 좋아요 취소 성공 - 사용자: {} 댓글 ID: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), questionComment.getLikeCount());
-        return commentLikeRequest.idx() + "번 질문 댓글 좋아요 취소 완료";
     }
 
     /**
@@ -278,16 +283,17 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      */
     @Override
     public String questionReplyCommentLike(User user, CommentLikeRequest commentLikeRequest) {
-
-        idempotentProvider.isValidIdempotent(List.of("questionReplyCommentLike", user.getId().toString(), user.getName(), commentLikeRequest.idx().toString()));
-
-        QuestionReplyComment questionReplyComment = questionReplyCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
-                .orElseThrow(() -> new BaseException(QUESTION_COMMENT_REPLY_NOT_FOUND));
-        validReplyLike(questionReplyComment, user, questionReplyCommentLikeJpaRepository.existsByUserAndQuestionReplyComment(user, questionReplyComment));
-        questionReplyCommentLikeJpaRepository.save(questionMapper.createQuestionReplyCommentLike(user, questionReplyComment));
-        questionReplyComment.setLikeCount(questionReplyComment.getLikeCount() + 1);
-        log.info("질문 대댓글 좋아요 성공 - 사용자: {} 댓글 ID: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), questionReplyComment.getLikeCount());
-        return commentLikeRequest.idx() + "번 질문 대댓글 좋아요 완료";
+        QuestionReplyComment questionReplyComment = getQuestionReplyComment(user, commentLikeRequest);
+        try {
+            validReplyLike(questionReplyComment, user, questionReplyCommentLikeJpaRepository.existsByUserAndQuestionReplyComment(user, questionReplyComment));
+            questionReplyCommentLikeJpaRepository.save(questionMapper.createQuestionReplyCommentLike(user, questionReplyComment));
+            questionReplyComment.setLikeCount(questionReplyComment.getLikeCount() + 1);
+            log.info("질문 대댓글 좋아요 성공 - 사용자: {} 댓글 ID: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), questionReplyComment.getLikeCount());
+            return commentLikeRequest.idx() + "번 질문 대댓글 좋아요 완료";
+        } catch(DataIntegrityViolationException e) {
+            log.error("질문 대댓글 좋아요 중복 발생 - 사용자: {} 댓글 ID: {}", user.getName(), commentLikeRequest.idx());
+            throw new BaseException(ALREADY_LIKE);
+        }
     }
 
     /**
@@ -299,30 +305,23 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      */
     @Override
     public String questionReplyCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest) {
-
-        idempotentProvider.isValidIdempotent(List.of("questionReplyCommentLikeCancel", user.getId().toString(), user.getName(), commentLikeRequest.idx().toString()));
-
-        QuestionReplyComment questionReplyComment = questionReplyCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
-                .orElseThrow(() -> new BaseException(QUESTION_COMMENT_REPLY_NOT_FOUND));
-        boolean commentLikeJpaRepository = questionReplyCommentLikeJpaRepository.existsByUserAndQuestionReplyComment(user, questionReplyComment);
-        validReplyLikeCancel(questionReplyComment, user, commentLikeJpaRepository);
-        questionReplyCommentLikeJpaRepository.deleteByUserAndQuestionReplyComment(user, questionReplyComment);
-        if (questionReplyComment.getLikeCount() <= 0) {
-            questionReplyComment.setLikeCount(0);
+        QuestionReplyComment questionReplyComment = getQuestionReplyComment(user, commentLikeRequest);
+        try {
+            boolean commentLikeJpaRepository = questionReplyCommentLikeJpaRepository.existsByUserAndQuestionReplyComment(user, questionReplyComment);
+            validReplyLikeCancel(questionReplyComment, user, commentLikeJpaRepository);
+            questionReplyCommentLikeJpaRepository.deleteByUserAndQuestionReplyComment(user, questionReplyComment);
+            if (questionReplyComment.getLikeCount() <= 0) {
+                questionReplyComment.setLikeCount(0);
+            }
+            questionReplyComment.setLikeCount(questionReplyComment.getLikeCount() - 1);
+            log.info("질문 대댓글 좋아요 취소 성공 - 사용자: {} 댓글 ID: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), questionReplyComment.getLikeCount());
+            return commentLikeRequest.idx() + "번 질문 대댓글 좋아요 취소 완료";
+        } catch(DataIntegrityViolationException e) {
+            log.error("질문 대댓글 좋아요 취소 중복 발생 - 사용자: {} 댓글 ID: {}", user.getName(), commentLikeRequest.idx());
+            throw new BaseException(NOT_LIKE);
         }
-        questionReplyComment.setLikeCount(questionReplyComment.getLikeCount() - 1);
-        log.info("질문 대댓글 좋아요 취소 성공 - 사용자: {} 댓글 ID: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), questionReplyComment.getLikeCount());
-        return commentLikeRequest.idx() + "번 질문 대댓글 좋아요 취소 완료";
     }
 
-
-    /**
-     * 댓글 좋아요 정보 유효성 검사
-     *
-     * @param questionComment 댓글 정보
-     * @param user 사용자 정보
-     * @param commentLikeJpaRepository 댓글 좋아요 레포지토리
-     */
     private void validLike(QuestionComment questionComment, User user, boolean commentLikeJpaRepository) {
         if (questionComment.getUser().getId().equals(user.getId())) {
             log.error("내 댓글은 좋아요할 수 없습니다. - 사용자: {} 댓글 ID: {}", user.getName(), questionComment.getId());
@@ -334,13 +333,6 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         }
     }
 
-    /**
-     * 대댓글 좋아요 정보 유효성 검사
-     *
-     * @param questionReplyComment 대댓글 정보
-     * @param user 사용자 정보
-     * @param commentLikeJpaRepository 대댓글 좋아요 레포지토리
-     */
     private void validReplyLike(QuestionReplyComment questionReplyComment, User user, boolean commentLikeJpaRepository) {
         if (questionReplyComment.getUser().getId().equals(user.getId())) {
             log.error("내 대댓글은 좋아요할 수 없습니다. - 사용자: {} 댓글 ID: {}", user.getName(), questionReplyComment.getId());
@@ -352,13 +344,6 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         }
     }
 
-    /**
-     * 댓글 좋아요 취소
-     *
-     * @param user 사용자 정보
-     * @param questionComment 좋아요 취소할 댓글 정보
-     * @param commentLikeJpaRepository 댓글 좋아요 레포지토리
-     */
     private void validLikeCancel(QuestionComment questionComment, User user, boolean commentLikeJpaRepository) {
         if (questionComment.getUser().getId().equals(user.getId())) {
             log.error("내 댓글은 좋아요할 수 없습니다. - 사용자: {} 댓글 ID: {}", user.getName(), questionComment.getId());
@@ -370,13 +355,6 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         }
     }
 
-    /**
-     * 대댓글 좋아요 취소
-     *
-     * @param user 사용자 정보
-     * @param questionReplyComment 좋아요 취소할 대댓글 정보
-     * @param commentLikeJpaRepository 대댓글 좋아요 레포지토리
-     */
     private void validReplyLikeCancel(QuestionReplyComment questionReplyComment, User user, boolean commentLikeJpaRepository) {
         if (questionReplyComment.getUser().getId().equals(user.getId())) {
             log.error("내 대댓글은 좋아요할 수 없습니다. - 사용자: {} 댓글 ID: {}", user.getName(), questionReplyComment.getId());
@@ -388,15 +366,28 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         }
 
     }
-    /**
-     * 댓글 좋아요 정보 조회
-     *
-     * @param commentLikeRequest 댓글 좋아요 정보
-     * @return 댓글 좋아요 정보
-     */
-    private QuestionComment getQuestionComment(CommentLikeRequest commentLikeRequest) {
-        return questionCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
-                .orElseThrow(() -> new BaseException(QUESTION_COMMENT_NOT_FOUND));
+
+    private QuestionComment getQuestionComment(User user, CommentLikeRequest commentLikeRequest) {
+        QuestionComment questionComment;
+        try{
+            questionComment = questionCommentJpaRepository.findByIdAndStateWithPessimisticLock(commentLikeRequest.idx(), ACTIVE)
+                    .orElseThrow(() -> new BaseException(QUESTION_COMMENT_NOT_FOUND));
+        } catch (PessimisticLockingFailureException e){
+            log.error("질문 댓글 좋아요 추천 락 획득 실패- 사용자: {} 댓글 ID: {}", user.getName(), commentLikeRequest.idx());
+            throw new BaseException(TEMPORARY_UNAVAILABLE);
+        }
+        return questionComment;
+    }
+
+    private QuestionReplyComment getQuestionReplyComment(User user, CommentLikeRequest commentLikeRequest) {
+        QuestionReplyComment questionReplyComment;
+        try{
+            questionReplyComment = questionReplyCommentJpaRepository.findByIdAndStateWithPessimisticLock(commentLikeRequest.idx(), ACTIVE)
+                    .orElseThrow(() -> new BaseException(QUESTION_COMMENT_REPLY_NOT_FOUND));
+        } catch (PessimisticLockingFailureException e){
+            log.error("질문 대댓글 좋아요 추천 락 획득 실패- 사용자: {} 댓글 ID: {}", user.getName(), commentLikeRequest.idx());
+            throw new BaseException(TEMPORARY_UNAVAILABLE);
+        }
+        return questionReplyComment;
     }
 }
-
