@@ -28,6 +28,6 @@ public interface ProjectJpaRepository extends JpaRepository<Project, Integer> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "3000")})
-    @Query("SELECT p FROM Project p WHERE p.id = :id")
-    Optional<Project> findByIdAndStateWithPessimisticLock(@Param("id") Integer id, @Param(("state")) BaseEntity.State state);
+    @Query("SELECT p FROM Project p WHERE p.id = :id AND p.state = :state")
+    Optional<Project> findByIdAndStateWithPessimisticLock(@Param("id") Integer id, @Param("state") BaseEntity.State state);
 }
