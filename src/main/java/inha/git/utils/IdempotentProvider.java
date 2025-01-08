@@ -24,7 +24,7 @@ public class IdempotentProvider {
     /**
      * Idempotency 키의 유효성을 검증하는 메서드.
      *
-     * @param keyElement 키를 구성하는 요소 리스트
+     * @param keyElement 키를 구성하는 isValidIdempotent요소 리스트
      */
     public void isValidIdempotent(List<String> keyElement) {
         String idempotentKey = this.compactKey(keyElement);
