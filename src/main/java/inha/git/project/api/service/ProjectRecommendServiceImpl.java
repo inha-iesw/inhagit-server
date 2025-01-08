@@ -49,9 +49,6 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     public String createProjectFoundingRecommend(User user, RecommendRequest recommendRequest) {
         Project project = getProject(user, recommendRequest);
         try {
-            if (!hasAccessToProject(project, user)) {
-                throw new BaseException(PROJECT_NOT_PUBLIC);
-            }
             validRecommend(project, user, foundingRecommendJpaRepository.existsByUserAndProject(user, project));
             foundingRecommendJpaRepository.save(projectMapper.createProjectFoundingRecommend(user, project));
             project.setFoundRecommendCount(project.getFoundingRecommendCount() + 1);
@@ -76,9 +73,6 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     public String createProjectLike(User user, RecommendRequest recommendRequest) {
         Project project = getProject(user, recommendRequest);
         try {
-            if (!hasAccessToProject(project, user)) {
-                throw new BaseException(PROJECT_NOT_PUBLIC);
-            }
             validLike(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
             projectLikeJpaRepository.save(projectMapper.createProjectLike(user, project));
             project.setLikeCount(project.getLikeCount() + 1);
@@ -101,9 +95,6 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     public String createProjectRegistrationRecommend(User user, RecommendRequest recommendRequest) {
         Project project = getProject(user, recommendRequest);
         try {
-            if (!hasAccessToProject(project, user)) {
-                throw new BaseException(PROJECT_NOT_PUBLIC);
-            }
             validRecommend(project, user, registrationRecommendJpaRepository.existsByUserAndProject(user, project));
             registrationRecommendJpaRepository.save(projectMapper.createProjectRegistrationRecommend(user, project));
             project.setRegistrationRecommendCount(project.getRegistrationRecommendCount() + 1);
@@ -126,9 +117,6 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     public String cancelProjectFoundingRecommend(User user, RecommendRequest recommendRequest) {
         Project project = getProject(user, recommendRequest);
         try {
-            if (!hasAccessToProject(project, user)) {
-                throw new BaseException(PROJECT_NOT_PUBLIC);
-            }
             validRecommendCancel(project, user, foundingRecommendJpaRepository.existsByUserAndProject(user, project));
             foundingRecommendJpaRepository.deleteByUserAndProject(user, project);
             if (project.getFoundingRecommendCount() <= 0) {
@@ -139,7 +127,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
             return recommendRequest.idx() + "번 프로젝트 창업 추천 취소 완료";
         } catch (DataIntegrityViolationException e) {
             log.error("프로젝트 창업 추천 취소 중복 발생 - 사용자: {}, 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
-            throw new BaseException(ALREADY_RECOMMENDED);
+            throw new BaseException(PROJECT_NOT_LIKE);
         }
     }
 
@@ -154,9 +142,6 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     public String cancelProjectLike(User user, RecommendRequest recommendRequest) {
         Project project = getProject(user, recommendRequest);
         try {
-            if (!hasAccessToProject(project, user)) {
-                throw new BaseException(PROJECT_NOT_PUBLIC);
-            }
             validLikeCancel(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
             projectLikeJpaRepository.deleteByUserAndProject(user, project);
             if (project.getLikeCount() <= 0) {
@@ -167,7 +152,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
             return recommendRequest.idx() + "번 프로젝트 좋아요 취소 완료";
         } catch (DataIntegrityViolationException e) {
             log.error("프로젝트 좋아요 추천 취소 중복 발생 - 사용자: {}, 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
-            throw new BaseException(ALREADY_RECOMMENDED);
+            throw new BaseException(PROJECT_NOT_LIKE);
         }
     }
 
@@ -182,9 +167,6 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     public String cancelProjectRegistrationRecommend(User user, RecommendRequest recommendRequest) {
         Project project = getProject(user, recommendRequest);
         try {
-            if (!hasAccessToProject(project, user)) {
-                throw new BaseException(PROJECT_NOT_PUBLIC);
-            }
             validRecommendCancel(project, user, registrationRecommendJpaRepository.existsByUserAndProject(user, project));
             registrationRecommendJpaRepository.deleteByUserAndProject(user, project);
             if (project.getRegistrationRecommendCount() <= 0) {
@@ -195,7 +177,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
             return recommendRequest.idx() + "번 프로젝트 등록 추천 취소 완료";
         } catch (DataIntegrityViolationException e) {
             log.error("프로젝트 등록 추천 취소 중복 발생 - 사용자: {}, 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
-            throw new BaseException(ALREADY_RECOMMENDED);
+            throw new BaseException(PROJECT_NOT_LIKE);
         }
     }
 
@@ -287,6 +269,9 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
             log.error("프로젝트 창업 추천 락 획득 실패 - 사용자: {}, 프로젝트 ID: {}",
                     user.getName(), recommendRequest.idx());
             throw new BaseException(TEMPORARY_UNAVAILABLE);
+        }
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
         }
         return project;
     }
