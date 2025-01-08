@@ -36,6 +36,7 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_EMAIL_DOMAIN(HttpStatus.BAD_REQUEST, "USER4009", "이메일 도메인이 유효하지 않습니다."),
     INVALID_STUDENT_NUMBER(HttpStatus.BAD_REQUEST, "USER4010", "학번/사번으로 이루어질 수 없습니다."),
     ACCOUNT_LOCKED(HttpStatus.BAD_REQUEST, "USER4011", "비밀번호 5회 연속 실패로 계정이 잠겼습니다. 10분 뒤에 다시 시도해주세요."),
+    DUPLICATE_EMAIL(HttpStatus.BAD_REQUEST, "USER4012", "중복된 이메일입니다."),
 
     NOT_EXIST_BUG_REPORT(HttpStatus.BAD_REQUEST, "BUG_REPORT4000", "존재하지 않는 버그 제보입니다."),
     NOT_AUTHORIZED_BUG_REPORT(HttpStatus.BAD_REQUEST, "BUG_REPORT4001", "버그 제보를 수정할 권한이 없습니다."),
@@ -122,6 +123,8 @@ public enum ErrorStatus implements BaseErrorCode {
     PROJECT_ALREADY_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4019", "이미 좋아요한 프로젝트입니다."),
     PROJECT_NOT_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4020", "좋아요하지 않은 프로젝트입니다."),
     PROJECT_NOT_PUBLIC(HttpStatus.BAD_REQUEST, "PROJECT4021", "비공개 프로젝트입니다."),
+    ALREADY_RECOMMENDED(HttpStatus.BAD_REQUEST, "PROJECT4022", "이미 추천한 프로젝트입니다."),
+    TEMPORARY_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "SERVICE4000", "일시적으로 서비스를 이용할 수 없습니다."),
 
     ALREADY_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4017", "이미 좋아요한 댓글입니다."),
     MY_COMMENT_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4018", "자신의 댓글에는 좋아요를 누를 수 없습니다."),

@@ -12,6 +12,7 @@ import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
 import inha.git.question.api.service.QuestionService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
+import inha.git.utils.PagingUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -26,7 +27,8 @@ import static inha.git.common.code.status.ErrorStatus.*;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
- * QuestionController는 question 관련 엔드포인트를 처리.
+ * 질문 관련 API를 처리하는 컨트롤러입니다.
+ * 질문의 조회, 생성, 수정, 삭제 및 좋아요 기능을 제공합니다.
  */
 @Slf4j
 @Tag(name = "question controller", description = "question 관련 API")
@@ -36,33 +38,28 @@ import static inha.git.common.code.status.SuccessStatus.*;
 public class QuestionController {
 
     private final QuestionService questionService;
+    private final PagingUtils pagingUtils;
 
 
     /**
-     * 질문 전체 조회 API
+     * 전체 질문을 페이징하여 조회합니다.
      *
-     * <p>질문 전체를 조회합니다.</p>
-     *
-     * @param page Integer
-     * @param size Integer
-     * @return 검색된 질문 정보를 포함하는 BaseResponse<Page<SearchQuestionsResponse>>
+     * @param page 조회할 페이지 번호 (1부터 시작)
+     * @param size 페이지당 항목 수
+     * @return 페이징된 질문 목록
+     * @throws BaseException INVALID_PAGE: 페이지 번호가 유효하지 않은 경우
+     *                      INVALID_SIZE: 페이지 크기가 유효하지 않은 경우
      */
     @GetMapping
     @Operation(summary = "질문 전체 조회 API", description = "질문 전체를 조회합니다.")
     public BaseResponse<Page<SearchQuestionsResponse>> getQuestions(@RequestParam("page") Integer page, @RequestParam("size") Integer size) {
-        if (page < 1) {
-            throw new BaseException(INVALID_PAGE);
-        }
-        if (size < 1) {
-            throw new BaseException(INVALID_SIZE);
-        }
-        return BaseResponse.of(QUESTION_SEARCH_OK, questionService.getQuestions(page - 1, size - 1));
+        pagingUtils.validatePage(page);
+        pagingUtils.validateSize(size);
+        return BaseResponse.of(QUESTION_SEARCH_OK, questionService.getQuestions(pagingUtils.toPageIndex(page), pagingUtils.toPageSize(size)));
     }
 
     /**
      * 질문 조건 조회 API
-     *
-     * <p>질문 조건에 맞게 조회합니다.</p>
      *
      * @param page Integer
      * @param size Integer
@@ -72,13 +69,9 @@ public class QuestionController {
     @GetMapping("/cond")
     @Operation(summary = "질문 조건 조회 API", description = "질문 조건에 맞게 조회합니다.")
     public BaseResponse<Page<SearchQuestionsResponse>> getCondQuestions(@RequestParam("page") Integer page, @RequestParam("size") Integer size , SearchQuestionCond searchQuestionCond) {
-        if (page < 1) {
-            throw new BaseException(INVALID_PAGE);
-        }
-        if (size < 1) {
-            throw new BaseException(INVALID_SIZE);
-        }
-        return BaseResponse.of(QUESTION_SEARCH_OK, questionService.getCondQuestions(searchQuestionCond, page - 1, size - 1));
+        pagingUtils.validatePage(page);
+        pagingUtils.validateSize(size);
+        return BaseResponse.of(QUESTION_SEARCH_OK, questionService.getCondQuestions(searchQuestionCond, pagingUtils.toPageIndex(page), pagingUtils.toPageSize(size)));
     }
 
     /**
@@ -97,8 +90,6 @@ public class QuestionController {
     }
     /**
      * 질문 생성(기업제외) API
-     *
-     * <p>질문을 생성합니다.</p>
      *
      * @param user                  User
      * @param createQuestionRequest CreateQuestionRequest
@@ -120,8 +111,6 @@ public class QuestionController {
     /**
      * 질문 수정 API
      *
-     * <p>질문을 수정합니다.</p>
-     *
      * @param user                  User
      * @param questionIdx           Integer
      * @param updateQuestionRequest UpdateQuestionRequest
@@ -139,8 +128,6 @@ public class QuestionController {
 
     /**
      * 질문 삭제 API
-     *
-     * <p>질문을 삭제합니다.</p>
      *
      * @param user        User
      * @param questionIdx Integer
@@ -173,8 +160,6 @@ public class QuestionController {
 
     /**
      * 질문 좋아요 취소 API
-     *
-     * <p>특정 질문에 좋아요를 취소합니다.</p>
      *
      * @param user       로그인한 사용자 정보
      * @param likeRequest 좋아요할 질문 정보

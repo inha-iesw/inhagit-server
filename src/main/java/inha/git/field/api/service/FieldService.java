@@ -10,9 +10,6 @@ import java.util.List;
 public interface FieldService {
     List<SearchFieldResponse> getFields();
     String createField(User admin, CreateFieldRequest createFieldRequest);
-
     String updateField(User admin, Integer fieldIdx, UpdateFieldRequest updateFieldRequest);
-
-
     String deleteField(User admin, Integer fieldIdx);
 }

@@ -23,6 +23,8 @@ import inha.git.user.domain.enums.Role;
 import inha.git.utils.IdempotentProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -251,23 +253,17 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
      */
     @Override
     public String projectCommentLike(User user, CommentLikeRequest commentLikeRequest) {
-
-        idempotentProvider.isValidIdempotent(List.of("projectCommentLike", user.getId().toString(), user.getName(), commentLikeRequest.idx().toString()));
-
-
-        ProjectComment projectComment = getProjectComment(commentLikeRequest);
-        Project project = projectComment.getProject();
-
-        if (!hasAccessToProject(project, user)) {
-            throw new BaseException(PROJECT_NOT_PUBLIC);
+        ProjectComment projectComment = getProjectComment(user, commentLikeRequest);
+        try {
+            validLike(projectComment, user, projectCommentLikeJpaRepository.existsByUserAndProjectComment(user, projectComment));
+            projectCommentLikeJpaRepository.save(projectMapper.createProjectCommentLike(user, projectComment));
+            projectComment.setLikeCount(projectComment.getLikeCount() + 1);
+            log.info("프로젝트 댓글 좋아요 완료 - 사용자: {} 프로젝트 댓글 식별자: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), projectComment.getLikeCount());
+            return commentLikeRequest.idx() + "번 프로젝트 댓글 좋아요 완료";
+        }catch(DataIntegrityViolationException e) {
+            log.error("프로젝트 댓글 좋아요 중복 발생 - 사용자: {}, 프로젝트 ID: {}", user.getName(), commentLikeRequest.idx());
+            throw new BaseException(ALREADY_RECOMMENDED);
         }
-
-
-        validLike(projectComment, user, projectCommentLikeJpaRepository.existsByUserAndProjectComment(user, projectComment));
-        projectCommentLikeJpaRepository.save(projectMapper.createProjectCommentLike(user, projectComment));
-        projectComment.setLikeCount(projectComment.getLikeCount() + 1);
-        log.info("프로젝트 댓글 좋아요 완료 - 사용자: {} 프로젝트 댓글 식별자: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), projectComment.getLikeCount());
-        return commentLikeRequest.idx() + "번 프로젝트 댓글 좋아요 완료";
     }
 
     /**
@@ -279,25 +275,20 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
      */
     @Override
     public String projectCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest) {
-
-        idempotentProvider.isValidIdempotent(List.of("projectCommentLikeCancel", user.getId().toString(), user.getName(), commentLikeRequest.idx().toString()));
-
-
-        ProjectComment projectComment = getProjectComment(commentLikeRequest);
-
-        Project project = projectComment.getProject();
-
-        if (!hasAccessToProject(project, user)) {
-            throw new BaseException(PROJECT_NOT_PUBLIC);
+        ProjectComment projectComment = getProjectComment(user, commentLikeRequest);
+        try {
+            validLikeCancel(projectComment, user, projectCommentLikeJpaRepository.existsByUserAndProjectComment(user, projectComment));
+            projectCommentLikeJpaRepository.deleteByUserAndProjectComment(user, projectComment);
+            if (projectComment.getLikeCount() <= 0) {
+                projectComment.setLikeCount(0);
+            }
+            projectComment.setLikeCount(projectComment.getLikeCount() - 1);
+            log.info("프로젝트 댓글 좋아요 취소 완료 - 사용자: {} 프로젝트 댓글 식별자: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), projectComment.getLikeCount());
+            return commentLikeRequest.idx() + "번 프로젝트 댓글 좋아요 취소 완료";
+        }catch (DataIntegrityViolationException e) {
+            log.error("프로젝트 댓글 좋아요 취소 중복 발생 - 사용자: {}, 프로젝트 ID: {}", user.getName(), commentLikeRequest.idx());
+            throw new BaseException(PROJECT_NOT_LIKE);
         }
-        validLikeCancel(projectComment, user, projectCommentLikeJpaRepository.existsByUserAndProjectComment(user, projectComment));
-        projectCommentLikeJpaRepository.deleteByUserAndProjectComment(user, projectComment);
-        if (projectComment.getLikeCount() <= 0) {
-            projectComment.setLikeCount(0);
-        }
-        projectComment.setLikeCount(projectComment.getLikeCount() - 1);
-        log.info("프로젝트 댓글 좋아요 취소 완료 - 사용자: {} 프로젝트 댓글 식별자: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), projectComment.getLikeCount());
-        return commentLikeRequest.idx() + "번 프로젝트 댓글 좋아요 취소 완료";
     }
 
     /**
@@ -309,22 +300,17 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
      */
     @Override
     public String projectReplyCommentLike(User user, CommentLikeRequest commentLikeRequest) {
-        idempotentProvider.isValidIdempotent(List.of("projectReplyCommentLike", user.getId().toString(), user.getName(), commentLikeRequest.idx().toString()));
-
-        ProjectReplyComment projectReplyComment = projectReplyCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
-                .orElseThrow(() -> new BaseException(PROJECT_COMMENT_REPLY_NOT_FOUND));
-
-        Project project = projectReplyComment.getProjectComment().getProject();
-
-        if (!hasAccessToProject(project, user)) {
-            throw new BaseException(PROJECT_NOT_PUBLIC);
+        ProjectReplyComment projectReplyComment = getProjectReplyComment(user, commentLikeRequest);
+        try {
+            validReplyLike(projectReplyComment, user, projectReplyCommentLikeJpaRepository.existsByUserAndProjectReplyComment(user, projectReplyComment));
+            projectReplyCommentLikeJpaRepository.save(projectMapper.createProjectReplyCommentLike(user, projectReplyComment));
+            projectReplyComment.setLikeCount(projectReplyComment.getLikeCount() + 1);
+            log.info("프로젝트 대댓글 좋아요 완료 - 사용자: {} 프로젝트 대댓글 식별자: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), projectReplyComment.getLikeCount());
+            return commentLikeRequest.idx() + "번 프로젝트 대댓글 좋아요 완료";
+        } catch (DataIntegrityViolationException e) {
+            log.error("프로젝트 대댓글 좋아요 중복 발생 - 사용자: {}, 프로젝트 ID: {}", user.getName(), commentLikeRequest.idx());
+            throw new BaseException(ALREADY_RECOMMENDED);
         }
-
-        validReplyLike(projectReplyComment, user, projectReplyCommentLikeJpaRepository.existsByUserAndProjectReplyComment(user, projectReplyComment));
-        projectReplyCommentLikeJpaRepository.save(projectMapper.createProjectReplyCommentLike(user, projectReplyComment));
-        projectReplyComment.setLikeCount(projectReplyComment.getLikeCount() + 1);
-        log.info("프로젝트 대댓글 좋아요 완료 - 사용자: {} 프로젝트 대댓글 식별자: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), projectReplyComment.getLikeCount());
-        return commentLikeRequest.idx() + "번 프로젝트 대댓글 좋아요 완료";
     }
 
     /**
@@ -336,37 +322,22 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
      */
     @Override
     public String projectReplyCommentLikeCancel(User user, CommentLikeRequest commentLikeRequest) {
-        idempotentProvider.isValidIdempotent(List.of("projectReplyCommentLikeCancel", user.getId().toString(), user.getName(), commentLikeRequest.idx().toString()));
-
-        ProjectReplyComment projectReplyComment = projectReplyCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
-                .orElseThrow(() -> new BaseException(PROJECT_COMMENT_REPLY_NOT_FOUND));
-
-        Project project = projectReplyComment.getProjectComment().getProject();
-
-        if (!hasAccessToProject(project, user)) {
-            throw new BaseException(PROJECT_NOT_PUBLIC);
+        ProjectReplyComment projectReplyComment = getProjectReplyComment(user, commentLikeRequest);
+        try{
+            validReplyLikeCancel(projectReplyComment, user, projectReplyCommentLikeJpaRepository.existsByUserAndProjectReplyComment(user, projectReplyComment));
+            projectReplyCommentLikeJpaRepository.deleteByUserAndProjectReplyComment(user, projectReplyComment);
+            if (projectReplyComment.getLikeCount() <= 0) {
+                projectReplyComment.setLikeCount(0);
+            }
+            projectReplyComment.setLikeCount(projectReplyComment.getLikeCount() - 1);
+            log.info("프로젝트 대댓글 좋아요 취소 완료 - 사용자: {} 프로젝트 대댓글 식별자: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), projectReplyComment.getLikeCount());
+            return commentLikeRequest.idx() + "번 프로젝트 대댓글 좋아요 취소 완료";
+        } catch (DataIntegrityViolationException e) {
+            log.error("프로젝트 대댓글 좋아요 취소 중복 발생 - 사용자: {}, 프로젝트 ID: {}", user.getName(), commentLikeRequest.idx());
+            throw new BaseException(PROJECT_NOT_LIKE);
         }
-
-        validReplyLikeCancel(projectReplyComment, user, projectReplyCommentLikeJpaRepository.existsByUserAndProjectReplyComment(user, projectReplyComment));
-        projectReplyCommentLikeJpaRepository.deleteByUserAndProjectReplyComment(user, projectReplyComment);
-        if (projectReplyComment.getLikeCount() <= 0) {
-            projectReplyComment.setLikeCount(0);
-        }
-        projectReplyComment.setLikeCount(projectReplyComment.getLikeCount() - 1);
-        log.info("프로젝트 대댓글 좋아요 취소 완료 - 사용자: {} 프로젝트 대댓글 식별자: {} 좋아요 개수: {}", user.getName(), commentLikeRequest.idx(), projectReplyComment.getLikeCount());
-        return commentLikeRequest.idx() + "번 프로젝트 대댓글 좋아요 취소 완료";
     }
 
-
-
-
-    /**
-     * 댓글 좋아요 정보 유효성 검사
-     *
-     * @param projectComment 댓글 정보
-     * @param user 사용자 정보
-     * @param commentLikeJpaRepository 댓글 좋아요 레포지토리
-     */
     private void validLike(ProjectComment projectComment, User user, boolean commentLikeJpaRepository) {
         if (projectComment.getUser().getId().equals(user.getId())) {
             log.error("프로젝트 댓글 좋아요 실패 - 사용자: {} 자신의 댓글에 좋아요를 할 수 없습니다.", user.getName());
@@ -378,13 +349,6 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         }
     }
 
-    /**
-     * 대댓글 좋아요 정보 유효성 검사
-     *
-     * @param projectReplyComment 대댓글 정보
-     * @param user 사용자 정보
-     * @param commentLikeJpaRepository 대댓글 좋아요 레포지토리
-     */
     private void validReplyLike(ProjectReplyComment projectReplyComment, User user, boolean commentLikeJpaRepository) {
         if (projectReplyComment.getUser().getId().equals(user.getId())) {
             log.error("프로젝트 대댓글 좋아요 실패 - 사용자: {} 자신의 대댓글에 좋아요를 할 수 없습니다.", user.getName());
@@ -396,13 +360,6 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         }
     }
 
-    /**
-     * 댓글 좋아요 취소
-     *
-     * @param user 사용자 정보
-     * @param projectComment 좋아요 취소할 댓글 정보
-     * @param commentLikeJpaRepository 댓글 좋아요 레포지토리
-     */
     private void validLikeCancel(ProjectComment projectComment, User user, boolean commentLikeJpaRepository) {
         if (projectComment.getUser().getId().equals(user.getId())) {
             log.error("프로젝트 댓글 좋아요 취소 실패 - 사용자: {} 자신의 댓글에 좋아요를 취소할 수 없습니다.", user.getName());
@@ -425,14 +382,35 @@ public class ProjectCommentServiceImpl implements ProjectCommentService {
         }
 
     }
-    /**
-     * 댓글 좋아요 정보 조회
-     *
-     * @param commentLikeRequest 댓글 좋아요 정보
-     * @return 댓글 좋아요 정보
-     */
-    private ProjectComment getProjectComment(CommentLikeRequest commentLikeRequest) {
-        return projectCommentJpaRepository.findByIdAndState(commentLikeRequest.idx(), ACTIVE)
-                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+
+    private ProjectComment getProjectComment(User user, CommentLikeRequest commentLikeRequest) {
+        ProjectComment projectComment;
+        try {
+            projectComment = projectCommentJpaRepository.findByIdAndStateWithPessimisticLock(commentLikeRequest.idx(), ACTIVE)
+                        .orElseThrow(() -> new BaseException(PROJECT_COMMENT_NOT_FOUND));
+        } catch (PessimisticLockingFailureException e) {
+            log.error("프로젝트 댓글 추천 락 획득 실패 - 사용자: {}, 프로젝트 ID: {}", user.getName(), commentLikeRequest.idx());
+            throw new BaseException(TEMPORARY_UNAVAILABLE);
+        }
+
+        if (!hasAccessToProject(projectComment.getProject(), user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
+        return projectComment;
+    }
+
+    private ProjectReplyComment getProjectReplyComment(User user, CommentLikeRequest commentLikeRequest) {
+        ProjectReplyComment projectReplyComment;
+        try {
+            projectReplyComment = projectReplyCommentJpaRepository.findByIdAndStateWithPessimisticLock(commentLikeRequest.idx(), ACTIVE)
+                        .orElseThrow(() -> new BaseException(PROJECT_COMMENT_REPLY_NOT_FOUND));
+        } catch (PessimisticLockingFailureException e) {
+            log.error("프로젝트 대댓글 추천 락 획득 실패 - 사용자: {}, 프로젝트 ID: {}", user.getName(), commentLikeRequest.idx());
+            throw new BaseException(TEMPORARY_UNAVAILABLE);
+        }
+        if (!hasAccessToProject(projectReplyComment.getProjectComment().getProject(), user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
+        return projectReplyComment;
     }
 }
