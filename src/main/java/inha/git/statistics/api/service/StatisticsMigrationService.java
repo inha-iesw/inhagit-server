@@ -13,7 +13,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 
@@ -31,8 +33,6 @@ public class StatisticsMigrationService {
         log.info("Starting statistics migration...");
         statisticsRepository.deleteAll();
 
-        // 각 통계 키별로 참여한 유저 ID를 추적하는 맵
-        Map<StatisticsKey, Set<Integer>> projectUserTracker = new HashMap<>();
         Map<StatisticsKey, Statistics> statisticsMap = new HashMap<>();
         List<Project> projects = projectJpaRepository.findAllByStateOrderById(ACTIVE);
 
@@ -53,7 +53,6 @@ public class StatisticsMigrationService {
                 // 1. 전체 통계 업데이트
                 updateStatistics(
                         statisticsMap,
-                        projectUserTracker,
                         StatisticsType.TOTAL,
                         null,
                         project.getSemester().getId(),
@@ -65,7 +64,6 @@ public class StatisticsMigrationService {
                 // 2. 사용자 통계
                 updateStatistics(
                         statisticsMap,
-                        projectUserTracker,
                         StatisticsType.USER,
                         project.getUser().getId(),
                         project.getSemester().getId(),
@@ -84,7 +82,6 @@ public class StatisticsMigrationService {
                     // 학과 통계
                     updateStatistics(
                             statisticsMap,
-                            projectUserTracker,
                             StatisticsType.DEPARTMENT,
                             dept.getDepartment().getId(),
                             project.getSemester().getId(),
@@ -96,7 +93,6 @@ public class StatisticsMigrationService {
                     // 단과대 통계
                     updateStatistics(
                             statisticsMap,
-                            projectUserTracker,
                             StatisticsType.COLLEGE,
                             dept.getDepartment().getCollege().getId(),
                             project.getSemester().getId(),
@@ -108,19 +104,6 @@ public class StatisticsMigrationService {
             } catch (Exception e) {
                 log.error("Error processing project {}: {}", project.getId(), e.getMessage());
             }
-        }
-
-        // 각 Statistics 객체의 projectParticipationCount를 업데이트
-        for (Map.Entry<StatisticsKey, Statistics> entry : statisticsMap.entrySet()) {
-            StatisticsKey key = entry.getKey();
-            Statistics stats = entry.getValue();
-
-            // 해당 키에 대한 유니크 유저 수를 가져와서 설정
-            Set<Integer> uniqueUsers = projectUserTracker.getOrDefault(key, new HashSet<>());
-            stats.setProjectParticipationCount(uniqueUsers.size());
-
-            log.debug("Statistics for key {}: unique users = {}, local = {}, github = {}",
-                    key, uniqueUsers.size(), stats.getLocalProjectCount(), stats.getGithubProjectCount());
         }
 
         statisticsRepository.saveAll(statisticsMap.values());
@@ -137,7 +120,6 @@ public class StatisticsMigrationService {
 
     private void updateStatistics(
             Map<StatisticsKey, Statistics> statisticsMap,
-            Map<StatisticsKey, Set<Integer>> projectUserTracker,
             StatisticsType type,
             Integer targetId,
             Integer semesterId,
@@ -147,7 +129,6 @@ public class StatisticsMigrationService {
 
         StatisticsKey key = new StatisticsKey(type, targetId, semesterId, fieldId, categoryId);
 
-        // 통계 업데이트
         Statistics stats = statisticsMap.computeIfAbsent(key, k ->
                 Statistics.builder()
                         .statisticsType(k.type())
@@ -168,9 +149,6 @@ public class StatisticsMigrationService {
         } else {
             stats.incrementLocalProjectCount();
         }
-
-        // 유저 트래커 업데이트
-        Set<Integer> uniqueUsers = projectUserTracker.computeIfAbsent(key, k -> new HashSet<>());
-        uniqueUsers.add(project.getUser().getId());
+        stats.incrementProjectParticipation();
     }
 }
