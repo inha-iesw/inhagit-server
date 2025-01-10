@@ -24,6 +24,7 @@ import inha.git.statistics.domain.repository.*;
 import inha.git.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -151,25 +152,37 @@ public class StatisticsServiceImpl implements StatisticsService {
     private void updateStatistics(User user, StatisticsType type, Integer targetId, Semester semester, List<Field> fields, Category category, Integer actionType, boolean isIncrease) {
         for (Field field : fields) {
             Long safeTargetId = (targetId != null) ? targetId.longValue() : null;
-            Statistics statistics = statisticsJpaRepository.findByStatisticsTypeAndTargetIdAndSemesterIdAndFieldIdAndCategoryId(
-                            type, safeTargetId, semester.getId().longValue(), field.getId().longValue(), category.getId().longValue())
-                    .orElseGet(() -> statisticsJpaRepository.save(
-                            Statistics.builder()
-                                    .statisticsType(type)
-                                    .targetId(targetId)
-                                    .semesterId(semester.getId())
-                                    .fieldId(field.getId())
-                                    .categoryId(category.getId())
-                                    .localProjectCount(0)
-                                    .githubProjectCount(0)
-                                    .questionCount(0)
-                                    .projectParticipationCount(0)
-                                    .questionParticipationCount(0)
-                                    .build()
-                    ));
+            Statistics statistics;
+            try {
+                // 락을 걸고 조회
+                statistics = statisticsJpaRepository.findByStatisticsTypeAndTargetIdAndSemesterIdAndFieldIdAndCategoryIdWithPessimisticLock(
+                                type, safeTargetId, semester.getId().longValue(), field.getId().longValue(), category.getId().longValue())
+                        .orElse(null);
 
+                // 통계가 없으면 새로 생성
+                if (statistics == null) {
+                    statistics = Statistics.builder()
+                            .statisticsType(type)
+                            .targetId(targetId)
+                            .semesterId(semester.getId())
+                            .fieldId(field.getId())
+                            .categoryId(category.getId())
+                            .localProjectCount(0)
+                            .githubProjectCount(0)
+                            .questionCount(0)
+                            .projectParticipationCount(0)
+                            .questionParticipationCount(0)
+                            .build();
+                    statisticsJpaRepository.save(statistics);
+                }
+            } catch (PessimisticLockingFailureException e) {
+                log.error("통계 관련 락 획득 실패 - 사용자 ID: {}, 학기 ID: {}, 분야 ID: {}, 카테고리 ID: {}", user.getId(), semester.getId(), field.getId(), category.getId());
+                throw new BaseException(TEMPORARY_UNAVAILABLE);
+            }
+
+            // 통계 업데이트
             switch (actionType) {
-                case 1 -> {
+                case 1 -> {  // 로컬 프로젝트
                     if (isIncrease) {
                         if (isFirstProjectUpload(user, semester, field)) {
                             statistics.incrementProjectParticipation();
@@ -182,7 +195,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                         }
                     }
                 }
-                case 2 -> {
+                case 2 -> {  // 깃허브 프로젝트
                     if (isIncrease) {
                         if (isFirstProjectUpload(user, semester, field)) {
                             statistics.incrementProjectParticipation();
@@ -195,7 +208,7 @@ public class StatisticsServiceImpl implements StatisticsService {
                         }
                     }
                 }
-                case 3 -> {
+                case 3 -> {  // 질문
                     if (isIncrease) {
                         if (isFirstQuestionUpload(user, semester, field)) {
                             statistics.incrementQuestionParticipation();
@@ -210,6 +223,9 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
                 default -> throw new BaseException(INVALID_ACTION_TYPE);
             }
+
+            // 변경된 통계 저장
+            statisticsJpaRepository.save(statistics);
         }
     }
 
