@@ -553,7 +553,6 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
         row.createCell(colIdx++).setCellValue(projectStats.totalProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.localProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.githubProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.projectUserCount());
         row.createCell(colIdx++).setCellValue(questionStats.questionCount());
         row.createCell(colIdx++).setCellValue(questionStats.userCount());
@@ -574,7 +573,6 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
         row.createCell(colIdx++).setCellValue(projectStats.totalProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.localProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.githubProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentProjectCount());
         row.createCell(colIdx++).setCellValue(questionStats.questionCount());
     }
 
@@ -592,7 +590,6 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
         row.createCell(colIdx++).setCellValue(projectStats.totalProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.localProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.githubProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentProjectCount());
         row.createCell(colIdx++).setCellValue(questionStats.questionCount());
     }
 
@@ -610,7 +607,6 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
         row.createCell(colIdx++).setCellValue(projectStats.totalProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.localProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.githubProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentProjectCount());
         row.createCell(colIdx++).setCellValue(questionStats.questionCount());
     }
 
@@ -627,9 +623,7 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
         row.createCell(colIdx++).setCellValue(projectStats.totalProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.localProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.githubProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.projectUserCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentUserCount());
         row.createCell(colIdx++).setCellValue(questionStats.questionCount());
         row.createCell(colIdx++).setCellValue(questionStats.userCount());
     }
@@ -650,7 +644,6 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
         row.createCell(colIdx++).setCellValue(projectStats.totalProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.localProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.githubProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentProjectCount());
         row.createCell(colIdx).setCellValue(questionStats.questionCount());
     }
 
@@ -671,7 +664,6 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
         row.createCell(colIdx++).setCellValue(projectStats.totalProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.localProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.githubProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentProjectCount());
         row.createCell(colIdx).setCellValue(questionStats.questionCount());
     }
 
@@ -692,7 +684,6 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
         row.createCell(colIdx++).setCellValue(projectStats.totalProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.localProjectCount());
         row.createCell(colIdx++).setCellValue(projectStats.githubProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentProjectCount());
         row.createCell(colIdx).setCellValue(questionStats.questionCount());
     }
     // 열 너비 자동 조정

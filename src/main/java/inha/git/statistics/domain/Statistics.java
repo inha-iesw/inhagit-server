@@ -108,4 +108,8 @@ public class Statistics {
     public Integer getTotalProjectCount() {
         return localProjectCount + githubProjectCount;
     }
+
+    public void setProjectParticipationCount(int size) {
+        this.projectParticipationCount = size;
+    }
 }
