@@ -13,9 +13,8 @@ import java.util.List;
 
 public interface StatisticsService {
 
-    void increaseCount(User user, List<Field> fields, Semester semester, Category category, Integer type);
+    void adjustCount(User user, List<Field> fields, Semester semester, Category category, Integer type, boolean isIncrease);
 
-    void decreaseCount(User user, List<Field> fields, Semester semester, Category category, Integer type);
     ProjectStatisticsResponse getProjectStatistics(SearchCond searchCond);
     QuestionStatisticsResponse getQuestionStatistics(SearchCond searchCond);
 
