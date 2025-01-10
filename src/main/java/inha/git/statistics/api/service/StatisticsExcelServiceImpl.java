@@ -14,7 +14,7 @@ import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
-import inha.git.statistics.domain.StatisticsType;
+import inha.git.statistics.domain.enums.StatisticsType;
 import inha.git.statistics.domain.repository.ProjectStatisticsQueryRepository;
 import inha.git.statistics.domain.repository.QuestionStatisticsQueryRepository;
 import jakarta.servlet.ServletOutputStream;
@@ -131,7 +131,7 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
     private void createAllStatisticsSheets(Workbook workbook, List<FilterData> filterDataList,
                                            StatisticsType type, List<Semester> semesters,
                                            List<Field> fields, List<Category> categories) {
-        String prefix = type.getPrefix();
+        String prefix = type.getDescription();
 
         // 1. 기본 통계
         createBasicStatisticsSheet(workbook, prefix + BASIC_STATISTICS, filterDataList, type);
@@ -692,6 +692,4 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
             sheet.autoSizeColumn(i);
         }
     }
-
-
 }

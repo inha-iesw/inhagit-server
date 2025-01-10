@@ -1,7 +1,6 @@
 package inha.git.statistics.domain.repository;
 
 import inha.git.statistics.domain.Statistics;
-import inha.git.statistics.domain.TotalDepartmentStatistics;
 import inha.git.statistics.domain.enums.StatisticsType;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
