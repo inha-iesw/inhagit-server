@@ -4,11 +4,12 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.college.controller.dto.response.SearchCollegeResponse;
-import inha.git.common.BaseEntity;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.statistics.api.controller.dto.response.BatchCollegeStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.CollegeStatisticsData;
 import inha.git.statistics.api.controller.dto.response.SemesterStatistics;
+import inha.git.statistics.domain.QStatistics;
+import inha.git.statistics.domain.enums.StatisticsType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -19,7 +20,6 @@ import java.util.stream.Collectors;
 import static inha.git.college.domain.QCollege.college;
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.semester.domain.QSemester.semester;
-import static inha.git.statistics.domain.QCollegeStatistics.collegeStatistics;
 
 @Repository
 @RequiredArgsConstructor
@@ -47,29 +47,27 @@ public class BatchStatisticsQueryRepository {
                 .orderBy(semester.id.asc())
                 .fetch();
 
-        // 3. 모든 통계 데이터를 한 번에 조회
+        // 3. 새로운 Statistics 테이블에서 단과대별, 학기별 통계 데이터 조회
         List<CollegeStatisticsData> statistics = queryFactory
                 .select(Projections.constructor(CollegeStatisticsData.class,
-                        collegeStatistics.college.id,
-                        collegeStatistics.semester.id,
+                        QStatistics.statistics.targetId,
+                        QStatistics.statistics.semesterId,
                         Expressions.numberTemplate(Integer.class,
                                 "COALESCE(SUM({0}), 0) + COALESCE(SUM({1}), 0)",
-                                collegeStatistics.projectCount,
-                                collegeStatistics.githubProjectCount),
+                                QStatistics.statistics.localProjectCount,
+                                QStatistics.statistics.githubProjectCount),
                         Expressions.numberTemplate(Integer.class,
                                 "COALESCE(SUM({0}), 0)",
-                                collegeStatistics.projectCount),
+                                QStatistics.statistics.localProjectCount),
                         Expressions.numberTemplate(Integer.class,
                                 "COALESCE(SUM({0}), 0)",
-                                collegeStatistics.githubProjectCount),
+                                QStatistics.statistics.githubProjectCount),
                         Expressions.numberTemplate(Integer.class,
                                 "COALESCE(SUM({0}), 0)",
-                                collegeStatistics.patentCount),
-                        Expressions.numberTemplate(Integer.class,
-                                "COALESCE(SUM({0}), 0)",
-                                collegeStatistics.questionCount)))
-                .from(collegeStatistics)
-                .groupBy(collegeStatistics.college.id, collegeStatistics.semester.id)
+                                QStatistics.statistics.questionCount)))
+                .from(QStatistics.statistics)
+                .where(QStatistics.statistics.statisticsType.eq(StatisticsType.COLLEGE))
+                .groupBy(QStatistics.statistics.targetId, QStatistics.statistics.semesterId)
                 .fetch();
 
         // 4. 데이터 매핑 및 변환
@@ -99,7 +97,7 @@ public class BatchStatisticsQueryRepository {
                 .map(semester -> {
                     CollegeStatisticsData stats = statsBySemester.getOrDefault(
                             semester.idx(),
-                            new CollegeStatisticsData(null, semester.idx(), 0, 0, 0, 0, 0)
+                            new CollegeStatisticsData(null, semester.idx(), 0, 0, 0, 0)
                     );
 
                     return new SemesterStatistics(
@@ -107,7 +105,6 @@ public class BatchStatisticsQueryRepository {
                             stats.totalProjectCount(),
                             stats.localProjectCount(),
                             stats.githubProjectCount(),
-                            stats.patentProjectCount(),
                             stats.questionCount()
                     );
                 })

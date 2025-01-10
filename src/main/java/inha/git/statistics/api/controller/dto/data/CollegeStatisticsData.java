@@ -1,7 +1,6 @@
-package inha.git.statistics.api.controller.dto.response;
+package inha.git.statistics.api.controller.dto.data;
 
 public record CollegeStatisticsData(
-
         Integer collegeId,
         Integer semesterId,
         Integer totalProjectCount,

@@ -6,6 +6,7 @@ import inha.git.statistics.api.controller.dto.response.BatchCollegeStatisticsRes
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
 import inha.git.statistics.api.service.StatisticsExcelService;
+import inha.git.statistics.api.service.StatisticsMigrationService;
 import inha.git.statistics.api.service.StatisticsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -14,10 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,6 +31,7 @@ public class StatisticsController {
 
     private final StatisticsService statisticsService;
     private final StatisticsExcelService statisticsExcelService;
+    private final StatisticsMigrationService statisticsMigrationService;
 
 
     /**
@@ -95,6 +94,19 @@ public class StatisticsController {
     public void exportToExcel(HttpServletResponse response)  {
         log.info("엑셀 다운로드 요청");
         statisticsExcelService.exportToExcelFile(response);
+    }
+
+    /**
+     * 통계 마이그레이션 API
+     *
+     * @return BaseResponse<String>
+     */
+    @PostMapping("/migration")
+    @PreAuthorize("hasAnyAuthority('admin:create', 'admin:update', 'admin:delete')")
+    @Operation(summary = "통계 마이그레이션 API", description = "통계 마이그레이션을 수행합니다.")
+    public BaseResponse<String> migrateStatistics() {
+        statisticsMigrationService.migrateProjectStatistics();
+        return BaseResponse.onSuccess("통계 마이그레이션 완료");
     }
 
 

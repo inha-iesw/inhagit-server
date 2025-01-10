@@ -8,10 +8,6 @@ import inha.git.department.domain.Department;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
 import inha.git.field.domain.Field;
 import inha.git.semester.domain.Semester;
-import inha.git.statistics.domain.UserCountStatistics;
-import inha.git.statistics.domain.UserStatistics;
-import inha.git.statistics.domain.id.UserCountStatisticsId;
-import inha.git.statistics.domain.id.UserStatisticsId;
 import inha.git.user.api.controller.dto.request.CompanySignupRequest;
 import inha.git.user.api.controller.dto.request.ProfessorSignupRequest;
 import inha.git.user.api.controller.dto.request.StudentSignupRequest;
@@ -126,14 +122,7 @@ public interface UserMapper {
     CompanySignupResponse userToCompanySignupResponse(User user);
 
 
-    default UserStatistics createUserStatistics(User user, Semester semester, Field field, Category category) {
-        return new UserStatistics(new UserStatisticsId(user.getId(), semester.getId(), field.getId(), category.getId()), user, semester, field, category, 0, 0, 0, 0, 0, 0);
-    }
 
-    default UserCountStatistics createUserCountStatistics(Semester semester, Field field, Category category) {
-        return new UserCountStatistics(new UserCountStatisticsId(semester.getId(), field.getId(), category.getId()), semester, field, category
-                ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-    }
     /**
      * Department 엔티티를 SearchDepartmentResponse로 변환하는 메서드 정의
      *
@@ -192,6 +181,4 @@ public interface UserMapper {
      */
     @Mapping(source = "user.id", target = "idx")
     UserResponse toUserResponse(User user);
-
-
 }

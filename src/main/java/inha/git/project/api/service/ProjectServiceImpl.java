@@ -97,7 +97,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         List<Field> fields = fieldJpaRepository.findAllById(createProjectRequest.fieldIdxList());
 
-        statisticsService.increaseCount(user, fields, semester, category,  1);
+        statisticsService.adjustCount(user, fields, semester, category,  1, true);
         log.info("프로젝트 생성 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), savedProject.getId());
         return projectMapper.projectToProjectResponse(savedProject);
     }
@@ -126,7 +126,7 @@ public class ProjectServiceImpl implements ProjectService {
         List<ProjectField> projectFields = createAndSaveProjectFields(createGithubProjectRequest.fieldIdxList(), savedProject);
         projectFieldJpaRepository.saveAll(projectFields);
         List<Field> fields = fieldJpaRepository.findAllById(createGithubProjectRequest.fieldIdxList());
-        statisticsService.increaseCount(user, fields, semester,  category, 8);
+        statisticsService.adjustCount(user, fields, semester,  category, 2, true);
         log.info("깃허브 프로젝트 생성 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), savedProject.getId());
         return projectMapper.projectToProjectResponse(savedProject);
     }
@@ -215,20 +215,16 @@ public class ProjectServiceImpl implements ProjectService {
 
         Project savedProject = projectJpaRepository.saveAndFlush(project);
 
-        // 저장 후 프로젝트 필드 확인
-        List<Integer> finalFieldIds = savedProject.getProjectFields().stream()
+        savedProject.getProjectFields().stream()
                 .map(pf -> pf.getField().getId())
                 .toList();
 
         // 통계 업데이트
         boolean isRepoProject = project.getRepoName() != null;
-        int statisticsValue = isRepoProject ? 8 : 1;
+        int statisticsValue = isRepoProject ? 2 : 1;
 
-        // 이전 상태에 대한 통계 감소
-        statisticsService.decreaseCount(user, originFields, originSemester, originCategory, statisticsValue);
-
-        // 새로운 상태에 대한 통계 증가
-        statisticsService.increaseCount(user, newFields, newSemester, newCategory, statisticsValue);
+        statisticsService.adjustCount(user, originFields, originSemester, originCategory, statisticsValue, false);
+        statisticsService.adjustCount(user, newFields, newSemester, newCategory, statisticsValue, true);
 
         if (project.getRepoName() == null) {
             ProjectUpload findProjectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
@@ -284,10 +280,10 @@ public class ProjectServiceImpl implements ProjectService {
                 .map(ProjectField::getField)
                 .toList();
         if(project.getRepoName() == null) {
-            statisticsService.decreaseCount(project.getUser(), fields, project.getSemester(), project.getCategory(), 1);
+            statisticsService.adjustCount(project.getUser(), fields, project.getSemester(), project.getCategory(), 1, false);
         }
         else {
-            statisticsService.decreaseCount(project.getUser(), fields, project.getSemester(), project.getCategory(), 8);
+            statisticsService.adjustCount(project.getUser(), fields, project.getSemester(), project.getCategory(), 2, false);
         }
         log.info("프로젝트 삭제 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
         return projectMapper.projectToProjectResponse(project);

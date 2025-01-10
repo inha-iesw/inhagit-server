@@ -9,7 +9,6 @@ import inha.git.department.api.controller.dto.request.UpdateDepartmentRequest;
 import inha.git.department.api.mapper.DepartmentMapper;
 import inha.git.department.domain.Department;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
-import inha.git.statistics.domain.repository.TotalDepartmentStatisticsJpaRepository;
 import inha.git.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +32,6 @@ import static inha.git.common.code.status.ErrorStatus.*;
 public class DepartmentServiceImpl implements DepartmentService{
     private final DepartmentJpaRepository departmentJpaRepository;
     private final DepartmentMapper departmentMapper;
-    private final TotalDepartmentStatisticsJpaRepository totalDepartmentStatisticsJpaRepository;
     private final CollegeJpaRepository collegeJpaRepository;
 
     /**
@@ -73,7 +71,6 @@ public class DepartmentServiceImpl implements DepartmentService{
                 throw new BaseException(DEPARTMENT_NOT_BELONG_TO_COLLEGE);
         }
         Department savedDepartment = departmentJpaRepository.save(department);
-        totalDepartmentStatisticsJpaRepository.save(departmentMapper.createTotalDepartmentStatistics(department));
         log.info("학과 생성 성공 - 관리자: {} 학과명: {}", admin.getName(), savedDepartment.getName());
         return savedDepartment.getName() + " 학과가 생성되었습니다.";
     }
@@ -115,6 +112,4 @@ public class DepartmentServiceImpl implements DepartmentService{
         log.info("학과 삭제 성공 - 관리자: {} 학과명: {}", admin.getName(), department.getName());
         return department.getName() + " 학과가 삭제되었습니다.";
     }
-
-
 }
