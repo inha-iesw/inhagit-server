@@ -2,7 +2,6 @@ package inha.git.statistics.domain.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
 import inha.git.category.controller.dto.response.SearchCategoryResponse;
@@ -21,13 +20,7 @@ import static inha.git.college.domain.QCollege.college;
 import static inha.git.department.domain.QDepartment.department;
 import static inha.git.field.domain.QField.field;
 import static inha.git.semester.domain.QSemester.semester;
-import static inha.git.statistics.domain.QCollegeStatistics.collegeStatistics;
-import static inha.git.statistics.domain.QDepartmentStatistics.departmentStatistics;
 import static inha.git.statistics.domain.QStatistics.statistics;
-import static inha.git.statistics.domain.QTotalCollegeStatistics.totalCollegeStatistics;
-import static inha.git.statistics.domain.QTotalDepartmentStatistics.totalDepartmentStatistics;
-import static inha.git.statistics.domain.QTotalUserStatistics.totalUserStatistics;
-import static inha.git.statistics.domain.QUserCountStatistics.userCountStatistics;
 
 /**
  * 질문 통계 조회 Repository
