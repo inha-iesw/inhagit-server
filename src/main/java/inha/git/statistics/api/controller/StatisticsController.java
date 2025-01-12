@@ -95,7 +95,7 @@ public class StatisticsController {
     @GetMapping("/export/excel")
     @PreAuthorize("hasAnyAuthority('professor:read', 'admin:read')")
     @Operation(summary = "엑셀 다운로드 API", description = "모든 통계 데이터를 엑셀 파일로 다운로드합니다.")
-    public void exportToExcel(@AuthenticationPrincipal User user,  HttpServletResponse response, @RequestParam("statisticsType") StatisticsType statisticsType, @RequestParam(value = "filterId", required = false) Integer filterId)  {
+    public void exportToExcel(@AuthenticationPrincipal User user,  HttpServletResponse response, @RequestParam(value = "statisticsType", defaultValue = "TOTAL") StatisticsType statisticsType, @RequestParam(value = "filterId", required = false) Integer filterId)  {
         log.info("엑셀 다운로드 요청: {}", user.getName());
         statisticsExcelService.exportToExcelFile(response, statisticsType, filterId);
     }
