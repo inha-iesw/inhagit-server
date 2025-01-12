@@ -434,7 +434,7 @@ class QuestionServiceTest {
 
         verify(questionJpaRepository).save(any(Question.class));
         verify(questionFieldJpaRepository).saveAll(anyList());
-        verify(statisticsService).increaseCount(eq(user), anyList(), eq(semester), eq(category), eq(2));
+        verify(statisticsService).adjustCount(eq(user), anyList(), eq(semester), eq(category), eq(2), true);
         verify(fieldJpaRepository).findByIdAndState(eq(1), eq(ACTIVE));
     }
 
@@ -539,8 +539,8 @@ class QuestionServiceTest {
         assertThat(response.idx()).isEqualTo(1);
 
         verify(questionJpaRepository).save(any(Question.class));
-        verify(statisticsService).decreaseCount(eq(user), anyList(), eq(originalSemester), eq(category), eq(2));
-        verify(statisticsService).increaseCount(eq(user), anyList(), eq(newSemester), eq(category), eq(2));
+        verify(statisticsService).adjustCount(eq(user), anyList(), eq(originalSemester), eq(category), eq(2), false);
+        verify(statisticsService).adjustCount(eq(user), anyList(), eq(newSemester), eq(category), eq(2), true);
     }
 
     @Test
@@ -673,7 +673,7 @@ class QuestionServiceTest {
         assertThat(response.idx()).isEqualTo(1);
 
         verify(questionJpaRepository).findByIdAndState(1, ACTIVE);
-        verify(statisticsService).decreaseCount(eq(user), anyList(), eq(question.getSemester()), eq(question.getCategory()), eq(2));
+        verify(statisticsService).adjustCount(eq(user), anyList(), eq(question.getSemester()), eq(question.getCategory()), eq(2), false);
         verify(questionJpaRepository).save(question);
     }
 
