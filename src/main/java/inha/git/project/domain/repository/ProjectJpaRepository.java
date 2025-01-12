@@ -13,6 +13,8 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 import java.util.Optional;
 
 
@@ -24,10 +26,16 @@ public interface ProjectJpaRepository extends JpaRepository<Project, Integer> {
 
     Optional<Project> findByIdAndState(Integer projectIdx, BaseEntity.State state);
 
+
+
     long countByUserAndSemesterAndProjectFields_FieldAndState(User user, Semester semester, Field field, BaseEntity.State state);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "3000")})
     @Query("SELECT p FROM Project p WHERE p.id = :id AND p.state = :state")
     Optional<Project> findByIdAndStateWithPessimisticLock(@Param("id") Integer id, @Param("state") BaseEntity.State state);
+
+
+    List<Project> findAllByStateOrderById(BaseEntity.State state);
+
 }

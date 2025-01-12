@@ -237,6 +237,7 @@ public enum ErrorStatus implements BaseErrorCode {
     TOTAL_DEPARTMENT_STATISTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTICS4004", "학과 전체 통계를 찾을 수 없습니다."),
     TOTAL_COLLEGE_STATISTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTICS4005", "단과대 전체 통계를 찾을 수 없습니다."),
     USER_COUNT_STATISTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "STATISTICS4006", "사용자 수 통계를 찾을 수 없습니다."),
+    INVALID_ACTION_TYPE(HttpStatus.BAD_REQUEST, "STATISTICS4007", "유효하지 않은 통계 타입입니다."),
 
     INVALID_APPLICATION_NUMBER(HttpStatus.BAD_REQUEST, "APPLICATION4000", "유효하지 않은 신청 번호입니다."),
     NOT_EXIST_PATENT(HttpStatus.BAD_REQUEST, "PATENT4000", "존재하지 않는 특허입니다."),

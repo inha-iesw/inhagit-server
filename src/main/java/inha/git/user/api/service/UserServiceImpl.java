@@ -15,8 +15,9 @@ import inha.git.question.api.controller.dto.response.SearchQuestionsResponse;
 import inha.git.question.domain.repository.QuestionQueryRepository;
 import inha.git.report.api.controller.dto.response.SearchReportResponse;
 import inha.git.report.domain.repository.ReportQueryRepository;
-import inha.git.statistics.domain.UserStatistics;
-import inha.git.statistics.domain.repository.UserStatisticsJpaRepository;
+import inha.git.statistics.domain.Statistics;
+import inha.git.statistics.domain.enums.StatisticsType;
+import inha.git.statistics.domain.repository.StatisticsJpaRepository;
 import inha.git.team.api.controller.dto.response.SearchMyTeamsResponse;
 import inha.git.team.domain.repository.TeamQueryRepository;
 import inha.git.user.api.controller.dto.request.UpdatePwRequest;
@@ -54,8 +55,8 @@ public class UserServiceImpl implements UserService {
     private final CompanyJpaRepository companyJpaRepository;
     private final UserJpaRepository userJpaRepository;
     private final UserMapper userMapper;
-    private final UserStatisticsJpaRepository userStatisticsJpaRepository;
     private final UserDepartmentJpaRepository userDepartmentJpaRepository;
+    private final StatisticsJpaRepository statisticsJpaRepository;
     private final PasswordEncoder passwordEncoder;
     private final ProjectQueryRepository projectQueryRepository;
     private final QuestionQueryRepository questionQueryRepository;
@@ -80,12 +81,12 @@ public class UserServiceImpl implements UserService {
                     .orElseThrow(() -> new BaseException(NOT_COMPANY));
             return userMapper.toSearchCompanyUserResponse(user, position, company);
         } else {
-            List<UserStatistics> userStatistics = userStatisticsJpaRepository.findByUser(user)
-                    .orElseThrow(() -> new BaseException(USER_STATISTICS_NOT_FOUND));
-            int localProjectCount = userStatistics.stream().mapToInt(UserStatistics::getProjectCount).sum();
-            int githubProjectCount = userStatistics.stream().mapToInt(UserStatistics::getGithubProjectCount).sum();
-            int totalQuestionCount = userStatistics.stream().mapToInt(UserStatistics::getQuestionCount).sum();
-            int totalTeamCount = userStatistics.stream().mapToInt(UserStatistics::getTeamCount).sum();
+            List<Statistics> userStatistics = statisticsJpaRepository.findByStatisticsTypeAndTargetId(StatisticsType.USER, user.getId().longValue());
+
+            int localProjectCount = userStatistics.stream().mapToInt(Statistics::getLocalProjectCount).sum();
+            int githubProjectCount = userStatistics.stream().mapToInt(Statistics::getGithubProjectCount).sum();
+            int totalQuestionCount = userStatistics.stream().mapToInt(Statistics::getQuestionCount).sum();
+            int totalTeamCount = userStatistics.stream().mapToInt(Statistics::getProjectParticipationCount).sum();  // 팀 참여 수는 프로젝트 참여 수로 대체
 
             List<SearchDepartmentResponse> searchDepartmentResponses = userMapper.departmentsToSearchDepartmentResponses(userDepartmentJpaRepository.findByUserId(user.getId())
                     .orElseThrow(() -> new BaseException(USER_STATISTICS_NOT_FOUND))
