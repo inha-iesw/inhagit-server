@@ -8,12 +8,15 @@ import inha.git.statistics.api.controller.dto.response.QuestionStatisticsRespons
 import inha.git.statistics.api.service.StatisticsExcelService;
 import inha.git.statistics.api.service.StatisticsMigrationService;
 import inha.git.statistics.api.service.StatisticsService;
+import inha.git.statistics.domain.enums.StatisticsType;
+import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -87,13 +90,14 @@ public class StatisticsController {
      * 엑셀 다운로드 API
      *
      * @param response HttpServletResponse
+     * @param statisticsType 통계 타입
      */
     @GetMapping("/export/excel")
     @PreAuthorize("hasAnyAuthority('professor:read', 'admin:read')")
     @Operation(summary = "엑셀 다운로드 API", description = "모든 통계 데이터를 엑셀 파일로 다운로드합니다.")
-    public void exportToExcel(HttpServletResponse response)  {
-        log.info("엑셀 다운로드 요청");
-        statisticsExcelService.exportToExcelFile(response);
+    public void exportToExcel(@AuthenticationPrincipal User user,  HttpServletResponse response, @RequestParam(value = "statisticsType", defaultValue = "TOTAL") StatisticsType statisticsType, @RequestParam(value = "filterId", required = false) Integer filterId)  {
+        log.info("엑셀 다운로드 요청: {}", user.getName());
+        statisticsExcelService.exportToExcelFile(response, statisticsType, filterId);
     }
 
     /**

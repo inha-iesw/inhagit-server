@@ -10,10 +10,7 @@ import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
-import inha.git.statistics.domain.DepartmentStatistics;
 import inha.git.statistics.domain.Statistics;
-import inha.git.statistics.domain.TotalUserStatistics;
-import inha.git.statistics.domain.UserStatistics;
 import inha.git.statistics.domain.enums.StatisticsType;
 import inha.git.statistics.domain.repository.*;
 import jakarta.transaction.Transactional;
@@ -24,9 +21,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
@@ -39,14 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class StatisticsValidationTest {
     @Autowired
     private ProjectJpaRepository projectRepository;
-    @Autowired
-    private UserStatisticsJpaRepository userStatisticsRepository;
-    @Autowired
-    private CollegeStatisticsJpaRepository collegeStatisticsRepository;
-    @Autowired
-    private DepartmentStatisticsJpaRepository departmentStatisticsRepository;
-    @Autowired
-    private TotalUserStatisticsJpaRepository totalUserStatisticsRepository;
+
     @Autowired
     private ProjectStatisticsQueryRepository projectStatisticsQueryRepository;
 
@@ -59,125 +47,6 @@ class StatisticsValidationTest {
     @Autowired
     private SemesterJpaRepository semesterJpaRepository;
 
-    @Test
-    @DisplayName("사용자별 프로젝트 통계 정합성 검증")
-    void validateUserProjectStatistics() {
-        // 1. 실제 프로젝트 수
-        Map<Integer, Long> actualCounts = projectRepository.findAll().stream()
-                .filter(p -> p.getState() == ACTIVE)
-                .collect(Collectors.groupingBy(
-                        p -> p.getUser().getId(),
-                        Collectors.counting()
-                ));
-
-        // 2. UserStatistics의 프로젝트 수
-        List<UserStatistics> userStats = userStatisticsRepository.findAll();
-        Map<Integer, Integer> statsProjectCounts = userStats.stream()
-                .collect(Collectors.groupingBy(
-                        us -> us.getUser().getId(),
-                        Collectors.summingInt(UserStatistics::getProjectCount)
-                ));
-
-        // 3. 검증 및 결과 출력
-        actualCounts.forEach((userId, actualCount) -> {
-            Integer statsCount = statsProjectCounts.getOrDefault(userId, 0);
-
-            System.out.println("User ID: " + userId);
-            System.out.println("Actual projects: " + actualCount);
-            System.out.println("Statistics count: " + statsCount);
-            System.out.println("Difference: " + (statsCount - actualCount));
-            System.out.println("------------------------");
-        });
-    }
-
-    @Test
-    @DisplayName("학과별 프로젝트 통계 정합성 검증")
-    void validateDepartmentProjectStatistics() {
-        // 1. 실제 학과별 프로젝트 수
-        Map<Integer, Long> actualCounts = projectRepository.findAll().stream()
-                .filter(p -> p.getState() == ACTIVE)
-                .flatMap(p -> p.getUser().getUserDepartments().stream())
-                .collect(Collectors.groupingBy(
-                        ud -> ud.getDepartment().getId(),
-                        Collectors.counting()
-                ));
-
-        // 2. DepartmentStatistics의 프로젝트 수
-        Map<Integer, Integer> statsCounts = departmentStatisticsRepository.findAll().stream()
-                .collect(Collectors.groupingBy(
-                        ds -> ds.getDepartment().getId(),
-                        Collectors.summingInt(DepartmentStatistics::getProjectCount)
-                ));
-
-        // 3. 결과 출력
-        actualCounts.forEach((deptId, actualCount) -> {
-            Integer statsCount = statsCounts.getOrDefault(deptId, 0);
-
-            System.out.println("Department ID: " + deptId);
-            System.out.println("Actual projects: " + actualCount);
-            System.out.println("Statistics count: " + statsCount);
-            System.out.println("Difference: " + (statsCount - actualCount));
-            System.out.println("------------------------");
-        });
-    }
-
-    @Test
-    @DisplayName("전체 통계 정합성 검증")
-    void validateTotalStatistics2() {
-        // 1. 실제 프로젝트 수
-        long actualProjectCount = projectRepository.count();
-        long actualGithubProjectCount = projectRepository.findAll().stream()
-                .filter(p -> p.getRepoName() != null)
-                .count();
-
-        // 2. 전체 통계값
-        TotalUserStatistics totalStats = totalUserStatisticsRepository
-                .findById(1)
-                .orElseThrow();
-
-        // 3. 결과 출력
-        System.out.println("=== Total Projects ===");
-        System.out.println("Actual count: " + actualProjectCount);
-        System.out.println("Statistics count: " + totalStats.getTotalProjectCount());
-        System.out.println("Difference: " +
-                (totalStats.getTotalProjectCount() - actualProjectCount));
-
-        System.out.println("\n=== Github Projects ===");
-        System.out.println("Actual count: " + actualGithubProjectCount);
-        System.out.println("Statistics count: " + totalStats.getTotalGithubProjectCount());
-        System.out.println("Difference: " +
-                (totalStats.getTotalGithubProjectCount() - actualGithubProjectCount));
-    }
-
-    @Test
-    @DisplayName("학기별 프로젝트 통계 정합성 검증")
-    void validateSemesterProjectStatistics() {
-        // 1. 실제 학기별 프로젝트 수
-        Map<Integer, Long> actualCounts = projectRepository.findAll().stream()
-                .filter(p -> p.getState() == ACTIVE && p.getSemester() != null)
-                .collect(Collectors.groupingBy(
-                        p -> p.getSemester().getId(),
-                        Collectors.counting()
-                ));
-
-        // 2. 학기별 통계 수
-        Map<Integer, Integer> statsCounts = userStatisticsRepository.findAll().stream()
-                .collect(Collectors.groupingBy(
-                        us -> us.getSemester().getId(),
-                        Collectors.summingInt(UserStatistics::getProjectCount)
-                ));
-
-        // 3. 결과 출력
-        actualCounts.forEach((semesterId, actualCount) -> {
-            Integer statsCount = statsCounts.getOrDefault(semesterId, 0);
-
-            System.out.println("Semester ID: " + semesterId);
-            System.out.println("Actual projects: " + actualCount);
-            System.out.println("Statistics count: " + statsCount);
-            System.out.println("Difference: " + (statsCount - actualCount));
-            System.out.println("------------------------");
-        });
-    }
 
     @Test
     @DisplayName("통계 조회 API와 실제 데이터 비교")
@@ -557,4 +426,96 @@ class StatisticsValidationTest {
 
     private record UserProjectCounts(long localCount, long githubCount) {}
     private record ProjectDepartment(Project project, Integer departmentId) {}
+
+    @Test
+    @DisplayName("통계 조회 성능 비교 테스트")
+    void compareQueryPerformance() {
+        int numberOfTests = 100; // 각 쿼리를 100번씩 실행
+        List<Long> actualQueryTimes = new ArrayList<>();
+        List<Long> statisticsQueryTimes = new ArrayList<>();
+
+        // 워밍업 실행
+        for (int i = 0; i < 10; i++) {
+            runActualDataQuery();
+            runStatisticsQuery();
+        }
+
+        // 실제 테스트 실행
+        for (int i = 0; i < numberOfTests; i++) {
+            // 실제 데이터 쿼리 시간 측정
+            long startTime = System.nanoTime();
+            runActualDataQuery();
+            long endTime = System.nanoTime();
+            actualQueryTimes.add((endTime - startTime) / 1000000); // nano to milliseconds
+
+            // 통계 테이블 쿼리 시간 측정
+            startTime = System.nanoTime();
+            runStatisticsQuery();
+            endTime = System.nanoTime();
+            statisticsQueryTimes.add((endTime - startTime) / 1000000);
+        }
+
+        // 결과 분석 및 출력
+        printPerformanceResults(actualQueryTimes, statisticsQueryTimes);
+    }
+
+    private void runActualDataQuery() {
+        long actualLocalCount = projectRepository.findAll().stream()
+                .filter(p -> p.getState() == ACTIVE && p.getRepoName() == null)
+                .count();
+
+        long actualGithubCount = projectRepository.findAll().stream()
+                .filter(p -> p.getState() == ACTIVE && p.getRepoName() != null)
+                .count();
+    }
+
+    private void runStatisticsQuery() {
+        List<Statistics> totalStatsList = statisticsJpaRepository
+                .findByStatisticsTypeAndTargetId(StatisticsType.TOTAL, null);
+
+        long statsLocalCount = totalStatsList.stream()
+                .mapToInt(Statistics::getLocalProjectCount)
+                .sum();
+
+        long statsGithubCount = totalStatsList.stream()
+                .mapToInt(Statistics::getGithubProjectCount)
+                .sum();
+    }
+
+    private void printPerformanceResults(List<Long> actualQueryTimes, List<Long> statisticsQueryTimes) {
+        // 기본 통계 계산
+        DoubleSummaryStatistics actualStats = actualQueryTimes.stream()
+                .mapToDouble(Long::doubleValue)
+                .summaryStatistics();
+
+        DoubleSummaryStatistics statsTableStats = statisticsQueryTimes.stream()
+                .mapToDouble(Long::doubleValue)
+                .summaryStatistics();
+
+        System.out.println("\n=== Performance Comparison Results ===");
+        System.out.println("\nActual Data Query:");
+        System.out.println("  Average Time: " + String.format("%.2f", actualStats.getAverage()) + "ms");
+        System.out.println("  Min Time: " + actualStats.getMin() + "ms");
+        System.out.println("  Max Time: " + actualStats.getMax() + "ms");
+        System.out.println("  Standard Deviation: " + calculateStdDev(actualQueryTimes) + "ms");
+
+        System.out.println("\nStatistics Table Query:");
+        System.out.println("  Average Time: " + String.format("%.2f", statsTableStats.getAverage()) + "ms");
+        System.out.println("  Min Time: " + statsTableStats.getMin() + "ms");
+        System.out.println("  Max Time: " + statsTableStats.getMax() + "ms");
+        System.out.println("  Standard Deviation: " + calculateStdDev(statisticsQueryTimes) + "ms");
+
+        System.out.println("\nPerformance Improvement:");
+        double improvement = ((actualStats.getAverage() - statsTableStats.getAverage()) / actualStats.getAverage()) * 100;
+        System.out.println("  " + String.format("%.2f", improvement) + "% faster using statistics table");
+    }
+
+    private double calculateStdDev(List<Long> times) {
+        double mean = times.stream().mapToDouble(Long::doubleValue).average().orElse(0.0);
+        double variance = times.stream()
+                .mapToDouble(time -> Math.pow(time - mean, 2))
+                .average()
+                .orElse(0.0);
+        return Math.sqrt(variance);
+    }
 }
