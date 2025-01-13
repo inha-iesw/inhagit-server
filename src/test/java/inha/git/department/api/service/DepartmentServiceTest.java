@@ -9,7 +9,6 @@ import inha.git.department.api.controller.dto.request.UpdateDepartmentRequest;
 import inha.git.department.api.mapper.DepartmentMapper;
 import inha.git.department.domain.Department;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
-import inha.git.statistics.domain.repository.TotalDepartmentStatisticsJpaRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import org.junit.jupiter.api.DisplayName;
@@ -46,8 +45,6 @@ class DepartmentServiceTest {
     @Mock
     private DepartmentMapper departmentMapper;
 
-    @Mock
-    private TotalDepartmentStatisticsJpaRepository totalDepartmentStatisticsJpaRepository;
 
     @Mock
     private CollegeJpaRepository collegeJpaRepository;
@@ -150,7 +147,6 @@ class DepartmentServiceTest {
         // then
         assertThat(result).isEqualTo("신설학과 학과가 생성되었습니다.");
         verify(departmentJpaRepository).save(any(Department.class));
-        verify(totalDepartmentStatisticsJpaRepository).save(any());
     }
 
     @Test
