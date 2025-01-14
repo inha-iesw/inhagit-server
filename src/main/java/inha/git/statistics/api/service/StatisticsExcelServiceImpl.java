@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.EXCEL_CREATE_ERROR;
 
 /**
@@ -38,17 +39,21 @@ import static inha.git.common.code.status.ErrorStatus.EXCEL_CREATE_ERROR;
 public class StatisticsExcelServiceImpl implements StatisticsExcelService {
 
     private final ProjectJpaRepository projectJpaRepository;
-    private static final String OSS_PROJECT_URL = "https://oss.inha.ac.kr/project/detail/";
+
+    private static final String[] headers = {
+            "순번", "단과대", "학과", "학번", "이름", "I-FOSS 제목",
+            "학기", "카테고리", "분야", "저장소 타입", "링크", "업로드 날짜"
+    };
 
     @Override
-    public void exportToExcelFile(HttpServletResponse response, StatisticsType statisticsType, Integer filterId) {
+    public void exportToExcelFile(HttpServletResponse response, StatisticsType statisticsType, Integer filterId, Integer semesterId) {
         try (Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("프로젝트 통계");
+            Sheet sheet = workbook.createSheet(I_FOSS_STATISTICS);
 
             Row headerRow = sheet.createRow(0);
             createHeaders(headerRow);
 
-            List<Project> projects = getProjectsByStatisticsType(statisticsType, filterId);
+            List<Project> projects = getProjectsByStatisticsType(statisticsType, filterId, semesterId);
             writeProjectData(sheet, projects);
             setColumnWidths(sheet);
             writeToResponse(workbook, response);
@@ -59,10 +64,7 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
     }
 
     private void createHeaders(Row headerRow) {
-        String[] headers = {
-                "순번", "단과대", "학과", "학번", "이름", "프로젝트 제목",
-                "학기", "카테고리", "분야", "저장소 타입", "링크", "생성 날짜"
-        };
+
 
         CellStyle headerStyle = createHeaderStyle(headerRow.getSheet().getWorkbook());
 
@@ -73,12 +75,12 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
         }
     }
 
-    private List<Project> getProjectsByStatisticsType(StatisticsType type, Integer filterId) {
+    private List<Project> getProjectsByStatisticsType(StatisticsType type, Integer filterId, Integer semesterId) {
         List<Project> projects = switch (type) {
-            case TOTAL -> projectJpaRepository.findAllByState(ACTIVE);
-            case COLLEGE -> projectJpaRepository.findAllByUserCollegeIdAndState(filterId, ACTIVE);
-            case DEPARTMENT -> projectJpaRepository.findAllByUserDepartmentIdAndState(filterId, ACTIVE);
-            case USER -> projectJpaRepository.findAllByUserIdAndState(filterId, ACTIVE);
+            case TOTAL -> projectJpaRepository.findAllByState(semesterId, ACTIVE);
+            case COLLEGE -> projectJpaRepository.findAllByUserCollegeIdAndState(filterId, semesterId, ACTIVE);
+            case DEPARTMENT -> projectJpaRepository.findAllByUserDepartmentIdAndState(filterId, semesterId, ACTIVE);
+            case USER -> projectJpaRepository.findAllByUserIdAndState(filterId, semesterId, ACTIVE);
         };
 
         if (!projects.isEmpty()) {
@@ -142,7 +144,7 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
 
     private String getProjectLink(Project project) {
         return project.getRepoName() != null ?
-                "https://github.com/" + project.getRepoName() :
+                GITHUB_URL + project.getRepoName() :
                 OSS_PROJECT_URL + project.getId();
     }
 
@@ -158,19 +160,19 @@ public class StatisticsExcelServiceImpl implements StatisticsExcelService {
     }
 
     private void setColumnWidths(Sheet sheet) {
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < headers.length; i++) {
             sheet.autoSizeColumn(i);
         }
     }
 
     private void writeToResponse(Workbook workbook, HttpServletResponse response) throws IOException {
-        String fileName = "I-OSS_Statistics_" +
+        String fileName = I_FOSS_STATISTICS + '-' +
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss")) +
                 ".xlsx";
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=" +
-                URLEncoder.encode(fileName, StandardCharsets.UTF_8.name()));
+                URLEncoder.encode(fileName, StandardCharsets.UTF_8));
 
         try (ServletOutputStream outputStream = response.getOutputStream()) {
             workbook.write(outputStream);

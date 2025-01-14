@@ -87,6 +87,7 @@ public class Constant {
     public final static String GITHUB_FILE_CACHE_PREFIX = "github:files:";
     public final static String GITHUB_FILE_CONTENT_CACHE_PREFIX = "github:fileContent:";
     public final static String GITHUB_API_URL = "https://api.github.com/repos/";
+    public final static String GITHUB_URL = "https://github.com/";
     public final static String GITHUB_CONTENTS = "/contents/";
     public final static String NODE_MODULES = "node_modules";
     public final static String OUT = ".out";
@@ -100,36 +101,18 @@ public class Constant {
     //.bat
     public final static String BAT = ".bat";
     public final static String CLASS = ".class";
-    //IDEMPOTENT
     public final static String IDEMPOTENT = "IDEMPOTENT";
     public final static Integer TIME_LIMIT = 3;
 
-    public final static String BASIC_STATISTICS = "_기본통계";
-    public final static String SEMESTER_STATISTICS = "_학기별";
-    public final static String FIELD_STATISTICS = "_분야별";
-    public final static String CATEGORY_STATISTICS = "_카테고리별";
-    public final static String TOTAL_FILTERING = "_모든필터링";
-    public final static String COLLEGE = "단과대";
-    public final static String DEPARTMENT = "학과";
-    public final static String TOTAL_PROJECT_COUNT = "total number of I-FOSS ";
-    public final static String LOCAL_PROJECT_COUNT = "local number of I-FOSS ";
-    public final static String GITHUB_PROJECT_COUNT = "github number of I-FOSS ";
-    public final static String REGISTERED_PATENT_COUNT = "number of registered of I-CRM";
-    public final static String PROJECT_PARTICIPATING_STUDENT_COUNT = "number of students participating in the I-FOSS";
-    public final static String PATENT_PARTICIPATING_STUDENT_COUNT = "number of students with registered I-CRM";
-    public final static String QUESTION_COUNT = "number of registered I-SSS";
-    public final static String QUESTION_PARTICIPATING_STUDENT_COUNT = "number of students participating in the I-SSS";
-    //학기
-    public final static String SEMESTER = "semester";
-    //분야
     public final static String FIELD = "field";
-    //카테고리
-    public final static String CATEGORY = "category";
 
     public final static String CURRICULUM = "교과";
 
     public final static String IMAGE = "image";
     public final static String ATTACHMENT = "attachment";
+
+    public final static String OSS_PROJECT_URL = "https://oss.inha.ac.kr/project/detail/";
+    public final static String I_FOSS_STATISTICS = "I-FOSS-통계";
 
     @PostConstruct
     public void init() {
