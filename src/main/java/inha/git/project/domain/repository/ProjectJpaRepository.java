@@ -46,8 +46,10 @@ public interface ProjectJpaRepository extends JpaRepository<Project, Integer> {
             "JOIN FETCH p.semester s " +
             "JOIN FETCH p.category cat " +
             "WHERE p.state = :state " +
+            "AND (:semesterId IS NULL OR s.id = :semesterId) " +
             "ORDER BY c.id ASC, d.id ASC, u.userNumber ASC")
-    List<Project> findAllByState(@Param("state") State state);
+    List<Project> findAllByState(@Param("semesterId") Integer semesterId,
+                                 @Param("state") State state);
 
     @Query("SELECT DISTINCT p FROM Project p " +
             "JOIN FETCH p.user u " +
@@ -58,9 +60,11 @@ public interface ProjectJpaRepository extends JpaRepository<Project, Integer> {
             "JOIN FETCH p.category cat " +
             "WHERE c.id = :collegeId " +
             "AND p.state = :state " +
+            "AND (:semesterId IS NULL OR s.id = :semesterId) " +
             "ORDER BY c.id ASC, d.id ASC, u.userNumber ASC")
     List<Project> findAllByUserCollegeIdAndState(
             @Param("collegeId") Integer collegeId,
+            @Param("semesterId") Integer semesterId,
             @Param("state") State state);
 
     @Query("SELECT DISTINCT p FROM Project p " +
@@ -72,9 +76,11 @@ public interface ProjectJpaRepository extends JpaRepository<Project, Integer> {
             "JOIN FETCH p.category cat " +
             "WHERE d.id = :departmentId " +
             "AND p.state = :state " +
+            "AND (:semesterId IS NULL OR s.id = :semesterId) " +
             "ORDER BY c.id ASC, d.id ASC, u.userNumber ASC")
     List<Project> findAllByUserDepartmentIdAndState(
             @Param("departmentId") Integer departmentId,
+            @Param("semesterId") Integer semesterId,
             @Param("state") State state);
 
     @Query("SELECT DISTINCT p FROM Project p " +
@@ -86,9 +92,11 @@ public interface ProjectJpaRepository extends JpaRepository<Project, Integer> {
             "JOIN FETCH p.category cat " +
             "WHERE u.id = :userId " +
             "AND p.state = :state " +
+            "AND (:semesterId IS NULL OR s.id = :semesterId) " +
             "ORDER BY p.createdAt DESC")
     List<Project> findAllByUserIdAndState(
             @Param("userId") Integer userId,
+            @Param("semesterId") Integer semesterId,
             @Param("state") State state);
 
     @Query("SELECT DISTINCT pf FROM ProjectField pf " +
