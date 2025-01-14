@@ -21,10 +21,6 @@ public record SemesterStatistics(
         Integer githubProjectCount,
 
         @NotNull
-        @Schema(description = "프로젝트에 등록된 특허 수", example = "4")
-        Integer patentProjectCount,
-
-        @NotNull
         @Schema(description = "등록된 질문", example = "10")
         Integer questionCount
 ) {

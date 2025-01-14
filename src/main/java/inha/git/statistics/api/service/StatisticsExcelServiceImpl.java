@@ -1,29 +1,16 @@
 package inha.git.statistics.api.service;
 
-import inha.git.category.domain.Category;
-import inha.git.category.domain.repository.CategoryJpaRepository;
-import inha.git.college.domain.College;
-import inha.git.college.domain.repository.CollegeJpaRepository;
 import inha.git.common.exceptions.BaseException;
-import inha.git.department.domain.Department;
-import inha.git.department.domain.repository.DepartmentJpaRepository;
-import inha.git.field.domain.Field;
-import inha.git.field.domain.repository.FieldJpaRepository;
-import inha.git.semester.domain.Semester;
-import inha.git.semester.domain.repository.SemesterJpaRepository;
-import inha.git.statistics.api.controller.dto.request.SearchCond;
-import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
-import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
-import inha.git.statistics.domain.StatisticsType;
-import inha.git.statistics.domain.repository.ProjectStatisticsQueryRepository;
-import inha.git.statistics.domain.repository.QuestionStatisticsQueryRepository;
+import inha.git.mapping.domain.ProjectField;
+import inha.git.project.domain.Project;
+import inha.git.project.domain.repository.ProjectJpaRepository;
+import inha.git.statistics.domain.enums.StatisticsType;
+import inha.git.user.domain.User;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +20,10 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.Constant.*;
@@ -46,661 +35,147 @@ import static inha.git.common.code.status.ErrorStatus.EXCEL_CREATE_ERROR;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
+@Transactional(readOnly = true)
 public class StatisticsExcelServiceImpl implements StatisticsExcelService {
 
-    private final ProjectStatisticsQueryRepository projectStatisticsQueryRepository;
-    private final QuestionStatisticsQueryRepository questionStatisticsQueryRepository;
-    private final CollegeJpaRepository collegeJpaRepository;
-    private final FieldJpaRepository fieldJpaRepository;
-    private final SemesterJpaRepository semesterJpaRepository;
-    private final CategoryJpaRepository categoryJpaRepository;
-    private final DepartmentJpaRepository departmentJpaRepository;
+    private final ProjectJpaRepository projectJpaRepository;
 
-    /**
-     * 통계 엑셀 파일을 생성하여 출력한다.
-     *
-     * @param response HttpServletResponse
-     */
+    private static final String[] headers = {
+            "순번", "단과대", "학과", "학번", "이름", "I-FOSS 제목",
+            "학기", "카테고리", "분야", "저장소 타입", "링크", "업로드 날짜"
+    };
+
     @Override
-    public void exportToExcelFile(HttpServletResponse response) {
-        try (Workbook workbook = new XSSFWorkbook()) {  // try-with-resources 사용
+    public void exportToExcelFile(HttpServletResponse response, StatisticsType statisticsType, Integer filterId, Integer semesterId) {
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet(I_FOSS_STATISTICS);
 
-        // 기본 데이터 조회
-        List<College> colleges = collegeJpaRepository.findAllByState(ACTIVE);
-        List<Department> departments = departmentJpaRepository.findAllByState(ACTIVE);
-        List<Semester> semesters = semesterJpaRepository.findAllByState(ACTIVE);
-        List<Field> fields = fieldJpaRepository.findAllByState(ACTIVE);
-        List<Category> categories = categoryJpaRepository.findAllByState(ACTIVE);
+            Row headerRow = sheet.createRow(0);
+            createHeaders(headerRow);
 
+            List<Project> projects = getProjectsByStatisticsType(statisticsType, filterId, semesterId);
+            writeProjectData(sheet, projects);
+            setColumnWidths(sheet);
+            writeToResponse(workbook, response);
 
-        // 1. 전체 통계 (필터 없음)
-        createAllStatisticsSheets(workbook, Collections.emptyList(), StatisticsType.TOTAL,
-                semesters, fields, categories);
-
-        // 2. 단과대별 통계
-        createAllStatisticsSheets(workbook, colleges.stream()
-                        .map(college -> new FilterData(college.getId(), college.getName()))
-                        .toList(),
-                StatisticsType.COLLEGE,
-                semesters, fields, categories);
-
-        // 3. 학과별 통계
-        createAllStatisticsSheets(workbook, departments.stream()
-                        .map(department -> new FilterData(department.getId(), department.getName()))
-                        .toList(),
-                StatisticsType.DEPARTMENT,
-                semesters, fields, categories);
-
-        response.setCharacterEncoding("UTF-8");
-
-            // 응답 헤더 설정
-            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            response.setCharacterEncoding("UTF-8");
-
-            LocalDateTime now = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
-            String fileName = "ioss_statistics_" + now.format(formatter) + ".xlsx";
-
-            String encodedFilename = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name())
-                    .replaceAll("\\+", "%20");
-
-            // Content-Disposition 헤더 수정
-            response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + encodedFilename);
-
-            // 보안 헤더 설정
-            response.setHeader("X-Content-Type-Options", "nosniff");
-            response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
-            response.setHeader("Pragma", "public");
-            response.setHeader("Expires", "0");
-
-
-            try (ServletOutputStream outputStream = response.getOutputStream()) {
-                workbook.write(outputStream);
-                outputStream.flush();
-            }
         } catch (IOException e) {
             throw new BaseException(EXCEL_CREATE_ERROR);
         }
     }
 
-    // 필터 데이터를 담는 레코드
-    private record FilterData(Integer id, String name) {}
+    private void createHeaders(Row headerRow) {
 
-    // 하나의 통계 유형에 대한 모든 시트 생성
-    private void createAllStatisticsSheets(Workbook workbook, List<FilterData> filterDataList,
-                                           StatisticsType type, List<Semester> semesters,
-                                           List<Field> fields, List<Category> categories) {
-        String prefix = type.getPrefix();
 
-        // 1. 기본 통계
-        createBasicStatisticsSheet(workbook, prefix + BASIC_STATISTICS, filterDataList, type);
+        CellStyle headerStyle = createHeaderStyle(headerRow.getSheet().getWorkbook());
 
-        // 2. 학기별 통계
-        createSemesterStatisticsSheet(workbook, prefix + SEMESTER_STATISTICS, filterDataList, type, semesters);
-
-        // 3. 분야별 통계
-        createFieldStatisticsSheet(workbook, prefix + FIELD_STATISTICS, filterDataList, type, fields);
-
-        // 4. 카테고리별 통계
-        createCategoryStatisticsSheet(workbook, prefix + CATEGORY_STATISTICS, filterDataList, type, categories);
-
-        // 5. 학기_분야별 통계
-        createSemesterFieldStatisticsSheet(workbook, prefix + SEMESTER_STATISTICS + FIELD_STATISTICS, filterDataList, type, semesters, fields);
-
-        // 6. 학기_카테고리별 통계
-        createSemesterCategoryStatisticsSheet(workbook, prefix + SEMESTER_STATISTICS + CATEGORY_STATISTICS, filterDataList, type, semesters, categories);
-
-        // 7. 분야_카테고리별 통계
-        createFieldCategoryStatisticsSheet(workbook, prefix + FIELD_STATISTICS + CATEGORY_STATISTICS, filterDataList, type, fields, categories);
-
-        // 8. 전체_필터링 통계
-        createAllFilterStatisticsSheet(workbook, prefix + TOTAL_FILTERING, filterDataList, type, semesters, fields, categories);
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
     }
 
-    // 기본 통계 시트 생성
-    private void createBasicStatisticsSheet(Workbook workbook, String sheetName,
-                                            List<FilterData> filterDataList, StatisticsType type) {
-        Sheet sheet = workbook.createSheet(sheetName);
-        Row headerRow = sheet.createRow(0);
+    private List<Project> getProjectsByStatisticsType(StatisticsType type, Integer filterId, Integer semesterId) {
+        List<Project> projects = switch (type) {
+            case TOTAL -> projectJpaRepository.findAllByState(semesterId, ACTIVE);
+            case COLLEGE -> projectJpaRepository.findAllByUserCollegeIdAndState(filterId, semesterId, ACTIVE);
+            case DEPARTMENT -> projectJpaRepository.findAllByUserDepartmentIdAndState(filterId, semesterId, ACTIVE);
+            case USER -> projectJpaRepository.findAllByUserIdAndState(filterId, semesterId, ACTIVE);
+        };
 
-        // 헤더 설정
-        int colIdx = 0;
-        if (type != StatisticsType.TOTAL) {
-            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? COLLEGE : DEPARTMENT);
+        if (!projects.isEmpty()) {
+            List<Integer> projectIds = projects.stream()
+                    .map(Project::getId)
+                    .toList();
+            List<ProjectField> projectFields = projectJpaRepository.findProjectFieldsByProjectIds(projectIds);
+
+            Map<Integer, List<ProjectField>> fieldMap = projectFields.stream()
+                    .collect(Collectors.groupingBy(pf -> pf.getProject().getId()));
+
+            projects.forEach(project ->
+                    project.getProjectFields().addAll(fieldMap.getOrDefault(project.getId(), new ArrayList<>()))
+            );
         }
-        headerRow.createCell(colIdx++).setCellValue(TOTAL_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(LOCAL_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(GITHUB_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(REGISTERED_PATENT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(PROJECT_PARTICIPATING_STUDENT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(PATENT_PARTICIPATING_STUDENT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(QUESTION_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(QUESTION_PARTICIPATING_STUDENT_COUNT);
-
-        // 데이터 입력
-        int rowIdx = 1;
-        if (type == StatisticsType.TOTAL) {
-            Row dataRow = sheet.createRow(rowIdx);
-            SearchCond cond = new SearchCond(null, null, null, null, null);
-            addStatisticsRow(dataRow, null, cond, 0);
-        } else {
-            for (FilterData filterData : filterDataList) {
-                Row dataRow = sheet.createRow(rowIdx++);
-                SearchCond cond = new SearchCond(
-                        type == StatisticsType.COLLEGE ? filterData.id() : null,
-                        type == StatisticsType.DEPARTMENT ? filterData.id() : null,
-                        null, null, null
-                );
-                addStatisticsRow(dataRow, filterData.name(), cond, 0);
-            }
-        }
-
-        autoSizeColumns(sheet);
+        return projects;
     }
 
-    private void createSemesterStatisticsSheet(Workbook workbook, String sheetName,
-                                               List<FilterData> filterDataList, StatisticsType type,
-                                               List<Semester> semesters) {
-        Sheet sheet = workbook.createSheet(sheetName);
-        Row headerRow = sheet.createRow(0);
-        int colIdx = 0;
+    private void writeProjectData(Sheet sheet, List<Project> projects) {
+        int rowNum = 1;
+        int sequenceNum = 1;
 
-        // 헤더 설정
-        if (type != StatisticsType.TOTAL) {
-            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? COLLEGE : DEPARTMENT);
+        for (Project project : projects) {
+            User user = project.getUser();
+
+            String collegeName = user.getUserDepartments().stream()
+                    .findFirst()
+                    .map(ud -> ud.getDepartment().getCollege().getName())
+                    .orElse("");
+
+            String departmentName = user.getUserDepartments().stream()
+                    .findFirst()
+                    .map(ud -> ud.getDepartment().getName())
+                    .orElse("");
+
+            Row row = sheet.createRow(rowNum++);
+            int colNum = 0;
+
+            row.createCell(colNum++).setCellValue(sequenceNum++);
+            row.createCell(colNum++).setCellValue(collegeName);
+            row.createCell(colNum++).setCellValue(departmentName);
+            row.createCell(colNum++).setCellValue(user.getUserNumber());
+            row.createCell(colNum++).setCellValue(user.getName());
+            row.createCell(colNum++).setCellValue(project.getTitle());
+            row.createCell(colNum++).setCellValue(project.getSemester().getName());
+            row.createCell(colNum++).setCellValue(project.getCategory().getName());
+            row.createCell(colNum++).setCellValue(getFieldNames(project));
+            row.createCell(colNum++).setCellValue(project.getRepoName() != null ? "Github" : "Local");
+            row.createCell(colNum++).setCellValue(getProjectLink(project));
+            row.createCell(colNum).setCellValue(
+                    project.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            );
         }
-        headerRow.createCell(colIdx++).setCellValue(SEMESTER);
-        headerRow.createCell(colIdx++).setCellValue(TOTAL_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(LOCAL_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(GITHUB_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(REGISTERED_PATENT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(QUESTION_COUNT);
-
-        // 데이터 입력
-        int rowIdx = 1;
-        if (type == StatisticsType.TOTAL) {
-            for (Semester semester : semesters) {
-                Row row = sheet.createRow(rowIdx++);
-                SearchCond cond = new SearchCond(null, null, semester.getId(), null, null);
-                addSemesterRow(row, null, semester.getName(), cond, 0);
-            }
-        } else {
-            for (FilterData filterData : filterDataList) {
-                for (Semester semester : semesters) {
-                    Row row = sheet.createRow(rowIdx++);
-                    SearchCond cond = new SearchCond(
-                            type == StatisticsType.COLLEGE ? filterData.id() : null,
-                            type == StatisticsType.DEPARTMENT ? filterData.id() : null,
-                            semester.getId(), null, null
-                    );
-                    addSemesterRow(row, filterData.name(), semester.getName(), cond, 0);
-                }
-            }
-        }
-
-        autoSizeColumns(sheet);
     }
 
-    private void createFieldStatisticsSheet(Workbook workbook, String sheetName,
-                                            List<FilterData> filterDataList, StatisticsType type,
-                                            List<Field> fields) {
-        Sheet sheet = workbook.createSheet(sheetName);
-        Row headerRow = sheet.createRow(0);
-        int colIdx = 0;
-
-        // 헤더 설정
-        if (type != StatisticsType.TOTAL) {
-            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? COLLEGE : DEPARTMENT);
-        }
-        headerRow.createCell(colIdx++).setCellValue(FIELD);
-        headerRow.createCell(colIdx++).setCellValue(TOTAL_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(LOCAL_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(GITHUB_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(REGISTERED_PATENT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(QUESTION_COUNT);
-
-        // 데이터 입력
-        int rowIdx = 1;
-        if (type == StatisticsType.TOTAL) {
-            for (Field field : fields) {
-                Row row = sheet.createRow(rowIdx++);
-                SearchCond cond = new SearchCond(null, null, null, field.getId(), null);
-                addFieldRow(row, null, field.getName(), cond, 0);
-            }
-        } else {
-            for (FilterData filterData : filterDataList) {
-                for (Field field : fields) {
-                    Row row = sheet.createRow(rowIdx++);
-                    SearchCond cond = new SearchCond(
-                            type == StatisticsType.COLLEGE ? filterData.id() : null,
-                            type == StatisticsType.DEPARTMENT ? filterData.id() : null,
-                            null, field.getId(), null
-                    );
-                    addFieldRow(row, filterData.name(), field.getName(), cond, 0);
-                }
-            }
-        }
-
-        autoSizeColumns(sheet);
+    private String getFieldNames(Project project) {
+        return project.getProjectFields().stream()
+                .map(projectField -> projectField.getField().getName())
+                .collect(Collectors.joining(", "));
     }
 
-    private void createCategoryStatisticsSheet(Workbook workbook, String sheetName,
-                                               List<FilterData> filterDataList, StatisticsType type,
-                                               List<Category> categories) {
-        Sheet sheet = workbook.createSheet(sheetName);
-        Row headerRow = sheet.createRow(0);
-        int colIdx = 0;
-
-        // 헤더 설정
-        if (type != StatisticsType.TOTAL) {
-            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? COLLEGE : DEPARTMENT);
-        }
-        headerRow.createCell(colIdx++).setCellValue(CATEGORY);
-        headerRow.createCell(colIdx++).setCellValue(TOTAL_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(LOCAL_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(GITHUB_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(REGISTERED_PATENT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(QUESTION_COUNT);
-
-        // 데이터 입력
-        int rowIdx = 1;
-        if (type == StatisticsType.TOTAL) {
-            for (Category category : categories) {
-                Row row = sheet.createRow(rowIdx++);
-                SearchCond cond = new SearchCond(null, null, null, null, category.getId());
-                addCategoryRow(row, null, category.getName(), cond, 0);
-            }
-        } else {
-            for (FilterData filterData : filterDataList) {
-                for (Category category : categories) {
-                    Row row = sheet.createRow(rowIdx++);
-                    SearchCond cond = new SearchCond(
-                            type == StatisticsType.COLLEGE ? filterData.id() : null,
-                            type == StatisticsType.DEPARTMENT ? filterData.id() : null,
-                            null, null, category.getId()
-                    );
-                    addCategoryRow(row, filterData.name(), category.getName(), cond, 0);
-                }
-            }
-        }
-
-        autoSizeColumns(sheet);
+    private String getProjectLink(Project project) {
+        return project.getRepoName() != null ?
+                GITHUB_URL + project.getRepoName() :
+                OSS_PROJECT_URL + project.getId();
     }
 
-    private void createSemesterFieldStatisticsSheet(Workbook workbook, String sheetName,
-                                                    List<FilterData> filterDataList, StatisticsType type,
-                                                    List<Semester> semesters, List<Field> fields) {
-        Sheet sheet = workbook.createSheet(sheetName);
-        Row headerRow = sheet.createRow(0);
-        int colIdx = 0;
-
-        // 헤더 설정
-        if (type != StatisticsType.TOTAL) {
-            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? COLLEGE : DEPARTMENT);
-        }
-        headerRow.createCell(colIdx++).setCellValue(SEMESTER);
-        headerRow.createCell(colIdx++).setCellValue(FIELD);
-        headerRow.createCell(colIdx++).setCellValue(TOTAL_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(LOCAL_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(GITHUB_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(REGISTERED_PATENT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(QUESTION_COUNT);
-
-        // 데이터 입력
-        int rowIdx = 1;
-        if (type == StatisticsType.TOTAL) {
-            for (Semester semester : semesters) {
-                for (Field field : fields) {
-                    Row row = sheet.createRow(rowIdx++);
-                    SearchCond cond = new SearchCond(null, null, semester.getId(), field.getId(), null);
-                    addSemesterFieldRow(row, null, semester.getName(), field.getName(), cond, 0);
-                }
-            }
-        } else {
-            for (FilterData filterData : filterDataList) {
-                for (Semester semester : semesters) {
-                    for (Field field : fields) {
-                        Row row = sheet.createRow(rowIdx++);
-                        SearchCond cond = new SearchCond(
-                                type == StatisticsType.COLLEGE ? filterData.id() : null,
-                                type == StatisticsType.DEPARTMENT ? filterData.id() : null,
-                                semester.getId(), field.getId(), null
-                        );
-                        addSemesterFieldRow(row, filterData.name(), semester.getName(), field.getName(), cond, 0);
-                    }
-                }
-            }
-        }
-
-        autoSizeColumns(sheet);
+    private CellStyle createHeaderStyle(Workbook workbook) {
+        CellStyle style = workbook.createCellStyle();
+        style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        return style;
     }
 
-    private void createSemesterCategoryStatisticsSheet(Workbook workbook, String sheetName,
-                                                      List<FilterData> filterDataList, StatisticsType type,
-                                                      List<Semester> semesters, List<Category> categories) {
-        Sheet sheet = workbook.createSheet(sheetName);
-        Row headerRow = sheet.createRow(0);
-        int colIdx = 0;
-
-        // 헤더 설정
-        if (type != StatisticsType.TOTAL) {
-            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? COLLEGE : DEPARTMENT);
-        }
-        headerRow.createCell(colIdx++).setCellValue(SEMESTER);
-        headerRow.createCell(colIdx++).setCellValue(CATEGORY);
-        headerRow.createCell(colIdx++).setCellValue(TOTAL_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(LOCAL_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(GITHUB_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(REGISTERED_PATENT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(QUESTION_COUNT);
-
-        // 데이터 입력
-        int rowIdx = 1;
-        if (type == StatisticsType.TOTAL) {
-            for (Semester semester : semesters) {
-                for (Category category : categories) {
-                    Row row = sheet.createRow(rowIdx++);
-                    SearchCond cond = new SearchCond(null, null, semester.getId(), null, category.getId());
-                    addSemesterCategoryRow(row, null, semester.getName(), category.getName(), cond, 0);
-                }
-            }
-        } else {
-            for (FilterData filterData : filterDataList) {
-                for (Semester semester : semesters) {
-                    for (Category category : categories) {
-                        Row row = sheet.createRow(rowIdx++);
-                        SearchCond cond = new SearchCond(
-                                type == StatisticsType.COLLEGE ? filterData.id() : null,
-                                type == StatisticsType.DEPARTMENT ? filterData.id() : null,
-                                semester.getId(), null, category.getId()
-                        );
-                        addSemesterCategoryRow(row, filterData.name(), semester.getName(), category.getName(), cond, 0);
-                    }
-                }
-            }
-        }
-
-        autoSizeColumns(sheet);
-    }
-
-    private void createFieldCategoryStatisticsSheet(Workbook workbook, String sheetName,
-                                                    List<FilterData> filterDataList, StatisticsType type,
-                                                    List<Field> fields, List<Category> categories) {
-        Sheet sheet = workbook.createSheet(sheetName);
-        Row headerRow = sheet.createRow(0);
-        int colIdx = 0;
-
-        // 헤더 설정
-        if (type != StatisticsType.TOTAL) {
-            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? COLLEGE : DEPARTMENT);
-        }
-        headerRow.createCell(colIdx++).setCellValue(FIELD);
-        headerRow.createCell(colIdx++).setCellValue(CATEGORY);
-        headerRow.createCell(colIdx++).setCellValue(TOTAL_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(LOCAL_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(GITHUB_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(REGISTERED_PATENT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(QUESTION_COUNT);
-
-        // 데이터 입력
-        int rowIdx = 1;
-        if (type == StatisticsType.TOTAL) {
-            for (Field field : fields) {
-                for (Category category : categories) {
-                    Row row = sheet.createRow(rowIdx++);
-                    SearchCond cond = new SearchCond(null, null, null, field.getId(), category.getId());
-                    addFieldCategoryRow(row, null, field.getName(), category.getName(), cond, 0);
-                }
-            }
-        } else {
-            for (FilterData filterData : filterDataList) {
-                for (Field field : fields) {
-                    for (Category category : categories) {
-                        Row row = sheet.createRow(rowIdx++);
-                        SearchCond cond = new SearchCond(
-                                type == StatisticsType.COLLEGE ? filterData.id() : null,
-                                type == StatisticsType.DEPARTMENT ? filterData.id() : null,
-                                null, field.getId(), category.getId()
-                        );
-                        addFieldCategoryRow(row, filterData.name(), field.getName(), category.getName(), cond, 0);
-                    }
-                }
-            }
-        }
-
-        autoSizeColumns(sheet);
-    }
-
-    private void createAllFilterStatisticsSheet(Workbook workbook, String sheetName,
-                                                List<FilterData> filterDataList, StatisticsType type,
-                                                List<Semester> semesters, List<Field> fields, List<Category> categories) {
-        Sheet sheet = workbook.createSheet(sheetName);
-        Row headerRow = sheet.createRow(0);
-        int colIdx = 0;
-
-        // 헤더 설정
-        if (type != StatisticsType.TOTAL) {
-            headerRow.createCell(colIdx++).setCellValue(type == StatisticsType.COLLEGE ? COLLEGE : DEPARTMENT);
-        }
-        headerRow.createCell(colIdx++).setCellValue(SEMESTER);
-        headerRow.createCell(colIdx++).setCellValue(FIELD);
-        headerRow.createCell(colIdx++).setCellValue(CATEGORY);
-        headerRow.createCell(colIdx++).setCellValue(TOTAL_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(LOCAL_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(GITHUB_PROJECT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(REGISTERED_PATENT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(PROJECT_PARTICIPATING_STUDENT_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(QUESTION_COUNT);
-        headerRow.createCell(colIdx++).setCellValue(QUESTION_PARTICIPATING_STUDENT_COUNT);
-
-        // 데이터 입력
-        int rowIdx = 1;
-        if (type == StatisticsType.TOTAL) {
-            for (Semester semester : semesters) {
-                for (Field field : fields) {
-                    for (Category category : categories) {
-                        Row row = sheet.createRow(rowIdx++);
-                        SearchCond cond = new SearchCond(
-                                null, null,
-                                semester.getId(),
-                                field.getId(),
-                                category.getId()
-                        );
-                        addAllFilterRow(row, null, semester.getName(), field.getName(),
-                                category.getName(), cond, 0);
-                    }
-                }
-            }
-        } else {
-            for (FilterData filterData : filterDataList) {
-                for (Semester semester : semesters) {
-                    for (Field field : fields) {
-                        for (Category category : categories) {
-                            Row row = sheet.createRow(rowIdx++);
-                            SearchCond cond = new SearchCond(
-                                    type == StatisticsType.COLLEGE ? filterData.id() : null,
-                                    type == StatisticsType.DEPARTMENT ? filterData.id() : null,
-                                    semester.getId(),
-                                    field.getId(),
-                                    category.getId()
-                            );
-                            addAllFilterRow(row, filterData.name(), semester.getName(),
-                                    field.getName(), category.getName(), cond, 0);
-                        }
-                    }
-                }
-            }
-        }
-
-        autoSizeColumns(sheet);
-    }
-
-    private void addAllFilterRow(Row row, String filterName, String semesterName,
-                                 String fieldName, String categoryName, SearchCond cond, int startColIdx) {
-        int colIdx = startColIdx;
-
-        if (filterName != null) {
-            row.createCell(colIdx++).setCellValue(filterName);
-        }
-        row.createCell(colIdx++).setCellValue(semesterName);
-        row.createCell(colIdx++).setCellValue(fieldName);
-        row.createCell(colIdx++).setCellValue(categoryName);
-
-        ProjectStatisticsResponse projectStats = projectStatisticsQueryRepository.getProjectStatistics(cond);
-        QuestionStatisticsResponse questionStats = questionStatisticsQueryRepository.getQuestionStatistics(cond);
-
-        row.createCell(colIdx++).setCellValue(projectStats.totalProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.localProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.githubProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.projectUserCount());
-        row.createCell(colIdx++).setCellValue(questionStats.questionCount());
-        row.createCell(colIdx++).setCellValue(questionStats.userCount());
-    }
-
-
-    private void addSemesterRow(Row row, String filterName, String semesterName, SearchCond cond, int startColIdx) {
-        int colIdx = startColIdx;
-
-        if (filterName != null) {
-            row.createCell(colIdx++).setCellValue(filterName);
-        }
-        row.createCell(colIdx++).setCellValue(semesterName);
-
-        ProjectStatisticsResponse projectStats = projectStatisticsQueryRepository.getProjectStatistics(cond);
-        QuestionStatisticsResponse questionStats = questionStatisticsQueryRepository.getQuestionStatistics(cond);
-
-        row.createCell(colIdx++).setCellValue(projectStats.totalProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.localProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.githubProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentProjectCount());
-        row.createCell(colIdx++).setCellValue(questionStats.questionCount());
-    }
-
-    private void addFieldRow(Row row, String filterName, String fieldName, SearchCond cond, int startColIdx) {
-        int colIdx = startColIdx;
-
-        if (filterName != null) {
-            row.createCell(colIdx++).setCellValue(filterName);
-        }
-        row.createCell(colIdx++).setCellValue(fieldName);
-
-        ProjectStatisticsResponse projectStats = projectStatisticsQueryRepository.getProjectStatistics(cond);
-        QuestionStatisticsResponse questionStats = questionStatisticsQueryRepository.getQuestionStatistics(cond);
-
-        row.createCell(colIdx++).setCellValue(projectStats.totalProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.localProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.githubProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentProjectCount());
-        row.createCell(colIdx++).setCellValue(questionStats.questionCount());
-    }
-
-    private void addCategoryRow(Row row, String filterName, String categoryName, SearchCond cond, int startColIdx) {
-        int colIdx = startColIdx;
-
-        if (filterName != null) {
-            row.createCell(colIdx++).setCellValue(filterName);
-        }
-        row.createCell(colIdx++).setCellValue(categoryName);
-
-        ProjectStatisticsResponse projectStats = projectStatisticsQueryRepository.getProjectStatistics(cond);
-        QuestionStatisticsResponse questionStats = questionStatisticsQueryRepository.getQuestionStatistics(cond);
-
-        row.createCell(colIdx++).setCellValue(projectStats.totalProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.localProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.githubProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentProjectCount());
-        row.createCell(colIdx++).setCellValue(questionStats.questionCount());
-    }
-
-    private void addStatisticsRow(Row row, String filterName, SearchCond cond, int startColIdx) {
-        int colIdx = startColIdx;
-
-        if (filterName != null) {
-            row.createCell(colIdx++).setCellValue(filterName);
-        }
-
-        ProjectStatisticsResponse projectStats = projectStatisticsQueryRepository.getProjectStatistics(cond);
-        QuestionStatisticsResponse questionStats = questionStatisticsQueryRepository.getQuestionStatistics(cond);
-
-        row.createCell(colIdx++).setCellValue(projectStats.totalProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.localProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.githubProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.projectUserCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentUserCount());
-        row.createCell(colIdx++).setCellValue(questionStats.questionCount());
-        row.createCell(colIdx++).setCellValue(questionStats.userCount());
-    }
-
-    private void addSemesterFieldRow(Row row, String filterName, String semesterName,
-                                     String fieldName, SearchCond cond, int startColIdx) {
-        int colIdx = startColIdx;
-
-        if (filterName != null) {
-            row.createCell(colIdx++).setCellValue(filterName);
-        }
-        row.createCell(colIdx++).setCellValue(semesterName);
-        row.createCell(colIdx++).setCellValue(fieldName);
-
-        ProjectStatisticsResponse projectStats = projectStatisticsQueryRepository.getProjectStatistics(cond);
-        QuestionStatisticsResponse questionStats = questionStatisticsQueryRepository.getQuestionStatistics(cond);
-
-        row.createCell(colIdx++).setCellValue(projectStats.totalProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.localProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.githubProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentProjectCount());
-        row.createCell(colIdx).setCellValue(questionStats.questionCount());
-    }
-
-    // SemesterCategory 통계용 새로운 메서드
-    private void addSemesterCategoryRow(Row row, String filterName, String semesterName,
-                                        String categoryName, SearchCond cond, int startColIdx) {
-        int colIdx = startColIdx;
-
-        if (filterName != null) {
-            row.createCell(colIdx++).setCellValue(filterName);
-        }
-        row.createCell(colIdx++).setCellValue(semesterName);
-        row.createCell(colIdx++).setCellValue(categoryName);
-
-        ProjectStatisticsResponse projectStats = projectStatisticsQueryRepository.getProjectStatistics(cond);
-        QuestionStatisticsResponse questionStats = questionStatisticsQueryRepository.getQuestionStatistics(cond);
-
-        row.createCell(colIdx++).setCellValue(projectStats.totalProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.localProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.githubProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentProjectCount());
-        row.createCell(colIdx).setCellValue(questionStats.questionCount());
-    }
-
-    // FieldCategory 통계용 새로운 메서드
-    private void addFieldCategoryRow(Row row, String filterName, String fieldName,
-                                     String categoryName, SearchCond cond, int startColIdx) {
-        int colIdx = startColIdx;
-
-        if (filterName != null) {
-            row.createCell(colIdx++).setCellValue(filterName);
-        }
-        row.createCell(colIdx++).setCellValue(fieldName);
-        row.createCell(colIdx++).setCellValue(categoryName);
-
-        ProjectStatisticsResponse projectStats = projectStatisticsQueryRepository.getProjectStatistics(cond);
-        QuestionStatisticsResponse questionStats = questionStatisticsQueryRepository.getQuestionStatistics(cond);
-
-        row.createCell(colIdx++).setCellValue(projectStats.totalProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.localProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.githubProjectCount());
-        row.createCell(colIdx++).setCellValue(projectStats.patentProjectCount());
-        row.createCell(colIdx).setCellValue(questionStats.questionCount());
-    }
-    // 열 너비 자동 조정
-    private void autoSizeColumns(Sheet sheet) {
-        for (int i = 0; i < sheet.getRow(0).getLastCellNum(); i++) {
+    private void setColumnWidths(Sheet sheet) {
+        for (int i = 0; i < headers.length; i++) {
             sheet.autoSizeColumn(i);
         }
     }
 
+    private void writeToResponse(Workbook workbook, HttpServletResponse response) throws IOException {
+        String fileName = I_FOSS_STATISTICS + '-' +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss")) +
+                ".xlsx";
 
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=" +
+                URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+
+        try (ServletOutputStream outputStream = response.getOutputStream()) {
+            workbook.write(outputStream);
+        }
+    }
 }

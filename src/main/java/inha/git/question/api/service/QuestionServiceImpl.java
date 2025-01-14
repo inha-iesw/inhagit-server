@@ -153,7 +153,7 @@ public class QuestionServiceImpl implements QuestionService {
         List<QuestionField> questionFields = createAndSaveQuestionFields(createQuestionRequest.fieldIdxList(), saveQuestion);
         questionFieldJpaRepository.saveAll(questionFields);
         List<Field> fields = fieldJpaRepository.findAllById(createQuestionRequest.fieldIdxList());
-        statisticsService.increaseCount(user, fields, semester, category, 2);
+        statisticsService.adjustCount(user, fields, semester, category, 3, true);
         log.info("질문 생성 성공 - 사용자: {} 질문 ID: {}", user.getName(), saveQuestion.getId());
         return questionMapper.questionToQuestionResponse(saveQuestion);
     }
@@ -240,9 +240,9 @@ public class QuestionServiceImpl implements QuestionService {
 
         // 통계 업데이트
         // 이전 상태에 대한 통계 감소
-        statisticsService.decreaseCount(user, originFields, originSemester, originCategory, 2);
+        statisticsService.adjustCount(user, originFields, originSemester, originCategory, 3, false);
         // 새로운 상태에 대한 통계 증가
-        statisticsService.increaseCount(user, newFields, newSemester, originCategory, 2);
+        statisticsService.adjustCount(user, newFields, newSemester, originCategory, 3, true);
 
         log.info("질문 수정 성공 - 사용자: {} 질문 ID: {}", user.getName(), savedQuestion.getId());
         return questionMapper.questionToQuestionResponse(savedQuestion);
@@ -271,7 +271,7 @@ public class QuestionServiceImpl implements QuestionService {
         List<Field> fields = question.getQuestionFields().stream()
                 .map(QuestionField::getField)
                 .toList();
-        statisticsService.decreaseCount(question.getUser(), fields, question.getSemester(), question.getCategory(), 2);
+        statisticsService.adjustCount(question.getUser(), fields, question.getSemester(), question.getCategory(), 3, false);
         log.info("질문 삭제 성공 - 사용자: {} 질문 ID: {}", user.getName(), questionIdx);
         return questionMapper.questionToQuestionResponse(question);
     }

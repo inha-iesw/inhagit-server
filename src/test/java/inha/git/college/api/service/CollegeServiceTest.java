@@ -10,7 +10,6 @@ import inha.git.college.service.CollegeServiceImpl;
 import inha.git.common.exceptions.BaseException;
 import inha.git.department.domain.Department;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
-import inha.git.statistics.domain.repository.TotalCollegeStatisticsJpaRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import org.junit.jupiter.api.DisplayName;
@@ -43,8 +42,6 @@ class CollegeServiceTest {
     @Mock
     private CollegeJpaRepository collegeJpaRepository;
 
-    @Mock
-    private TotalCollegeStatisticsJpaRepository totalCollegeStatisticsJpaRepository;
 
     @Mock
     private DepartmentJpaRepository departmentJpaRepository;
@@ -136,7 +133,6 @@ class CollegeServiceTest {
         // then
         assertThat(result).isEqualTo("신설단과대학 단과대가 생성되었습니다.");
         verify(collegeJpaRepository).save(any(College.class));
-        verify(totalCollegeStatisticsJpaRepository).save(any());
     }
 
     @Test
