@@ -9,7 +9,6 @@ import jakarta.validation.ConstraintValidatorContext;
  */
 public class TeamNameValidator implements ConstraintValidator<ValidTeamName, String> {
 
-    // 팀 이름 정규 표현식 = 2~12글자 한글 또는 알파벳 (모음 또는 자음만 구성된 한글은 안 됨)
     private static final String TEAM_NAME_REGEX = "^(?=.*[a-zA-Z가-힣])[a-zA-Z가-힣]{2,12}$";
 
     @Override

@@ -131,7 +131,6 @@ public class ProjectServiceImpl implements ProjectService {
         return projectMapper.projectToProjectResponse(savedProject);
     }
 
-
     /**
      * 프로젝트 업데이트
      *
@@ -153,41 +152,29 @@ public class ProjectServiceImpl implements ProjectService {
             log.error("프로젝트 수정 권한이 없습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
             throw new BaseException(PROJECT_NOT_AUTHORIZED);
         }
-
         // 변경 전 상태 저장
         Semester originSemester = project.getSemester();
         Category originCategory = project.getCategory();
         List<Field> originFields = project.getProjectFields().stream()
                 .map(ProjectField::getField)
                 .toList();
-
         // 새로운 학기 정보 가져오기
         Semester newSemester = semesterJpaRepository.findByIdAndState(updateProjectRequest.semesterIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
         Category newCategory = categoryJpaRepository.findById(updateProjectRequest.categoryIdx())
                 .orElseThrow(() -> new BaseException(CATEGORY_NOT_FOUND));
-
-        // 새로운 필드 정보 처리
         List<Integer> newFieldIds = updateProjectRequest.fieldIdxList();
         List<Field> newFields = fieldJpaRepository.findAllById(newFieldIds);
 
-        // 프로젝트 정보 업데이트
         projectMapper.updateProjectRequestToProject(updateProjectRequest, project, newSemester, newCategory);
-
-        // 필드 정보 업데이트 (디버깅을 위한 로깅 추가)
         Set<Integer> existingFieldIds = project.getProjectFields().stream()
                 .map(pf -> pf.getField().getId())
                 .collect(Collectors.toSet());
 
-
         Set<Integer> newFieldIdSet = new HashSet<>(newFieldIds);
-
-        // 삭제해야 할 분야 처리
         List<Integer> fieldsToRemove = existingFieldIds.stream()
                 .filter(id -> !newFieldIdSet.contains(id))
                 .toList();
-
-
         fieldsToRemove.forEach(id -> {
             ProjectField projectField = project.getProjectFields().stream()
                     .filter(pf -> pf.getField().getId().equals(id))
@@ -199,8 +186,6 @@ public class ProjectServiceImpl implements ProjectService {
                 log.debug("필드 ID {} 삭제됨", id);
             }
         });
-
-        // 새로 추가해야 할 분야 처리
         List<Integer> fieldsToAdd = newFieldIdSet.stream()
                 .filter(id -> !existingFieldIds.contains(id))
                 .toList();
@@ -219,7 +204,6 @@ public class ProjectServiceImpl implements ProjectService {
                 .map(pf -> pf.getField().getId())
                 .toList();
 
-        // 통계 업데이트
         boolean isRepoProject = project.getRepoName() != null;
         int statisticsValue = isRepoProject ? 2 : 1;
 
@@ -252,7 +236,6 @@ public class ProjectServiceImpl implements ProjectService {
                 }
             }
         }
-
         log.info("프로젝트 수정 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), savedProject.getId());
         return projectMapper.projectToProjectResponse(savedProject);
     }
@@ -287,15 +270,8 @@ public class ProjectServiceImpl implements ProjectService {
         }
         log.info("프로젝트 삭제 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
         return projectMapper.projectToProjectResponse(project);
-
-
     }
-    /**
-     * 파일 저장 및 압축 해제
-     *
-     * @param file 저장할 파일
-     * @return 압축 해제된 폴더명
-     */
+
     private String[] storeAndUnzipFile(MultipartFile file) {
         log.info("파일 저장 및 압축 해제");
         String zipFilePath = FilePath.storeFile(file, PROJECT_ZIP);
@@ -304,12 +280,6 @@ public class ProjectServiceImpl implements ProjectService {
         return new String[] { zipFilePath, folderName };
     }
 
-    /**
-     * 트랜잭션 롤백 시 파일 삭제 로직 등록
-     *
-     * @param zipFilePath 압축 파일 경로
-     * @param folderName  압축 해제된 폴더명
-     */
     private void registerRollbackCleanup(String zipFilePath, String folderName) {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
@@ -332,13 +302,6 @@ public class ProjectServiceImpl implements ProjectService {
         });
     }
 
-    /**
-     * 프로젝트 필드 생성 및 저장
-     *
-     * @param fieldIdxList 필드 인덱스 리스트
-     * @param project      프로젝트 엔티티
-     * @return 생성된 ProjectField 리스트
-     */
     private List<ProjectField>  createAndSaveProjectFields(List<Integer> fieldIdxList, Project project) {
         return fieldIdxList.stream()
                 .map(fieldIdx -> {

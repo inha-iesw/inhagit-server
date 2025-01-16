@@ -36,19 +36,6 @@ public class StatisticsController {
     private final StatisticsExcelService statisticsExcelService;
     private final StatisticsMigrationService statisticsMigrationService;
 
-
-    /**
-     * 학과별 전체 통계 조회 API
-     *
-     * @return BaseResponse<List<HomeStatisticsResponse>>
-     */
-//    @GetMapping
-//    @Operation(summary = "학과별 전체 통계 조회 API", description = "학과별 전체 통계를 조회합니다.")
-//    public BaseResponse<List<HomeStatisticsResponse>> getStatistics() {
-//        return BaseResponse.of(DEPARTMENT_STATISTICS_SEARCH_OK, statisticsService.getStatistics());
-//    }
-
-
     /**
      * 프로젝트 통계 조회 API
      *
@@ -84,8 +71,6 @@ public class StatisticsController {
         return BaseResponse.of(QUESTION_STATISTICS_SEARCH_OK, statisticsService.getQuestionStatistics(searchCond));
     }
 
-
-
     /**
      * 엑셀 다운로드 API
      *
@@ -115,6 +100,4 @@ public class StatisticsController {
         statisticsMigrationService.migrateProjectStatistics();
         return BaseResponse.onSuccess("통계 마이그레이션 완료");
     }
-
-
 }

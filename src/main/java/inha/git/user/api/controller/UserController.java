@@ -52,7 +52,6 @@ public class UserController {
     private final CompanyService companyService;
     private final PagingUtils pagingUtils;
 
-
     /**
      * 현재 로그인한 사용자의 상세 정보를 조회합니다.
      *
@@ -131,7 +130,6 @@ public class UserController {
         pagingUtils.validatePage(page);
         return BaseResponse.of(MY_PAGE_TEAM_SEARCH_OK, userService.getUserTeams(user, userIdx, pagingUtils.toPageIndex(page)));
     }
-
 
     /**
      * 특정 사용자가 참여중인 문제 목록을 조회합니다.

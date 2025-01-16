@@ -87,11 +87,6 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
     /**
      * 특허 검색 메서드
      *
-     * <p>이 메서드는 주어진 특허 출원번호(applicationNumber)를 기반으로 특허 정보를 검색하고 반환한다.
-     * 사용자가 요청한 특허가 이미 데이터베이스에 존재하는 경우, 해당 특허 정보를 조회하여 반환한다.
-     * 만약 데이터베이스에 특허 정보가 존재하지 않는다면, 외부 API를 통해 특허 정보를 조회하고,
-     * 조회된 정보를 데이터베이스에 저장한 후 반환한다.</p>
-     *
      * @param user 로그인한 사용자 정보
      * @param applicationNumber 특허 출원번호
      * @param projectIdx 프로젝트의 식별자
@@ -130,7 +125,6 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
     /**
      * 특허 등록 메서드
      *
-     * <p>이 메서드는 주어진 특허 출원번호(applicationNumber)를 기반으로 특허 정보를 등록하고 반환한다.
      *
      * @param user 로그인한 사용자 정보
      * @param applicationNumber 특허 출원번호
@@ -160,8 +154,6 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
 
     /**
      * 특허 삭제 메서드
-     *
-     * <p>이 메서드는 주어진 프로젝트의 특허 정보를 삭제하고 반환한다.
      *
      * @param user 로그인한 사용자 정보
      * @param projectIdx 프로젝트의 식별자
@@ -198,20 +190,12 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         return null;
     }
 
-
     private static void validApplicationNumber(String applicationNumber) {
         if (applicationNumber == null || !applicationNumber.matches("\\d{13}")) {
             throw new BaseException(INVALID_APPLICATION_NUMBER);
         }
     }
 
-
-    /**
-     * 특허 발명자 조회
-     *
-     * @param urlString 특허 발명자 조회 URL
-     * @return List<SearchInventorResponse> 특허 발명자 정보
-     */
     private List<SearchInventorResponse> fetchInventorInfo(String urlString) {
         List<SearchInventorResponse> inventors = new ArrayList<>();
         Document doc = fetchDocument(urlString);
@@ -237,12 +221,6 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         return inventors;
     }
 
-    /**
-     * 특허 출원인 조회
-     *
-     * @param urlString 특허 출원인 조회 URL
-     * @return SearchPatentResponse 특허 출원인 정보
-     */
     private SearchPatentResponse fetchApplicantInfo(String urlString) {
         Document doc = fetchDocument(urlString);
         NodeList applicantList = doc.getElementsByTagName("patentApplicantInfo");
@@ -266,12 +244,6 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         return null;
     }
 
-    /**
-     * 특허 기본 정보 조회
-     *
-     * @param urlString 특허 기본 정보 조회 URL
-     * @return SearchPatentResponse 특허 기본 정보
-     */
     private SearchPatentResponse fetchBasicInfo(String urlString) {
         Document doc = fetchDocument(urlString);
         NodeList itemList = doc.getElementsByTagName("item");
@@ -297,12 +269,6 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         return null;
     }
 
-    /**
-     * 특허 정보 조회
-     *
-     * @param urlString 특허 정보 조회 URL
-     * @return Document 특허 정보
-     */
     private Document fetchDocument(String urlString) {
         Document doc = null;
         try {
@@ -322,5 +288,4 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         }
         return doc;
     }
-
 }

@@ -45,7 +45,6 @@ public class CollegeServiceImpl implements CollegeService {
         return collegeMapper.collegesToSearchCollegeResponses(collegeJpaRepository.findAllByState(ACTIVE));
     }
 
-
     /**
      * 특정 학과가 속한 단과대학을 조회합니다.
      *
@@ -78,7 +77,6 @@ public class CollegeServiceImpl implements CollegeService {
         log.info("단과대 생성 성공 - 관리자: {} 단과대 이름: {}", admin.getName(), college.getName());
         return college.getName() + " 단과대가 생성되었습니다.";
     }
-
 
     /**
      * 단과대학의 이름을 수정합니다.

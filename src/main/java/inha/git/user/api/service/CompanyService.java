@@ -5,6 +5,5 @@ import inha.git.user.api.controller.dto.response.CompanySignupResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface CompanyService {
-
     CompanySignupResponse companySignup(CompanySignupRequest companySignupRequest, MultipartFile evidence);
 }

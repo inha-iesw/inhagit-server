@@ -9,7 +9,6 @@ import jakarta.validation.ConstraintValidatorContext;
  */
 public class UserNumberValidator implements ConstraintValidator<ValidUserNumber, String> {
 
-    // 학번, 교번 정규 표현식 = 6~8글자 숫자
     private static final String USER_NUMBER_REGEX = "^[0-9]{6,8}$";
 
     @Override

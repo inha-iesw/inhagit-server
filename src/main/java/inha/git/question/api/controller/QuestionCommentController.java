@@ -41,6 +41,7 @@ public class QuestionCommentController {
             @RequestParam("questionIdx") Integer questionIdx) {
         return BaseResponse.of(QUESTION_COMMENT_SEARCH_OK, questionCommentService.getAllCommentsByQuestionIdx(user, questionIdx));
     }
+
     /**
      * 질문 댓글 생성 API
      *
@@ -140,7 +141,6 @@ public class QuestionCommentController {
         log.info("질문 댓글 답글 삭제 - 사용자: {} 댓글 ID: {}", user.getName(), replyCommentIdx);
         return BaseResponse.of(QUESTION_COMMENT_REPLY_DELETE_OK, questionCommentService.deleteReplyComment(user, replyCommentIdx));
     }
-
 
     /**
      * 질문 댓글 좋아요 API

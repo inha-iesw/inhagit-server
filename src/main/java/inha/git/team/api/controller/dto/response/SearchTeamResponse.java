@@ -8,9 +8,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record SearchTeamResponse(
+
         @NotNull
         @Schema(description = "팀 인덱스", example = "1")
         Integer idx,
+
         @NotNull
         @Schema(description = "팀 이름", example = "팀 이름")
         String name,
@@ -22,14 +24,14 @@ public record SearchTeamResponse(
         @NotNull
         @Schema(description = "팀 현재 인원", example = "1")
         Integer currentMember,
+
         @NotNull
         @Schema(description = "팀 생성일", example = "2021-08-01T00:00:00")
         LocalDateTime createdAt,
+
         @NotNull
         SearchUserResponse leader,
 
         List<SearchTeamUserResponse> memberList
-
-
 ) {
 }

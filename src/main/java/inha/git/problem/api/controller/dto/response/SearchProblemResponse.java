@@ -24,6 +24,7 @@ public record SearchProblemResponse(
         @NotNull
         @Schema(description = "작성일", example = "2021-08-01T00:00:00")
         LocalDateTime createdAt,
+
         @NotNull
         SearchUserResponse author,
 
@@ -34,6 +35,5 @@ public record SearchProblemResponse(
         @NotNull
         @Schema(description = "문제 파일 경로", example = "/problem-file/1722397992636-372869.pdf")
         String filePath
-
 ) {
 }

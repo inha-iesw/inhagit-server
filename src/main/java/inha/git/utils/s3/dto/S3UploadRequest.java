@@ -1,6 +1,5 @@
 package inha.git.utils.s3.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

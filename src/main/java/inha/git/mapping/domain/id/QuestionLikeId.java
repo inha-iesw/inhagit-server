@@ -19,6 +19,6 @@ import java.io.Serializable;
 public class QuestionLikeId implements Serializable {
 
     private Integer questionId;
-    private Integer userId;
 
+    private Integer userId;
 }

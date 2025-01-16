@@ -123,7 +123,6 @@ public interface ProblemMapper {
     @Mapping(target = "problem", source = "problemRequest.problem")
     ProblemTeamRequest createTeamRequestProblemRequestToProblemTeamRequest(Team team, ProblemRequest problemRequest);
 
-
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "problemRequest", source = "problemRequest")
     @Mapping(target = "directoryName", source = "folderName")

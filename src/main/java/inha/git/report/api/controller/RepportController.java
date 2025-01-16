@@ -31,6 +31,13 @@ public class RepportController {
 
     private final ReportService reportService;
 
+    /**
+     * 신고 타입 조회 API
+     *
+     * <p>신고 타입을 조회합니다.</p>
+     *
+     * @return List<ReportTypeResponse>
+     */
     @GetMapping("/reportTypes")
     @Operation(summary = "신고 타입 조회 API", description = "신고 타입을 조회합니다.")
     public BaseResponse<List<ReportTypeResponse>> getReportTypes() {

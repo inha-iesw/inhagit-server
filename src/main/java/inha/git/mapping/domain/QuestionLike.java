@@ -1,8 +1,6 @@
 package inha.git.mapping.domain;
 
-import inha.git.mapping.domain.id.ProjectLikeId;
 import inha.git.mapping.domain.id.QuestionLikeId;
-import inha.git.project.domain.Project;
 import inha.git.question.domain.Question;
 import inha.git.user.domain.User;
 import jakarta.persistence.*;

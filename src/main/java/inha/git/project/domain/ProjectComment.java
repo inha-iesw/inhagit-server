@@ -7,7 +7,6 @@ import lombok.*;
 
 import java.util.List;
 
-
 /**
  * ProjectComment 엔티티는 애플리케이션의 프로젝트 댓글 정보를 나타냄.
  */
@@ -19,6 +18,7 @@ import java.util.List;
 @Entity
 @Table(name = "project_comment_tb")
 public class ProjectComment extends BaseEntity {
+
     @Id
     @Column(name = "project_comment_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)

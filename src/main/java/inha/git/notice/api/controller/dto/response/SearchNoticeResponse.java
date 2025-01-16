@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record SearchNoticeResponse(
+
         @NotNull
         @Schema(description = "공지사항 아이디", example = "1")
         Integer idx,
@@ -32,4 +33,5 @@ public record SearchNoticeResponse(
         LocalDateTime createdAt,
         @NotNull
         SearchNoticeUserResponse author
-) { }
+){
+}

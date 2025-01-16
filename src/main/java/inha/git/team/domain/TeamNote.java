@@ -5,7 +5,6 @@ import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 /**
  * TeamNote 엔티티는 애플리케이션의 팀 한줄 메모 정보를 나타냄.
  */

@@ -63,6 +63,7 @@ public class TeamPostController {
     public BaseResponse<SearchTeamPostResponse> getTeamPost(@PathVariable("postIdx") Integer postIdx) {
         return BaseResponse.of(TEAM_POST_DETAIL_OK, teamPostService.getTeamPost(postIdx));
     }
+
     /**
      * 팀 게시글 생성 API
      *
@@ -106,6 +107,4 @@ public class TeamPostController {
                                                          @PathVariable("postIdx") Integer postIdx) {
         return BaseResponse.of(TEAM_POST_DELETE_OK, teamPostService.deleteTeamPost(user, postIdx));
     }
-
-
 }

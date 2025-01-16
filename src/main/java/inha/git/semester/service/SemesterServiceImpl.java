@@ -34,7 +34,6 @@ public class SemesterServiceImpl implements SemesterService {
     private final SemesterJpaRepository semesterJpaRepository;
     private final SemesterMapper semesterMapper;
 
-
     /**
      * 활성화된 모든 학기를 조회합니다.
      *

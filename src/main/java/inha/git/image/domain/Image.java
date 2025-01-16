@@ -18,7 +18,6 @@ import lombok.*;
 @Table(name = "image_tb")
 public class Image extends BaseEntity {
 
-
     @Id
     @Column(name = "image_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -54,6 +54,7 @@ import static inha.git.common.code.status.ErrorStatus.*;
 @Slf4j
 @Transactional(readOnly = true)
 public class GithubServiceImpl implements GithubService {
+
     private final UserJpaRepository userJpaRepository;
     private final ProjectJpaRepository projectJpaRepository;
     private final GithubMapper githubMapper;
@@ -61,8 +62,6 @@ public class GithubServiceImpl implements GithubService {
     private final RedisProvider redisProvider;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper;
-
-
 
     /**
      * Github Token을 갱신합니다.
@@ -360,6 +359,7 @@ public class GithubServiceImpl implements GithubService {
             throw new BaseException(JSON_CONVERT_ERROR);
         }
     }
+
     private String toJson(Object object) {
         try {
             return objectMapper.writeValueAsString(object);
@@ -368,6 +368,4 @@ public class GithubServiceImpl implements GithubService {
             throw new BaseException(JSON_CONVERT_ERROR);
         }
     }
-
-
 }

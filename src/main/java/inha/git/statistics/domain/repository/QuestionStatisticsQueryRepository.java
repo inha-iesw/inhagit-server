@@ -157,7 +157,6 @@ public class QuestionStatisticsQueryRepository {
         if (searchCond.categoryIdx() != null) {
             builder.and(statistics.categoryId.eq(searchCond.categoryIdx()));
         }
-
         // BooleanExpression으로 변환
         return builder;
     }

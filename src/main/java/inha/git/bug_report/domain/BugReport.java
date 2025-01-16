@@ -6,7 +6,6 @@ import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 /**
  * BugReport 엔티티는 애플리케이션의 버그 제보 정보를 나타냄.
  */

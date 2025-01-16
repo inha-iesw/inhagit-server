@@ -5,7 +5,6 @@ import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 /**
  * ProjectComment 엔티티는 애플리케이션의 프로젝트 대댓글 정보를 나타냄.
  */
@@ -17,6 +16,7 @@ import lombok.*;
 @Entity
 @Table(name = "project_reply_comment_tb")
 public class ProjectReplyComment extends BaseEntity {
+
     @Id
     @Column(name = "project_reply_comment_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +27,6 @@ public class ProjectReplyComment extends BaseEntity {
 
     @Column(nullable = false, name = "like_count")
     private Integer likeCount;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

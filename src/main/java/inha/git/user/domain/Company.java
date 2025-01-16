@@ -5,7 +5,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-
 /**
  * Company 엔티티는 애플리케이션의 기업 증명 정보를 나타냄.
  */

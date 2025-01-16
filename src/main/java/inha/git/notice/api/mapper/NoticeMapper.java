@@ -31,7 +31,6 @@ public interface NoticeMapper {
     @Mapping(target = "hasAttachment", constant = "false")
     @Mapping(target = "noticeAttachments", ignore = true)
     Notice createNoticeRequestToNotice(User user, CreateNoticeRequest createNoticeRequest);
-
     /**
      * Notice를 SearchNoticeResponse로 변환
      *
@@ -54,7 +53,6 @@ public interface NoticeMapper {
     @Mapping(target = "idx", source = "id")
     @Mapping(target = "name", source = "name")
     SearchNoticeUserResponse userToSearchNoticeUserResponse(User user);
-
 
     /**
      * CreateNoticeRequest를 Notice 엔티티로 변환

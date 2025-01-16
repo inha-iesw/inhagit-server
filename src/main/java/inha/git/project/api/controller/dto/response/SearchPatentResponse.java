@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
 public record SearchPatentResponse(
+
         @NotNull
         @Schema(description = "특허번호", example = "1020211234567")
         String applicationNumber,

@@ -6,7 +6,6 @@ import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
-
 /**
  * 분야 이름 중복 검증을 위한 애노테이션.
  */

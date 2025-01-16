@@ -8,13 +8,8 @@ import inha.git.user.domain.User;
 import java.util.List;
 
 public interface SemesterService {
-
     List<SearchSemesterResponse> getSemesters();
     String createSemester(User admin, CreateSemesterRequest createSemesterRequest);
     String updateSemesterName(User admin, Integer semesterIdx, UpdateSemesterRequest updateSemesterRequest);
     String deleteSemester(User admin, Integer semesterIdx);
-
-
-
-
 }

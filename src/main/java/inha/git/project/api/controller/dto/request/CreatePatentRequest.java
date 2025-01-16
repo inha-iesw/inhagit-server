@@ -9,7 +9,6 @@ public record CreatePatentRequest(
         @NotNull
         @Schema(description = "특허번호", example = "1020211234567")
         String applicationNumber,
-
         @NotNull
         @Schema(description = "출원일자", example = "2021-01-01")
         String applicationDate, // 출원일자
@@ -24,10 +23,10 @@ public record CreatePatentRequest(
         @NotNull
         @Schema(description = "출원인 이름", example = "출원인 이름")
         String applicantName, // 출원인 이름
+
         @Schema(description = "출원인 영문 이름", example = "applicantEnglishName", nullable = true)
         String applicantEnglishName,// 출원인 영문 이름
 
         List<CreatePatentInventorRequest> inventors
-
 ) {
 }

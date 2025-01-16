@@ -8,6 +8,7 @@ public record ReportTypeResponse(
         @NotNull
         @Schema(description = "신고 타입 ID", example = "1")
         Integer idx,
+
         @NotNull
         @Schema(description = "신고 타입 이름", example = "I-FOSS")
         String name

@@ -32,15 +32,13 @@ import static inha.git.common.code.status.ErrorStatus.*;
 @Transactional
 public class MailServiceImpl implements MailService {
 
-    private final RedisProvider redisProvider;
     private final JavaMailSender mailSender;
     private final EmailDomainService emailDomainService;
     private final UserJpaRepository userJpaRepository;
+    private final RedisProvider redisProvider;
 
     @Value("${spring.mail.username}")
     private String username;
-
-
 
     /**
      * 이메일 인증번호를 발송합니다.
@@ -89,7 +87,6 @@ public class MailServiceImpl implements MailService {
         log.info("{} 이메일 전송 완료", findPasswordRequest.email());
         return "이메일 전송 완료";
     }
-
 
     /**
      * 이메일 인증번호의 유효성을 검증합니다.
@@ -150,7 +147,6 @@ public class MailServiceImpl implements MailService {
         }
     }
 
-
     /**
      * 이메일을 전송합니다.
      *
@@ -178,11 +174,6 @@ public class MailServiceImpl implements MailService {
         redisProvider.setDataExpire(toMail + "-" + type, Integer.toString(authNumber), 60*3L);
     }
 
-    /**
-     * 임의의 6자리 양수를 반환합니다.
-     *
-     * @return 6자리 양수
-     */
     private int makeRandomNumber() {
         Random r = new Random();
         return  r.ints(100000,999999)
@@ -205,6 +196,4 @@ public class MailServiceImpl implements MailService {
             throw new BaseException(EMAIL_AUTH_NOT_FOUND);
         }
     }
-
-
 }

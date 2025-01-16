@@ -14,6 +14,7 @@ import java.util.List;
 import static inha.git.common.Constant.mapRoleToPosition;
 
 public record SearchStudentResponse(
+
         @NotNull
         @Schema(description = "유저 아이디", example = "1")
         Integer idx,
@@ -34,16 +35,17 @@ public record SearchStudentResponse(
         @NotNull
         @Schema(description = "차단 유무", example = "false")
         Boolean isBlocked,
+
         @NotNull
         @Schema(description = "학생 계정 생성일", example = "2024-05-31 04:26:56.831000 +00:00")
         LocalDateTime createdAt,
+
         @NotNull
         @Schema(description = "학과 목록", example = "[{\"departmentId\":1,\"departmentName\":\"컴퓨터공학과\"}]")
         List<SearchDepartmentResponse> departmentList,
 
         @Schema(description = "신고당한 횟수", example = "0")
         Integer reportCount
-
 ) {
     @QueryProjection
     public SearchStudentResponse(User user) {
@@ -60,7 +62,4 @@ public record SearchStudentResponse(
                 user.getReportCount()
         );
     }
-
-
-
 }

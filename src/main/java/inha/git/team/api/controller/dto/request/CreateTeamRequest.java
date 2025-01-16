@@ -6,8 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-
 public record CreateTeamRequest(
+
         @NotNull
         @UniqueTeamName
         @TeamNameLanguage

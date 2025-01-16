@@ -96,6 +96,4 @@ public class FieldController {
         log.info("분야 삭제 - 관리자: {} 분야명: {}", user.getName(), fieldIdx);
         return BaseResponse.of(FIELD_DELETE_OK, fieldService.deleteField(user, fieldIdx));
     }
-
-
 }

@@ -25,6 +25,7 @@ import java.util.List;
  */
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface TeamMapper {
+
     /**
      * CreateTeamRequest를 Team 엔티티로 변환.
      *
@@ -58,7 +59,6 @@ public interface TeamMapper {
     @Mapping(target = "maxMemberNumber", source = "updateTeamRequest.maxMember")
     void updateTeamRequestToTeam(UpdateTeamRequest updateTeamRequest, @MappingTarget Team team);
 
-
     /**
      * 팀을 SearchTeamsResponse 응답으로 변환.
      *
@@ -68,6 +68,7 @@ public interface TeamMapper {
     @Mapping(target = "idx", source = "team.id")
     @Mapping(target = "name", source = "team.name")
     SearchTeamsResponse teamToSearchTeamsResponse(Team team);
+
     List<SearchTeamsResponse> teamsToSearchTeamsResponse(List<Team> teams);
 
     /**
@@ -101,7 +102,6 @@ public interface TeamMapper {
     @Mapping(target = "idx", source = "user.id")
     @Mapping(target = "name", source = "user.name")
     SearchUserResponse userToSearchUserResponse(User user);
-
 
     @Mapping(target = "idx", source = "user.id")
     @Mapping(target = "name", source = "user.name")
@@ -225,7 +225,6 @@ public interface TeamMapper {
     @Mapping(target = "idx", source = "teamReplyComment.id")
     TeamReplyCommentResponse toTeamReplyCommentResponse(TeamReplyComment teamReplyComment);
 
-
     /**
      * updateCommentRequest를 TeamReplyComment로 업데이트.
      *
@@ -247,7 +246,6 @@ public interface TeamMapper {
     @Mapping(target = "contents", source = "teamComment.contents")
     @Mapping(target = "replies", expression = "java(filterActiveReplies(teamComment.getReplies()))")
     CommentWithRepliesResponse toCommentWithRepliesResponse(TeamComment teamComment);
-
 
     /**
      * TeamReplyComment를 SearchReplyCommentResponse로 변환합니다.
@@ -274,7 +272,6 @@ public interface TeamMapper {
                 .toList();
     }
 
-
     /**
      * TeamComment 목록을 CommentResponse 목록으로 변환.
      *
@@ -290,7 +287,4 @@ public interface TeamMapper {
      * @return List<CommentWithRepliesResponse>
      */
     List<CommentWithRepliesResponse> toCommentWithRepliesResponseList(List<TeamComment> comments);
-
-
-
 }

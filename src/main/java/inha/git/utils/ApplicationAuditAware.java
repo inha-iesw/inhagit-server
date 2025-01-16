@@ -8,7 +8,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Optional;
 
-
 /**
  * ApplicationAuditAware는 스프링 데이터 JPA의 감사 기능을 위한 현재 사용자의 ID를 제공.
  */

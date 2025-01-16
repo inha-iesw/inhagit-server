@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
 public record CreateReportRequest(
+
         @NotNull
         @Schema(description = "신고 타입 id", example = "1")
         Integer reportTypeId,

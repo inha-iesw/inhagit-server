@@ -33,7 +33,6 @@ import java.util.List;
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
 
-
 /**
  * StatisticsServiceImpl은 통계 관련 비즈니스 로직을 처리한다.
  */
@@ -56,7 +55,6 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final QuestionStatisticsQueryRepository questionStatisticsQueryRepository;
     private final BatchStatisticsQueryRepository batchStatisticsQueryRepository;
 
-
     /**
      * 사용자 통계 정보를 증가시킨다.
      *
@@ -67,10 +65,8 @@ public class StatisticsServiceImpl implements StatisticsService {
     public void adjustCount(User user, List<Field> fields, Semester semester, Category category, Integer type, boolean isIncrease) {
         // 전체 통계 업데이트
         updateStatistics(user, StatisticsType.TOTAL, null, semester, fields, category, type, isIncrease);
-
         // 유저 통계 업데이트
         updateStatistics(user, StatisticsType.USER, user.getId(), semester, fields, category, type, isIncrease);
-
         // 학과 및 단과대 통계 업데이트
         List<UserDepartment> userDepartments = userDepartmentJpaRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new BaseException(USER_DEPARTMENT_NOT_FOUND));
@@ -80,7 +76,6 @@ public class StatisticsServiceImpl implements StatisticsService {
             updateStatistics(user, StatisticsType.COLLEGE, userDepartment.getDepartment().getCollege().getId(), semester, fields, category, type, isIncrease);
         }
     }
-
 
     /**
      * 프로젝트 통계 정보를 조회한다.
@@ -94,8 +89,6 @@ public class StatisticsServiceImpl implements StatisticsService {
         validateSearchCond(searchCond);
         return projectStatisticsQueryRepository.getProjectStatistics(searchCond);
     }
-
-
 
     /**
      * 질문 통계 정보를 조회한다.
@@ -228,7 +221,6 @@ public class StatisticsServiceImpl implements StatisticsService {
             statisticsJpaRepository.save(statistics);
         }
     }
-
 
     private boolean isFirstProjectUpload(User user, Semester semester, Field field) {
         return projectJpaRepository.countByUserAndSemesterAndProjectFields_FieldAndState(user, semester, field, ACTIVE) == 1;

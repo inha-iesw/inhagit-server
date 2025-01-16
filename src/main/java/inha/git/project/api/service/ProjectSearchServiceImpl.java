@@ -106,7 +106,6 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
             throw new BaseException(PROJECT_NOT_PUBLIC);
         }
 
-
         ProjectUpload projectUpload = getProjectUploadIfNeeded(project, projectIdx);
         SearchSemesterResponse searchSemesterResponse = semesterMapper.semesterToSearchSemesterResponse(project.getSemester());
         SearchCategoryResponse searchCategoryResponse = categoryMapper.categoryToCategoryResponse(project.getCategory());
@@ -139,8 +138,6 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
      */
     @Override
     public List<SearchFileResponse> getProjectFileByIdx(User user, Integer projectIdx, String path) {
-
-
         if (path.contains("..") || path.contains("\0")) {
             throw new BaseException(INVALID_FILE_PATH);
         }
@@ -150,8 +147,6 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
         if (!hasAccessToProject(project, user)) {
             throw new BaseException(PROJECT_NOT_PUBLIC);
         }
-
-
         ProjectUpload projectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         String absoluteFilePath = BASE_DIR_SOURCE + projectUpload.getDirectoryName() + '/' + path;
@@ -195,24 +190,11 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
         }
     }
 
-    /**
-     * 프로젝트 찾아오는 함수
-     *
-     * @param projectIdx 프로젝트 번호
-     * @return Project 프로젝트
-     */
     private Project findProject(Integer projectIdx) {
         return projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
     }
 
-
-    /**
-     * 파일 정보를 SearchFileResponse로 변환
-     *
-     * @param path 파일 경로
-     * @return 파일 정보
-     */
     private SearchFileResponse mapToFileResponse(Path path) {
         if (Files.isDirectory(path)) {
             return new SearchDirectoryResponse(
@@ -268,7 +250,6 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
                 return Files.readString(filePath);
             }
         }
-
         // MIME 타입을 확인할 수 없을 때 기본적으로 텍스트 파일로 처리
         if (contentType == null || contentType.startsWith("text")) {
             return Files.readString(filePath);
@@ -277,14 +258,6 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
         return null;
     }
 
-
-    /**
-     * 프로젝트 업로드 정보 조회
-     *
-     * @param project 프로젝트
-     * @param projectIdx 프로젝트 번호
-     * @return 프로젝트 업로드 정보
-     */
     private ProjectUpload getProjectUploadIfNeeded(Project project, Integer projectIdx) {
         if (project.getRepoName() == null) {
             return projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)

@@ -51,7 +51,6 @@ public interface ReportMapper {
      * @param reportTypes 신고 타입
      * @return ReportTypeResponse
      */
-
     List<ReportTypeResponse> toReportTypeResponseList(List<ReportType> reportTypes);
 
     /**

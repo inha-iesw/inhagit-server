@@ -43,13 +43,12 @@ public class AuthServiceImpl implements AuthService {
     private final UserJpaRepository userJpaRepository;
     private final AuthenticationManager authenticationManager;
     private final AuthMapper authMapper;
-    private final JwtProvider jwtProvider;
     private final ProfessorJpaRepository professorJpaRepository;
     private final CompanyJpaRepository companyJpaRepository;
     private final MailService mailService;
     private final PasswordEncoder passwordEncoder;
     private final RedisProvider redisProvider;
-
+    private final JwtProvider jwtProvider;
 
     /**
      * 사용자 로그인을 처리하는 서비스입니다.
@@ -154,4 +153,3 @@ public class AuthServiceImpl implements AuthService {
         return authMapper.userToUserResponse(user);
     }
 }
-

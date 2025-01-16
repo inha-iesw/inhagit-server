@@ -32,12 +32,13 @@ public record SearchProfessorResponse(
         @Schema(description = "직책", example = "2")
         Integer position,
         @NotNull
-
         @Schema(description = "차단 유무", example = "false")
         Boolean isBlocked,
+
         @NotNull
         @Schema(description = "교수 계정 생성일", example = "2024-05-31 04:26:56.831000 +00:00")
         LocalDateTime createdAt,
+
         @NotNull
         @Schema(description = "학과 목록", example = "[{\"departmentId\":1,\"departmentName\":\"컴퓨터공학과\"}]")
         List<SearchDepartmentResponse> departmentList,
@@ -64,7 +65,4 @@ public record SearchProfessorResponse(
                 user.getReportCount()
         );
     }
-
-
-
 }

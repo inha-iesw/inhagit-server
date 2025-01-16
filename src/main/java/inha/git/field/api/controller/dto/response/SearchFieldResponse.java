@@ -7,6 +7,7 @@ public record SearchFieldResponse(
         @NotNull
         @Schema(description = "분야 인덱스", example = "1")
         Integer idx,
+
         @NotNull
         @Schema(description = "분야 이름", example = "웹")
         String name

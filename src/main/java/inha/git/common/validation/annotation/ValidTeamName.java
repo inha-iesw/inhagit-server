@@ -14,6 +14,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidTeamName {
+
     String message() default "2~12글자 한글 또는 알파벳을 입력하세요 (모음 또는 자음만 구성된 한글은 안 됩니다).";
 
     Class<?>[] groups() default {};

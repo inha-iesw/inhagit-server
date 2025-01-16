@@ -140,5 +140,4 @@ public class AdminApproveController {
         log.info("버그 제보 상태 변경 - 관리자: {}, 버그 제보 ID: {}", user.getName(), bugReportId);
         return BaseResponse.of(BUG_REPORT_STATE_CHANGE_OK, adminApproveService.changeBugReportState(user, bugReportId, changeBugReportStateRequest));
     }
-
 }

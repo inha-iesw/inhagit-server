@@ -5,7 +5,6 @@ import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 /**
  * TeamPost 엔티티는 애플리케이션의 팀 모집 정보를 나타냄.
  */
@@ -30,7 +29,6 @@ public class TeamPost extends BaseEntity {
     @Setter
     @Column(nullable = false, length = 255)
     private String contents;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")

@@ -46,7 +46,6 @@ public class ProfessorQueryRepository {
                 .orderBy(user.id.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
-
         List<SearchStudentResponse> content = query.fetch().stream()
                 .map(u -> new SearchStudentResponse(u))
                 .toList();

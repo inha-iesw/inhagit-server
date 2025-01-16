@@ -125,7 +125,6 @@ public class UserServiceImpl implements UserService {
         return questionQueryRepository.getUserQuestions(findUser.getId(), pageable);
     }
 
-
     /**
      * 사용자 팀 조회
      *
@@ -210,5 +209,4 @@ public class UserServiceImpl implements UserService {
         }
         return findUser;
     }
-
 }

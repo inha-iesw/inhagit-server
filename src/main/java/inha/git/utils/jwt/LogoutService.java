@@ -36,7 +36,6 @@ public class LogoutService implements LogoutHandler {
     if (authHeader == null || !authHeader.startsWith(TOKEN_PREFIX)) {
       return;
     }
-
     try {
       final String jwt = authHeader.substring(7);
       String username = jwtProvider.extractUsername(jwt);

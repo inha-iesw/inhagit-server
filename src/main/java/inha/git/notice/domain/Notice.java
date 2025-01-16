@@ -8,7 +8,6 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Notice 엔티티는 애플리케이션의 공지사항 정보를 나타냄.
  */

@@ -48,5 +48,4 @@ public class ProjectPatent extends BaseEntity {
 
     @OneToMany(mappedBy = "projectPatent", fetch = FetchType.LAZY)
     private List<ProjectPatentInventor> projectPatentInventors = new ArrayList<>();
-
 }
