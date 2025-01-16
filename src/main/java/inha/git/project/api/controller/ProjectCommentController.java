@@ -160,7 +160,6 @@ public class ProjectCommentController {
         return BaseResponse.of(LIKE_SUCCESS, projectCommentService.projectCommentLike(user,commentLikeRequest));
     }
 
-
     /**
      * 프로젝트 댓글 좋아요 취소 API
      *

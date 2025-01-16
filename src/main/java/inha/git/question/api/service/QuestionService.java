@@ -17,8 +17,6 @@ public interface QuestionService {
     QuestionResponse createQuestion(User user, CreateQuestionRequest createQuestionRequest);
     QuestionResponse updateQuestion(User user, Integer questionIdx, UpdateQuestionRequest updateQuestionRequest);
     QuestionResponse deleteQuestion(User user, Integer questionIdx);
-
     String createQuestionLike(User user, LikeRequest likeRequest);
-
     String questionLikeCancel(User user, LikeRequest likeRequest);
 }

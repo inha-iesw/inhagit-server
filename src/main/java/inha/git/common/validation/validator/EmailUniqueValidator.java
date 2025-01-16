@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 
-
 /**
  * 유저 email 중복 검증을 위한 Validator.
  */
@@ -27,6 +26,7 @@ public class EmailUniqueValidator implements ConstraintValidator<EmailUnique, St
     public void initialize(EmailUnique constraintAnnotation) {
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
+
     /**
      * 유저 email 중복 검증.
      *

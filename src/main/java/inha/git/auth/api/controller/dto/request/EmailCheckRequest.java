@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
 public record EmailCheckRequest(
+
         @EmailUnique
         @Email
         @ValidEmail
@@ -25,5 +26,4 @@ public record EmailCheckRequest(
         @Schema(description = "인증 번호", example = "123456")
         String number
 ) {
-
 }

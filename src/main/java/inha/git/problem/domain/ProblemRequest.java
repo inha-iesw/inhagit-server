@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * ProblemRequest 엔티티는 애플리케이션의 문제 요청 정보를 나타냄.
  */
@@ -36,14 +35,11 @@ public class ProblemRequest extends BaseEntity {
     @JoinColumn(name = "problem_id")
     private Problem problem;
 
-    // 개인 신청의 경우 연관관계 설정
     @OneToOne(mappedBy = "problemRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ProblemPersonalRequest personalRequest;
 
-    // 팀 신청의 경우 연관관계 설정
     @OneToOne(mappedBy = "problemRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ProblemTeamRequest teamRequest;
-
 
     @OneToMany(mappedBy = "problemRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProblemSubmit> problemSubmits = new ArrayList<>();

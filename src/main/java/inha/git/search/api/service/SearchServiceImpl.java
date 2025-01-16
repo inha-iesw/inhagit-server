@@ -37,5 +37,4 @@ public class SearchServiceImpl implements SearchService {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return searchQueryRepository.search(search, pageable, type);
     }
-
 }

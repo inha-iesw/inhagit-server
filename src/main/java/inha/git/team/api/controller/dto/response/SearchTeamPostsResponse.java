@@ -6,9 +6,11 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public record SearchTeamPostsResponse(
+
         @NotNull
         @Schema(description = "팀 인덱스", example = "1")
         Integer idx,
+
         @NotNull
         @Schema(description = "팀 게시글 제목", example = "팀 게시글 제목")
         String title,
@@ -19,6 +21,5 @@ public record SearchTeamPostsResponse(
 
         @NotNull
         SearchTeamPostTeamResponse team
-
 ) {
 }

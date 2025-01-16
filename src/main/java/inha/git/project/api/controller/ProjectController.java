@@ -45,8 +45,6 @@ public class ProjectController {
     private final ProjectService projectService;
     private final ProjectSearchService projectSearchService;
 
-
-
     /**
      * 프로젝트 전체 조회 API
      *
@@ -90,7 +88,6 @@ public class ProjectController {
         }
         return BaseResponse.of(PROJECT_SEARCH_CONDITION_OK, projectSearchService.getCondProjects(searchProjectCond, page - 1, size - 1));
     }
-
 
     /**
      * 프로젝트 상세 조회 API
@@ -168,7 +165,6 @@ public class ProjectController {
         return BaseResponse.of(PROJECT_CREATE_OK, projectService.createGithubProject(user, createGithubProjectRequest));
     }
 
-
     /**
      * 프로젝트 수정
      *
@@ -207,6 +203,4 @@ public class ProjectController {
         log.info("프로젝트 삭제 - 사용자: {} 프로젝트 ID: {}", user.getName(), projectIdx);
         return BaseResponse.of(PROJECT_DELETE_OK, projectService.deleteProject(user, projectIdx));
     }
-
-
 }

@@ -114,7 +114,6 @@ public class User extends BaseEntity implements UserDetails {
         this.pw = pw;
     }
 
-    // 연관관계 편의 메서드
     public void addDepartment(Department department) {
         UserDepartment userDepartment = new UserDepartment(this, department);
         userDepartments.add(userDepartment);
@@ -127,7 +126,6 @@ public class User extends BaseEntity implements UserDetails {
             notice.setUser(this);  // 양방향 연관관계 설정
         }
     }
-
 
     public void setCompany(Company company) {
         this.company = company;

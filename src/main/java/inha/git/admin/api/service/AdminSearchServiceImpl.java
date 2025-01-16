@@ -120,7 +120,6 @@ public class AdminSearchServiceImpl implements AdminSearchService {
             int totalQuestionCount = userStatistics.stream().mapToInt(Statistics::getQuestionCount).sum();
             int totalTeamCount = userStatistics.stream().mapToInt(Statistics::getProjectParticipationCount).sum();  // 팀 참여 수는 프로젝트 참여 수로 대체
 
-
             List<SearchDepartmentResponse> searchDepartmentResponses = userMapper.departmentsToSearchDepartmentResponses(userDepartmentJpaRepository.findByUserId(user.getId())
                     .orElseThrow(() -> new BaseException(USER_STATISTICS_NOT_FOUND))
                     .stream()

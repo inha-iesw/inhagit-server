@@ -24,20 +24,15 @@ import static inha.git.common.BaseEntity.*;
  * ProjectJpaRepository는 Project 엔티티에 대한 데이터 액세스 기능을 제공.
  */
 public interface ProjectJpaRepository extends JpaRepository<Project, Integer> {
-
-
     Optional<Project> findByIdAndState(Integer projectIdx, State state);
-
-
-
     long countByUserAndSemesterAndProjectFields_FieldAndState(User user, Semester semester, Field field, State state);
+    List<Project> findAllByStateOrderById(State state);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "3000")})
     @Query("SELECT p FROM Project p WHERE p.id = :id AND p.state = :state")
     Optional<Project> findByIdAndStateWithPessimisticLock(@Param("id") Integer id, @Param("state") State state);
 
-    List<Project> findAllByStateOrderById(State state);
     @Query("SELECT DISTINCT p FROM Project p " +
             "JOIN FETCH p.user u " +
             "JOIN FETCH u.userDepartments ud " +
@@ -103,5 +98,4 @@ public interface ProjectJpaRepository extends JpaRepository<Project, Integer> {
             "JOIN FETCH pf.field " +
             "WHERE pf.project.id IN :projectIds")
     List<ProjectField> findProjectFieldsByProjectIds(@Param("projectIds") List<Integer> projectIds);
-
 }

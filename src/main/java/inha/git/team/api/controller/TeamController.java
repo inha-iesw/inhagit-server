@@ -108,7 +108,6 @@ public class TeamController {
         return BaseResponse.of(TEAM_DELETE_OK, teamService.deleteTeam(user, teamIdx));
     }
 
-
     /**
      * 팀 가입 요청 API
      *

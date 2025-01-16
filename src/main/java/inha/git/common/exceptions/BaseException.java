@@ -12,7 +12,7 @@ public class BaseException extends RuntimeException {
     private BaseErrorCode code;
 
     public BaseException(ErrorStatus status) {
-        super(status.getMessage()); // 여기 추가
+        super(status.getMessage());
         this.code = status;
     }
 

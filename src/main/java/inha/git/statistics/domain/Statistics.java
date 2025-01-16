@@ -25,7 +25,6 @@ public class Statistics {
     @Column(name = "statistics_type", nullable = false)
     private StatisticsType statisticsType;
 
-
     @Column(name = "target_id")
     private Integer targetId;
 
@@ -52,8 +51,6 @@ public class Statistics {
 
     @Column(name = "question_participation_count", nullable = false)
     private Integer questionParticipationCount = 0;
-
-
 
     public void incrementLocalProjectCount() {
         this.localProjectCount++;

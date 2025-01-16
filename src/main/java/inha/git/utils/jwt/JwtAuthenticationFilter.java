@@ -26,7 +26,6 @@ import static inha.git.common.Constant.HEADER_AUTHORIZATION;
 import static inha.git.common.Constant.TOKEN_PREFIX;
 import static inha.git.common.code.status.ErrorStatus.*;
 
-
 /**
  * JwtAuthenticationFilter는 JWT 기반의 인증을 처리하는 필터.
  * 각 요청마다 실행되며, 토큰을 검증하고 사용자 정보를 설정.
@@ -61,11 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
         jwt = authHeader.substring(7);
-
-
-
         try {
             // JWT에서 username 추출
             username = jwtProvider.extractUsername(jwt);
@@ -102,7 +97,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             objectMapper.writeValue(response.getOutputStream(), errorReasonDTO);
             return; // 예외 발생 시 필터 체인 중단
         }
-
         // 필터 체인 계속 진행
         filterChain.doFilter(request, response);
     }

@@ -14,5 +14,4 @@ public interface TeamCommentService {
     TeamReplyCommentResponse createReplyComment(User user, CreateReplyCommentRequest createReplyCommentRequest);
     TeamReplyCommentResponse updateReplyComment(User user, Integer replyCommentIdx, UpdateCommentRequest updateCommentRequest);
     TeamReplyCommentResponse deleteReplyComment(User user, Integer replyCommentIdx);
-
 }

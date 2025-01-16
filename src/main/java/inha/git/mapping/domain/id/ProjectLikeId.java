@@ -19,6 +19,6 @@ import java.io.Serializable;
 public class ProjectLikeId implements Serializable {
 
     private Integer projectId;
-    private Integer userId;
 
+    private Integer userId;
 }

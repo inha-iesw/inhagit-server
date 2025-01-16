@@ -16,7 +16,6 @@ import lombok.*;
 @Table(name = "report_tb")
 public class Report extends BaseEntity {
 
-
     @Id
     @Column(name = "report_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,5 +40,4 @@ public class Report extends BaseEntity {
 
     @Column(name = "description")
     private String description; // 추가적인 신고 설명 (선택 사항)
-
 }

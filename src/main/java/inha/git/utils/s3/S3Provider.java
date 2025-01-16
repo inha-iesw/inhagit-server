@@ -22,7 +22,6 @@ import java.util.UUID;
 import static inha.git.common.code.status.ErrorStatus.FILE_CONVERT;
 import static inha.git.common.code.status.ErrorStatus.S3_UPLOAD;
 
-
 /**
  * S3Provider는 AWS S3에 파일을 업로드하는 기능을 제공.
  */

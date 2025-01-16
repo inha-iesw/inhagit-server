@@ -7,6 +7,7 @@ public record BannerResponse(
         @NotNull
         @Schema(description = "배너 인덱스", example = "1")
         Integer idx,
+
         @NotNull
         @Schema(description = "배너 이미지 경로", example = "/banner/1716150921629-791875.jpg")
         String imgPath

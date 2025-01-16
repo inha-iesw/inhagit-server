@@ -128,7 +128,6 @@ public class ProblemQueryRepository {
                     );
                 })
                 .toList();
-
         return new PageImpl<>(content, pageable, total);
     }
 

@@ -16,7 +16,6 @@ public record SearchBugReportsResponse(
         @NotNull
         @Schema(description = "버그 제보 제목", example = "버그 제보 제목")
         String title,
-        @NotNull
 
         @NotNull
         @Schema(description = "질문 생성 날짜", example = "2021-08-01T00:00:00")

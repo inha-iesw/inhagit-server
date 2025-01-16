@@ -30,6 +30,6 @@ public interface DepartmentMapper {
 
     @Mapping(source = "department.id", target = "idx")
     SearchDepartmentResponse departmentToSearchDepartmentResponse(Department department);
-    List<SearchDepartmentResponse> departmentsToSearchDepartmentResponses(List<Department> departmentList);
 
+    List<SearchDepartmentResponse> departmentsToSearchDepartmentResponses(List<Department> departmentList);
 }

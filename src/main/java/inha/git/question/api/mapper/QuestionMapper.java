@@ -60,7 +60,6 @@ public interface QuestionMapper {
     @Mapping(target = "idx", source = "question.id")
     QuestionResponse questionToQuestionResponse(Question question);
 
-
     /**
      * QuestionField를 생성합니다.
      *
@@ -122,9 +121,7 @@ public interface QuestionMapper {
         if (user == null) {
             return null;
         }
-
         Integer position = mapRoleToPosition(user.getRole());
-
         return new SearchUserResponse(
                 user.getId(),    // idx
                 user.getName(),  // name
@@ -180,7 +177,6 @@ public interface QuestionMapper {
     @Mapping(target = "idx", source = "questionReplyComment.id")
     ReplyCommentResponse toReplyCommentResponse(QuestionReplyComment questionReplyComment);
 
-
     /**
      * QuestionComment 엔티티를 CommentWithRepliesResponse로 변환
      *
@@ -205,9 +201,6 @@ public interface QuestionMapper {
     @Mapping(target = "idx", source = "questionReplyComment.id")
     @Mapping(target = "author", source = "questionReplyComment.user")
     SearchReplyCommentResponse toSearchReplyCommentResponse(QuestionReplyComment questionReplyComment, boolean likeState);
-
-
-
 
     default QuestionCommentLike createQuestionCommentLike(User user, QuestionComment questionComment) {
         return new QuestionCommentLike(new QuestionCommentLikeId(user.getId(), questionComment.getId()), questionComment, user);

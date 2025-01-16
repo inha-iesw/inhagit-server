@@ -16,6 +16,7 @@ public record SearchBugReportResponse(
         @NotNull
         @Schema(description = "버그 제보 제목", example = "버그 제보 제목")
         String title,
+
         @NotNull
         @Schema(description = "버그 제보 내용", example = "버그 제보 내용")
         String contents,
@@ -30,6 +31,5 @@ public record SearchBugReportResponse(
 
         @NotNull
         SearchUserResponse author
-
-        ) {
+) {
 }

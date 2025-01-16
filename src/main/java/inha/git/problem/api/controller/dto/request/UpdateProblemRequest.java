@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 public record UpdateProblemRequest(
+
         @NotNull
         @Size(min = 1, max = 30, message = "문제 제목은 1자 이상 30자 이하로 입력해주세요.")
         @Schema(description = "문제 제목 수정", example = "문제 제목 수정")

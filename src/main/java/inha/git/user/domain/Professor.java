@@ -1,6 +1,5 @@
 package inha.git.user.domain;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 

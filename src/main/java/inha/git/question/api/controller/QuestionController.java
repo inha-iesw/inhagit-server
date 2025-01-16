@@ -40,7 +40,6 @@ public class QuestionController {
     private final QuestionService questionService;
     private final PagingUtils pagingUtils;
 
-
     /**
      * 전체 질문을 페이징하여 조회합니다.
      *
@@ -88,6 +87,7 @@ public class QuestionController {
                                                             @PathVariable("questionIdx") Integer questionIdx) {
         return BaseResponse.of(QUESTION_DETAIL_OK, questionService.getQuestion(user, questionIdx));
     }
+
     /**
      * 질문 생성(기업제외) API
      *
@@ -172,5 +172,4 @@ public class QuestionController {
         log.info("질문 좋아요 취소 - 사용자: {} 질문 ID: {}", user.getName(), likeRequest.idx());
         return BaseResponse.of(LIKE_CANCEL_SUCCESS, questionService.questionLikeCancel(user,likeRequest));
     }
-
 }

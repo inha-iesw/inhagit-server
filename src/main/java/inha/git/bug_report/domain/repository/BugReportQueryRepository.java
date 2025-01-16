@@ -34,20 +34,16 @@ public class BugReportQueryRepository {
      * @return 버그 리포트 목록
      */
     public Page<SearchBugReportsResponse> getUserBugReports(Integer userId, SearchBugReportCond searchBugReportCond, Pageable pageable) {
-        // 기본 조건: 특정 사용자의 버그 리포트 + ACTIVE
         BooleanExpression condition = bugReport.user.id.eq(userId).and(bugReport.state.eq(ACTIVE));
 
-        // 제목 검색 조건
         if (searchBugReportCond.title() != null && !searchBugReportCond.title().isEmpty()) {
             condition = condition.and(bugReport.title.containsIgnoreCase(searchBugReportCond.title()));
         }
 
-        // 버그 상태 검색 조건
         if (searchBugReportCond.bugStatus() != null) {
             condition = condition.and(bugReport.bugStatus.eq(searchBugReportCond.bugStatus()));
         }
 
-        // 버그 리포트 목록 조회 쿼리
         JPAQuery<BugReport> query = queryFactory
                 .select(bugReport)
                 .from(bugReport)
@@ -57,11 +53,9 @@ public class BugReportQueryRepository {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
-        // 결과 리스트 및 총 개수 가져오기
         List<BugReport> bugReports = query.fetch();
         long total = query.fetchCount();
 
-        // SearchBugReportsResponse 변환
         List<SearchBugReportsResponse> content = bugReports.stream()
                 .map(report -> new SearchBugReportsResponse(
                         report.getId(),

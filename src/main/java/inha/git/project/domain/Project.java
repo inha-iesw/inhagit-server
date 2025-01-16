@@ -11,7 +11,6 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Project 엔티티는 애플리케이션의 프로젝트 정보를 나타냄.
  */
@@ -83,8 +82,6 @@ public class Project extends BaseEntity {
 
     @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private ProjectUpload projectUpload;
-
-
 
     public void setFoundRecommendCount(int foundingRecommendCount) {
         this.foundingRecommendCount = foundingRecommendCount;

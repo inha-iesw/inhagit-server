@@ -13,6 +13,5 @@ import java.util.Optional;
 public interface ReportJpaRepository extends JpaRepository<Report, Integer> {
 
     Boolean existsByReporterIdAndReportedUserIdAndReportedIdAndReportTypeAndState(Integer reporterId, Integer reportedUserId, Integer reportedId, ReportType reportType, State state);
-
     Optional<Report> findByIdAndState(Integer reportId, State state);
 }

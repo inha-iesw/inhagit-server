@@ -28,7 +28,6 @@ public class FilePath {
      * @param uploadDir 저장할 디렉토리
      * @return 저장된 파일의 경로
      */
-
     public static String storeFile(MultipartFile file, String uploadDir) {
         if (file.isEmpty()) {
             log.error("File not found");
@@ -98,17 +97,9 @@ public class FilePath {
         if (!isDirDeleted) {
             log.error("Failed to delete directory: " + dirPath);
         }
-
         return isDirDeleted;
     }
 
-
-    /**
-     * 파일 확장자 반환
-     *
-     * @param fileName 파일명
-     * @return 파일 확장자
-     */
     private static String getFileExtension(String fileName) {
         return fileName.substring(fileName.lastIndexOf("."));
     }

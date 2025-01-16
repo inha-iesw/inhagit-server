@@ -41,7 +41,6 @@ public class TeamCommentServiceImpl implements TeamCommentService{
     private final TeamCommentJpaRepository teamCommentJpaRepository;
     private final TeamReplyCommentJpaRepository teamReplyCommentJpaRepository;
 
-
     /**
      * 팀 게시글 댓글 전체 조회
      *

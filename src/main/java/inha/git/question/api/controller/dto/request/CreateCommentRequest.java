@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record CreateCommentRequest(
+
         @NotNull
         @Schema(description = "질문 인덱스", example = "1")
         Integer questionIdx,

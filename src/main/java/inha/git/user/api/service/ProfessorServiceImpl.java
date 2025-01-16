@@ -55,7 +55,6 @@ public class ProfessorServiceImpl implements ProfessorService{
         return professorQueryRepository.searchStudents(search, pageable);
     }
 
-
     /**
      * 교수 회원가입을 처리합니다.
      *

@@ -10,12 +10,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record SearchQuestionResponse(
+
         @NotNull
         @Schema(description = "질문 인덱스", example = "1")
         Integer idx,
+
         @NotNull
         @Schema(description = "질문 제목", example = "질문 제목")
         String title,
+
         @NotNull
         @Schema(description = "질문 내용", example = "질문 내용")
         String contents,
@@ -34,8 +37,10 @@ public record SearchQuestionResponse(
         @NotNull
         @Schema(description = "질문 주제", example = "질문 주제")
         String subject,
+
         @NotNull
         List<SearchFieldResponse> fieldList,
+
         @NotNull
         SearchUserResponse author,
 

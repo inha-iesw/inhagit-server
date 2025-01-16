@@ -9,7 +9,6 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Team 엔티티는 애플리케이션의 팀 정보를 나타냄.
  */

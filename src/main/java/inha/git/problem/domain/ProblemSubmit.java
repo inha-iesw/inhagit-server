@@ -6,7 +6,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-
 /**
  * Problem 엔티티는 애플리케이션의 문제 제출 정보를 나타냄.
  */

@@ -28,7 +28,6 @@ import static inha.git.common.Constant.mapRoleToPosition;
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ProjectMapper {
 
-
     /**
      * CreateProjectRequest를 Project 엔티티로 변환
      *
@@ -71,7 +70,6 @@ public interface ProjectMapper {
      */
     @Mapping(target = "idx", source = "project.id")
     ProjectResponse projectToProjectResponse(Project project);
-
 
     /**
      * Project 엔티티를 UpdateProjectResponse로 변환
@@ -127,7 +125,6 @@ public interface ProjectMapper {
     @Mapping(target = "registration", source = "registrationRecommendCount")
     SearchRecommendCount projectToSearchRecommendCountResponse(Project project);
 
-
     /**
      * User 엔티티를 SearchUserResponse로 변환
      *
@@ -138,9 +135,7 @@ public interface ProjectMapper {
         if (user == null) {
             return null;
         }
-
         Integer position = mapRoleToPosition(user.getRole());
-
         return new SearchUserResponse(
                 user.getId(),    // idx
                 user.getName(),  // name
@@ -265,7 +260,6 @@ public interface ProjectMapper {
     @Mapping(target = "idx", source = "projectReplyComment.id")
     ReplyCommentResponse toReplyCommentResponse(ProjectReplyComment projectReplyComment);
 
-
     /**
      * ProjectComment 엔티티를 CommentWithRepliesResponse로 변환
      *
@@ -304,7 +298,6 @@ public interface ProjectMapper {
     @Mapping(target = "createdAt", source = "projectReplyComment.createdAt")
     SearchReplyCommentResponse toSearchReplyCommentResponse(ProjectReplyComment projectReplyComment);
 
-
     /**
      * CreateGithubProjectRequest를 Project 엔티티로 변환
      *
@@ -324,7 +317,6 @@ public interface ProjectMapper {
     @Mapping(target = "isPublic", source = "createGithubProjectRequest.isPublic")
     Project createGithubProjectRequestToProject(CreateGithubProjectRequest createGithubProjectRequest, User user, Semester semester, Category category);
 
-
     SearchPatentResponse toSearchPatentResponse(String applicationNumber, String applicationDate, String inventionTitle,
                                                 String inventionTitleEnglish, String applicantName, String applicantEnglishName,
                                                 List<SearchInventorResponse> inventors);
@@ -336,7 +328,6 @@ public interface ProjectMapper {
     @Mapping(target = "applicantName", source = "applicantName")
     @Mapping(target = "applicantEnglishName", source = "applicantEnglishName")
     SearchPatentResponse toSearchPatentResponse(String applicantName, String applicantEnglishName);
-
 
     default List<ProjectPatentInventor> toPatentInventor(List<SearchInventorResponse> inventors, ProjectPatent projectPatent) {
         List<ProjectPatentInventor> result = new ArrayList<>();
@@ -371,5 +362,4 @@ public interface ProjectMapper {
     default ProjectReplyCommentLike createProjectReplyCommentLike(User user, ProjectReplyComment projectReplyComment) {
         return new ProjectReplyCommentLike(new ProjectReplyCommentLikeId(user.getId(), projectReplyComment.getId()), projectReplyComment, user);
     }
-
 }

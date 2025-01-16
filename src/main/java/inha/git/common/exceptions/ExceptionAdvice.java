@@ -27,7 +27,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-
 @Slf4j
 @RestControllerAdvice(annotations = {RestController.class})
 public class ExceptionAdvice extends ResponseEntityExceptionHandler {
@@ -60,7 +59,6 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         return handleExceptionInternalConstraint(e, ErrorStatus.valueOf(errorMessage), HttpHeaders.EMPTY, request);
     }
 
-
     @Override
     public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         Map<String, String> errors = new LinkedHashMap<>();
@@ -89,17 +87,15 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(baseException,errorReasonHttpStatus,null,request);
     }
 
-
     private ResponseEntity<Object> handleExceptionInternal(Exception e, ErrorReasonDTO reason,
                                                            HttpHeaders headers, HttpServletRequest request) {
-
-        BaseResponse<Object> body = BaseResponse.onFailure(reason.getCode(),reason.getMessage(),null);
+        BaseResponse<Object> body = BaseResponse.onFailure(reason.code(),reason.message(),null);
         WebRequest webRequest = new ServletWebRequest(request);
         return super.handleExceptionInternal(
                 e,
                 body,
                 headers,
-                reason.getHttpStatus(),
+                reason.httpStatus(),
                 webRequest
         );
     }

@@ -7,6 +7,7 @@ public record SearchDepartmentResponse(
         @NotNull
         @Schema(description = "학과 인덱스", example = "1")
         Integer idx,
+
         @NotNull
         @Schema(description = "학과 이름", example = "컴퓨터공학과")
         String name

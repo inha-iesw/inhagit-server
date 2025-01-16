@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-
 /**
  * JwtProvider는 JWT 토큰의 생성 및 검증을 담당하는 클래스.
  */
@@ -56,7 +55,6 @@ public class JwtProvider {
       throw new BaseException(ErrorStatus.INVALID_JWT); // 기타 오류
     }
   }
-
 
   /**
    * 토큰에서 특정 클레임을 추출.
@@ -95,15 +93,6 @@ public class JwtProvider {
     return buildToken(extraClaims, userDetails, accessExpiration);
   }
 
-
-  /**
-   * 주어진 클레임, 사용자 정보, 만료 시간을 바탕으로 JWT 토큰을 생성.
-   *
-   * @param extraClaims 추가 클레임
-   * @param userDetails 사용자 정보
-   * @param expiration 만료 시간
-   * @return 생성된 JWT 토큰
-   */
   private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
     return Jwts
             .builder()
@@ -116,7 +105,6 @@ public class JwtProvider {
             .signWith(getSignInKey(), SignatureAlgorithm.HS256)
             .compact();
   }
-
 
   /**
    * 토큰이 유효한지 확인.
@@ -142,48 +130,13 @@ public class JwtProvider {
   }
 
   /**
-   * 토큰이 만료되었는지 확인.
+   * 사용자 정보를 바탕으로 리프레시 토큰을 생성.
    *
-   * @param token JWT 토큰
-   * @return 토큰이 만료되었는지 여부
+   * @param userDetails 사용자 정보
+   * @return 생성된 리프레시 토큰
    */
-  private boolean isTokenExpired(String token) {
-    return extractExpiration(token).before(new Date());
-  }
-
-  /**
-   * 토큰에서 만료 시간을 추출.
-   *
-   * @param token JWT 토큰
-   * @return 만료 시간
-   */
-  private Date extractExpiration(String token) {
-    return extractClaim(token, Claims::getExpiration);
-  }
-
-  /**
-   * 토큰에서 모든 클레임을 추출.
-   *
-   * @param token JWT 토큰
-   * @return 모든 클레임
-   */
-  private Claims extractAllClaims(String token) {
-    return Jwts
-            .parserBuilder()
-            .setSigningKey(getSignInKey())
-            .build()
-            .parseClaimsJws(token)
-            .getBody();
-  }
-
-  /**
-   * 서명 키를 반환.
-   *
-   * @return 서명 키
-   */
-  private Key getSignInKey() {
-    byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-    return Keys.hmacShaKeyFor(keyBytes);
+  public String generateRefreshToken(UserDetails userDetails) {
+    return buildToken(new HashMap<>(), userDetails, refreshExpiration);
   }
 
   /**
@@ -197,26 +150,32 @@ public class JwtProvider {
     return claims.getIssuedAt().getTime();
   }
 
-  /**
-   * 토큰에서 클레임을 추출.
-   *
-   * @param token JWT 토큰
-   * @return 클레임
-   */
+  private boolean isTokenExpired(String token) {
+    return extractExpiration(token).before(new Date());
+  }
+
+  private Date extractExpiration(String token) {
+    return extractClaim(token, Claims::getExpiration);
+  }
+
+  private Claims extractAllClaims(String token) {
+    return Jwts
+            .parserBuilder()
+            .setSigningKey(getSignInKey())
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
+  }
+
+  private Key getSignInKey() {
+    byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+    return Keys.hmacShaKeyFor(keyBytes);
+  }
+
   private Claims getClaims(String token) {
     return Jwts.parser()
             .setSigningKey(secretKey)
             .parseClaimsJws(token)
             .getBody();
-  }
-
-  /**
-   * 사용자 정보를 바탕으로 리프레시 토큰을 생성.
-   *
-   * @param userDetails 사용자 정보
-   * @return 생성된 리프레시 토큰
-   */
-  public String generateRefreshToken(UserDetails userDetails) {
-    return buildToken(new HashMap<>(), userDetails, refreshExpiration);
   }
 }

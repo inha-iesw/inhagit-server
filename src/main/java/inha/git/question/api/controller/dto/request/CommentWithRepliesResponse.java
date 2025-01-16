@@ -1,6 +1,5 @@
 package inha.git.question.api.controller.dto.request;
 
-
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -9,6 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record CommentWithRepliesResponse(
+
         @NotNull
         @Schema(description = "댓글 ID", example = "1")
         Integer idx,
@@ -35,4 +35,5 @@ public record CommentWithRepliesResponse(
         @NotNull
         @Schema(description = "답글 목록")
         List<SearchReplyCommentResponse> replies
-) {}
+) {
+}

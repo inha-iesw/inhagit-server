@@ -127,5 +127,4 @@ public class ProjectRecommendController {
         log.info("프로젝트 등록 추천 취소 - 사용자: {} 프로젝트 ID: {}", user.getName(), recommendRequest.idx());
         return BaseResponse.of(REGISTRATION_RECOMMEND_CANCEL_SUCCESS, projectRecommendService.cancelProjectRegistrationRecommend(user,recommendRequest));
     }
-
 }

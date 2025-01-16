@@ -8,7 +8,6 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Field 엔티티는 애플리케이션의 필드 정보를 나타냄.
  */

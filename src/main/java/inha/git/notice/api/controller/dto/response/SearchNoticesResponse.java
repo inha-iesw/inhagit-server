@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 public record SearchNoticesResponse(
+
         @NotNull
         @Schema(description = "공지사항 아이디", example = "1")
         Integer idx,
@@ -23,6 +24,7 @@ public record SearchNoticesResponse(
         @NotNull
         @Schema(description = "첨부파일 여부", example = "true")
         Boolean hasAttachment,
+
         @NotNull
         SearchNoticeUserResponse author
 ) {

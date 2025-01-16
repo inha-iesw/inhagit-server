@@ -19,6 +19,6 @@ import java.io.Serializable;
 public class QuestionFieldId implements Serializable {
 
     private Integer questionId;
-    private Integer fieldId;
 
+    private Integer fieldId;
 }

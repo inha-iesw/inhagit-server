@@ -9,7 +9,6 @@ import jakarta.validation.ConstraintValidatorContext;
  */
 public class RepoNameValidator implements ConstraintValidator<ValidRepoName, String> {
 
-    // 하이픈과 미침표로 끝나면 안되고 1~100 글자 사이의 숫자, 알파벳, 마침표, 하이픈
     private static final String REPO_NAME_REGEX = "^(?!-|\\.)[a-z0-9.-]{1,100}(?<!-)$";
 
     @Override

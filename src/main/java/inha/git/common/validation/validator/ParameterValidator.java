@@ -17,8 +17,8 @@ public class ParameterValidator implements ConstraintValidator<ValidParameter, S
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
         if (email == null || email.isEmpty()) {
-            return false; // null 또는 빈 문자열일 경우
+            return false;
         }
-        return !email.startsWith(" ") && !email.contains("\u0000");// 공백으로 시작하거나 null 문자가 포함된 경우
+        return !email.startsWith(" ") && !email.contains("\u0000");
     }
 }

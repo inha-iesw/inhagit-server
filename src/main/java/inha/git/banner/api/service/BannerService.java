@@ -8,6 +8,5 @@ import java.util.List;
 
 public interface BannerService {
     String createBanner(User user, CreateBannerRequest createBannerRequest);
-
     List<BannerResponse> getBanners();
 }

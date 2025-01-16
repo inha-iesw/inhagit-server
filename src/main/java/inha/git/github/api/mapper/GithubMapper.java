@@ -17,5 +17,4 @@ public interface GithubMapper {
     default String getArchiveUrl(GHRepository repo) {
         return "https://api.github.com/repos/" + repo.getFullName() + "/zipball/" + repo.getDefaultBranch();
     }
-
 }

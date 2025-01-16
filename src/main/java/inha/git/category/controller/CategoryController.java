@@ -44,7 +44,6 @@ public class CategoryController {
         return BaseResponse.of(CATEGORY_SEARCH_OK, categoryService.getCategories());
     }
 
-
     /**
      * 새로운 카테고리를 생성합니다.
      *

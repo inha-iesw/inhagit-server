@@ -9,7 +9,6 @@ import lombok.*;
 /**
  * FoundingRecommend 엔티티는 애플리케이션의 창업 추천 매핑 정보를 나타냄.
  */
-
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
@@ -17,7 +16,6 @@ import lombok.*;
 @Builder
 @Entity
 @Table(name = "founding_recommend_tb")
-
 public class FoundingRecommend {
 
     @EmbeddedId

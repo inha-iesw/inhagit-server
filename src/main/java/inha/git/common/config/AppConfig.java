@@ -1,7 +1,5 @@
 package inha.git.common.config;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.user.domain.repository.UserJpaRepository;
 import inha.git.utils.ApplicationAuditAware;
@@ -20,7 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
-
 
 @Configuration
 @RequiredArgsConstructor
@@ -61,7 +58,4 @@ public class AppConfig {
   JPAQueryFactory jpaQueryFactory(EntityManager em) {
     return new JPAQueryFactory(em);
   }
-
-
-
 }
