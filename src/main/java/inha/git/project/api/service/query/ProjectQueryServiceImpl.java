@@ -63,19 +63,6 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
     private final RegistrationRecommendJpaRepository registrationRecommendJpaRepository;
 
     /**
-     * 프로젝트 전체 조회
-     *
-     * @param page 페이지 번호
-     * @param size 페이지 사이즈
-     * @return 검색된 프로젝트 정보 페이지
-     */
-    @Override
-    public Page<SearchProjectsResponse> getProjects(Integer page, Integer size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, CREATE_AT));
-        return projectQueryRepository.getProjects(pageable);
-    }
-
-    /**
      * 프로젝트 조건 조회
      *
      * @param searchProjectCond 검색 조건
