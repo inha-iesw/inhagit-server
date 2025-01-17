@@ -1,4 +1,4 @@
-package inha.git.project.api.service;
+package inha.git.project.api.service.query;
 
 import inha.git.project.api.controller.dto.request.SearchProjectCond;
 import inha.git.project.api.controller.dto.response.SearchFileResponse;
@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
-public interface ProjectSearchService {
+public interface ProjectQueryService {
     Page<SearchProjectsResponse> getProjects(Integer page, Integer size);
     Page<SearchProjectsResponse> getCondProjects(SearchProjectCond searchProjectCond, Integer page, Integer size);
     SearchProjectResponse getProject(User user, Integer projectIdx);

@@ -10,8 +10,9 @@ import inha.git.project.api.controller.dto.response.ProjectResponse;
 import inha.git.project.api.controller.dto.response.SearchFileResponse;
 import inha.git.project.api.controller.dto.response.SearchProjectResponse;
 import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
-import inha.git.project.api.service.ProjectSearchService;
-import inha.git.project.api.service.ProjectService;
+import inha.git.project.api.service.github.GithubProjectService;
+import inha.git.project.api.service.query.ProjectQueryService;
+import inha.git.project.api.service.command.ProjectCommandService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.utils.file.ValidFile;
@@ -42,8 +43,9 @@ import static inha.git.common.code.status.SuccessStatus.*;
 @RequestMapping("/api/v1/projects")
 public class ProjectController {
 
-    private final ProjectService projectService;
-    private final ProjectSearchService projectSearchService;
+    private final ProjectCommandService projectService;
+    private final ProjectQueryService projectSearchService;
+    private final GithubProjectService githubProjectService;
 
     /**
      * 프로젝트 전체 조회 API
@@ -162,7 +164,7 @@ public class ProjectController {
             throw new BaseException(COMPANY_CANNOT_CREATE_PROJECT);
         }
         log.info("GitHub 프로젝트 생성 - 사용자: {} 프로젝트 이름: {}", user.getName(), createGithubProjectRequest.title());
-        return BaseResponse.of(PROJECT_CREATE_OK, projectService.createGithubProject(user, createGithubProjectRequest));
+        return BaseResponse.of(PROJECT_CREATE_OK, githubProjectService.createGithubProject(user, createGithubProjectRequest));
     }
 
     /**

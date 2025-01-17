@@ -4,7 +4,7 @@ import inha.git.common.BaseResponse;
 import inha.git.project.api.controller.dto.request.CreatePatentRequest;
 import inha.git.project.api.controller.dto.response.PatentResponse;
 import inha.git.project.api.controller.dto.response.SearchPatentResponse;
-import inha.git.project.api.service.ProjectPatentService;
+import inha.git.project.api.service.patent.ProjectPatentService;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

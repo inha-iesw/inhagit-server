@@ -1,4 +1,4 @@
-package inha.git.project.api.service;
+package inha.git.project.api.service.command;
 
 import inha.git.category.domain.Category;
 import inha.git.category.domain.repository.CategoryJpaRepository;
@@ -8,7 +8,6 @@ import inha.git.field.domain.repository.FieldJpaRepository;
 import inha.git.mapping.domain.ProjectField;
 import inha.git.mapping.domain.id.ProjectFieldId;
 import inha.git.mapping.domain.repository.ProjectFieldJpaRepository;
-import inha.git.project.api.controller.dto.request.CreateGithubProjectRequest;
 import inha.git.project.api.controller.dto.request.CreateProjectRequest;
 import inha.git.project.api.controller.dto.request.UpdateProjectRequest;
 import inha.git.project.api.controller.dto.response.ProjectResponse;
@@ -44,13 +43,13 @@ import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 /**
- * ProjectService는 프로젝트 관련 비즈니스 로직을 처리.
+ * ProjectCommandServiceImpl은 프로젝트 관련 비즈니스 로직을 처리.
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class ProjectServiceImpl implements ProjectService {
+public class ProjectCommandServiceImpl implements ProjectCommandService {
 
     private final ProjectJpaRepository projectJpaRepository;
     private final ProjectUploadJpaRepository projectUploadJpaRepository;
@@ -99,35 +98,6 @@ public class ProjectServiceImpl implements ProjectService {
 
         statisticsService.adjustCount(user, fields, semester, category,  1, true);
         log.info("프로젝트 생성 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), savedProject.getId());
-        return projectMapper.projectToProjectResponse(savedProject);
-    }
-
-    /**
-     * 깃허브 프로젝트 생성
-     *
-     * @param user                     사용자 정보
-     * @param createGithubProjectRequest 깃허브 프로젝트 생성 요청
-     * @return 생성된 프로젝트 정보
-     */
-    @Override
-    @Transactional
-    public ProjectResponse createGithubProject(User user, CreateGithubProjectRequest createGithubProjectRequest) {
-        idempotentProvider.isValidIdempotent(List.of("createGithubProject", user.getName(), user.getId().toString(), createGithubProjectRequest.title(), createGithubProjectRequest.contents(), createGithubProjectRequest.subject()));
-
-        Semester semester = semesterJpaRepository.findByIdAndState(createGithubProjectRequest.semesterIdx(), ACTIVE)
-                .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
-
-        Category category = categoryJpaRepository.findById(createGithubProjectRequest.categoryIdx())
-                .orElseThrow(() -> new BaseException(CATEGORY_NOT_FOUND));
-
-        Project project = projectMapper.createGithubProjectRequestToProject(createGithubProjectRequest, user, semester, category);
-        Project savedProject = projectJpaRepository.saveAndFlush(project);
-
-        List<ProjectField> projectFields = createAndSaveProjectFields(createGithubProjectRequest.fieldIdxList(), savedProject);
-        projectFieldJpaRepository.saveAll(projectFields);
-        List<Field> fields = fieldJpaRepository.findAllById(createGithubProjectRequest.fieldIdxList());
-        statisticsService.adjustCount(user, fields, semester,  category, 2, true);
-        log.info("깃허브 프로젝트 생성 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), savedProject.getId());
         return projectMapper.projectToProjectResponse(savedProject);
     }
 

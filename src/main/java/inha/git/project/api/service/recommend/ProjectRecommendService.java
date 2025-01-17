@@ -1,4 +1,4 @@
-package inha.git.project.api.service;
+package inha.git.project.api.service.recommend;
 
 import inha.git.project.api.controller.dto.request.RecommendRequest;
 import inha.git.project.api.controller.dto.request.SearchPatentRequest;
