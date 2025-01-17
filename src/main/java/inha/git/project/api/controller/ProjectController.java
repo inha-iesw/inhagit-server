@@ -31,7 +31,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 import static inha.git.common.code.status.ErrorStatus.COMPANY_CANNOT_CREATE_PROJECT;
-import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
