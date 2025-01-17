@@ -50,7 +50,6 @@ public class UserController {
     private final StudentService studentService;
     private final ProfessorService professorService;
     private final CompanyService companyService;
-    private final PagingUtils pagingUtils;
 
     /**
      * 현재 로그인한 사용자의 상세 정보를 조회합니다.
@@ -91,8 +90,8 @@ public class UserController {
     public BaseResponse<Page<SearchProjectsResponse>> getUserProjects(@AuthenticationPrincipal User user,
                                                                       @PathVariable("userIdx") Integer userIdx,
                                                                       @RequestParam("page") Integer page) {
-        pagingUtils.validatePage(page);
-        return BaseResponse.of(MY_PAGE_PROJECT_SEARCH_OK, userService.getUserProjects(user, userIdx, pagingUtils.toPageIndex(page)));
+        PagingUtils.validatePage(page);
+        return BaseResponse.of(MY_PAGE_PROJECT_SEARCH_OK, userService.getUserProjects(user, userIdx, PagingUtils.toPageIndex(page)));
     }
 
     /**
@@ -109,8 +108,8 @@ public class UserController {
     public BaseResponse<Page<SearchQuestionsResponse>> getUserQuestions(@AuthenticationPrincipal User user,
                                                                           @PathVariable("userIdx") Integer userIdx,
                                                                         @RequestParam("page") Integer page) {
-        pagingUtils.validatePage(page);
-        return BaseResponse.of(MY_PAGE_QUESTION_SEARCH_OK, userService.getUserQuestions(user,userIdx, pagingUtils.toPageIndex(page)));
+        PagingUtils.validatePage(page);
+        return BaseResponse.of(MY_PAGE_QUESTION_SEARCH_OK, userService.getUserQuestions(user,userIdx, PagingUtils.toPageIndex(page)));
     }
 
     /**
@@ -127,8 +126,8 @@ public class UserController {
     public BaseResponse<Page<SearchMyTeamsResponse>> getUserTeams(@AuthenticationPrincipal User user,
                                                                   @PathVariable("userIdx") Integer userIdx,
                                                                   @RequestParam("page") Integer page) {
-        pagingUtils.validatePage(page);
-        return BaseResponse.of(MY_PAGE_TEAM_SEARCH_OK, userService.getUserTeams(user, userIdx, pagingUtils.toPageIndex(page)));
+        PagingUtils.validatePage(page);
+        return BaseResponse.of(MY_PAGE_TEAM_SEARCH_OK, userService.getUserTeams(user, userIdx, PagingUtils.toPageIndex(page)));
     }
 
     /**
@@ -145,8 +144,8 @@ public class UserController {
     public BaseResponse<Page<SearchProblemsResponse>> getUserProblems(@AuthenticationPrincipal User user,
                                                                       @PathVariable("userIdx") Integer userIdx,
                                                                       @RequestParam("page") Integer page) {
-        pagingUtils.validatePage(page);
-        return BaseResponse.of(MY_PAGE_PROBLEM_SEARCH_OK, userService.getUserProblems(user, userIdx,pagingUtils.toPageIndex(page)));
+        PagingUtils.validatePage(page);
+        return BaseResponse.of(MY_PAGE_PROBLEM_SEARCH_OK, userService.getUserProblems(user, userIdx, PagingUtils.toPageIndex(page)));
     }
 
     /**
@@ -163,8 +162,8 @@ public class UserController {
     public BaseResponse <Page<SearchReportResponse>> getUserReports(@AuthenticationPrincipal User user,
                                                                     @PathVariable("userIdx") Integer userIdx,
                                                                     @RequestParam("page") Integer page) {
-        pagingUtils.validatePage(page);
-        return BaseResponse.of(MY_PAGE_REPORT_SEARCH_OK, userService.getUserReports(user, userIdx, pagingUtils.toPageIndex(page)));
+        PagingUtils.validatePage(page);
+        return BaseResponse.of(MY_PAGE_REPORT_SEARCH_OK, userService.getUserReports(user, userIdx, PagingUtils.toPageIndex(page)));
     }
 
     /**
@@ -183,8 +182,8 @@ public class UserController {
                                                                     @PathVariable("userIdx") Integer userIdx,
                                                                     @Validated @ModelAttribute SearchBugReportCond searchBugReportCond,
                                                                     @RequestParam("page") Integer page) {
-        pagingUtils.validatePage(page);
-        return BaseResponse.of(MY_PAGE_BUG_REPORT_SEARCH_OK, userService.getUserBugReports(user, userIdx, searchBugReportCond,  pagingUtils.toPageIndex(page)));
+        PagingUtils.validatePage(page);
+        return BaseResponse.of(MY_PAGE_BUG_REPORT_SEARCH_OK, userService.getUserBugReports(user, userIdx, searchBugReportCond,  PagingUtils.toPageIndex(page)));
     }
 
     /**

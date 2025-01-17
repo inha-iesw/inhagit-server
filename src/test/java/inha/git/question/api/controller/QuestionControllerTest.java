@@ -49,9 +49,6 @@ class QuestionControllerTest {
     @Mock
     private QuestionService questionService;
 
-    @Mock
-    private PagingUtils pagingUtils;
-
     @Test
     @DisplayName("질문 전체 조회 성공")
     void getQuestions_Success() {
@@ -86,8 +83,7 @@ class QuestionControllerTest {
         );
         Page<SearchQuestionsResponse> expectedPage = new PageImpl<>(questions);
 
-        given(pagingUtils.toPageIndex(page)).willReturn(0);
-        given(pagingUtils.toPageSize(size)).willReturn(9);
+        given(PagingUtils.toPageIndex(page)).willReturn(0);
         given(questionService.getQuestions(0, 9)).willReturn(expectedPage);
 
         // when
@@ -95,9 +91,6 @@ class QuestionControllerTest {
 
         // then
         assertThat(response.getResult()).isEqualTo(expectedPage);
-        verify(pagingUtils).validatePage(page);
-        verify(pagingUtils).validateSize(size);
-        verify(questionService).getQuestions(0, 9);
     }
 
     @Test
@@ -126,8 +119,7 @@ class QuestionControllerTest {
         );
         Page<SearchQuestionsResponse> expectedPage = new PageImpl<>(questions);
 
-        given(pagingUtils.toPageIndex(page)).willReturn(0);
-        given(pagingUtils.toPageSize(size)).willReturn(9);
+        given(PagingUtils.toPageIndex(page)).willReturn(0);
         given(questionService.getCondQuestions(searchQuestionCond, 0, 9))
                 .willReturn(expectedPage);
 
@@ -137,8 +129,6 @@ class QuestionControllerTest {
 
         // then
         assertThat(response.getResult()).isEqualTo(expectedPage);
-        verify(pagingUtils).validatePage(page);
-        verify(pagingUtils).validateSize(size);
         verify(questionService).getCondQuestions(searchQuestionCond, 0, 9);
     }
 

@@ -38,7 +38,6 @@ import static inha.git.common.code.status.SuccessStatus.*;
 public class QuestionController {
 
     private final QuestionService questionService;
-    private final PagingUtils pagingUtils;
 
     /**
      * 전체 질문을 페이징하여 조회합니다.
@@ -52,9 +51,8 @@ public class QuestionController {
     @GetMapping
     @Operation(summary = "질문 전체 조회 API", description = "질문 전체를 조회합니다.")
     public BaseResponse<Page<SearchQuestionsResponse>> getQuestions(@RequestParam("page") Integer page, @RequestParam("size") Integer size) {
-        pagingUtils.validatePage(page);
-        pagingUtils.validateSize(size);
-        return BaseResponse.of(QUESTION_SEARCH_OK, questionService.getQuestions(pagingUtils.toPageIndex(page), pagingUtils.toPageSize(size)));
+        PagingUtils.validatePage(page, size);
+        return BaseResponse.of(QUESTION_SEARCH_OK, questionService.getQuestions(PagingUtils.toPageIndex(page), size));
     }
 
     /**
@@ -68,9 +66,8 @@ public class QuestionController {
     @GetMapping("/cond")
     @Operation(summary = "질문 조건 조회 API", description = "질문 조건에 맞게 조회합니다.")
     public BaseResponse<Page<SearchQuestionsResponse>> getCondQuestions(@RequestParam("page") Integer page, @RequestParam("size") Integer size , SearchQuestionCond searchQuestionCond) {
-        pagingUtils.validatePage(page);
-        pagingUtils.validateSize(size);
-        return BaseResponse.of(QUESTION_SEARCH_OK, questionService.getCondQuestions(searchQuestionCond, pagingUtils.toPageIndex(page), pagingUtils.toPageSize(size)));
+        PagingUtils.validatePage(page, size);
+        return BaseResponse.of(QUESTION_SEARCH_OK, questionService.getCondQuestions(searchQuestionCond, PagingUtils.toPageIndex(page), size));
     }
 
     /**

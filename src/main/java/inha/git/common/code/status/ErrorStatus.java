@@ -250,6 +250,8 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_SEARCH_QUERY(HttpStatus.BAD_REQUEST, "SEARCH4000", "검색어가 유효하지 않습니다."),
     INVALID_SEARCH_TYPE(HttpStatus.BAD_REQUEST, "SEARCH4001", "검색 타입이 유효하지 않습니다."),
 
+    UTILITY_CLASS(HttpStatus.BAD_REQUEST, "COMMON4000", "유틸리티 클래스는 생성할 수 없습니다."),
+
     /**
      * 500 :  Database, Server 오류
      */

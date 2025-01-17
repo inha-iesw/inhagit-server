@@ -15,6 +15,7 @@ import inha.git.project.api.service.query.ProjectQueryService;
 import inha.git.project.api.service.command.ProjectCommandService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
+import inha.git.utils.PagingUtils;
 import inha.git.utils.file.ValidFile;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -59,13 +60,8 @@ public class ProjectController {
     @GetMapping
     @Operation(summary = "프로젝트 전체 조회 API", description = "프로젝트 전체를 조회합니다.")
     public BaseResponse<Page<SearchProjectsResponse>> getProjects(@RequestParam("page") Integer page, @RequestParam("size") Integer size) {
-        if (page < 1) {
-            throw new BaseException(INVALID_PAGE);
-        }
-        if (size < 1) {
-            throw new BaseException(INVALID_PAGE);
-        }
-        return BaseResponse.of(PROJECT_SEARCH_OK, projectSearchService.getProjects(page - 1, size - 1));
+        PagingUtils.validatePage(page, size);
+        return BaseResponse.of(PROJECT_SEARCH_OK, projectSearchService.getProjects(PagingUtils.toPageIndex(page), size));
     }
 
     /**
@@ -82,13 +78,8 @@ public class ProjectController {
     @Operation(summary = "프로젝트 조건 조회 API", description = "프로젝트 조건에 맞게 조회합니다.")
     public BaseResponse<Page<SearchProjectsResponse>> getCondProjects(@Validated @ModelAttribute SearchProjectCond searchProjectCond,
                                                                       @RequestParam("page") Integer page, @RequestParam("size") Integer size) {
-        if (page < 1) {
-            throw new BaseException(INVALID_PAGE);
-        }
-        if (size < 1) {
-            throw new BaseException(INVALID_PAGE);
-        }
-        return BaseResponse.of(PROJECT_SEARCH_CONDITION_OK, projectSearchService.getCondProjects(searchProjectCond, page - 1, size - 1));
+        PagingUtils.validatePage(page, size);
+        return BaseResponse.of(PROJECT_SEARCH_CONDITION_OK, projectSearchService.getCondProjects(searchProjectCond, PagingUtils.toPageIndex(page), size));
     }
 
     /**
