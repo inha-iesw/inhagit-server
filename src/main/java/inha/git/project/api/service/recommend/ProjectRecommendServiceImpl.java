@@ -1,4 +1,4 @@
-package inha.git.project.api.service;
+package inha.git.project.api.service.recommend;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.repository.FoundingRecommendJpaRepository;

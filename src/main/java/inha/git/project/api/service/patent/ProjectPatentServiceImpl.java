@@ -1,4 +1,4 @@
-package inha.git.project.api.service;
+package inha.git.project.api.service.patent;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.project.api.controller.dto.request.CreatePatentRequest;
@@ -12,10 +12,8 @@ import inha.git.project.domain.ProjectPatentInventor;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentInventorJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentJpaRepository;
-import inha.git.user.domain.Company;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
-import inha.git.utils.file.FilePath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +41,9 @@ import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.*;
 
+/**
+ * ProjectPatentServiceImpl은 프로젝트 특허 관련 비즈니스 로직을 처리합니다.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j

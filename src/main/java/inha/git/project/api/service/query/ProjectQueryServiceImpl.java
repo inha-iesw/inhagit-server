@@ -1,4 +1,4 @@
-package inha.git.project.api.service;
+package inha.git.project.api.service.query;
 
 import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.category.mapper.CategoryMapper;
@@ -18,7 +18,6 @@ import inha.git.project.domain.repository.ProjectUploadJpaRepository;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.semester.mapper.SemesterMapper;
 import inha.git.user.domain.User;
-import inha.git.user.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -42,16 +41,15 @@ import java.util.stream.Stream;
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.*;
-import static inha.git.user.domain.enums.Role.ADMIN;
 
 /**
- * ProjectSearchService는 프로젝트 검색 관련 비즈니스 로직을 처리.
+ * ProjectQueryServiceImpl는 프로젝트 조회 관련 비즈니스 로직을 처리.
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class ProjectSearchServiceImpl implements ProjectSearchService {
+public class ProjectQueryServiceImpl implements ProjectQueryService {
 
     private final ProjectJpaRepository projectJpaRepository;
     private final ProjectUploadJpaRepository projectUploadJpaRepository;
@@ -63,19 +61,6 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
     private final ProjectLikeJpaRepository projectLikeJpaRepository;
     private final FoundingRecommendJpaRepository foundingRecommendJpaRepository;
     private final RegistrationRecommendJpaRepository registrationRecommendJpaRepository;
-
-    /**
-     * 프로젝트 전체 조회
-     *
-     * @param page 페이지 번호
-     * @param size 페이지 사이즈
-     * @return 검색된 프로젝트 정보 페이지
-     */
-    @Override
-    public Page<SearchProjectsResponse> getProjects(Integer page, Integer size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, CREATE_AT));
-        return projectQueryRepository.getProjects(pageable);
-    }
 
     /**
      * 프로젝트 조건 조회

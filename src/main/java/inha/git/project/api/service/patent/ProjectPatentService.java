@@ -1,4 +1,4 @@
-package inha.git.project.api.service;
+package inha.git.project.api.service.patent;
 
 import inha.git.project.api.controller.dto.request.CreatePatentRequest;
 import inha.git.project.api.controller.dto.response.PatentResponse;

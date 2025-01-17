@@ -60,7 +60,6 @@ class NoticeControllerTest {
         ));
 
         given(pagingUtils.toPageIndex(page)).willReturn(pageIndex);
-        given(pagingUtils.toPageSize(size)).willReturn(pageSize);
         given(noticeService.getNotices(pageIndex, pageSize)).willReturn(expectedPage);
 
         // when
@@ -69,7 +68,6 @@ class NoticeControllerTest {
         // then
         assertThat(response.getResult()).isEqualTo(expectedPage);
         verify(pagingUtils).validatePage(page);
-        verify(pagingUtils).validateSize(size);
         verify(noticeService).getNotices(pageIndex, pageSize);
     }
 

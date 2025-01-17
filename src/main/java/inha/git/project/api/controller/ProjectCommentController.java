@@ -8,7 +8,10 @@ import inha.git.project.api.controller.dto.request.UpdateCommentRequest;
 import inha.git.project.api.controller.dto.response.CommentResponse;
 import inha.git.project.api.controller.dto.response.CommentWithRepliesResponse;
 import inha.git.project.api.controller.dto.response.ReplyCommentResponse;
-import inha.git.project.api.service.ProjectCommentService;
+import inha.git.project.api.service.comment.comment.ProjectCommentCommandService;
+import inha.git.project.api.service.comment.like.ProjectCommentLikeService;
+import inha.git.project.api.service.comment.query.ProjectCommentQueryService;
+import inha.git.project.api.service.comment.reply.ProjectReplyCommentCommandService;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,7 +27,7 @@ import java.util.List;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
- * ProjectController는 project 댓글 관련 엔드포인트를 처리.
+ * ProjectCommentController는 project 댓글 관련 엔드포인트를 처리.
  */
 @Slf4j
 @Tag(name = "project comment controller", description = "project comment 관련 API")
@@ -33,14 +36,17 @@ import static inha.git.common.code.status.SuccessStatus.*;
 @RequestMapping("/api/v1/projects/comments")
 public class ProjectCommentController {
 
-    private final ProjectCommentService projectCommentService;
+    private final ProjectCommentQueryService projectCommentQueryService;
+    private final ProjectCommentCommandService projectCommentCommandService;
+    private final ProjectReplyCommentCommandService projectReplyCommentCommandService;
+    private final ProjectCommentLikeService projectCommentLikeService;
 
     @GetMapping
     @Operation(summary = "특정 프로젝트 댓글 전체 조회 API", description = "특정 프로젝트의 모든 댓글과 대댓글을 조회합니다.")
     public BaseResponse<List<CommentWithRepliesResponse>> getAllComments(
             @AuthenticationPrincipal User user,
             @RequestParam("projectIdx") Integer projectIdx) {
-        return BaseResponse.of(PROJECT_COMMENT_SEARCH_OK, projectCommentService.getAllCommentsByProjectIdx(user, projectIdx));
+        return BaseResponse.of(PROJECT_COMMENT_SEARCH_OK, projectCommentQueryService.getAllCommentsByProjectIdx(user, projectIdx));
     }
 
     /**
@@ -56,7 +62,7 @@ public class ProjectCommentController {
             @AuthenticationPrincipal User user,
             @Validated @RequestBody CreateCommentRequest createCommentRequest) {
         log.info("프로젝트 댓글 생성 - 사용자: {} 프로젝트 댓글 내용: {}", user.getName(), createCommentRequest.contents());
-        return BaseResponse.of(PROJECT_COMMENT_CREATE_OK, projectCommentService.createComment(user, createCommentRequest));
+        return BaseResponse.of(PROJECT_COMMENT_CREATE_OK, projectCommentCommandService.createComment(user, createCommentRequest));
     }
 
     /**
@@ -74,7 +80,7 @@ public class ProjectCommentController {
             @PathVariable("commentIdx") Integer commentIdx,
             @Validated @RequestBody UpdateCommentRequest updateCommentRequest) {
         log.info("프로젝트 댓글 수정 - 사용자: {} 프로젝트 댓글 내용: {}", user.getName(), updateCommentRequest.contents());
-        return BaseResponse.of(PROJECT_COMMENT_UPDATE_OK, projectCommentService.updateComment(user, commentIdx, updateCommentRequest));
+        return BaseResponse.of(PROJECT_COMMENT_UPDATE_OK, projectCommentCommandService.updateComment(user, commentIdx, updateCommentRequest));
     }
 
     /**
@@ -90,7 +96,7 @@ public class ProjectCommentController {
             @AuthenticationPrincipal User user,
             @PathVariable("commentIdx") Integer commentIdx) {
         log.info("프로젝트 댓글 삭제 - 사용자: {} 프로젝트 댓글 식별자: {}", user.getName(), commentIdx);
-        return BaseResponse.of(PROJECT_COMMENT_DELETE_OK, projectCommentService.deleteComment(user, commentIdx));
+        return BaseResponse.of(PROJECT_COMMENT_DELETE_OK, projectCommentCommandService.deleteComment(user, commentIdx));
     }
 
     /**
@@ -106,7 +112,7 @@ public class ProjectCommentController {
             @AuthenticationPrincipal User user,
             @Validated @RequestBody CreateReplyCommentRequest createReplyCommentRequest) {
         log.info("프로젝트 댓글 답글 생성 - 사용자: {} 프로젝트 댓글 답글 내용: {}", user.getName(), createReplyCommentRequest.contents());
-        return BaseResponse.of(PROJECT_COMMENT_REPLY_CREATE_OK, projectCommentService.createReply(user, createReplyCommentRequest));
+        return BaseResponse.of(PROJECT_COMMENT_REPLY_CREATE_OK, projectReplyCommentCommandService.createReply(user, createReplyCommentRequest));
     }
 
     /**
@@ -124,7 +130,7 @@ public class ProjectCommentController {
             @PathVariable("replyCommentIdx") Integer replyCommentIdx,
             @Validated @RequestBody UpdateCommentRequest updateCommentRequest) {
         log.info("프로젝트 댓글 답글 수정 - 사용자: {} 프로젝트 댓글 답글 내용: {}", user.getName(), updateCommentRequest.contents());
-        return BaseResponse.of(PROJECT_COMMENT_REPLY_UPDATE_OK, projectCommentService.updateReply(user, replyCommentIdx, updateCommentRequest));
+        return BaseResponse.of(PROJECT_COMMENT_REPLY_UPDATE_OK, projectReplyCommentCommandService.updateReply(user, replyCommentIdx, updateCommentRequest));
     }
 
     /**
@@ -140,7 +146,7 @@ public class ProjectCommentController {
             @AuthenticationPrincipal User user,
             @PathVariable("replyCommentIdx") Integer replyCommentIdx) {
         log.info("프로젝트 댓글 답글 삭제 - 사용자: {} 프로젝트 댓글 답글 식별자: {}", user.getName(), replyCommentIdx);
-        return BaseResponse.of(PROJECT_COMMENT_REPLY_DELETE_OK, projectCommentService.deleteReply(user, replyCommentIdx));
+        return BaseResponse.of(PROJECT_COMMENT_REPLY_DELETE_OK, projectReplyCommentCommandService.deleteReply(user, replyCommentIdx));
     }
 
     /**
@@ -157,7 +163,7 @@ public class ProjectCommentController {
     public BaseResponse<String> projectCommentLike(@AuthenticationPrincipal User user,
                                                 @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
         log.info("프로젝트 댓글 좋아요 - 사용자: {} 프로젝트 댓글 식별자: {}", user.getName(), commentLikeRequest.idx());
-        return BaseResponse.of(LIKE_SUCCESS, projectCommentService.projectCommentLike(user,commentLikeRequest));
+        return BaseResponse.of(LIKE_SUCCESS, projectCommentLikeService.projectCommentLike(user,commentLikeRequest));
     }
 
     /**
@@ -174,7 +180,7 @@ public class ProjectCommentController {
     public BaseResponse<String> projectCommentLikeCancel(@AuthenticationPrincipal User user,
                                                       @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
         log.info("프로젝트 댓글 좋아요 취소 - 사용자: {} 프로젝트 댓글 식별자: {}", user.getName(), commentLikeRequest.idx());
-        return BaseResponse.of(LIKE_CANCEL_SUCCESS, projectCommentService.projectCommentLikeCancel(user,commentLikeRequest));
+        return BaseResponse.of(LIKE_CANCEL_SUCCESS, projectCommentLikeService.projectCommentLikeCancel(user,commentLikeRequest));
     }
 
     /**
@@ -191,7 +197,7 @@ public class ProjectCommentController {
     public BaseResponse<String> projectReplyCommentLike(@AuthenticationPrincipal User user,
                                                    @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
         log.info("프로젝트 대댓글 좋아요 - 사용자: {} 프로젝트 대댓글 식별자: {}", user.getName(), commentLikeRequest.idx());
-        return BaseResponse.of(LIKE_SUCCESS, projectCommentService.projectReplyCommentLike(user,commentLikeRequest));
+        return BaseResponse.of(LIKE_SUCCESS, projectCommentLikeService.projectReplyCommentLike(user,commentLikeRequest));
     }
 
     /**
@@ -208,6 +214,6 @@ public class ProjectCommentController {
     public BaseResponse<String> projectReplyCommentLikeCancel(@AuthenticationPrincipal User user,
                                                          @RequestBody @Valid CommentLikeRequest commentLikeRequest) {
         log.info("프로젝트 대댓글 좋아요 취소 - 사용자: {} 프로젝트 대댓글 식별자: {}", user.getName(), commentLikeRequest.idx());
-        return BaseResponse.of(LIKE_CANCEL_SUCCESS, projectCommentService.projectReplyCommentLikeCancel(user,commentLikeRequest));
+        return BaseResponse.of(LIKE_CANCEL_SUCCESS, projectCommentLikeService.projectReplyCommentLikeCancel(user,commentLikeRequest));
     }
 }
