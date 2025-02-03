@@ -1,6 +1,7 @@
 package inha.git.project.domain;
 
 import inha.git.common.BaseEntity;
+import inha.git.project.domain.enums.PatentType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -45,6 +46,13 @@ public class ProjectPatent extends BaseEntity {
 
     @Column(name = "evidence")
     private String evidence; // 증빙 파일
+
+    @Column(name = "patent_type", nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    private PatentType patentType; // 특허 유형
+
+    @Column(name = "accept_at", nullable = true)
+    private LocalDateTime acceptAt; // 승인일
 
     @OneToMany(mappedBy = "projectPatent", fetch = FetchType.LAZY)
     private List<ProjectPatentInventor> projectPatentInventors = new ArrayList<>();

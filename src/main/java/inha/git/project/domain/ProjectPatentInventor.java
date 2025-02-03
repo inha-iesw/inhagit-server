@@ -26,6 +26,18 @@ public class ProjectPatentInventor {
     @Column(name = "english_name")
     private String englishName;
 
+    @Column
+    private String affiliation;
+
+    @Column
+    private String share;
+
+    @Column(name = "main_inventor")
+    private Boolean mainInventor;
+
+    @Column
+    private String email;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_patent_id")
     private ProjectPatent projectPatent;
