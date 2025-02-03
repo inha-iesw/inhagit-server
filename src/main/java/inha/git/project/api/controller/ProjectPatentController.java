@@ -97,6 +97,17 @@ public class ProjectPatentController {
         return BaseResponse.of(PATENT_DELETE_SUCCESS, projectPatentService.deletePatent(user, projectIdx));
     }
 
+    /**
+     * 직접 특허 등록 API
+     *
+     * <p>직접 특허를 등록합니다.</p>
+     *
+     * @param user 사용자 정보
+     * @param projectIdx 프로젝트 인덱스
+     * @param createPatentRequest 특허 등록 요청
+     * @param file 특허 파일
+     * @return 등록된 특허 정보를 포함하는 BaseResponse<PatentResponse>
+     */
     @PostMapping("/{projectIdx}/manual")
     @Operation(summary = "직접 특허 등록 API", description = "직접 특허를 등록합니다.")
     public BaseResponse<PatentResponse> registerManualPatent(@AuthenticationPrincipal User user,

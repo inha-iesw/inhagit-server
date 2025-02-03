@@ -1,5 +1,6 @@
 package inha.git.project.api.controller.dto.request;
 
+import inha.git.project.domain.enums.PatentType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
@@ -9,6 +10,11 @@ public record CreatePatentRequest(
         @NotNull
         @Schema(description = "특허번호", example = "1020211234567")
         String applicationNumber,
+
+        @NotNull
+        @Schema(description = "특허 유형", example = "PATENT")
+        PatentType patentType, // 특허 유형
+
         @NotNull
         @Schema(description = "출원일자", example = "2021-01-01")
         String applicationDate, // 출원일자
