@@ -7,6 +7,7 @@ import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.mapping.domain.QProjectField;
 import inha.git.project.api.controller.dto.request.SearchProjectCond;
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
+import inha.git.project.api.controller.dto.response.SearchPatentSummaryResponse;
 import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.project.domain.Project;
@@ -23,6 +24,7 @@ import java.util.List;
 
 import static inha.git.category.domain.QCategory.category;
 import static inha.git.college.domain.QCollege.college;
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.Constant.mapRoleToPosition;
 import static inha.git.department.domain.QDepartment.department;
 import static inha.git.mapping.domain.QProjectField.projectField;
@@ -93,9 +95,11 @@ public class ProjectQueryRepository {
                                 p.getUser().getId(),
                                 p.getUser().getName(),
                                 mapRoleToPosition(p.getUser().getRole())
-                        )
-                ))
-                .toList();
+                        ),
+                        new SearchPatentSummaryResponse(
+                                p.getProjectPatent() != null ? p.getProjectPatent().getId() : null,
+                                p.getProjectPatent() != null && p.getProjectPatent().getAcceptAt() != null
+                        ))).toList();
         return new PageImpl<>(content, pageable, total);
     }
 
@@ -189,6 +193,10 @@ public class ProjectQueryRepository {
                                 p.getUser().getId(),
                                 p.getUser().getName(),
                                 mapRoleToPosition(p.getUser().getRole())
+                        ),
+                        new SearchPatentSummaryResponse(
+                                p.getProjectPatent() != null ? p.getProjectPatent().getId() : null,
+                                p.getProjectPatent() != null && p.getProjectPatent().getAcceptAt() != null
                         )
                 ))
                 .toList();

@@ -11,6 +11,7 @@ import inha.git.field.domain.repository.FieldJpaRepository;
 import inha.git.mapping.domain.UserDepartment;
 import inha.git.mapping.domain.repository.UserDepartmentJpaRepository;
 import inha.git.project.domain.repository.ProjectJpaRepository;
+import inha.git.project.domain.repository.ProjectPatentJpaRepository;
 import inha.git.question.domain.repository.QuestionJpaRepository;
 import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
@@ -51,6 +52,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final CategoryJpaRepository categoryJpaRepository;
     private final ProjectJpaRepository projectJpaRepository;
     private final QuestionJpaRepository questionJpaRepository;
+    private final ProjectPatentJpaRepository projectPatentJpaRepository;
     private final ProjectStatisticsQueryRepository projectStatisticsQueryRepository;
     private final QuestionStatisticsQueryRepository questionStatisticsQueryRepository;
     private final BatchStatisticsQueryRepository batchStatisticsQueryRepository;
@@ -165,6 +167,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                             .questionCount(0)
                             .projectParticipationCount(0)
                             .questionParticipationCount(0)
+                            .patentCount(0)
+                            .patentParticipationCount(0)
                             .build();
                     statisticsJpaRepository.save(statistics);
                 }
@@ -214,6 +218,19 @@ public class StatisticsServiceImpl implements StatisticsService {
                         }
                     }
                 }
+                case 4 -> {  // 특허
+                    if (isIncrease) {
+                        if (isFirstPatent(user, semester, field)) {
+                            statistics.incrementPatentParticipation();
+                        }
+                        statistics.incrementPatentCount();
+                    } else {
+                        statistics.decrementPatentCount();
+                        if (isLastPatent(user, semester, field)) {
+                            statistics.decrementPatentParticipation();
+                        }
+                    }
+                }
                 default -> throw new BaseException(INVALID_ACTION_TYPE);
             }
 
@@ -236,5 +253,15 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private boolean isLastQuestion(User user, Semester semester, Field field) {
         return questionJpaRepository.countByUserAndSemesterAndQuestionFields_FieldAndState(user, semester, field, ACTIVE) == 0;
+    }
+
+    private boolean isFirstPatent(User user, Semester semester, Field field) {
+        return projectPatentJpaRepository.countByProject_UserAndProject_SemesterAndProject_ProjectFields_FieldAndProject_State(
+                user, semester, field, ACTIVE) == 1;
+    }
+
+    private boolean isLastPatent(User user, Semester semester, Field field) {
+        return projectPatentJpaRepository.countByProject_UserAndProject_SemesterAndProject_ProjectFields_FieldAndProject_State(
+                user, semester, field, ACTIVE) == 0;
     }
 }

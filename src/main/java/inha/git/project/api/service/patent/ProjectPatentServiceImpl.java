@@ -1,9 +1,13 @@
 package inha.git.project.api.service.patent;
 
 import inha.git.common.exceptions.BaseException;
+import inha.git.field.domain.Field;
+import inha.git.mapping.domain.ProjectField;
+import inha.git.project.api.controller.dto.request.CreatePatentInventorRequest;
 import inha.git.project.api.controller.dto.request.CreatePatentRequest;
+import inha.git.project.api.controller.dto.request.UpdatePatentInventorRequest;
+import inha.git.project.api.controller.dto.request.UpdatePatentRequest;
 import inha.git.project.api.controller.dto.response.PatentResponse;
-import inha.git.project.api.controller.dto.response.SearchInventorResponse;
 import inha.git.project.api.controller.dto.response.SearchPatentResponse;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
@@ -12,34 +16,31 @@ import inha.git.project.domain.ProjectPatentInventor;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentInventorJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentJpaRepository;
+import inha.git.statistics.api.service.StatisticsService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
+import inha.git.utils.file.FilePath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
-import static inha.git.common.Constant.*;
-import static inha.git.common.code.status.ErrorStatus.*;
+import static inha.git.common.BaseEntity.State.INACTIVE;
+import static inha.git.common.Constant.PATENT;
+import static inha.git.common.code.status.ErrorStatus.ALREADY_REGISTERED_PATENT;
+import static inha.git.common.code.status.ErrorStatus.FILE_PROCESS_ERROR;
+import static inha.git.common.code.status.ErrorStatus.INVALID_INVENTORS_SHARE;
+import static inha.git.common.code.status.ErrorStatus.INVALID_USER_JWT;
+import static inha.git.common.code.status.ErrorStatus.NOT_EXIST_PATENT;
+import static inha.git.common.code.status.ErrorStatus.PROJECT_NOT_FOUND;
+import static inha.git.common.code.status.ErrorStatus.USER_NOT_PROJECT_OWNER;
 
 /**
  * ProjectPatentServiceImpl은 프로젝트 특허 관련 비즈니스 로직을 처리합니다.
@@ -50,107 +51,101 @@ import static inha.git.common.code.status.ErrorStatus.*;
 @Transactional
 public class ProjectPatentServiceImpl implements ProjectPatentService {
 
+    private final StatisticsService statisticsService;
     private final ProjectPatentJpaRepository projectPatentJpaRepository;
     private final ProjectPatentInventorJpaRepository projectPatentInventorJpaRepository;
     private final ProjectJpaRepository projectJpaRepository;
     private final ProjectMapper projectMapper;
 
-    @Value("${kipris.access-key}")
-    private String key;
-
-    @Value("${kipris.inventor-url}")
-    private String inventorUrlString;
-
-    @Value("${kipris.applicant-url}")
-    private String applicantUrlString;
-
-    @Value("${kipris.basic-info-url}")
-    private String basicInfoUrlString;
-
-    /**
-     * 특허 조회 메서드
-     *
-     * @param user 로그인한 사용자 정보
-     * @param projectIdx 프로젝트의 식별자
-     * @return SearchPatentResponse 특허 정보
-     */
     @Override
-    public SearchPatentResponse getProjectPatent(User user, Integer projectIdx) {
+    @Transactional(readOnly = true)
+    public SearchPatentResponse searchPatent(User user, Integer projectIdx) {
+        // 프로젝트 조회
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-        ProjectPatent projectPatent = projectPatentJpaRepository.findByIdAndState(project.getProjectPatentId(), ACTIVE)
+
+        // 특허 정보 확인
+        ProjectPatent projectPatent = Optional.ofNullable(project.getProjectPatent())
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
-        List<SearchInventorResponse> inventors = projectPatentInventorJpaRepository.findByProjectPatentId(projectPatent.getId());
-        List<ProjectPatentInventor> patentInventors = projectMapper.toPatentInventor(inventors, projectPatent);
-        return projectMapper.toSearchPatentResponse(projectPatent, patentInventors);
-    }
-
-    /**
-     * 특허 검색 메서드
-     *
-     * @param user 로그인한 사용자 정보
-     * @param applicationNumber 특허 출원번호
-     * @param projectIdx 프로젝트의 식별자
-     * @return SearchPatentResponse 특허 정보
-     */
-    @Override
-    public SearchPatentResponse searchProjectPatent(User user, String applicationNumber, Integer projectIdx) {
-        validApplicationNumber(applicationNumber);
-
-        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
-                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-
-        Optional<ProjectPatent> patentOptional = projectPatentJpaRepository.findByApplicationNumberAndState(applicationNumber, ACTIVE);
-        if (patentOptional.isPresent()) {
-            ProjectPatent existingPatent = patentOptional.get();
-            List<SearchInventorResponse> inventors = projectPatentInventorJpaRepository.findByProjectPatentId(existingPatent.getId());
-            List<ProjectPatentInventor> patentInventors = projectMapper.toPatentInventor(inventors, existingPatent);
-            return projectMapper.toSearchPatentResponse(existingPatent, patentInventors);
-        } else {
-            inventorUrlString += SEARCH_PATENT + applicationNumber + ACCESS_KEY + key;
-            applicantUrlString += SEARCH_PATENT + applicationNumber + ACCESS_KEY + key;
-            basicInfoUrlString += SEARCH_PATENT + applicationNumber + SERVICE_KEY + key;
-            List<SearchInventorResponse> inventors = fetchInventorInfo(inventorUrlString);
-            SearchPatentResponse applicantInfo = fetchApplicantInfo(applicantUrlString);
-            SearchPatentResponse basicInfo = fetchBasicInfo(basicInfoUrlString);
-
-            ProjectPatent projectPatent = projectMapper.toProjectPatent(applicationNumber, basicInfo.applicationDate(), basicInfo.inventionTitle(), basicInfo.inventionTitleEnglish(), applicantInfo.applicantName(), applicantInfo.applicantEnglishName());
-            ProjectPatent savePatent = projectPatentJpaRepository.save(projectPatent);
-
-            projectMapper.toPatentInventor(inventors, savePatent).forEach(projectPatentInventorJpaRepository::save);
-            projectJpaRepository.save(project);
-            return projectMapper.toSearchPatentResponse(applicationNumber, basicInfo.applicationDate(), basicInfo.inventionTitle(), basicInfo.inventionTitleEnglish(), applicantInfo.applicantName(), applicantInfo.applicantEnglishName(), inventors);
+        if(projectPatent.getState().equals(INACTIVE)) {
+            throw new BaseException(NOT_EXIST_PATENT);
         }
+        if (projectPatent.getAcceptAt() == null) {
+            validateAuthorizationForUnacceptedPatent(user, project);
+        }
+
+        List<ProjectPatentInventor> inventors = projectPatentInventorJpaRepository
+                .findAllByProjectPatentOrderByMainInventorDesc(projectPatent);
+        return projectMapper.toSearchPatentResponse(projectPatent, inventors);
     }
 
     /**
-     * 특허 등록 메서드
+     * 특허 정보를 등록합니다.
      *
-     *
-     * @param user 로그인한 사용자 정보
-     * @param applicationNumber 특허 출원번호
-     * @param projectIdx 프로젝트의 식별자
-     * @return PatentResponse 특허 정보
+     * @param user 등록을 요청한 사용자 정보
+     * @param createPatentRequest 등록할 특허 정보
+     * @param file 증빙자료 파일
+     * @return 등록된 특허 정보
+     * @throws BaseException
+     *         PROJECT_NOT_FOUND: 프로젝트를 찾을 수 없는 경우
+     *         USER_NOT_PROJECT_OWNER: 등록 권한이 없는 경우
+     *         ALREADY_REGISTERED_PATENT: 이미 등록된 특허가 있는 경우
      */
     @Override
-    public PatentResponse registerPatent(User user, String applicationNumber, Integer projectIdx) {
-        validApplicationNumber(applicationNumber);
-        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
+    public PatentResponse createPatent(User user, CreatePatentRequest createPatentRequest, MultipartFile file) {
+        Project project = projectJpaRepository.findByIdAndState(createPatentRequest.projectIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         if(user.getId() != project.getUser().getId()) {
             throw new BaseException(USER_NOT_PROJECT_OWNER);
         }
-        if(project.getProjectPatentId() != null) {
+        if(project.getProjectPatent() != null) {
             throw new BaseException(ALREADY_REGISTERED_PATENT);
         }
-        ProjectPatent projectPatent = projectPatentJpaRepository.findByApplicationNumberAndState(applicationNumber, ACTIVE)
-                .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
 
-        if (projectPatent.getProjectPatentInventors().stream()
-                .noneMatch(inventor -> inventor.getName().equals(user.getName())))
-            throw new BaseException(USER_NOT_INVENTORY);
-        project.setProjectPatentId(projectPatent.getId());
-        return projectMapper.toPatentResponse(projectPatent);
+        validateInventorsShare(createPatentRequest.inventors().stream()
+                .map(CreatePatentInventorRequest::share)
+                .toList());
+        String evidence = null;
+        if (file != null && !file.isEmpty()) {
+            evidence = FilePath.storeFile(file, PATENT);
+        }
+        ProjectPatent savePatent = projectPatentJpaRepository.save(projectMapper.toProjectPatent(createPatentRequest, evidence, project));
+        List<ProjectPatentInventor> inventors = projectMapper.toPatentInventor(createPatentRequest.inventors(), savePatent);
+        inventors.forEach(projectPatentInventorJpaRepository::save);
+
+        List<Field> field = project.getProjectFields()
+                .stream()
+                .map(ProjectField::getField)
+                .toList();
+        statisticsService.adjustCount(user, field, project.getSemester(), project.getCategory(),  4, true);
+        return projectMapper.toPatentResponse(savePatent);
+    }
+
+    /**
+     * 특허 정보를 수정합니다.
+     *
+     * @param user 수정을 요청한 사용자 정보
+     * @param patentIdx 수정할 특허 ID
+     * @param updatePatentRequest 수정할 특허 정보
+     * @param file 새로운 증빙자료 파일 (선택적)
+     * @return 수정된 특허 정보
+     * @throws BaseException
+     *         NOT_EXIST_PATENT: 특허를 찾을 수 없는 경우
+     *         USER_NOT_PROJECT_OWNER: 수정 권한이 없는 경우
+     */
+    @Override
+    public PatentResponse updatePatent(User user, Integer patentIdx,
+                                       UpdatePatentRequest updatePatentRequest, MultipartFile file) {
+
+        ProjectPatent projectPatent = findPatentAndValidate(user, patentIdx);
+        updatePatentInformation(projectPatent, updatePatentRequest);
+        if (file != null && !file.isEmpty()) {
+            updatePatentFile(projectPatent, file);
+        }
+        updateInventors(projectPatent, updatePatentRequest.inventors());
+
+        log.info("특허 수정 완료 - 사용자: {}, 특허명: {}", user.getName(), projectPatent.getInventionTitle());
+        return projectMapper.toPatentResponse(projectPatentJpaRepository.save(projectPatent));
     }
 
     /**
@@ -162,131 +157,133 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
      */
     @Override
     public PatentResponse deletePatent(User user, Integer projectIdx) {
+        // 프로젝트 조회 및 권한 검증
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+
         if(user.getId() != project.getUser().getId() && user.getRole() != Role.ADMIN) {
             throw new BaseException(USER_NOT_PROJECT_OWNER);
         }
-        ProjectPatent projectPatent = projectPatentJpaRepository.findByIdAndState(project.getProjectPatentId(), ACTIVE)
+
+        ProjectPatent projectPatent = Optional.ofNullable(project.getProjectPatent())
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
-        project.setProjectPatentId(null);
+
+        // 증빙 파일이 있다면 삭제
+        if (projectPatent.getEvidence() != null) {
+            FilePath.deleteFile(projectPatent.getEvidence());
+        }
+
+        // 발명자 정보 삭제
+        projectPatentInventorJpaRepository.deleteAllByProjectPatent(projectPatent);
+
+        // 특허 삭제
+        projectPatentJpaRepository.delete(projectPatent);
+
+        // 프로젝트와의 관계 제거
+        project.setProjectPatent(null);
+
+        List<Field> field = project.getProjectFields()
+                .stream()
+                .map(ProjectField::getField)
+                .toList();
+        statisticsService.adjustCount(user, field, project.getSemester(), project.getCategory(),  4, false);
         return projectMapper.toPatentResponse(projectPatent);
     }
 
-    @Override
-    public PatentResponse registerManualPatent(User user, Integer projectIdx, CreatePatentRequest createPatentRequest, MultipartFile file) {
-//        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
-//                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-//        if(user.getId() != project.getUser().getId()) {
-//            throw new BaseException(USER_NOT_PROJECT_OWNER);
-//        }
-//        if(project.getProjectPatentId() != null) {
-//            throw new BaseException(ALREADY_REGISTERED_PATENT);
-//        }
-//        ProjectPatent savePatent = projectPatentJpaRepository.save(projectMapper.toProjectPatent(createPatentRequest, FilePath.storeFile(file, EVIDENCE)));
-//        List<ProjectPatentInventor> inventors = projectMapper.createToPatentInventor(createPatentRequest.inventors(), savePatent);
-//        inventors.forEach(projectPatentInventorJpaRepository::save);
-//        project.setProjectPatentId(savePatent.getId());
-//        return projectMapper.toPatentResponse(savePatent);
-        return null;
+    private ProjectPatent findPatentAndValidate(User user, Integer patentIdx) {
+        ProjectPatent projectPatent = projectPatentJpaRepository.findByIdAndState(patentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
+
+        Project project = projectPatent.getProject();
+        if (user.getId() != project.getUser().getId() && user.getRole() != Role.ADMIN) {
+            throw new BaseException(USER_NOT_PROJECT_OWNER);
+        }
+        return projectPatent;
     }
 
-    private static void validApplicationNumber(String applicationNumber) {
-        if (applicationNumber == null || !applicationNumber.matches("\\d{13}")) {
-            throw new BaseException(INVALID_APPLICATION_NUMBER);
-        }
+    private void updatePatentInformation(ProjectPatent projectPatent, UpdatePatentRequest request) {
+        projectPatent.updatePatent(
+                request.applicationNumber(),
+                request.patentType(),
+                request.applicationDate(),
+                request.inventionTitle(),
+                request.inventionTitleEnglish(),
+                request.applicantName(),
+                request.applicantEnglishName()
+        );
     }
 
-    private List<SearchInventorResponse> fetchInventorInfo(String urlString) {
-        List<SearchInventorResponse> inventors = new ArrayList<>();
-        Document doc = fetchDocument(urlString);
-        NodeList inventorList = doc.getElementsByTagName("patentInventorInfo");
-        if(inventorList.getLength() == 0) {
-            throw new BaseException(NOT_EXIST_PATENT);
-        }
+    private void updatePatentFile(ProjectPatent projectPatent, MultipartFile file) {
         try {
-            for (int i = 0; i < inventorList.getLength(); i++) {
-                Node inventorNode = inventorList.item(i);
-
-                if (inventorNode.getNodeType() == Node.ELEMENT_NODE) {
-                    Element inventorElement = (Element) inventorNode;
-                    String inventorName = inventorElement.getElementsByTagName("InventorName").item(0).getTextContent();
-                    String inventorEnglishName = inventorElement.getElementsByTagName("InventorEnglishsentenceName").item(0).getTextContent();
-                    inventors.add(new SearchInventorResponse(inventorName, inventorEnglishName));
-                }
+            // 기존 파일이 있다면 삭제
+            if (projectPatent.getEvidence() != null) {
+                FilePath.deleteFile(projectPatent.getEvidence());
             }
+
+            // 새로운 파일 저장
+            String storedFileUrl = FilePath.storeFile(file, PATENT);
+            projectPatent.setEvidence(storedFileUrl);
+
+            // 트랜잭션 롤백 시 파일 삭제를 위한 콜백 등록
+            TransactionSynchronizationManager.registerSynchronization(
+                    new TransactionSynchronizationAdapter() {
+                        @Override
+                        public void afterCompletion(int status) {
+                            if (status == STATUS_ROLLED_BACK) {
+                                FilePath.deleteFile(storedFileUrl);
+                            }
+                        }
+                    }
+            );
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new BaseException(PATENT_API_IO_ERROR);
+            log.error("파일 처리 중 오류 발생", e);
+            throw new BaseException(FILE_PROCESS_ERROR);
         }
-        return inventors;
     }
 
-    private SearchPatentResponse fetchApplicantInfo(String urlString) {
-        Document doc = fetchDocument(urlString);
-        NodeList applicantList = doc.getElementsByTagName("patentApplicantInfo");
+    private void updateInventors(ProjectPatent projectPatent, List<UpdatePatentInventorRequest> inventorRequests) {
+        // 기존 발명자 정보 삭제
+        projectPatentInventorJpaRepository.deleteAllByProjectPatent(projectPatent);
 
-        if(applicantList.getLength() == 0) {
-            throw new BaseException(NOT_EXIST_PATENT);
+        // 새로운 발명자 정보 등록
+        if (inventorRequests != null && !inventorRequests.isEmpty()) {
+            validateInventorsShare(inventorRequests.stream()
+                    .map(UpdatePatentInventorRequest::share)
+                    .toList());
+
+            List<ProjectPatentInventor> inventors = inventorRequests.stream()
+                    .map(request -> ProjectPatentInventor.builder()
+                            .name(request.name())
+                            .englishName(request.englishName())
+                            .affiliation(request.affiliation())
+                            .share(request.share())
+                            .mainInventor(request.mainInventor())
+                            .email(request.email())
+                            .userNumber(request.userNumber())
+                            .projectPatent(projectPatent)
+                            .build())
+                    .toList();
+
+            inventors.forEach(projectPatentInventorJpaRepository::save);
         }
-        try {
-            if (applicantList.getLength() > 0) {
-                Node applicantNode = applicantList.item(0);
-                if (applicantNode.getNodeType() == Node.ELEMENT_NODE) {
-                    Element applicantElement = (Element) applicantNode;
-                    String applicantName = applicantElement.getElementsByTagName("ApplicantName").item(0).getTextContent();
-                    String applicantEnglishName = applicantElement.getElementsByTagName("ApplicantEnglishsentenceName").item(0).getTextContent();
-                    return projectMapper.toSearchPatentResponse(applicantName, applicantEnglishName);                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new BaseException(PATENT_API_IO_ERROR);
-        }
-        return null;
     }
 
-    private SearchPatentResponse fetchBasicInfo(String urlString) {
-        Document doc = fetchDocument(urlString);
-        NodeList itemList = doc.getElementsByTagName("item");
-        if(itemList.getLength() == 0) {
-            throw new BaseException(NOT_EXIST_PATENT);
-        }
-        try {
-            if (itemList.getLength() > 0) {
-                Node itemNode = itemList.item(0);
+    private void validateInventorsShare(List<String> shares) {
+        double totalShare = shares.stream()
+                .mapToDouble(Double::parseDouble) // 문자열을 double로 변환
+                .sum(); // 합계 계산
 
-                if (itemNode.getNodeType() == Node.ELEMENT_NODE) {
-                    Element itemElement = (Element) itemNode;
-                    String applicationDate = itemElement.getElementsByTagName("applicationDate").item(0).getTextContent();
-                    String inventionTitle = itemElement.getElementsByTagName("inventionTitle").item(0).getTextContent();
-                    String inventionTitleEng = itemElement.getElementsByTagName("inventionTitleEng").item(0).getTextContent();
-                    return projectMapper.toSearchPatentResponse(applicationDate, inventionTitle, inventionTitleEng);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new BaseException(PATENT_API_IO_ERROR);
+        if (Math.abs(totalShare - 100.0) > 0.01) { // 부동소수점 오차를 고려한 비교
+            throw new BaseException(INVALID_INVENTORS_SHARE);
         }
-        return null;
     }
 
-    private Document fetchDocument(String urlString) {
-        Document doc = null;
-        try {
-            URL url = new URL(urlString);
-            URLConnection conn = url.openConnection();
-            InputStream is = conn.getInputStream();
+    private void validateAuthorizationForUnacceptedPatent(User user, Project project) {
+        boolean isOwner = project.getUser().getId().equals(user.getId());
+        boolean isAdmin = user.getRole() == Role.ADMIN;
 
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docb = dbf.newDocumentBuilder();
-            doc = docb.parse(is);
-            doc.getDocumentElement().normalize();
-
-            is.close();
-        } catch (IOException | ParserConfigurationException | SAXException e) {
-            e.printStackTrace();
-            throw new BaseException(PATENT_API_IO_ERROR);
+        if (!isOwner && !isAdmin) {
+            throw new BaseException(INVALID_USER_JWT);
         }
-        return doc;
     }
 }

@@ -240,6 +240,7 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_APPLICATION_NUMBER(HttpStatus.BAD_REQUEST, "APPLICATION4000", "유효하지 않은 신청 번호입니다."),
 
     NOT_EXIST_PATENT(HttpStatus.BAD_REQUEST, "PATENT4000", "존재하지 않는 특허입니다."),
+    INVALID_INVENTORS_SHARE(HttpStatus.BAD_REQUEST, "PATENT4001", "발명자의 점유율이 100%가 아닙니다."),
 
     PATENT_API_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PATENT5000", "특허 API와의 연결에 실패하였습니다."),
     PATENT_API_URL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PATENT5001", "특허 API URL이 잘못되었습니다."),

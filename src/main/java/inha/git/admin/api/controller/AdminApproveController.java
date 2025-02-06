@@ -4,6 +4,7 @@ import inha.git.admin.api.controller.dto.request.*;
 import inha.git.admin.api.service.AdminApproveService;
 import inha.git.bug_report.api.controller.dto.response.BugReportResponse;
 import inha.git.common.BaseResponse;
+import inha.git.project.api.controller.dto.response.PatentResponse;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -140,4 +141,37 @@ public class AdminApproveController {
         log.info("버그 제보 상태 변경 - 관리자: {}, 버그 제보 ID: {}", user.getName(), bugReportId);
         return BaseResponse.of(BUG_REPORT_STATE_CHANGE_OK, adminApproveService.changeBugReportState(user, bugReportId, changeBugReportStateRequest));
     }
+
+    /**
+     * 특허 승인 API
+     *
+     * <p>특허를 승인합니다.</p>
+     *
+     * @param patentAcceptRequest 특허 승인할 특허 인덱스
+     * @return 승인된 특허 정보를 포함하는 BaseResponse<PatentResponse>
+     */
+    @PostMapping("/patent/accept")
+    @Operation(summary = "특허 승인 API(관리자 전용)", description = "특허를 승인합니다.")
+    public BaseResponse<PatentResponse> acceptPatent(@AuthenticationPrincipal User user,
+                                                    @RequestBody PatentAcceptRequest patentAcceptRequest) {
+        log.info("특허 승인 - 관리자: {}, 특허 ID: {}", user.getName(), patentAcceptRequest.patentIdx());
+        return BaseResponse.of(PATENT_ACCEPT_OK, adminApproveService.acceptPatent(user, patentAcceptRequest));
+    }
+
+    /**
+     * 특허 승인 취소 API
+     *
+     * <p>특허 승인을 취소합니다.</p>
+     *
+     * @param patentCancelRequest 특허 승인 취소할 특허 인덱스
+     * @return 승인 취소된 특허 정보를 포함하는 BaseResponse<PatentResponse>
+     */
+    @PostMapping("/patent/cancel")
+    @Operation(summary = "특허 승인 취소 API(관리자 전용)", description = "특허를 승인을 취소합니다.")
+    public BaseResponse<PatentResponse> cancelPatent(@AuthenticationPrincipal User user,
+                                                     @RequestBody PatentCancelRequest patentCancelRequest) {
+        log.info("특허 승인 취소 - 관리자: {}, 특허 ID: {}", user.getName(), patentCancelRequest.patentIdx());
+        return BaseResponse.of(PATENT_ACCEPT_CANCEL_OK, adminApproveService.cancelPatent(user, patentCancelRequest));
+    }
+
 }

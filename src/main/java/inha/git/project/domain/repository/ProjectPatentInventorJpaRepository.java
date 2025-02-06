@@ -1,6 +1,7 @@
 package inha.git.project.domain.repository;
 
 import inha.git.project.api.controller.dto.response.SearchInventorResponse;
+import inha.git.project.domain.ProjectPatent;
 import inha.git.project.domain.ProjectPatentInventor;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -11,4 +12,8 @@ import java.util.List;
  */
 public interface ProjectPatentInventorJpaRepository extends JpaRepository<ProjectPatentInventor, Integer> {
     List<SearchInventorResponse> findByProjectPatentId(Integer projectPatentId);
+
+    void deleteAllByProjectPatent(ProjectPatent projectPatent);
+
+    List<ProjectPatentInventor> findAllByProjectPatentOrderByMainInventorDesc(ProjectPatent projectPatent);
 }

@@ -6,11 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record CreatePatentRequest(
-
-        @NotNull
-        @Schema(description = "프로젝트 인덱스", example = "1")
-        Integer projectIdx,
+public record UpdatePatentRequest(
         @NotNull
         @Schema(description = "특허번호", example = "1020211234567")
         String applicationNumber,
@@ -37,6 +33,6 @@ public record CreatePatentRequest(
         @Schema(description = "출원인 영문 이름", example = "applicantEnglishName", nullable = true)
         String applicantEnglishName,// 출원인 영문 이름
 
-        List<CreatePatentInventorRequest> inventors
+        List<UpdatePatentInventorRequest> inventors
 ) {
 }

@@ -6,7 +6,8 @@ import inha.git.common.validation.annotation.ValidUserNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
-public record CreatePatentInventorRequest(
+
+public record UpdatePatentInventorRequest(
         @NotNull
         @Schema(description = "발명자 이름", example = "발명자 이름")
         String name,
