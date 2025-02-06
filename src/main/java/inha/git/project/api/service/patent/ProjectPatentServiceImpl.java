@@ -6,6 +6,7 @@ import inha.git.project.api.controller.dto.request.CreatePatentRequest;
 import inha.git.project.api.controller.dto.request.UpdatePatentInventorRequest;
 import inha.git.project.api.controller.dto.request.UpdatePatentRequest;
 import inha.git.project.api.controller.dto.response.PatentResponse;
+import inha.git.project.api.controller.dto.response.SearchPatentResponse;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectPatent;
@@ -25,6 +26,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
@@ -49,6 +51,22 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
     private final ProjectPatentInventorJpaRepository projectPatentInventorJpaRepository;
     private final ProjectJpaRepository projectJpaRepository;
     private final ProjectMapper projectMapper;
+
+    @Override
+    @Transactional(readOnly = true)
+    public SearchPatentResponse searchPatent(User user, Integer projectIdx) {
+        // 프로젝트 조회
+        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+
+        // 특허 정보 확인
+        ProjectPatent projectPatent = Optional.ofNullable(project.getProjectPatent())
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
+
+        List<ProjectPatentInventor> inventors = projectPatentInventorJpaRepository
+                .findAllByProjectPatentOrderByMainInventorDesc(projectPatent);
+        return projectMapper.toSearchPatentResponse(projectPatent, inventors);
+    }
 
     /**
      * 특허 정보를 등록합니다.

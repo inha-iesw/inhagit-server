@@ -18,6 +18,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static inha.git.common.Constant.mapRoleToPosition;
@@ -343,7 +344,33 @@ public interface ProjectMapper {
         return new ProjectReplyCommentLike(new ProjectReplyCommentLikeId(user.getId(), projectReplyComment.getId()), projectReplyComment, user);
     }
 
+    SearchInventorResponse toSearchInventorResponse(ProjectPatentInventor inventor);
 
-    void updateProjectPatent(UpdatePatentRequest updatePatentRequest, @MappingTarget ProjectPatent projectPatent);
-    void updateProjectPatent(UpdatePatentRequest updatePatentRequest, String evidence, @MappingTarget ProjectPatent projectPatent);
+    default List<SearchInventorResponse> toSearchInventorResponseList(List<ProjectPatentInventor> inventors) {
+        if (inventors == null) {
+            return Collections.emptyList();
+        }
+        return inventors.stream()
+                .map(this::toSearchInventorResponse)
+                .toList();
+    }
+
+    default SearchPatentResponse toSearchPatentResponse(ProjectPatent projectPatent, List<ProjectPatentInventor> inventors) {
+        if (projectPatent == null) {
+            return null;
+        }
+
+        return new SearchPatentResponse(
+                projectPatent.getId(),
+                projectPatent.getApplicationNumber(),
+                projectPatent.getPatentType(),
+                projectPatent.getApplicationDate(),
+                projectPatent.getInventionTitle(),
+                projectPatent.getInventionTitleEnglish(),
+                projectPatent.getApplicantName(),
+                projectPatent.getApplicantEnglishName(),
+                projectPatent.getAcceptAt(),
+                toSearchInventorResponseList(inventors)
+        );
+    }
 }

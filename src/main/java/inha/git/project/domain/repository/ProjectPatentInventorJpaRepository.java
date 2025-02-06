@@ -14,4 +14,6 @@ public interface ProjectPatentInventorJpaRepository extends JpaRepository<Projec
     List<SearchInventorResponse> findByProjectPatentId(Integer projectPatentId);
 
     void deleteAllByProjectPatent(ProjectPatent projectPatent);
+
+    List<ProjectPatentInventor> findAllByProjectPatentOrderByMainInventorDesc(ProjectPatent projectPatent);
 }
