@@ -79,4 +79,8 @@ public class ProjectPatent extends BaseEntity {
         this.applicantName = applicantName;
         this.applicantEnglishName = applicantEnglishName;
     }
+
+    public void setAcceptedAt(LocalDateTime now) {
+        this.acceptAt = now;
+    }
 }

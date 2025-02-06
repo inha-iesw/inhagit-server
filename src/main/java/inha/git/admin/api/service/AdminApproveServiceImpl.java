@@ -6,6 +6,9 @@ import inha.git.bug_report.api.mapper.BugReportMapper;
 import inha.git.bug_report.domain.BugReport;
 import inha.git.bug_report.domain.repository.BugReportJpaRepository;
 import inha.git.common.exceptions.BaseException;
+import inha.git.project.api.controller.dto.response.PatentResponse;
+import inha.git.project.domain.ProjectPatent;
+import inha.git.project.domain.repository.ProjectPatentJpaRepository;
 import inha.git.user.domain.Company;
 import inha.git.user.domain.Professor;
 import inha.git.user.domain.User;
@@ -36,6 +39,7 @@ public class AdminApproveServiceImpl implements AdminApproveService {
     private final ProfessorJpaRepository professorJpaRepository;
     private final BugReportJpaRepository bugReportJpaRepository;
     private final BugReportMapper bugReportMapper;
+    private final ProjectPatentJpaRepository projectPatentJpaRepository;
     private final IdempotentProvider idempotentProvider;
 
     /**
@@ -288,6 +292,44 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         BugReport savedBugReport = bugReportJpaRepository.save(bugReport);
         log.info("버그 제보 상태 변경 성공 - 사용자: {} 버그제보 ID: {}", user.getName(), bugReport.getId());
         return bugReportMapper.bugReportToBugReportResponse(savedBugReport);
+    }
+
+    /**
+     * 특허 승인
+     *
+     * @param user 사용자
+     * @param patentAcceptRequest 특허 승인 요청
+     * @return 특허 응답
+     */
+    @Override
+    public PatentResponse acceptPatent(User user, PatentAcceptRequest patentAcceptRequest) {
+        idempotentProvider.isValidIdempotent(List.of("acceptPatent", user.getName(), user.getId().toString(), patentAcceptRequest.patentIdx().toString()));
+
+        ProjectPatent projectPatent = projectPatentJpaRepository.findByIdAndState(patentAcceptRequest.patentIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
+        projectPatent.setAcceptedAt(LocalDateTime.now());
+        ProjectPatent savedProjectPatent = projectPatentJpaRepository.save(projectPatent);
+        log.info("특허 승인 성공 - 사용자: {} 특허 ID: {}", user.getName(), projectPatent.getId());
+        return new PatentResponse(savedProjectPatent.getId());
+    }
+
+    /**
+     * 특허 취소
+     *
+     * @param user 사용자
+     * @param patentCancelRequest 특허 취소 요청
+     * @return 특허 응답
+     */
+    @Override
+    public PatentResponse cancelPatent(User user, PatentCancelRequest patentCancelRequest) {
+        idempotentProvider.isValidIdempotent(List.of("cancelPatent", user.getName(), user.getId().toString(), patentCancelRequest.patentIdx().toString()));
+
+        ProjectPatent projectPatent = projectPatentJpaRepository.findByIdAndState(patentCancelRequest.patentIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
+        projectPatent.setAcceptedAt(null);
+        ProjectPatent savedProjectPatent = projectPatentJpaRepository.save(projectPatent);
+        log.info("특허 취소 성공 - 사용자: {} 특허 ID: {}", user.getName(), projectPatent.getId());
+        return new PatentResponse(savedProjectPatent.getId());
     }
 
     private User getUser(Integer userIdx) {
