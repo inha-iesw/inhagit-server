@@ -54,7 +54,6 @@ public record SearchProjectsResponse(
         @NotNull
         SearchUserResponse author,
 
-        @Schema(description = "특허 등록 날짜", example = "2021-08-01T00:00:00")
-        LocalDateTime patentAt
+        SearchPatentSummaryResponse patent
 ) {
 }

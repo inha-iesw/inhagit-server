@@ -7,6 +7,7 @@ import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.mapping.domain.QProjectField;
 import inha.git.project.api.controller.dto.request.SearchProjectCond;
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
+import inha.git.project.api.controller.dto.response.SearchPatentSummaryResponse;
 import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.project.domain.Project;
@@ -95,12 +96,10 @@ public class ProjectQueryRepository {
                                 p.getUser().getName(),
                                 mapRoleToPosition(p.getUser().getRole())
                         ),
-                        p.getProjectPatent() != null &&
-                                p.getProjectPatent().getState() != INACTIVE &&
-                                p.getProjectPatent().getAcceptAt() != null
-                                ? p.getProjectPatent().getAcceptAt()
-                                : null     ))
-                .toList();
+                        new SearchPatentSummaryResponse(
+                                p.getProjectPatent() != null ? p.getProjectPatent().getId() : null,
+                                p.getProjectPatent() != null && p.getProjectPatent().getAcceptAt() != null
+                        ))).toList();
         return new PageImpl<>(content, pageable, total);
     }
 
@@ -195,11 +194,10 @@ public class ProjectQueryRepository {
                                 p.getUser().getName(),
                                 mapRoleToPosition(p.getUser().getRole())
                         ),
-                        p.getProjectPatent() != null &&
-                                p.getProjectPatent().getState() != INACTIVE &&
-                                p.getProjectPatent().getAcceptAt() != null
-                                ? p.getProjectPatent().getAcceptAt()
-                                : null
+                        new SearchPatentSummaryResponse(
+                                p.getProjectPatent() != null ? p.getProjectPatent().getId() : null,
+                                p.getProjectPatent() != null && p.getProjectPatent().getAcceptAt() != null
+                        )
                 ))
                 .toList();
 

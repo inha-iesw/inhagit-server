@@ -1,6 +1,8 @@
 package inha.git.project.api.service.patent;
 
 import inha.git.common.exceptions.BaseException;
+import inha.git.field.domain.Field;
+import inha.git.mapping.domain.ProjectField;
 import inha.git.project.api.controller.dto.request.CreatePatentInventorRequest;
 import inha.git.project.api.controller.dto.request.CreatePatentRequest;
 import inha.git.project.api.controller.dto.request.UpdatePatentInventorRequest;
@@ -14,6 +16,7 @@ import inha.git.project.domain.ProjectPatentInventor;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentInventorJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentJpaRepository;
+import inha.git.statistics.api.service.StatisticsService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.utils.file.FilePath;
@@ -48,6 +51,7 @@ import static inha.git.common.code.status.ErrorStatus.USER_NOT_PROJECT_OWNER;
 @Transactional
 public class ProjectPatentServiceImpl implements ProjectPatentService {
 
+    private final StatisticsService statisticsService;
     private final ProjectPatentJpaRepository projectPatentJpaRepository;
     private final ProjectPatentInventorJpaRepository projectPatentInventorJpaRepository;
     private final ProjectJpaRepository projectJpaRepository;
@@ -108,6 +112,12 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         ProjectPatent savePatent = projectPatentJpaRepository.save(projectMapper.toProjectPatent(createPatentRequest, evidence, project));
         List<ProjectPatentInventor> inventors = projectMapper.toPatentInventor(createPatentRequest.inventors(), savePatent);
         inventors.forEach(projectPatentInventorJpaRepository::save);
+
+        List<Field> field = project.getProjectFields()
+                .stream()
+                .map(ProjectField::getField)
+                .toList();
+        statisticsService.adjustCount(user, field, project.getSemester(), project.getCategory(),  4, true);
         return projectMapper.toPatentResponse(savePatent);
     }
 
@@ -172,6 +182,11 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         // 프로젝트와의 관계 제거
         project.setProjectPatent(null);
 
+        List<Field> field = project.getProjectFields()
+                .stream()
+                .map(ProjectField::getField)
+                .toList();
+        statisticsService.adjustCount(user, field, project.getSemester(), project.getCategory(),  4, false);
         return projectMapper.toPatentResponse(projectPatent);
     }
 

@@ -61,6 +61,8 @@ public record SearchProjectResponse(
         Boolean isPublic,
 
         @NotNull
-        SearchCategoryResponse category
+        SearchCategoryResponse category,
+
+        SearchPatentSummaryResponse patent
 ) {
 }
