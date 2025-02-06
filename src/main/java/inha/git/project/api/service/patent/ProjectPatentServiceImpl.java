@@ -94,15 +94,18 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         if(user.getId() != project.getUser().getId()) {
             throw new BaseException(USER_NOT_PROJECT_OWNER);
         }
-        if(project.getProjectPatent().getState().equals(ACTIVE)) {
+        if(project.getProjectPatent() != null) {
             throw new BaseException(ALREADY_REGISTERED_PATENT);
         }
 
         validateInventorsShare(createPatentRequest.inventors().stream()
                 .map(CreatePatentInventorRequest::share)
                 .toList());
-
-        ProjectPatent savePatent = projectPatentJpaRepository.save(projectMapper.toProjectPatent(createPatentRequest, FilePath.storeFile(file, PATENT), project));
+        String evidence = null;
+        if (file != null && !file.isEmpty()) {
+            evidence = FilePath.storeFile(file, PATENT);
+        }
+        ProjectPatent savePatent = projectPatentJpaRepository.save(projectMapper.toProjectPatent(createPatentRequest, evidence, project));
         List<ProjectPatentInventor> inventors = projectMapper.toPatentInventor(createPatentRequest.inventors(), savePatent);
         inventors.forEach(projectPatentInventorJpaRepository::save);
         return projectMapper.toPatentResponse(savePatent);
@@ -144,15 +147,31 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
      */
     @Override
     public PatentResponse deletePatent(User user, Integer projectIdx) {
+        // 프로젝트 조회 및 권한 검증
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+
         if(user.getId() != project.getUser().getId() && user.getRole() != Role.ADMIN) {
             throw new BaseException(USER_NOT_PROJECT_OWNER);
         }
-        ProjectPatent projectPatent = projectPatentJpaRepository.findByIdAndState(project.getProjectPatent().getId(), ACTIVE)
+
+        ProjectPatent projectPatent = Optional.ofNullable(project.getProjectPatent())
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
-        projectPatent.setDeletedAt();
-        projectPatent.setState(INACTIVE);
+
+        // 증빙 파일이 있다면 삭제
+        if (projectPatent.getEvidence() != null) {
+            FilePath.deleteFile(projectPatent.getEvidence());
+        }
+
+        // 발명자 정보 삭제
+        projectPatentInventorJpaRepository.deleteAllByProjectPatent(projectPatent);
+
+        // 특허 삭제
+        projectPatentJpaRepository.delete(projectPatent);
+
+        // 프로젝트와의 관계 제거
+        project.setProjectPatent(null);
+
         return projectMapper.toPatentResponse(projectPatent);
     }
 
