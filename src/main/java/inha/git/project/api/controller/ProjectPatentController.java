@@ -3,13 +3,13 @@ package inha.git.project.api.controller;
 import inha.git.common.BaseResponse;
 import inha.git.project.api.controller.dto.request.CreatePatentRequest;
 import inha.git.project.api.controller.dto.response.PatentResponse;
-import inha.git.project.api.controller.dto.response.SearchPatentResponse;
 import inha.git.project.api.service.patent.ProjectPatentService;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -30,55 +30,23 @@ public class ProjectPatentController {
     private final ProjectPatentService projectPatentService;
 
     /**
-     * 특허 조회 API
-     *
-     * <p>특허를 조회합니다.</p>
-     *
-     * @param user 사용자 정보
-     * @param projectIdx 프로젝트 인덱스
-     * @return 조회된 특허 정보를 포함하는 BaseResponse<SearchPatentResponse>
-     */
-    @GetMapping("/{projectIdx}")
-    @Operation(summary = "특허 조회 API", description = "특허를 조회합니다.")
-    public BaseResponse<SearchPatentResponse> getProjectPatent(@AuthenticationPrincipal User user,
-                                                               @PathVariable("projectIdx") Integer projectIdx) {
-        return BaseResponse.of(PATENT_SEARCH_OK, projectPatentService.getProjectPatent(user, projectIdx));
-    }
-
-    /**
-     * 특허 검색 API
-     *
-     * <p>특허 검색을 합니다.</p>
-     *
-     * @param user 사용자 정보
-     * @param applicationNumber 특허 출원번호
-     * @param projectIdx 프로젝트 인덱스
-     * @return 검색된 특허 정보를 포함하는 BaseResponse<SearchPatentResponse>
-     */
-    @PostMapping("/{projectIdx}/search")
-    @Operation(summary = "특허 검색 API", description = "특허 검색을 합니다.")
-    public BaseResponse<SearchPatentResponse> searchProjectPatent(@AuthenticationPrincipal User user,
-                                                                         @RequestParam("applicationNumber") String applicationNumber,
-                                                                         @PathVariable("projectIdx") Integer projectIdx) {
-        return BaseResponse.of(PATENT_SEARCH_SUCCESS, projectPatentService.searchProjectPatent(user, applicationNumber, projectIdx));
-    }
-
-    /**
      * 특허 등록 API
      *
      * <p>특허를 등록합니다.</p>
      *
      * @param user 사용자 정보
-     * @param applicationNumber 특허 출원번호
      * @param projectIdx 프로젝트 인덱스
+     * @param createPatentRequest 특허 등록 요청
+     * @param file 특허 파일
      * @return 등록된 특허 정보를 포함하는 BaseResponse<PatentResponse>
      */
-    @PostMapping("/{projectIdx}")
-    @Operation(summary = "조회한 특허 등록 API", description = "조회한 특허를 등록합니다.")
-    public BaseResponse<PatentResponse> registerPatent(@AuthenticationPrincipal User user,
-                                                       @RequestParam("applicationNumber") String applicationNumber,
-                                                       @PathVariable("projectIdx") Integer projectIdx) {
-        return BaseResponse.of(PATENT_REGISTER_SUCCESS, projectPatentService.registerPatent(user, applicationNumber, projectIdx));
+    @PostMapping(value = "/{projectIdx}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "특허 등록 API", description = "특허를 등록합니다.")
+    public BaseResponse<PatentResponse> createPatent(@AuthenticationPrincipal User user,
+                                                             @PathVariable("projectIdx") Integer projectIdx,
+                                                             @Validated @RequestPart("createPatentRequest") CreatePatentRequest createPatentRequest,
+                                                             @RequestPart("file") MultipartFile file) {
+        return BaseResponse.of(PATENT_REGISTER_SUCCESS, projectPatentService.createPatent(user, projectIdx, createPatentRequest, file));
     }
 
     /**
@@ -95,25 +63,5 @@ public class ProjectPatentController {
     public BaseResponse<PatentResponse> deletePatent(@AuthenticationPrincipal User user,
                                            @PathVariable("projectIdx") Integer projectIdx) {
         return BaseResponse.of(PATENT_DELETE_SUCCESS, projectPatentService.deletePatent(user, projectIdx));
-    }
-
-    /**
-     * 직접 특허 등록 API
-     *
-     * <p>직접 특허를 등록합니다.</p>
-     *
-     * @param user 사용자 정보
-     * @param projectIdx 프로젝트 인덱스
-     * @param createPatentRequest 특허 등록 요청
-     * @param file 특허 파일
-     * @return 등록된 특허 정보를 포함하는 BaseResponse<PatentResponse>
-     */
-    @PostMapping("/{projectIdx}/manual")
-    @Operation(summary = "직접 특허 등록 API", description = "직접 특허를 등록합니다.")
-    public BaseResponse<PatentResponse> registerManualPatent(@AuthenticationPrincipal User user,
-                                                             @PathVariable("projectIdx") Integer projectIdx,
-                                                             @Validated @RequestPart CreatePatentRequest createPatentRequest,
-                                                             @RequestPart("file") MultipartFile file) {
-        return BaseResponse.of(PATENT_REGISTER_SUCCESS, projectPatentService.registerManualPatent(user, projectIdx, createPatentRequest, file));
     }
 }

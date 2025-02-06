@@ -317,40 +317,20 @@ public interface ProjectMapper {
     @Mapping(target = "isPublic", source = "createGithubProjectRequest.isPublic")
     Project createGithubProjectRequestToProject(CreateGithubProjectRequest createGithubProjectRequest, User user, Semester semester, Category category);
 
-    SearchPatentResponse toSearchPatentResponse(String applicationNumber, String applicationDate, String inventionTitle,
-                                                String inventionTitleEnglish, String applicantName, String applicantEnglishName,
-                                                List<SearchInventorResponse> inventors);
-    @Mapping(target = "applicationDate", source = "applicationDate")
-    @Mapping(target = "inventionTitle", source = "inventionTitle")
-    @Mapping(target = "inventionTitleEnglish", source = "inventionTitleEng")
-    SearchPatentResponse toSearchPatentResponse(String applicationDate, String inventionTitle, String inventionTitleEng);
-
-    @Mapping(target = "applicantName", source = "applicantName")
-    @Mapping(target = "applicantEnglishName", source = "applicantEnglishName")
-    SearchPatentResponse toSearchPatentResponse(String applicantName, String applicantEnglishName);
-
-    default List<ProjectPatentInventor> toPatentInventor(List<SearchInventorResponse> inventors, ProjectPatent projectPatent) {
+    default List<ProjectPatentInventor> toPatentInventor(List<CreatePatentInventorRequest> inventors, ProjectPatent projectPatent) {
         List<ProjectPatentInventor> result = new ArrayList<>();
-        for (SearchInventorResponse inventor : inventors) {
+        for (CreatePatentInventorRequest inventor : inventors) {
             result.add(toPatentInventor(inventor, projectPatent));
         }
         return result;
     }
 
     @Mapping(target ="id", ignore = true)
-    ProjectPatentInventor toPatentInventor(SearchInventorResponse inventor, ProjectPatent projectPatent);
-
-    @Mapping(target = "applicationNumber", source = "projectPatent.applicationNumber")
-    @Mapping(target = "applicationDate", source = "projectPatent.applicationDate")
-    @Mapping(target = "inventionTitle", source = "projectPatent.inventionTitle")
-    @Mapping(target = "inventionTitleEnglish", source = "projectPatent.inventionTitleEnglish")
-    @Mapping(target = "applicantName", source = "projectPatent.applicantName")
-    @Mapping(target = "applicantEnglishName", source = "projectPatent.applicantEnglishName")
-    @Mapping(target = "inventors", source = "patentInventors")
-    SearchPatentResponse toSearchPatentResponse(ProjectPatent projectPatent, List<ProjectPatentInventor> patentInventors);
+    ProjectPatentInventor toPatentInventor(CreatePatentInventorRequest inventor, ProjectPatent projectPatent);
 
     @Mapping(target = "id", ignore = true)
-    ProjectPatent toProjectPatent(String applicationNumber, String applicationDate, String inventionTitle, String inventionTitleEnglish, String applicantName, String applicantEnglishName);
+    @Mapping(target = "acceptAt", ignore = true)
+    ProjectPatent toProjectPatent(CreatePatentRequest createPatentRequest, String evidence);
 
     @Mapping(target = "idx", source = "projectPatent.id")
     PatentResponse toPatentResponse(ProjectPatent projectPatent);

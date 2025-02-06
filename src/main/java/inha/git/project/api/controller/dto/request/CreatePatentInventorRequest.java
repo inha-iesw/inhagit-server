@@ -2,6 +2,7 @@ package inha.git.project.api.controller.dto.request;
 
 import inha.git.common.validation.annotation.ValidEmail;
 import inha.git.common.validation.annotation.ValidShare;
+import inha.git.common.validation.annotation.ValidUserNumber;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -29,6 +30,10 @@ public record CreatePatentInventorRequest(
         @Email
         @ValidEmail
         @Schema(description = "발명자 이메일", example = "test@gmail.com")
-        String email
+        String email,
+
+        @ValidUserNumber
+        @Schema(description = "발명자 학번", example = "2018000000", nullable = true)
+        String userNumber
 ) {
 }
