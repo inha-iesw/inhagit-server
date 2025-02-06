@@ -2,6 +2,7 @@ package inha.git.project.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.project.api.controller.dto.request.CreatePatentRequest;
+import inha.git.project.api.controller.dto.request.UpdatePatentRequest;
 import inha.git.project.api.controller.dto.response.PatentResponse;
 import inha.git.project.api.service.patent.ProjectPatentService;
 import inha.git.user.domain.User;
@@ -35,18 +36,25 @@ public class ProjectPatentController {
      * <p>특허를 등록합니다.</p>
      *
      * @param user 사용자 정보
-     * @param projectIdx 프로젝트 인덱스
      * @param createPatentRequest 특허 등록 요청
      * @param file 특허 파일
      * @return 등록된 특허 정보를 포함하는 BaseResponse<PatentResponse>
      */
-    @PostMapping(value = "/{projectIdx}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "특허 등록 API", description = "특허를 등록합니다.")
     public BaseResponse<PatentResponse> createPatent(@AuthenticationPrincipal User user,
-                                                             @PathVariable("projectIdx") Integer projectIdx,
                                                              @Validated @RequestPart("createPatentRequest") CreatePatentRequest createPatentRequest,
-                                                             @RequestPart("file") MultipartFile file) {
-        return BaseResponse.of(PATENT_REGISTER_SUCCESS, projectPatentService.createPatent(user, projectIdx, createPatentRequest, file));
+                                                             @RequestPart(value = "file", required = false) MultipartFile file) {
+        return BaseResponse.of(PATENT_REGISTER_SUCCESS, projectPatentService.createPatent(user, createPatentRequest, file));
+    }
+
+    @PutMapping(value = "/{patentIdx}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "특허 수정 API", description = "특허를 수정합니다.")
+    public BaseResponse<PatentResponse> updatePatent(@AuthenticationPrincipal User user,
+                                                             @PathVariable("patentIdx") Integer patentIdx,
+                                                             @Validated @RequestPart("updatePatentRequest") UpdatePatentRequest updatePatentRequest,
+                                                             @RequestPart(value = "file", required = false) MultipartFile file) {
+        return BaseResponse.of(PATENT_UPDATE_SUCCESS, projectPatentService.updatePatent(user, patentIdx, updatePatentRequest, file));
     }
 
     /**

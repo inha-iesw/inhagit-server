@@ -56,4 +56,27 @@ public class ProjectPatent extends BaseEntity {
 
     @OneToMany(mappedBy = "projectPatent", fetch = FetchType.LAZY)
     private List<ProjectPatentInventor> projectPatentInventors = new ArrayList<>();
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private Project project;
+
+    public void setProject(Project project) {
+        this.project = project;
+        project.setProjectPatent(this); // 양방향 연관관계 설정
+    }
+
+    public void setEvidence(String storedFileUrl) {
+        this.evidence = storedFileUrl;
+    }
+
+    public void updatePatent(String applicationNumber, PatentType patentType, String applicationDate, String inventionTitle, String inventionTitleEnglish, String applicantName, String applicantEnglishName) {
+        this.applicationNumber = applicationNumber;
+        this.patentType = patentType;
+        this.applicationDate = applicationDate;
+        this.inventionTitle = inventionTitle;
+        this.inventionTitleEnglish = inventionTitleEnglish;
+        this.applicantName = applicantName;
+        this.applicantEnglishName = applicantEnglishName;
+    }
 }

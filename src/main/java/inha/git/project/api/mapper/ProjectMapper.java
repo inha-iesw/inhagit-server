@@ -330,7 +330,7 @@ public interface ProjectMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "acceptAt", ignore = true)
-    ProjectPatent toProjectPatent(CreatePatentRequest createPatentRequest, String evidence);
+    ProjectPatent toProjectPatent(CreatePatentRequest createPatentRequest, String evidence, Project project);
 
     @Mapping(target = "idx", source = "projectPatent.id")
     PatentResponse toPatentResponse(ProjectPatent projectPatent);
@@ -342,4 +342,8 @@ public interface ProjectMapper {
     default ProjectReplyCommentLike createProjectReplyCommentLike(User user, ProjectReplyComment projectReplyComment) {
         return new ProjectReplyCommentLike(new ProjectReplyCommentLikeId(user.getId(), projectReplyComment.getId()), projectReplyComment, user);
     }
+
+
+    void updateProjectPatent(UpdatePatentRequest updatePatentRequest, @MappingTarget ProjectPatent projectPatent);
+    void updateProjectPatent(UpdatePatentRequest updatePatentRequest, String evidence, @MappingTarget ProjectPatent projectPatent);
 }

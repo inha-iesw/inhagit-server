@@ -52,9 +52,6 @@ public class Project extends BaseEntity {
     @Column(nullable = false, name = "registration_recommend_count")
     private Integer registrationRecommendCount = 0;
 
-    @Column(name = "project_patent_id")
-    private Integer projectPatentId;
-
     @Column(name = "comment_count")
     private Integer commentCount = 0;
 
@@ -83,6 +80,13 @@ public class Project extends BaseEntity {
     @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private ProjectUpload projectUpload;
 
+    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ProjectPatent projectPatent;
+
+    public void setProjectPatent(ProjectPatent projectPatent) {
+        this.projectPatent = projectPatent;
+    }
+
     public void setFoundRecommendCount(int foundingRecommendCount) {
         this.foundingRecommendCount = foundingRecommendCount;
     }
@@ -93,10 +97,6 @@ public class Project extends BaseEntity {
 
     public void setRegistrationRecommendCount(int registrationRecommendCount) {
         this.registrationRecommendCount = registrationRecommendCount;
-    }
-
-    public void setProjectPatentId(Integer id) {
-        this.projectPatentId = id;
     }
 
     public void increaseCommentCount() {
