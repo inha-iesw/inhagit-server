@@ -40,6 +40,10 @@ public record SearchPatentResponse(
         @Schema(description = "출원인 영문 이름", example = "applicantEnglishName")
         String applicantEnglishName, // 출원인 영문 이름
 
+        @NotNull
+        @Schema(description = "특허 증빙 자료", example = "증빙자료 경로")
+        String evidence,
+
         @Schema(description = "승인일", example = "2021-01-01T00:00:00")
         LocalDateTime acceptAt,
 

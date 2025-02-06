@@ -369,6 +369,7 @@ public interface ProjectMapper {
                 projectPatent.getInventionTitleEnglish(),
                 projectPatent.getApplicantName(),
                 projectPatent.getApplicantEnglishName(),
+                projectPatent.getEvidence(),
                 projectPatent.getAcceptAt(),
                 toSearchInventorResponseList(inventors)
         );

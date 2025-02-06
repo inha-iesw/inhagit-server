@@ -34,6 +34,7 @@ import static inha.git.common.Constant.PATENT;
 import static inha.git.common.code.status.ErrorStatus.ALREADY_REGISTERED_PATENT;
 import static inha.git.common.code.status.ErrorStatus.FILE_PROCESS_ERROR;
 import static inha.git.common.code.status.ErrorStatus.INVALID_INVENTORS_SHARE;
+import static inha.git.common.code.status.ErrorStatus.INVALID_USER_JWT;
 import static inha.git.common.code.status.ErrorStatus.NOT_EXIST_PATENT;
 import static inha.git.common.code.status.ErrorStatus.PROJECT_NOT_FOUND;
 import static inha.git.common.code.status.ErrorStatus.USER_NOT_PROJECT_OWNER;
@@ -62,6 +63,12 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         // 특허 정보 확인
         ProjectPatent projectPatent = Optional.ofNullable(project.getProjectPatent())
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
+        if(projectPatent.getState().equals(INACTIVE)) {
+            throw new BaseException(NOT_EXIST_PATENT);
+        }
+        if (projectPatent.getAcceptAt() == null) {
+            validateAuthorizationForUnacceptedPatent(user, project);
+        }
 
         List<ProjectPatentInventor> inventors = projectPatentInventorJpaRepository
                 .findAllByProjectPatentOrderByMainInventorDesc(projectPatent);
@@ -87,7 +94,7 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         if(user.getId() != project.getUser().getId()) {
             throw new BaseException(USER_NOT_PROJECT_OWNER);
         }
-        if(project.getProjectPatent() != null) {
+        if(project.getProjectPatent().getState().equals(ACTIVE)) {
             throw new BaseException(ALREADY_REGISTERED_PATENT);
         }
 
@@ -234,6 +241,15 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
 
         if (Math.abs(totalShare - 100.0) > 0.01) { // 부동소수점 오차를 고려한 비교
             throw new BaseException(INVALID_INVENTORS_SHARE);
+        }
+    }
+
+    private void validateAuthorizationForUnacceptedPatent(User user, Project project) {
+        boolean isOwner = project.getUser().getId().equals(user.getId());
+        boolean isAdmin = user.getRole() == Role.ADMIN;
+
+        if (!isOwner && !isAdmin) {
+            throw new BaseException(INVALID_USER_JWT);
         }
     }
 }
