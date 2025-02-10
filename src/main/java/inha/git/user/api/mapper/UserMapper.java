@@ -152,8 +152,9 @@ public interface UserMapper {
     @Mapping(source = "totalProjectCount", target = "projectNumber")
     @Mapping(source = "totalQuestionCount", target = "questionCommentNumber")
     @Mapping(source = "totalTeamCount", target = "belongTeamNumber")
+    @Mapping(source = "totalPatentCount", target = "patentNumber")
     @Mapping(expression = "java(EmailMapperUtil.maskEmail(user.getEmail()))", target = "email")
-    SearchNonCompanyUserResponse toSearchNonCompanyUserResponse(User user, Integer totalProjectCount, Integer totalQuestionCount, Integer totalTeamCount, List<SearchDepartmentResponse> departmentList, Integer position, Boolean githubTokenState);
+    SearchNonCompanyUserResponse toSearchNonCompanyUserResponse(User user, Integer totalProjectCount, Integer totalQuestionCount, Integer totalTeamCount, Integer totalPatentCount, List<SearchDepartmentResponse> departmentList, Integer position, Boolean githubTokenState);
 
     /**
      * User 엔티티를 SearchCompanyUserResponse로 변환하는 메서드 정의

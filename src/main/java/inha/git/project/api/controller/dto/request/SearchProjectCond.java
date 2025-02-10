@@ -23,6 +23,9 @@ public record SearchProjectCond(
         String subject,
 
         @Schema(description = "제목", example = "제목")
-        String title
+        String title,
+
+        @Schema(description = "특허 등록 여부", example = "true")
+        Boolean isPatent
 ) {
 }

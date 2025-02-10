@@ -185,6 +185,7 @@ public enum SuccessStatus implements BaseCode {
     PROBLEM_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2003", "문제 통계 조회 성공"),
     DEPARTMENT_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2004", "학과별 전체 통계 조회 성공"),
     BATCH_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2005", "단과대별 학기별 통계 일괄 조회 성공"),
+    PATENT_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2006", "특허 통계 조회 성공"),
 
     PATENT_SEARCH_OK(HttpStatus.OK, "PATENT2000", "특허 조회 성공"),
     PATENT_SEARCH_SUCCESS(HttpStatus.OK, "PATENT2001", "특허 검색 성공"),

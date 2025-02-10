@@ -45,5 +45,10 @@ public record SearchNonCompanyUserResponse(
 
         @NotNull
         @Schema(description = "소속 팀 수", example = "1")
-        Integer belongTeamNumber
+        Integer belongTeamNumber,
+
+        @NotNull
+        @Schema(description = "등록한 특허 수", example = "2")
+        Integer patentNumber
+
 ) implements SearchUserResponse{ }

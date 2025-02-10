@@ -146,6 +146,14 @@ public class ProjectQueryRepository {
             condition = condition.and(project.title.containsIgnoreCase(searchProjectCond.title()));
         }
 
+        if (searchProjectCond.isPatent() != null) {
+            if (searchProjectCond.isPatent()) {
+                condition = condition.and(project.projectPatent.isNotNull());
+            } else {
+                condition = condition.and(project.projectPatent.isNull());
+            }
+        }
+
         // 프로젝트 목록 조회 쿼리
         JPAQuery<Project> query = queryFactory
                 .select(project)
