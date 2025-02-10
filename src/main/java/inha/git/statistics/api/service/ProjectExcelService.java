@@ -83,6 +83,9 @@ public class ProjectExcelService extends AbstractExcelService {
         int rowNum = 1;
         int sequenceNum = 1;
 
+        int localProjectCount = 0;
+        int githubProjectCount = 0;
+
         for (Project project : projects) {
             User user = project.getUser();
 
@@ -96,6 +99,11 @@ public class ProjectExcelService extends AbstractExcelService {
                     .map(ud -> ud.getDepartment().getName())
                     .orElse("");
 
+            if(project.getRepoName() != null) {
+                githubProjectCount++;
+            } else {
+                localProjectCount++;
+            }
             Row row = sheet.createRow(rowNum++);
             int colNum = 0;
 
@@ -114,6 +122,16 @@ public class ProjectExcelService extends AbstractExcelService {
                     project.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             );
         }
+
+        rowNum++;
+        sheet.createRow(rowNum++);
+
+        Row summaryRow = sheet.createRow(rowNum++);
+        summaryRow.createCell(1).setCellValue("로컬 프로젝트 등록 건수: " + localProjectCount + "건");
+
+        Row summaryRow2 = sheet.createRow(rowNum);
+        summaryRow2.createCell(1).setCellValue("깃허브 프로젝트 등록 건수: " + githubProjectCount + "건");
+
     }
 
     private String getFieldNames(Project project) {

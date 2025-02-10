@@ -90,9 +90,18 @@ public class PatentExcelService extends AbstractExcelService {
         int sequenceNum = 1;
         PatentType currentType = null;
 
+        int patentCount = 0;
+        int programCount = 0;
+
         for (ProjectPatent patent : patents) {
             Project project = patent.getProject();
             User user = project.getUser();
+
+            if (patent.getPatentType() == PatentType.PATENT) {
+                patentCount++;
+            } else {
+                programCount++;
+            }
 
             if (currentType != null && currentType != patent.getPatentType()) {
                 sheet.createRow(rowNum++);
@@ -137,5 +146,14 @@ public class PatentExcelService extends AbstractExcelService {
             row.createCell(colNum++).setCellValue(OSS_PROJECT_URL + project.getId());
             row.createCell(colNum).setCellValue(patent.getApplicationDate());
         }
+
+        rowNum++;
+        sheet.createRow(rowNum++);
+
+        Row summaryRow = sheet.createRow(rowNum++);
+        summaryRow.createCell(1).setCellValue("특허 등록 건수: " + patentCount + "건");
+
+        Row summaryRow2 = sheet.createRow(rowNum);
+        summaryRow2.createCell(1).setCellValue("프로그램 등록 건수: " + programCount + "건");
     }
 }
