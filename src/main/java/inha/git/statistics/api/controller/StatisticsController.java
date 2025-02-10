@@ -9,6 +9,7 @@ import inha.git.statistics.api.controller.dto.response.QuestionStatisticsRespons
 import inha.git.statistics.api.service.StatisticsExcelService;
 import inha.git.statistics.api.service.StatisticsMigrationService;
 import inha.git.statistics.api.service.StatisticsService;
+import inha.git.statistics.domain.enums.ExcelType;
 import inha.git.statistics.domain.enums.StatisticsType;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,8 +22,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import static inha.git.common.code.status.SuccessStatus.*;
 
@@ -34,7 +35,7 @@ import static inha.git.common.code.status.SuccessStatus.*;
 public class StatisticsController {
 
     private final StatisticsService statisticsService;
-    private final StatisticsExcelService statisticsExcelService;
+    private final Map<ExcelType, StatisticsExcelService> excelServices;
     private final StatisticsMigrationService statisticsMigrationService;
 
     /**
@@ -92,12 +93,18 @@ public class StatisticsController {
     @GetMapping("/export/excel")
     @PreAuthorize("hasAnyAuthority('professor:read', 'admin:read')")
     @Operation(summary = "엑셀 다운로드 API", description = "모든 통계 데이터를 엑셀 파일로 다운로드합니다.")
-    public void exportToExcel(@AuthenticationPrincipal User user,  HttpServletResponse response,
-                              @RequestParam(value = "statisticsType", defaultValue = "TOTAL") StatisticsType statisticsType,
-                              @RequestParam(value = "filterId", required = false) Integer filterId,
-                              @RequestParam(value = "semesterId", required = false) Integer semesterId) {
-        log.info("엑셀 다운로드 요청: {}", user.getName());
-        statisticsExcelService.exportToExcelFile(response, statisticsType, filterId, semesterId);
+    public void exportToExcel(
+            @AuthenticationPrincipal User user,
+            HttpServletResponse response,
+            @RequestParam(value = "excelType", defaultValue = "PROJECT") ExcelType excelType,
+            @RequestParam(value = "statisticsType", defaultValue = "TOTAL") StatisticsType statisticsType,
+            @RequestParam(value = "filterId", required = false) Integer filterId,
+            @RequestParam(value = "semesterId", required = false) Integer semesterId
+    ) {
+        log.info("엑셀 다운로드 요청: {}, 타입: {}", user.getName(), excelType);
+
+        StatisticsExcelService excelService = excelServices.get(excelType);
+        excelService.exportToExcelFile(response, statisticsType, filterId, semesterId);
     }
 
     /**
