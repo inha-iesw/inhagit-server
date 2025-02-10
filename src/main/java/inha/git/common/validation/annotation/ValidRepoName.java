@@ -14,6 +14,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidRepoName {
+
     String message() default "유효한 저장소 이름을 입력하세요.";
 
     Class<?>[] groups() default {};

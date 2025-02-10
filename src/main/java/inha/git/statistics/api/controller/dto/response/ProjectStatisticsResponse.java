@@ -11,12 +11,15 @@ import jakarta.validation.constraints.NotNull;
 public record ProjectStatisticsResponse(
 
         SearchCollegeResponse college, // 단과대 정보 정보
+
         SearchDepartmentResponse department, // 학과 정보
 
         SearchFieldResponse field, // 분야 정보
 
         SearchSemesterResponse semester, // 학기 정보
+
         SearchCategoryResponse category, // 카테고리 정보
+
         @NotNull
         @Schema(description = "전체 프로젝트 수", example = "8")
         Integer totalProjectCount, // 전체 프로젝트 수
@@ -32,6 +35,5 @@ public record ProjectStatisticsResponse(
         @NotNull
         @Schema(description = "프로젝트를 업로드한 학생", example = "4")
         Integer projectUserCount
-
 ) {
 }

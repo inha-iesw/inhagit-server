@@ -14,13 +14,11 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import static inha.git.common.Constant.mapRoleToPosition;
 
-
 /**
  * BugReportMapper는 버그 제보를 변환하는 인터페이스.
  */
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface BugReportMapper {
-
 
     /**
      * createBugReportRequestToBugReport는 CreateBugReportRequest를 BugReport로 변환하는 메소드.
@@ -43,7 +41,6 @@ public interface BugReportMapper {
     @Mapping(target = "idx", source = "id")
     BugReportResponse bugReportToBugReportResponse(BugReport bugReport);
 
-
     /**
      * updateBugReportRequestToBugReport는 UpdateBugReportRequest를 BugReport로 변환하는 메소드.
      * @param bugReport
@@ -52,7 +49,6 @@ public interface BugReportMapper {
     @Mapping(target = "title", source = "updateBugReportRequest.title")
     @Mapping(target = "contents", source = "updateBugReportRequest.contents")
     void updateBugReportRequestToBugReport(@MappingTarget BugReport bugReport, UpdateBugReportRequest updateBugReportRequest);
-
 
     /**
      * bugReportToSearchBugReportResponse는 BugReport를 SearchBugReportResponse로 변환하는 메소드.
@@ -72,9 +68,7 @@ public interface BugReportMapper {
         if (user == null) {
             return null;
         }
-
         Integer position = mapRoleToPosition(user.getRole());
-
         return new SearchUserResponse(
                 user.getId(),    // idx
                 user.getName(),  // name

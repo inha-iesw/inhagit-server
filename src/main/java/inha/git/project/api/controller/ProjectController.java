@@ -10,10 +10,12 @@ import inha.git.project.api.controller.dto.response.ProjectResponse;
 import inha.git.project.api.controller.dto.response.SearchFileResponse;
 import inha.git.project.api.controller.dto.response.SearchProjectResponse;
 import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
-import inha.git.project.api.service.ProjectSearchService;
-import inha.git.project.api.service.ProjectService;
+import inha.git.project.api.service.github.GithubProjectService;
+import inha.git.project.api.service.query.ProjectQueryService;
+import inha.git.project.api.service.command.ProjectCommandService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
+import inha.git.utils.PagingUtils;
 import inha.git.utils.file.ValidFile;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,7 +31,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 import static inha.git.common.code.status.ErrorStatus.COMPANY_CANNOT_CREATE_PROJECT;
-import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
@@ -42,31 +43,9 @@ import static inha.git.common.code.status.SuccessStatus.*;
 @RequestMapping("/api/v1/projects")
 public class ProjectController {
 
-    private final ProjectService projectService;
-    private final ProjectSearchService projectSearchService;
-
-
-
-    /**
-     * 프로젝트 전체 조회 API
-     *
-     * <p>프로젝트 전체를 조회합니다.</p>
-     *
-     * @param page 페이지 번호
-     * @param size 페이지 사이즈
-     * @return 검색된 프로젝트 정보를 포함하는 BaseResponse<Page<SearchProjectsResponse>>
-     */
-    @GetMapping
-    @Operation(summary = "프로젝트 전체 조회 API", description = "프로젝트 전체를 조회합니다.")
-    public BaseResponse<Page<SearchProjectsResponse>> getProjects(@RequestParam("page") Integer page, @RequestParam("size") Integer size) {
-        if (page < 1) {
-            throw new BaseException(INVALID_PAGE);
-        }
-        if (size < 1) {
-            throw new BaseException(INVALID_PAGE);
-        }
-        return BaseResponse.of(PROJECT_SEARCH_OK, projectSearchService.getProjects(page - 1, size - 1));
-    }
+    private final ProjectCommandService projectService;
+    private final ProjectQueryService projectSearchService;
+    private final GithubProjectService githubProjectService;
 
     /**
      * 프로젝트 조건 조회 API
@@ -82,15 +61,9 @@ public class ProjectController {
     @Operation(summary = "프로젝트 조건 조회 API", description = "프로젝트 조건에 맞게 조회합니다.")
     public BaseResponse<Page<SearchProjectsResponse>> getCondProjects(@Validated @ModelAttribute SearchProjectCond searchProjectCond,
                                                                       @RequestParam("page") Integer page, @RequestParam("size") Integer size) {
-        if (page < 1) {
-            throw new BaseException(INVALID_PAGE);
-        }
-        if (size < 1) {
-            throw new BaseException(INVALID_PAGE);
-        }
-        return BaseResponse.of(PROJECT_SEARCH_CONDITION_OK, projectSearchService.getCondProjects(searchProjectCond, page - 1, size - 1));
+        PagingUtils.validatePage(page, size);
+        return BaseResponse.of(PROJECT_SEARCH_CONDITION_OK, projectSearchService.getCondProjects(searchProjectCond, PagingUtils.toPageIndex(page), size));
     }
-
 
     /**
      * 프로젝트 상세 조회 API
@@ -165,9 +138,8 @@ public class ProjectController {
             throw new BaseException(COMPANY_CANNOT_CREATE_PROJECT);
         }
         log.info("GitHub 프로젝트 생성 - 사용자: {} 프로젝트 이름: {}", user.getName(), createGithubProjectRequest.title());
-        return BaseResponse.of(PROJECT_CREATE_OK, projectService.createGithubProject(user, createGithubProjectRequest));
+        return BaseResponse.of(PROJECT_CREATE_OK, githubProjectService.createGithubProject(user, createGithubProjectRequest));
     }
-
 
     /**
      * 프로젝트 수정
@@ -207,6 +179,4 @@ public class ProjectController {
         log.info("프로젝트 삭제 - 사용자: {} 프로젝트 ID: {}", user.getName(), projectIdx);
         return BaseResponse.of(PROJECT_DELETE_OK, projectService.deleteProject(user, projectIdx));
     }
-
-
 }

@@ -6,9 +6,6 @@ import inha.git.user.api.controller.dto.response.ProfessorSignupResponse;
 import org.springframework.data.domain.Page;
 
 public interface ProfessorService {
-
     Page<SearchStudentResponse> getProfessorStudents(String search, Integer page);
     ProfessorSignupResponse professorSignup(ProfessorSignupRequest professorSignupRequest);
-
-
 }

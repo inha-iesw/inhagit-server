@@ -19,12 +19,12 @@ import java.util.Map;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 
-
 @Service
 @Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class StatisticsMigrationService {
+
     private final ProjectJpaRepository projectJpaRepository;
     private final StatisticsJpaRepository statisticsRepository;
     private final UserDepartmentJpaRepository userDepartmentRepository;
@@ -105,7 +105,6 @@ public class StatisticsMigrationService {
                 log.error("Error processing project {}: {}", project.getId(), e.getMessage());
             }
         }
-
         statisticsRepository.saveAll(statisticsMap.values());
         log.info("Statistics migration completed. Processed {} projects", projects.size());
     }

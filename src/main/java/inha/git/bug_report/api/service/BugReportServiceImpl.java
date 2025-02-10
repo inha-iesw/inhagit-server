@@ -26,7 +26,6 @@ import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
 import static inha.git.user.domain.enums.Role.ADMIN;
 
-
 /**
  * BugReportServiceImpl은 BugReportService 인터페이스를 구현하는 클래스.
  */

@@ -19,10 +19,12 @@ public record SearchUserResponse(
 
         @Schema(description = "유저 이메일", example = "ghkdrbgur13@inha.edu")
         String email,
+
         @NotEmpty
         @ValidName
         @Schema(description = "이름", example = "홍길동")
         String name,
+
         @NotNull
         @Schema(description = "직책", example = "2")
         Integer position,
@@ -50,7 +52,4 @@ public record SearchUserResponse(
                 user.getReportCount()
         );
     }
-
-
-
 }

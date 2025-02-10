@@ -23,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
 import static inha.git.common.code.status.SuccessStatus.*;
 
 /**
@@ -38,7 +37,6 @@ import static inha.git.common.code.status.SuccessStatus.*;
 public class NoticeController {
 
     private final NoticeService noticeService;
-    private final PagingUtils pagingUtils;
 
     /**
      * 전체 공지사항을 페이징하여 조회합니다.
@@ -52,9 +50,8 @@ public class NoticeController {
     @GetMapping
     @Operation(summary = "공지 조회 API", description = "공지를 조회합니다.")
     public BaseResponse<Page<SearchNoticesResponse>> getNotices(@RequestParam("page") Integer page, @RequestParam("size") Integer size) {
-        pagingUtils.validatePage(page);
-        pagingUtils.validateSize(size);
-        return BaseResponse.of(NOTICE_SEARCH_OK, noticeService.getNotices(pagingUtils.toPageIndex(page), pagingUtils.toPageSize(size)));
+        PagingUtils.validatePage(page, size);
+        return BaseResponse.of(NOTICE_SEARCH_OK, noticeService.getNotices(PagingUtils.toPageIndex(page), size));
     }
 
     /**

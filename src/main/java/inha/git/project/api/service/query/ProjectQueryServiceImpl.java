@@ -1,4 +1,4 @@
-package inha.git.project.api.service;
+package inha.git.project.api.service.query;
 
 import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.category.mapper.CategoryMapper;
@@ -18,7 +18,6 @@ import inha.git.project.domain.repository.ProjectUploadJpaRepository;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.semester.mapper.SemesterMapper;
 import inha.git.user.domain.User;
-import inha.git.user.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -42,16 +41,15 @@ import java.util.stream.Stream;
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.Constant.*;
 import static inha.git.common.code.status.ErrorStatus.*;
-import static inha.git.user.domain.enums.Role.ADMIN;
 
 /**
- * ProjectSearchService는 프로젝트 검색 관련 비즈니스 로직을 처리.
+ * ProjectQueryServiceImpl는 프로젝트 조회 관련 비즈니스 로직을 처리.
  */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 @Transactional(readOnly = true)
-public class ProjectSearchServiceImpl implements ProjectSearchService {
+public class ProjectQueryServiceImpl implements ProjectQueryService {
 
     private final ProjectJpaRepository projectJpaRepository;
     private final ProjectUploadJpaRepository projectUploadJpaRepository;
@@ -63,19 +61,6 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
     private final ProjectLikeJpaRepository projectLikeJpaRepository;
     private final FoundingRecommendJpaRepository foundingRecommendJpaRepository;
     private final RegistrationRecommendJpaRepository registrationRecommendJpaRepository;
-
-    /**
-     * 프로젝트 전체 조회
-     *
-     * @param page 페이지 번호
-     * @param size 페이지 사이즈
-     * @return 검색된 프로젝트 정보 페이지
-     */
-    @Override
-    public Page<SearchProjectsResponse> getProjects(Integer page, Integer size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, CREATE_AT));
-        return projectQueryRepository.getProjects(pageable);
-    }
 
     /**
      * 프로젝트 조건 조회
@@ -106,7 +91,6 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
             throw new BaseException(PROJECT_NOT_PUBLIC);
         }
 
-
         ProjectUpload projectUpload = getProjectUploadIfNeeded(project, projectIdx);
         SearchSemesterResponse searchSemesterResponse = semesterMapper.semesterToSearchSemesterResponse(project.getSemester());
         SearchCategoryResponse searchCategoryResponse = categoryMapper.categoryToCategoryResponse(project.getCategory());
@@ -125,8 +109,9 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
         SearchRecommendState searchRecommendState = projectMapper.projectToSearchRecommendState
                 (isLike, isRecommendFounding, isRecommendRegistration);
 
+        SearchPatentSummaryResponse searchPatentSummaryResponse = projectMapper.projectToSearchPatentSummaryResponse(project);
         return projectMapper.projectToSearchProjectResponse(
-                project, projectUpload, searchFieldResponses, searchRecommendCountResponse, searchUserResponse, searchRecommendState, searchSemesterResponse, searchCategoryResponse
+                project, projectUpload, searchFieldResponses, searchRecommendCountResponse, searchUserResponse, searchRecommendState, searchSemesterResponse, searchCategoryResponse, searchPatentSummaryResponse
         );
     }
 
@@ -139,8 +124,6 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
      */
     @Override
     public List<SearchFileResponse> getProjectFileByIdx(User user, Integer projectIdx, String path) {
-
-
         if (path.contains("..") || path.contains("\0")) {
             throw new BaseException(INVALID_FILE_PATH);
         }
@@ -150,8 +133,6 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
         if (!hasAccessToProject(project, user)) {
             throw new BaseException(PROJECT_NOT_PUBLIC);
         }
-
-
         ProjectUpload projectUpload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         String absoluteFilePath = BASE_DIR_SOURCE + projectUpload.getDirectoryName() + '/' + path;
@@ -195,24 +176,11 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
         }
     }
 
-    /**
-     * 프로젝트 찾아오는 함수
-     *
-     * @param projectIdx 프로젝트 번호
-     * @return Project 프로젝트
-     */
     private Project findProject(Integer projectIdx) {
         return projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
     }
 
-
-    /**
-     * 파일 정보를 SearchFileResponse로 변환
-     *
-     * @param path 파일 경로
-     * @return 파일 정보
-     */
     private SearchFileResponse mapToFileResponse(Path path) {
         if (Files.isDirectory(path)) {
             return new SearchDirectoryResponse(
@@ -268,7 +236,6 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
                 return Files.readString(filePath);
             }
         }
-
         // MIME 타입을 확인할 수 없을 때 기본적으로 텍스트 파일로 처리
         if (contentType == null || contentType.startsWith("text")) {
             return Files.readString(filePath);
@@ -277,14 +244,6 @@ public class ProjectSearchServiceImpl implements ProjectSearchService {
         return null;
     }
 
-
-    /**
-     * 프로젝트 업로드 정보 조회
-     *
-     * @param project 프로젝트
-     * @param projectIdx 프로젝트 번호
-     * @return 프로젝트 업로드 정보
-     */
     private ProjectUpload getProjectUploadIfNeeded(Project project, Integer projectIdx) {
         if (project.getRepoName() == null) {
             return projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)

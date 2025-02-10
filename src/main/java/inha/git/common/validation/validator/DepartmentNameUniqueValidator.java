@@ -12,7 +12,6 @@ import static inha.git.common.BaseEntity.State.ACTIVE;
 /**
  * 학과 이름 중복 검증을 위한 Validator.
  */
-
 @Component
 @RequiredArgsConstructor
 public class DepartmentNameUniqueValidator implements ConstraintValidator<DepartmentNameUnique, String> {

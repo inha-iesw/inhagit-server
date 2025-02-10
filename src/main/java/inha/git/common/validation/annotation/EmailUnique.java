@@ -1,6 +1,5 @@
 package inha.git.common.validation.annotation;
 
-
 import inha.git.common.validation.validator.EmailUniqueValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

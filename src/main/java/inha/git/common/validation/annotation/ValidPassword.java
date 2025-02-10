@@ -14,6 +14,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidPassword {
+
     String message() default "8~20글자, 하나 이상의 알파벳, 숫자, 특수 문자가 포함된 비밀번호를 입력하세요.";
 
     Class<?>[] groups() default {};

@@ -10,7 +10,6 @@ import lombok.*;
 import java.util.HashSet;
 import java.util.Set;
 
-
 /**
  * Field 엔티티는 애플리케이션의 필드 정보를 나타냄.
  */
@@ -38,7 +37,6 @@ public class Field extends BaseEntity {
     @OneToMany(mappedBy = "field", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProjectField> projectFields = new HashSet<>();
 
-
     public void addProject(Project project) {
         ProjectField projectField = new ProjectField(new ProjectFieldId(project.getId(), this.id), project, this);
         projectFields.add(projectField);
@@ -46,5 +44,4 @@ public class Field extends BaseEntity {
             project.getProjectFields().add(projectField);  // 양방향 연관관계 설정
         }
     }
-
 }

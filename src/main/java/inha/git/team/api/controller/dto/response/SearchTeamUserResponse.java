@@ -22,6 +22,5 @@ public record SearchTeamUserResponse(
         @NotNull
         @Schema(description = "팀 가입일", example = "2021-08-01T00:00:00")
         LocalDateTime joinedAt
-
 ) {
 }

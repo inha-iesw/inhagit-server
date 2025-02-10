@@ -1,8 +1,11 @@
 package inha.git.common.config;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import inha.git.statistics.api.service.PatentExcelService;
+import inha.git.statistics.api.service.ProjectExcelService;
+import inha.git.statistics.api.service.QuestionExcelService;
+import inha.git.statistics.api.service.StatisticsExcelService;
+import inha.git.statistics.domain.enums.ExcelType;
 import inha.git.user.domain.repository.UserJpaRepository;
 import inha.git.utils.ApplicationAuditAware;
 import jakarta.persistence.EntityManager;
@@ -19,8 +22,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import static inha.git.common.BaseEntity.State.ACTIVE;
+import java.util.Map;
 
+import static inha.git.common.BaseEntity.State.ACTIVE;
 
 @Configuration
 @RequiredArgsConstructor
@@ -62,6 +66,16 @@ public class AppConfig {
     return new JPAQueryFactory(em);
   }
 
-
-
+  @Bean
+  public Map<ExcelType, StatisticsExcelService> excelServices(
+          ProjectExcelService projectExcelService,
+          PatentExcelService patentExcelService,
+          QuestionExcelService questionExcelService
+  ) {
+    return Map.of(
+            ExcelType.PROJECT, projectExcelService,
+            ExcelType.PATENT, patentExcelService,
+            ExcelType.QUESTION, questionExcelService
+    );
+  }
 }

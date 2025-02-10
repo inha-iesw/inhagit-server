@@ -12,12 +12,10 @@ import java.io.IOException;
 import java.util.List;
 
 public interface StatisticsService {
-
     void adjustCount(User user, List<Field> fields, Semester semester, Category category, Integer type, boolean isIncrease);
-
     ProjectStatisticsResponse getProjectStatistics(SearchCond searchCond);
     QuestionStatisticsResponse getQuestionStatistics(SearchCond searchCond);
-
     List<BatchCollegeStatisticsResponse> getBatchStatistics();
+    List<PatentStatisticsResponse> getPatentStatistics();
 
 }

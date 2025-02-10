@@ -12,7 +12,6 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE, imports = { EmailMapperUtil.class })
 public interface AuthMapper {
 
-
     /**
      * User 엔티티를 LoginResponse로 변환
      *
@@ -23,14 +22,12 @@ public interface AuthMapper {
     @Mapping(source = "user.id", target = "userId")
     LoginResponse userToLoginResponse(User user, String accessToken);
 
-
     /**
      * User 엔티티를 FindEmailResponse로 변환
      *
      * @param user 회원 정보
      * @return FindEmailResponse
      */
-
     @Mapping(expression = "java(EmailMapperUtil.maskEmail(user.getEmail()))", target = "email")
     FindEmailResponse userToFindEmailResponse(User user);
 

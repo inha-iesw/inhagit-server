@@ -18,6 +18,7 @@ public record SearchQuestionCond(
 
         @Schema(description = "분야 인덱스", example = "1")
         Integer fieldIdx,
+
         @Schema(description = "과목", example = "과목명")
         String subject,
 

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record UpdateCommentRequest(
+
         @NotNull
         @Size(min = 1, max = 1000)
         @ValidParameter

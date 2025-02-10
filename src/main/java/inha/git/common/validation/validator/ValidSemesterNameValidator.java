@@ -20,8 +20,8 @@ public class ValidSemesterNameValidator implements ConstraintValidator<ValidSeme
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null) {
-            return false; // null은 허용하지 않음
+            return false;
         }
-        return value.matches(SEMESTER_NAME_REGEX); // 정규식에 맞는지 확인
+        return value.matches(SEMESTER_NAME_REGEX);
     }
 }

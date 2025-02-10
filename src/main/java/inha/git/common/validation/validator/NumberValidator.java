@@ -9,7 +9,6 @@ import jakarta.validation.ConstraintValidatorContext;
  */
 public class NumberValidator implements ConstraintValidator<ValidNumber, String> {
 
-    // 숫자만 정규표현식
     private static final String NUMBER_REGEX = "^[0-9]+$";
 
     @Override

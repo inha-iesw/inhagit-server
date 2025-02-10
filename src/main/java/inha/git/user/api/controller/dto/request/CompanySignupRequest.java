@@ -4,11 +4,11 @@ import inha.git.common.validation.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
-
 /**
  * SignupRequest는 회원 가입 요청 정보를 담는 DTO 클래스.
  */
 public record CompanySignupRequest(
+
         @NotEmpty(message = "이메일은 필수 입력 항목입니다.")
         @EmailUnique
         @Email

@@ -44,7 +44,6 @@ public class SemesterController {
         return BaseResponse.of(SEMESTER_SEARCH_OK, semesterService.getSemesters());
     }
 
-
     /**
      * 새로운 학기를 생성합니다.<br>
      *

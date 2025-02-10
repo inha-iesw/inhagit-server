@@ -15,15 +15,18 @@ public record CreateGithubProjectRequest(
         @ValidParameter
         @Schema(description = "프로젝트 제목", example = "프로젝트 제목")
         String title,
+
         @NotNull(message = "내용을 입력해주세요.")
         @ValidParameter
         @Schema(description = "프로젝트 내용", example = "프로젝트 내용")
         String contents,
+
         @NotNull(message = "프로젝트 주제를 작성해주세요.")
         @Size(min = 1, max = 30)
         @ValidParameter
         @Schema(description = "프로젝트 주제", example = "프로젝트 주제")
         String subject,
+
         @NotNull(message = "분야를 선택해주세요.")
         @Size(min = 1, max = 1, message = "하나의 분야만 선택해야 합니다.")
         @Schema(description = "분야 인덱스 리스트", example = "[1]")
@@ -46,7 +49,5 @@ public record CreateGithubProjectRequest(
         @NotNull
         @Schema(description = "공개 여부", example = "true")
         Boolean isPublic
-
-
 ) {
 }

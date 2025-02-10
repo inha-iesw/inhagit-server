@@ -61,7 +61,6 @@ public class ReportServiceImpl implements ReportService{
     private final ReportMapper reportMapper;
     private final IdempotentProvider idempotentProvider;
 
-
     /**
      * 신고 타입 조회
      *
@@ -95,22 +94,17 @@ public class ReportServiceImpl implements ReportService{
 
         ReportType reportType = reportTypeJpaRepository.findById(createReportRequest.reportTypeId())
                 .orElseThrow(() -> new BaseException(REPORT_TYPE_NOT_FOUND));
-
         User reportedUser = validateReportType(user.getId(), createReportRequest.reportedId(), reportType);
         reportedUser.increaseReportCount();
         userJpaRepository.save(reportedUser);
-
         ReportReason reportReason = reportReasonJpaRepository.findById(createReportRequest.reportReasonId())
                 .orElseThrow(() -> new BaseException(REPORT_REASON_NOT_FOUND));
-
         if (reportJpaRepository.existsByReporterIdAndReportedUserIdAndReportedIdAndReportTypeAndState(
                 user.getId(), reportedUser.getId(), createReportRequest.reportedId(), reportType, ACTIVE)) {
             throw new BaseException(DUPLICATE_REPORT);
         }
-
         Report report = reportMapper.createReportRequestToReport(user, reportedUser,  createReportRequest, reportType, reportReason);
         Report savedReport = reportJpaRepository.save(report);
-        // 5. 응답 변환 및 반환
         return reportMapper.toReportResponse(savedReport);
     }
 
@@ -135,7 +129,6 @@ public class ReportServiceImpl implements ReportService{
                 .orElseThrow(() -> new BaseException(NOT_FIND_USER));
         reportedUser.decreaseReportCount();
         userJpaRepository.save(reportedUser);
-
         report.setDeletedAt();
         report.setState(INACTIVE);
         Report savedReport = reportJpaRepository.save(report);
@@ -189,6 +182,5 @@ public class ReportServiceImpl implements ReportService{
             default:
                 throw new BaseException(REPORT_TYPE_NOT_FOUND);
         }
-
     }
 }

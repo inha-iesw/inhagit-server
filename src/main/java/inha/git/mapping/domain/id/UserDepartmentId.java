@@ -19,6 +19,6 @@ import java.io.Serializable;
 public class UserDepartmentId implements Serializable {
 
     private Integer userId;
-    private Integer departmentId;
 
+    private Integer departmentId;
 }

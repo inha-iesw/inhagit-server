@@ -48,7 +48,6 @@ public class SearchController {
         if (search == null || search.trim().isEmpty()) {
             throw new BaseException(INVALID_SEARCH_QUERY); // 검색어가 null이거나 빈 문자열일 경우
         }
-
         if (search.startsWith(" ")) {
             throw new BaseException(INVALID_SEARCH_QUERY); // 검색어가 공백으로 시작하는 경우
         }
@@ -59,5 +58,4 @@ public class SearchController {
         log.info("게시글 검색 - 사용자: {} 검색어: {}", user.getName(), search);
         return BaseResponse.of(SEARCH_OK, searchService.search(search, page - 1, type));
     }
-
 }

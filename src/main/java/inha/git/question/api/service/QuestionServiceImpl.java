@@ -123,7 +123,6 @@ public class QuestionServiceImpl implements QuestionService {
         return questionMapper.questionToSearchQuestionResponse(question, searchFieldResponses, searchUserResponse, searchSemesterResponse, likeState);
     }
 
-
     /**
      * 질문 생성
      *
@@ -141,15 +140,12 @@ public class QuestionServiceImpl implements QuestionService {
 
         idempotentProvider.isValidIdempotent(List.of("createQuestion", user.getName(), user.getId().toString(), createQuestionRequest.title(), createQuestionRequest.contents(), createQuestionRequest.subject()));
 
-
         Semester semester = semesterJpaRepository.findByIdAndState(createQuestionRequest.semesterIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
         Category category = categoryJpaRepository.findByNameAndState(CURRICULUM, ACTIVE)
                     .orElseThrow(() -> new BaseException(CATEGORY_NOT_FOUND));
-
         Question question = questionMapper.createQuestionRequestToQuestion(createQuestionRequest, user, semester, category);
         Question saveQuestion = questionJpaRepository.save(question);
-
         List<QuestionField> questionFields = createAndSaveQuestionFields(createQuestionRequest.fieldIdxList(), saveQuestion);
         questionFieldJpaRepository.saveAll(questionFields);
         List<Field> fields = fieldJpaRepository.findAllById(createQuestionRequest.fieldIdxList());
@@ -178,40 +174,27 @@ public class QuestionServiceImpl implements QuestionService {
 
         Question question = questionJpaRepository.findByIdAndState(questionIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
-
         if (!question.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
             log.error("질문 수정 권한 없음 - 사용자: {} 질문 ID: {}", user.getName(), questionIdx);
             throw new BaseException(QUESTION_NOT_AUTHORIZED);
         }
-
-        // 변경 전 상태 저장
         Semester originSemester = question.getSemester();
         Category originCategory = question.getCategory();
-
         List<Field> originFields = question.getQuestionFields().stream()
                 .map(QuestionField::getField)
                 .toList();
-
-        // 새로운 학기 정보 가져오기
         Semester newSemester = semesterJpaRepository.findByIdAndState(updateQuestionRequest.semesterIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(SEMESTER_NOT_FOUND));
-
-        // 새로운 필드 정보 처리
         List<Integer> newFieldIds = updateQuestionRequest.fieldIdxList();
         List<Field> newFields = fieldJpaRepository.findAllById(newFieldIds);
 
-        // 질문 정보 업데이트
         questionMapper.updateQuestionRequestToQuestion(updateQuestionRequest, question, newSemester, originCategory);
 
-        // 필드 정보 업데이트 (최적화된 로직)
         Set<Integer> existingFieldIds = question.getQuestionFields().stream()
                 .map(qf -> qf.getField().getId())
                 .collect(Collectors.toSet());
-
         Set<Integer> newFieldIdSet = new HashSet<>(newFieldIds);
 
-
-        // 삭제해야 할 분야 처리
         existingFieldIds.stream()
                 .filter(id -> !newFieldIdSet.contains(id))
                 .forEach(id -> {
@@ -224,8 +207,6 @@ public class QuestionServiceImpl implements QuestionService {
                         questionFieldJpaRepository.delete(questionField);
                     }
                 });
-
-        // 새로 추가해야 할 분야 처리
         newFieldIdSet.stream()
                 .filter(id -> !existingFieldIds.contains(id))
                 .forEach(id -> {
@@ -235,18 +216,15 @@ public class QuestionServiceImpl implements QuestionService {
                     question.getQuestionFields().add(newQuestionField);
                     questionFieldJpaRepository.save(newQuestionField);
                 });
-
         Question savedQuestion = questionJpaRepository.save(question);
 
-        // 통계 업데이트
-        // 이전 상태에 대한 통계 감소
         statisticsService.adjustCount(user, originFields, originSemester, originCategory, 3, false);
-        // 새로운 상태에 대한 통계 증가
         statisticsService.adjustCount(user, newFields, newSemester, originCategory, 3, true);
 
         log.info("질문 수정 성공 - 사용자: {} 질문 ID: {}", user.getName(), savedQuestion.getId());
         return questionMapper.questionToQuestionResponse(savedQuestion);
     }
+
     /**
      * 질문 삭제
      *
@@ -329,13 +307,6 @@ public class QuestionServiceImpl implements QuestionService {
         }
     }
 
-    /**
-     * 질문 생성시 필드 생성
-     *
-     * @param fieldIdxList List<Integer>
-     * @param question     Question
-     * @return List<QuestionField>
-     */
     private List<QuestionField> createAndSaveQuestionFields(List<Integer> fieldIdxList, Question question) {
         return fieldIdxList.stream()
                 .map(fieldIdx -> {

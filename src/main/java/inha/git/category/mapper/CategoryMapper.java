@@ -18,11 +18,8 @@ public interface CategoryMapper {
     @Mapping(target = "id", ignore = true)
     Category createCategoryRequestToSemester(CreateCategoryRequest createCategoryRequest);
 
-
     @Mapping(source = "category.id", target = "idx")
     SearchCategoryResponse categoryToCategoryResponse(Category category);
 
     List<SearchCategoryResponse> categoriesToSearchCategoryResponses(List<Category> categoryList);
-
-
 }

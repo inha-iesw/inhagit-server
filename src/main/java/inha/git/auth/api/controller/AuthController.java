@@ -32,7 +32,6 @@ public class AuthController {
     private final AuthService authService;
     private final MailService mailService;
 
-
     /**
      * 회원가입 및 인증을 위한 이메일 인증번호를 발송합니다.
      *
@@ -92,7 +91,6 @@ public class AuthController {
         log.info("아이디 찾기 시도 학번 : {} 이름 : {}", findEmailRequest.userNumber(), findEmailRequest.name());
         return BaseResponse.of(FIND_EMAIL_OK, authService.findEmail(findEmailRequest));
     }
-
 
     /**
      * 비밀번호 찾기를 위한 이메일 인증번호를 발송합니다.

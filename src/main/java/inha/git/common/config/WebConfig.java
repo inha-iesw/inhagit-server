@@ -21,7 +21,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowCredentials(true);
     }
 
-
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/api/v1/banner/**")
@@ -39,5 +38,4 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/api/v1/attachment/**")
                 .addResourceLocations(fileUrl + "/attachment/");
     }
-
 }

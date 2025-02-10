@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import static inha.git.common.Constant.*;
 
-
 /**
  * 기업 관련 비즈니스 로직을 처리하는 서비스 구현체입니다.
  * 기업 회원가입과 관련된 도메인 로직을 수행합니다.

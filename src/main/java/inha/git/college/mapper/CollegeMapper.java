@@ -15,7 +15,6 @@ import java.util.List;
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface CollegeMapper {
 
-
     /**
      * CreateCollegeRequest를 College 엔티티로 변환
      *
@@ -25,10 +24,8 @@ public interface CollegeMapper {
     @Mapping(target = "id", ignore = true)
     College createCollegeRequestToCollege(CreateCollegeRequest createDepartmentRequest);
 
-
     @Mapping(source = "college.id", target = "idx")
     SearchCollegeResponse collegeToSearchCollegeResponse(College college);
 
     List<SearchCollegeResponse> collegesToSearchCollegeResponses(List<College> collegeList);
-
 }

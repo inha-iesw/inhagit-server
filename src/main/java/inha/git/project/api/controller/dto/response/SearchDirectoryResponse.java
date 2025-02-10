@@ -4,8 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
-
 public record SearchDirectoryResponse(
+
         @NotNull
         @Schema(description = "폴더 이름", example = "src")
         String name,
@@ -21,6 +21,7 @@ public record SearchDirectoryResponse(
         public SearchDirectoryResponse(String name, List<SearchFileResponse> fileList) {
                 this(name, "directory", fileList);  // type을 "directory"로 설정
         }
+
         @Override
         public String getName() {
                 return name;

@@ -8,7 +8,6 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-
 /**
  * TeamUser 엔티티는 애플리케이션의 팀과 유저 매핑 정보를 나타냄.
  */
@@ -33,7 +32,6 @@ public class TeamUser {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
 
     @Column(nullable = false, name = "created_at")
     private LocalDateTime createdAt;

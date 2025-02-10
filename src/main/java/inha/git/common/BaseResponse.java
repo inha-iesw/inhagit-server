@@ -25,7 +25,6 @@ public class BaseResponse<T> {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private T result;
 
-
     /**
      * 요청이 성공한 경우의 응답을 생성.
      *
@@ -46,9 +45,8 @@ public class BaseResponse<T> {
      * @return 성공한 경우의 BaseResponse 객체
      */
     public static <T> BaseResponse<T> of(BaseCode code, T result){
-        return new BaseResponse<>(true, code.getReasonHttpStatus().getCode() , code.getReasonHttpStatus().getMessage(), result);
+        return new BaseResponse<>(true, code.getReasonHttpStatus().code() , code.getReasonHttpStatus().message(), result);
     }
-
 
     /**
      * 요청이 실패한 경우의 응답을 생성.

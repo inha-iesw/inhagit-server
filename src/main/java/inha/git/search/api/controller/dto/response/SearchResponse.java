@@ -28,12 +28,12 @@ public record SearchResponse(
         SearchUserResponse author,
 
         SearchSemesterResponse semester,
+
         @Schema(description = "과목", example = "클라우드컴퓨팅")
         String subject,
 
         @Schema(description = "좋아요 수", example = "1")
         Integer likeCount,
-
 
         List<SearchFieldResponse> fieldList,
 

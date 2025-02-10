@@ -19,6 +19,6 @@ import java.io.Serializable;
 public class QuestionCommentLikeId implements Serializable {
 
     private Integer questionCommentId;
-    private Integer userId;
 
+    private Integer userId;
 }

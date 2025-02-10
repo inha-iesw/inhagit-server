@@ -6,8 +6,6 @@ import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-
-
 /**
  * UserDepartment 엔티티는 애플리케이션의 유저와 학과 매핑 정보를 나타냄.
  */
@@ -38,5 +36,4 @@ public class UserDepartment {
         this.department = department;
         this.id = new UserDepartmentId(user.getId(), department.getId());
     }
-
 }

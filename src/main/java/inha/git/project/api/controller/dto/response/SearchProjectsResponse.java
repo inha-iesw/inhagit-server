@@ -9,9 +9,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record SearchProjectsResponse(
+
         @NotNull
         @Schema(description = "프로젝트 인덱스", example = "1")
         Integer idx,
+
         @NotNull
         @Schema(description = "프로젝트 제목", example = "프로젝트 제목")
         String title,
@@ -46,10 +48,12 @@ public record SearchProjectsResponse(
         @Schema(description = "공개 여부", example = "true")
         Boolean isPublic,
 
-
         @NotNull
         List<SearchFieldResponse> fieldList,
+
         @NotNull
-        SearchUserResponse author
+        SearchUserResponse author,
+
+        SearchPatentSummaryResponse patent
 ) {
 }

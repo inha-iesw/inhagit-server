@@ -15,7 +15,6 @@ public class TeamNameLanguageValidator implements ConstraintValidator<TeamNameLa
     public void initialize(TeamNameLanguage constraintAnnotation) {
     }
 
-
     /**
      * 팀 이름이 한글 또는 영어로만 생성되는지 검증.
      *

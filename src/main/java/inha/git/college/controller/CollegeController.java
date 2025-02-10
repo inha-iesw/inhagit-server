@@ -74,7 +74,6 @@ public class CollegeController {
         return BaseResponse.of(COLLEGE_CREATE_OK, collegeService.createCollege(user, createDepartmentRequest));
     }
 
-
     /**
      * 기존 단과대학의 정보를 수정합니다.
      *
@@ -112,5 +111,4 @@ public class CollegeController {
         log.info("단과대 삭제 - 관리자: {} 단과대 인덱스: {}", user.getName(), collegeIdx);
         return BaseResponse.of(DEPARTMENT_DELETE_OK, collegeService.deleteCollege(user, collegeIdx));
     }
-
 }

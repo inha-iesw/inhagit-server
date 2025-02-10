@@ -54,6 +54,4 @@ public class BannerServiceImpl implements BannerService{
         log.info("배너 생성 성공 - 관리자: {}", user.getName());
         return "배너가 등록되었습니다.";
     }
-
-
 }

@@ -6,6 +6,9 @@ import inha.git.bug_report.api.mapper.BugReportMapper;
 import inha.git.bug_report.domain.BugReport;
 import inha.git.bug_report.domain.repository.BugReportJpaRepository;
 import inha.git.common.exceptions.BaseException;
+import inha.git.project.api.controller.dto.response.PatentResponse;
+import inha.git.project.domain.ProjectPatent;
+import inha.git.project.domain.repository.ProjectPatentJpaRepository;
 import inha.git.user.domain.Company;
 import inha.git.user.domain.Professor;
 import inha.git.user.domain.User;
@@ -36,8 +39,8 @@ public class AdminApproveServiceImpl implements AdminApproveService {
     private final ProfessorJpaRepository professorJpaRepository;
     private final BugReportJpaRepository bugReportJpaRepository;
     private final BugReportMapper bugReportMapper;
+    private final ProjectPatentJpaRepository projectPatentJpaRepository;
     private final IdempotentProvider idempotentProvider;
-
 
     /**
      * 관리자 권한 부여
@@ -129,8 +132,6 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         log.info("교수 승인 취소 성공 - 관리자: {}, 승인할 유저: {}", admin.getName(), professorCancelRequest.userIdx());
         return professorCancelRequest.userIdx() + ": 교수 승인 취소 완료";
     }
-
-
 
     /**
      * 기업 승인
@@ -263,7 +264,6 @@ public class AdminApproveServiceImpl implements AdminApproveService {
 
         idempotentProvider.isValidIdempotent(List.of("userUnblockRequest", userUnblockRequest.userIdx().toString()));
 
-
         User user = getUser(userUnblockRequest.userIdx());
         if(user.getBlockedAt() == null) {
             log.error("이미 차단 해제된 유저입니다. - 관리자: {}, 차단할 유저: {}", user.getName(), userUnblockRequest.userIdx());
@@ -295,39 +295,57 @@ public class AdminApproveServiceImpl implements AdminApproveService {
     }
 
     /**
-     * 유저 조회
+     * 특허 승인
      *
-     * @param userIdx 유저 인덱스
-     * @return 유저
+     * @param user 사용자
+     * @param patentAcceptRequest 특허 승인 요청
+     * @return 특허 응답
      */
+    @Override
+    public PatentResponse acceptPatent(User user, PatentAcceptRequest patentAcceptRequest) {
+        idempotentProvider.isValidIdempotent(List.of("acceptPatent", user.getName(), user.getId().toString(), patentAcceptRequest.patentIdx().toString()));
+
+        ProjectPatent projectPatent = projectPatentJpaRepository.findByIdAndState(patentAcceptRequest.patentIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
+        projectPatent.setAcceptedAt(LocalDateTime.now());
+        ProjectPatent savedProjectPatent = projectPatentJpaRepository.save(projectPatent);
+        log.info("특허 승인 성공 - 사용자: {} 특허 ID: {}", user.getName(), projectPatent.getId());
+        return new PatentResponse(savedProjectPatent.getId());
+    }
+
+    /**
+     * 특허 취소
+     *
+     * @param user 사용자
+     * @param patentCancelRequest 특허 취소 요청
+     * @return 특허 응답
+     */
+    @Override
+    public PatentResponse cancelPatent(User user, PatentCancelRequest patentCancelRequest) {
+        idempotentProvider.isValidIdempotent(List.of("cancelPatent", user.getName(), user.getId().toString(), patentCancelRequest.patentIdx().toString()));
+
+        ProjectPatent projectPatent = projectPatentJpaRepository.findByIdAndState(patentCancelRequest.patentIdx(), ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
+        projectPatent.setAcceptedAt(null);
+        ProjectPatent savedProjectPatent = projectPatentJpaRepository.save(projectPatent);
+        log.info("특허 취소 성공 - 사용자: {} 특허 ID: {}", user.getName(), projectPatent.getId());
+        return new PatentResponse(savedProjectPatent.getId());
+    }
+
     private User getUser(Integer userIdx) {
         return userJpaRepository.findByIdAndState(userIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_FIND_USER));
     }
 
-    /**
-     * 교수 조회
-     *
-     * @param user 유저
-     * @return 교수
-     */
     private Professor getProfessor(User user) {
         return professorJpaRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new BaseException(NOT_PROFESSOR));
     }
 
-    /**
-     * 교수 유효성 검사
-     *
-     * @param professorCancelRequest 교수 승인 취소 요청
-     * @param user 유저
-     */
     private void validProfessor(ProfessorCancelRequest professorCancelRequest, User user) {
         if(user.getRole() != Role.PROFESSOR) {
             log.error("교수가 아닙니다. - 관리자: {}, 승인할 유저: {}", user.getName(), professorCancelRequest.userIdx());
             throw new BaseException(NOT_PROFESSOR);
         }
     }
-
-
 }

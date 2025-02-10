@@ -11,11 +11,13 @@ import inha.git.field.domain.repository.FieldJpaRepository;
 import inha.git.mapping.domain.UserDepartment;
 import inha.git.mapping.domain.repository.UserDepartmentJpaRepository;
 import inha.git.project.domain.repository.ProjectJpaRepository;
+import inha.git.project.domain.repository.ProjectPatentJpaRepository;
 import inha.git.question.domain.repository.QuestionJpaRepository;
 import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
 import inha.git.statistics.api.controller.dto.response.BatchCollegeStatisticsResponse;
+import inha.git.statistics.api.controller.dto.response.PatentStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
 import inha.git.statistics.domain.Statistics;
@@ -32,7 +34,6 @@ import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
-
 
 /**
  * StatisticsServiceImpl은 통계 관련 비즈니스 로직을 처리한다.
@@ -52,10 +53,11 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final CategoryJpaRepository categoryJpaRepository;
     private final ProjectJpaRepository projectJpaRepository;
     private final QuestionJpaRepository questionJpaRepository;
+    private final ProjectPatentJpaRepository projectPatentJpaRepository;
+    private final PatentStatisticsQueryRepository patentStatisticsQueryRepository;
     private final ProjectStatisticsQueryRepository projectStatisticsQueryRepository;
     private final QuestionStatisticsQueryRepository questionStatisticsQueryRepository;
     private final BatchStatisticsQueryRepository batchStatisticsQueryRepository;
-
 
     /**
      * 사용자 통계 정보를 증가시킨다.
@@ -67,10 +69,8 @@ public class StatisticsServiceImpl implements StatisticsService {
     public void adjustCount(User user, List<Field> fields, Semester semester, Category category, Integer type, boolean isIncrease) {
         // 전체 통계 업데이트
         updateStatistics(user, StatisticsType.TOTAL, null, semester, fields, category, type, isIncrease);
-
         // 유저 통계 업데이트
         updateStatistics(user, StatisticsType.USER, user.getId(), semester, fields, category, type, isIncrease);
-
         // 학과 및 단과대 통계 업데이트
         List<UserDepartment> userDepartments = userDepartmentJpaRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new BaseException(USER_DEPARTMENT_NOT_FOUND));
@@ -80,7 +80,6 @@ public class StatisticsServiceImpl implements StatisticsService {
             updateStatistics(user, StatisticsType.COLLEGE, userDepartment.getDepartment().getCollege().getId(), semester, fields, category, type, isIncrease);
         }
     }
-
 
     /**
      * 프로젝트 통계 정보를 조회한다.
@@ -94,8 +93,6 @@ public class StatisticsServiceImpl implements StatisticsService {
         validateSearchCond(searchCond);
         return projectStatisticsQueryRepository.getProjectStatistics(searchCond);
     }
-
-
 
     /**
      * 질문 통계 정보를 조회한다.
@@ -118,6 +115,17 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Transactional(readOnly = true)
     public List<BatchCollegeStatisticsResponse> getBatchStatistics() {
         return batchStatisticsQueryRepository.getBatchStatistics();
+    }
+
+    /**
+     * 특허 통계 정보를 조회한다.
+     *
+     * @return List<PatentStatisticsResponse>
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<PatentStatisticsResponse> getPatentStatistics() {
+        return patentStatisticsQueryRepository.getPatentStatistics();
     }
 
     private void validateSearchCond(SearchCond searchCond) {
@@ -172,6 +180,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                             .questionCount(0)
                             .projectParticipationCount(0)
                             .questionParticipationCount(0)
+                            .patentCount(0)
+                            .patentParticipationCount(0)
                             .build();
                     statisticsJpaRepository.save(statistics);
                 }
@@ -221,6 +231,19 @@ public class StatisticsServiceImpl implements StatisticsService {
                         }
                     }
                 }
+                case 4 -> {  // 특허
+                    if (isIncrease) {
+                        if (isFirstPatent(user, semester, field)) {
+                            statistics.incrementPatentParticipation();
+                        }
+                        statistics.incrementPatentCount();
+                    } else {
+                        statistics.decrementPatentCount();
+                        if (isLastPatent(user, semester, field)) {
+                            statistics.decrementPatentParticipation();
+                        }
+                    }
+                }
                 default -> throw new BaseException(INVALID_ACTION_TYPE);
             }
 
@@ -228,7 +251,6 @@ public class StatisticsServiceImpl implements StatisticsService {
             statisticsJpaRepository.save(statistics);
         }
     }
-
 
     private boolean isFirstProjectUpload(User user, Semester semester, Field field) {
         return projectJpaRepository.countByUserAndSemesterAndProjectFields_FieldAndState(user, semester, field, ACTIVE) == 1;
@@ -244,5 +266,15 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private boolean isLastQuestion(User user, Semester semester, Field field) {
         return questionJpaRepository.countByUserAndSemesterAndQuestionFields_FieldAndState(user, semester, field, ACTIVE) == 0;
+    }
+
+    private boolean isFirstPatent(User user, Semester semester, Field field) {
+        return projectPatentJpaRepository.countByProject_UserAndProject_SemesterAndProject_ProjectFields_FieldAndProject_State(
+                user, semester, field, ACTIVE) == 1;
+    }
+
+    private boolean isLastPatent(User user, Semester semester, Field field) {
+        return projectPatentJpaRepository.countByProject_UserAndProject_SemesterAndProject_ProjectFields_FieldAndProject_State(
+                user, semester, field, ACTIVE) == 0;
     }
 }

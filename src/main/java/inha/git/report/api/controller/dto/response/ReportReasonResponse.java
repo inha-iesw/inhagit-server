@@ -8,6 +8,7 @@ public record ReportReasonResponse(
         @NotNull
         @Schema(description = "신고 원인 ID", example = "1")
         Integer idx,
+
         @NotNull
         @Schema(description = "신고 원인 이름", example = "욕설")
         String name

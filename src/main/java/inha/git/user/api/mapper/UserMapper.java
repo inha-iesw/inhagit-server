@@ -1,6 +1,5 @@
 package inha.git.user.api.mapper;
 
-
 import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
 import inha.git.category.domain.Category;
 import inha.git.common.exceptions.BaseException;
@@ -84,7 +83,6 @@ public interface UserMapper {
     @Mapping(target = "acceptedAt", ignore = true)
     Company companySignupRequestToCompany(CompanySignupRequest companySignupRequest, String evidenceFilePath);
 
-
     /**
      * ProfessorSignupRequest를 Professor로 변환하는 메서드 정의
      *
@@ -121,8 +119,6 @@ public interface UserMapper {
     @Mapping(source = "user.id", target = "idx")
     CompanySignupResponse userToCompanySignupResponse(User user);
 
-
-
     /**
      * Department 엔티티를 SearchDepartmentResponse로 변환하는 메서드 정의
      *
@@ -140,7 +136,6 @@ public interface UserMapper {
      */
     List<SearchDepartmentResponse> departmentsToSearchDepartmentResponses(List<Department> departmentList);
 
-
     /**
      * User 엔티티를 SearchNonCompanyUserResponse로 변환하는 메서드 정의
      *
@@ -157,9 +152,9 @@ public interface UserMapper {
     @Mapping(source = "totalProjectCount", target = "projectNumber")
     @Mapping(source = "totalQuestionCount", target = "questionCommentNumber")
     @Mapping(source = "totalTeamCount", target = "belongTeamNumber")
+    @Mapping(source = "totalPatentCount", target = "patentNumber")
     @Mapping(expression = "java(EmailMapperUtil.maskEmail(user.getEmail()))", target = "email")
-    SearchNonCompanyUserResponse toSearchNonCompanyUserResponse(User user, Integer totalProjectCount, Integer totalQuestionCount, Integer totalTeamCount, List<SearchDepartmentResponse> departmentList, Integer position, Boolean githubTokenState);
-
+    SearchNonCompanyUserResponse toSearchNonCompanyUserResponse(User user, Integer totalProjectCount, Integer totalQuestionCount, Integer totalTeamCount, Integer totalPatentCount, List<SearchDepartmentResponse> departmentList, Integer position, Boolean githubTokenState);
 
     /**
      * User 엔티티를 SearchCompanyUserResponse로 변환하는 메서드 정의

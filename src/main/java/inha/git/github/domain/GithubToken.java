@@ -17,7 +17,6 @@ import lombok.*;
 @Table(name = "github_token_tb")
 public class GithubToken {
 
-
     @Id
     private String token;
 }

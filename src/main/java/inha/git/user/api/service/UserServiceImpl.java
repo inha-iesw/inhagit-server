@@ -87,13 +87,14 @@ public class UserServiceImpl implements UserService {
             int githubProjectCount = userStatistics.stream().mapToInt(Statistics::getGithubProjectCount).sum();
             int totalQuestionCount = userStatistics.stream().mapToInt(Statistics::getQuestionCount).sum();
             int totalTeamCount = userStatistics.stream().mapToInt(Statistics::getProjectParticipationCount).sum();  // 팀 참여 수는 프로젝트 참여 수로 대체
+            int totalPatentCount = userStatistics.stream().mapToInt(Statistics::getPatentCount).sum();
 
             List<SearchDepartmentResponse> searchDepartmentResponses = userMapper.departmentsToSearchDepartmentResponses(userDepartmentJpaRepository.findByUserId(user.getId())
                     .orElseThrow(() -> new BaseException(USER_STATISTICS_NOT_FOUND))
                     .stream()
                     .map(UserDepartment::getDepartment)
                     .toList());
-            return userMapper.toSearchNonCompanyUserResponse(user, localProjectCount + githubProjectCount, totalQuestionCount, totalTeamCount , searchDepartmentResponses, position, user.getGithubToken() != null);
+            return userMapper.toSearchNonCompanyUserResponse(user, localProjectCount + githubProjectCount, totalQuestionCount, totalTeamCount, totalPatentCount, searchDepartmentResponses, position, user.getGithubToken() != null);
         }
     }
 
@@ -124,7 +125,6 @@ public class UserServiceImpl implements UserService {
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
         return questionQueryRepository.getUserQuestions(findUser.getId(), pageable);
     }
-
 
     /**
      * 사용자 팀 조회
@@ -210,5 +210,4 @@ public class UserServiceImpl implements UserService {
         }
         return findUser;
     }
-
 }

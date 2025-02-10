@@ -1,6 +1,5 @@
 package inha.git.common.exceptions.handler;
 
-
 import inha.git.common.code.BaseErrorCode;
 import inha.git.common.exceptions.BaseException;
 

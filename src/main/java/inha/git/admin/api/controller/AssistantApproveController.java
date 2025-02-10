@@ -95,5 +95,4 @@ public class AssistantApproveController {
         log.info("조교 승격 취소 - 조교/교수/관리자: {}, 승격 취소할 학생: {}", user.getName(), assistantDemotionRequest.userIdx());
         return BaseResponse.of(ASSISTANT_PROMOTION_CANCEL_OK, adminApproveService.demotionStudent(user, assistantDemotionRequest));
     }
-
 }

@@ -12,6 +12,5 @@ public record UpdatePwRequest(
         @ValidParameter
         @Schema(description = "비밀번호", example = "password2@")
         String pw
-
 ) {
 }

@@ -9,8 +9,6 @@ import java.util.List;
 
 public interface GithubService {
     String updateGithubToken(User user, GitubTokenResquest gitubTokenResquest);
-
     List<GithubRepositoryResponse> getGithubRepositories(User user);
-
     List<SearchFileResponse> getGithubFiles(User user, Integer projectIdx, String path);
 }

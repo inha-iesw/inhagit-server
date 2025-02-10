@@ -10,4 +10,6 @@ public record ProfessorSignupResponse(
 
         @NotNull
         @Schema(description = "유저 아이디", example = "1")
-        Integer idx){ }
+        Integer idx
+){
+}
