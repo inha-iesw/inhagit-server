@@ -3,6 +3,7 @@ package inha.git.statistics.api.controller;
 import inha.git.common.BaseResponse;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
 import inha.git.statistics.api.controller.dto.response.BatchCollegeStatisticsResponse;
+import inha.git.statistics.api.controller.dto.response.PatentStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
 import inha.git.statistics.api.service.StatisticsExcelService;
@@ -69,6 +70,17 @@ public class StatisticsController {
     @Operation(summary = "질문 통계 조회 API", description = "질문 통계를 조회합니다.")
     public BaseResponse<QuestionStatisticsResponse> getQuestionStatistics(@Validated @ModelAttribute SearchCond searchCond) {
         return BaseResponse.of(QUESTION_STATISTICS_SEARCH_OK, statisticsService.getQuestionStatistics(searchCond));
+    }
+
+    /**
+     * 특허 통계 조회 API
+     *
+     * @return BaseResponse<List<PatentStatisticsResponse>>
+     */
+    @GetMapping("/patent")
+    @Operation(summary = "특허 통계 조회 API", description = "특허 통계를 조회합니다.")
+    public BaseResponse<List<PatentStatisticsResponse>> getPatentStatistics() {
+        return BaseResponse.of(PATENT_STATISTICS_SEARCH_OK, statisticsService.getPatentStatistics());
     }
 
     /**

@@ -17,6 +17,7 @@ import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.api.controller.dto.request.SearchCond;
 import inha.git.statistics.api.controller.dto.response.BatchCollegeStatisticsResponse;
+import inha.git.statistics.api.controller.dto.response.PatentStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.ProjectStatisticsResponse;
 import inha.git.statistics.api.controller.dto.response.QuestionStatisticsResponse;
 import inha.git.statistics.domain.Statistics;
@@ -53,6 +54,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final ProjectJpaRepository projectJpaRepository;
     private final QuestionJpaRepository questionJpaRepository;
     private final ProjectPatentJpaRepository projectPatentJpaRepository;
+    private final PatentStatisticsQueryRepository patentStatisticsQueryRepository;
     private final ProjectStatisticsQueryRepository projectStatisticsQueryRepository;
     private final QuestionStatisticsQueryRepository questionStatisticsQueryRepository;
     private final BatchStatisticsQueryRepository batchStatisticsQueryRepository;
@@ -113,6 +115,17 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Transactional(readOnly = true)
     public List<BatchCollegeStatisticsResponse> getBatchStatistics() {
         return batchStatisticsQueryRepository.getBatchStatistics();
+    }
+
+    /**
+     * 특허 통계 정보를 조회한다.
+     *
+     * @return List<PatentStatisticsResponse>
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public List<PatentStatisticsResponse> getPatentStatistics() {
+        return patentStatisticsQueryRepository.getPatentStatistics();
     }
 
     private void validateSearchCond(SearchCond searchCond) {
