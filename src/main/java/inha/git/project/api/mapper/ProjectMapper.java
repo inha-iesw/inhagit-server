@@ -331,7 +331,7 @@ public interface ProjectMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "acceptAt", ignore = true)
-    ProjectPatent toProjectPatent(CreatePatentRequest createPatentRequest, String evidence, Project project);
+    ProjectPatent toProjectPatent(CreatePatentRequest createPatentRequest, String evidence, String evidenceName,Project project);
 
     @Mapping(target = "idx", source = "projectPatent.id")
     PatentResponse toPatentResponse(ProjectPatent projectPatent);
@@ -370,6 +370,7 @@ public interface ProjectMapper {
                 projectPatent.getApplicantName(),
                 projectPatent.getApplicantEnglishName(),
                 projectPatent.getEvidence(),
+                projectPatent.getEvidenceName(),
                 projectPatent.getAcceptAt(),
                 toSearchInventorResponseList(inventors)
         );

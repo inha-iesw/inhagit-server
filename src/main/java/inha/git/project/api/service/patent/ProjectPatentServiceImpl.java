@@ -114,10 +114,12 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
                 .map(CreatePatentInventorRequest::share)
                 .toList());
         String evidence = null;
+        String evidenceName = null;
         if (file != null && !file.isEmpty()) {
             evidence = FilePath.storeFile(file, PATENT);
+            evidenceName = file.getOriginalFilename();
         }
-        ProjectPatent savePatent = projectPatentJpaRepository.save(projectMapper.toProjectPatent(createPatentRequest, evidence, project));
+        ProjectPatent savePatent = projectPatentJpaRepository.save(projectMapper.toProjectPatent(createPatentRequest, evidence, evidenceName, project));
         List<ProjectPatentInventor> inventors = projectMapper.toPatentInventor(createPatentRequest.inventors(), savePatent);
         inventors.forEach(projectPatentInventorJpaRepository::save);
 
@@ -230,7 +232,8 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
 
             // 새로운 파일 저장
             String storedFileUrl = FilePath.storeFile(file, PATENT);
-            projectPatent.setEvidence(storedFileUrl);
+            String storedFileName = file.getOriginalFilename();
+            projectPatent.setEvidence(storedFileUrl, storedFileName);
 
             // 트랜잭션 롤백 시 파일 삭제를 위한 콜백 등록
             TransactionSynchronizationManager.registerSynchronization(
