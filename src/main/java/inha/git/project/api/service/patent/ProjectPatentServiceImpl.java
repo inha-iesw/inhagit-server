@@ -13,6 +13,7 @@ import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectPatent;
 import inha.git.project.domain.ProjectPatentInventor;
+import inha.git.project.domain.enums.PatentType;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentInventorJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentJpaRepository;
@@ -59,17 +60,21 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
 
     @Override
     @Transactional(readOnly = true)
-    public SearchPatentResponse searchPatent(User user, Integer projectIdx) {
+    public SearchPatentResponse searchPatent(User user, Integer projectIdx, PatentType type) {
         // 프로젝트 조회
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
 
         // 특허 정보 확인
-        ProjectPatent projectPatent = Optional.ofNullable(project.getProjectPatent())
+        ProjectPatent projectPatent = project.getProjectPatents().stream()
+                .filter(p -> p.getPatentType() == type)
+                .findFirst()
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
+
         if(projectPatent.getState().equals(INACTIVE)) {
             throw new BaseException(NOT_EXIST_PATENT);
         }
+
         if (projectPatent.getAcceptAt() == null) {
             validateAuthorizationForUnacceptedPatent(user, project);
         }
@@ -98,7 +103,10 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         if(user.getId() != project.getUser().getId()) {
             throw new BaseException(USER_NOT_PROJECT_OWNER);
         }
-        if(project.getProjectPatent() != null) {
+
+        boolean isAlreadyRegistered = project.getProjectPatents().stream()
+                .anyMatch(patent -> patent.getPatentType() == createPatentRequest.patentType());
+        if (isAlreadyRegistered) {
             throw new BaseException(ALREADY_REGISTERED_PATENT);
         }
 
@@ -152,26 +160,27 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
      * 특허 삭제 메서드
      *
      * @param user 로그인한 사용자 정보
-     * @param projectIdx 프로젝트의 식별자
+     * @param patentIdx 삭제할 특허 ID
      * @return PatentResponse 특허 정보
      */
     @Override
-    public PatentResponse deletePatent(User user, Integer projectIdx) {
+    public PatentResponse deletePatent(User user, Integer patentIdx) {
         // 프로젝트 조회 및 권한 검증
-        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
-                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+        ProjectPatent projectPatent = projectPatentJpaRepository.findByIdAndState(patentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
 
+        Project project = projectPatent.getProject();
         if(user.getId() != project.getUser().getId() && user.getRole() != Role.ADMIN) {
             throw new BaseException(USER_NOT_PROJECT_OWNER);
         }
-
-        ProjectPatent projectPatent = Optional.ofNullable(project.getProjectPatent())
-                .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
 
         // 증빙 파일이 있다면 삭제
         if (projectPatent.getEvidence() != null) {
             FilePath.deleteFile(projectPatent.getEvidence());
         }
+
+        // 프로젝트와의 관계 제거
+        project.getProjectPatents().remove(projectPatent);
 
         // 발명자 정보 삭제
         projectPatentInventorJpaRepository.deleteAllByProjectPatent(projectPatent);
@@ -179,8 +188,7 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         // 특허 삭제
         projectPatentJpaRepository.delete(projectPatent);
 
-        // 프로젝트와의 관계 제거
-        project.setProjectPatent(null);
+
 
         List<Field> field = project.getProjectFields()
                 .stream()

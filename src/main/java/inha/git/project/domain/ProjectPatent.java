@@ -54,17 +54,12 @@ public class ProjectPatent extends BaseEntity {
     @Column(name = "accept_at", nullable = true)
     private LocalDateTime acceptAt; // 승인일
 
-    @OneToMany(mappedBy = "projectPatent", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "projectPatent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectPatentInventor> projectPatentInventors = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
-
-    public void setProject(Project project) {
-        this.project = project;
-        project.setProjectPatent(this); // 양방향 연관관계 설정
-    }
 
     public void setEvidence(String storedFileUrl) {
         this.evidence = storedFileUrl;
