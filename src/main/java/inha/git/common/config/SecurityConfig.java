@@ -53,6 +53,7 @@ public class SecurityConfig {
             "/api/v1/banner/**",
             "/api/v1/image/**",
             "/api/v1/evidence/**",
+            "/api/v1/patent/**",
             "/api/v1/problem-file/**",
             "/api/v1/project/**",
             "/api/v1project-zip/**",
