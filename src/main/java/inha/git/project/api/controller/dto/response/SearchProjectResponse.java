@@ -63,6 +63,6 @@ public record SearchProjectResponse(
         @NotNull
         SearchCategoryResponse category,
 
-        SearchPatentSummaryResponse patent
+        List<SearchPatentSummaryResponse> patent
 ) {
 }

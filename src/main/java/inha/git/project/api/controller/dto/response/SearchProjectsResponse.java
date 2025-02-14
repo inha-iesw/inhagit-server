@@ -54,6 +54,6 @@ public record SearchProjectsResponse(
         @NotNull
         SearchUserResponse author,
 
-        SearchPatentSummaryResponse patent
+        List<SearchPatentSummaryResponse> patent
 ) {
 }

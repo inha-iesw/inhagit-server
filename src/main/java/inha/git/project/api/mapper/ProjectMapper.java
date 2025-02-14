@@ -178,7 +178,7 @@ public interface ProjectMapper {
     @Mapping(target = "semester", source = "semester")
     @Mapping(target = "category", source = "category")
     @Mapping(target = "isPublic", source = "project.isPublic")
-    SearchProjectResponse projectToSearchProjectResponse(Project project, ProjectUpload projectUpload, List<SearchFieldResponse> fieldList, SearchRecommendCount recommendCount, SearchUserResponse author, SearchRecommendState recommendState, SearchSemesterResponse semester, SearchCategoryResponse category, SearchPatentSummaryResponse patent);
+    SearchProjectResponse projectToSearchProjectResponse(Project project, ProjectUpload projectUpload, List<SearchFieldResponse> fieldList, SearchRecommendCount recommendCount, SearchUserResponse author, SearchRecommendState recommendState, SearchSemesterResponse semester, SearchCategoryResponse category, List<SearchPatentSummaryResponse> patent);
 
     /**
      * FoundingRecommend 엔티티 생성
@@ -331,7 +331,7 @@ public interface ProjectMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "acceptAt", ignore = true)
-    ProjectPatent toProjectPatent(CreatePatentRequest createPatentRequest, String evidence, Project project);
+    ProjectPatent toProjectPatent(CreatePatentRequest createPatentRequest, String evidence, String evidenceName,Project project);
 
     @Mapping(target = "idx", source = "projectPatent.id")
     PatentResponse toPatentResponse(ProjectPatent projectPatent);
@@ -370,19 +370,18 @@ public interface ProjectMapper {
                 projectPatent.getApplicantName(),
                 projectPatent.getApplicantEnglishName(),
                 projectPatent.getEvidence(),
+                projectPatent.getEvidenceName(),
                 projectPatent.getAcceptAt(),
                 toSearchInventorResponseList(inventors)
         );
     }
 
-    default SearchPatentSummaryResponse projectToSearchPatentSummaryResponse(Project project) {
-        if (project.getProjectPatent() == null) {
-            return null;
-        }
-
-        return new SearchPatentSummaryResponse(
-                project.getProjectPatent().getId(),
-                project.getProjectPatent().getAcceptAt() != null
-        );
+    default List<SearchPatentSummaryResponse> projectToSearchPatentSummaryResponse(Project project) {
+        return project.getProjectPatents().stream()
+                .map(pp -> new SearchPatentSummaryResponse(
+                        pp.getId(),
+                        pp.getAcceptAt() != null
+                ))
+                .toList();
     }
 }
