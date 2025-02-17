@@ -32,6 +32,5 @@ public record PatentResponses(
         LocalDateTime createAt,
 
         SearchUserResponse user
-
 ) {
 }

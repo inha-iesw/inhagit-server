@@ -110,10 +110,10 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
                 patent.getApplicationDate(),
                 patent.getInventionTitle(),
                 patent.getInventionTitleEnglish(),
-                patent.getCreatedAt(),
                 new SearchUserResponse(patent.getProject().getUser().getId(),
                         patent.getProject().getUser().getName(),
                         mapRoleToPosition(patent.getProject().getUser().getRole()))
+                patent.getCreatedAt()
         ));
     }
 
