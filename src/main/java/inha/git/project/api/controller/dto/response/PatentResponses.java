@@ -29,6 +29,9 @@ public record PatentResponses(
         String inventionTitleEnglish,
 
         @Schema(description = "등록 날짜", example = "2021-10-01T00:00:00")
-        LocalDateTime createAt
+        LocalDateTime createAt,
+
+        SearchUserResponse user
+
 ) {
 }

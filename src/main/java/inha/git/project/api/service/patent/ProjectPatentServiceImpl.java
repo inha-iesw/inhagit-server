@@ -10,6 +10,7 @@ import inha.git.project.api.controller.dto.request.UpdatePatentRequest;
 import inha.git.project.api.controller.dto.response.PatentResponse;
 import inha.git.project.api.controller.dto.response.PatentResponses;
 import inha.git.project.api.controller.dto.response.SearchPatentResponse;
+import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectPatent;
@@ -39,6 +40,7 @@ import java.util.Optional;
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.Constant.PATENT;
+import static inha.git.common.Constant.mapRoleToPosition;
 import static inha.git.common.code.status.ErrorStatus.ALREADY_REGISTERED_PATENT;
 import static inha.git.common.code.status.ErrorStatus.FILE_PROCESS_ERROR;
 import static inha.git.common.code.status.ErrorStatus.INVALID_INVENTORS_SHARE;
@@ -108,7 +110,10 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
                 patent.getApplicationDate(),
                 patent.getInventionTitle(),
                 patent.getInventionTitleEnglish(),
-                patent.getCreatedAt()
+                patent.getCreatedAt(),
+                new SearchUserResponse(patent.getProject().getUser().getId(),
+                        patent.getProject().getUser().getName(),
+                        mapRoleToPosition(patent.getProject().getUser().getRole()))
         ));
     }
 
