@@ -1,9 +1,12 @@
 package inha.git.project.domain.repository;
 
 import inha.git.field.domain.Field;
+import inha.git.project.api.controller.dto.response.PatentResponses;
 import inha.git.project.domain.ProjectPatent;
 import inha.git.semester.domain.Semester;
 import inha.git.user.domain.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -116,4 +119,6 @@ public interface ProjectPatentJpaRepository extends JpaRepository<ProjectPatent,
             @Param("patentId") Integer patentId,
             @Param("state") State state
     );
+
+    Page<ProjectPatent> findByAcceptAtIsNotNullAndStateOrderByCreatedAtDesc(State state, Pageable pageable);
 }
