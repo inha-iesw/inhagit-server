@@ -8,6 +8,7 @@ import inha.git.project.api.controller.dto.request.CreatePatentRequest;
 import inha.git.project.api.controller.dto.request.UpdatePatentInventorRequest;
 import inha.git.project.api.controller.dto.request.UpdatePatentRequest;
 import inha.git.project.api.controller.dto.response.PatentResponse;
+import inha.git.project.api.controller.dto.response.PatentResponses;
 import inha.git.project.api.controller.dto.response.SearchPatentResponse;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
@@ -23,6 +24,9 @@ import inha.git.user.domain.enums.Role;
 import inha.git.utils.file.FilePath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
@@ -82,6 +86,30 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         List<ProjectPatentInventor> inventors = projectPatentInventorJpaRepository
                 .findAllByProjectPatentOrderByMainInventorDesc(projectPatent);
         return projectMapper.toSearchPatentResponse(projectPatent, inventors);
+    }
+
+    /**
+     * 특허 페이징 조회 메서드
+     *
+     * @param pageIndex 페이지 인덱스
+     * @param size 페이지 사이즈
+     * @return 특허 페이징 조회 결과
+     */
+    @Transactional(readOnly = true)
+    public Page<PatentResponses> searchPatentPage(Integer pageIndex, Integer size) {
+        Pageable pageable = PageRequest.of(pageIndex, size);
+        Page<ProjectPatent> patentPage = projectPatentJpaRepository.findByAcceptAtIsNotNullAndStateOrderByCreatedAtDesc(ACTIVE, pageable);
+
+        return patentPage.map(patent -> new PatentResponses(
+                patent.getId(),
+                patent.getProject().getId(),
+                patent.getApplicationNumber(),
+                patent.getPatentType(),
+                patent.getApplicationDate(),
+                patent.getInventionTitle(),
+                patent.getInventionTitleEnglish(),
+                patent.getCreatedAt()
+        ));
     }
 
     /**
