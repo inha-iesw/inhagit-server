@@ -109,7 +109,7 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
         SearchRecommendState searchRecommendState = projectMapper.projectToSearchRecommendState
                 (isLike, isRecommendFounding, isRecommendRegistration);
 
-        SearchPatentSummaryResponse searchPatentSummaryResponse = projectMapper.projectToSearchPatentSummaryResponse(project);
+        List<SearchPatentSummaryResponse> searchPatentSummaryResponse = projectMapper.projectToSearchPatentSummaryResponse(project);
         return projectMapper.projectToSearchProjectResponse(
                 project, projectUpload, searchFieldResponses, searchRecommendCountResponse, searchUserResponse, searchRecommendState, searchSemesterResponse, searchCategoryResponse, searchPatentSummaryResponse
         );

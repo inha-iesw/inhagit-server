@@ -69,6 +69,7 @@ public class ProjectQueryRepository {
         List<Project> projects = query.fetch();
         long total = query.fetchCount();
         // SearchProjectsResponse 변환
+
         List<SearchProjectsResponse> content = projects.stream()
                 .map(p -> new SearchProjectsResponse(
                         p.getId(),
@@ -96,10 +97,13 @@ public class ProjectQueryRepository {
                                 p.getUser().getName(),
                                 mapRoleToPosition(p.getUser().getRole())
                         ),
-                        new SearchPatentSummaryResponse(
-                                p.getProjectPatent() != null ? p.getProjectPatent().getId() : null,
-                                p.getProjectPatent() != null && p.getProjectPatent().getAcceptAt() != null
-                        ))).toList();
+                        p.getProjectPatents().stream()
+                                .map(pp -> new SearchPatentSummaryResponse(
+                                        pp.getId(),
+                                        pp.getAcceptAt() != null,
+                                        pp.getPatentType()
+                                ))
+                                .toList())).toList();
         return new PageImpl<>(content, pageable, total);
     }
 
@@ -148,9 +152,9 @@ public class ProjectQueryRepository {
 
         if (searchProjectCond.isPatent() != null) {
             if (searchProjectCond.isPatent()) {
-                condition = condition.and(project.projectPatent.isNotNull());
+                condition = condition.and(project.projectPatents.isNotEmpty());
             } else {
-                condition = condition.and(project.projectPatent.isNull());
+                condition = condition.and(project.projectPatents.isEmpty());
             }
         }
 
@@ -202,11 +206,13 @@ public class ProjectQueryRepository {
                                 p.getUser().getName(),
                                 mapRoleToPosition(p.getUser().getRole())
                         ),
-                        new SearchPatentSummaryResponse(
-                                p.getProjectPatent() != null ? p.getProjectPatent().getId() : null,
-                                p.getProjectPatent() != null && p.getProjectPatent().getAcceptAt() != null
-                        )
-                ))
+                        p.getProjectPatents().stream()
+                                .map(pp -> new SearchPatentSummaryResponse(
+                                        pp.getId(),
+                                        pp.getAcceptAt() != null,
+                                        pp.getPatentType()
+                                ))
+                                .toList()))
                 .toList();
 
         return new PageImpl<>(content, pageable, total);

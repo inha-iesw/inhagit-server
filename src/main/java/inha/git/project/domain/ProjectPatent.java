@@ -47,6 +47,9 @@ public class ProjectPatent extends BaseEntity {
     @Column(name = "evidence")
     private String evidence; // 증빙 파일
 
+    @Column(name = "evidence_name")
+    private String evidenceName; // 증빙 파일명
+
     @Column(name = "patent_type", nullable = false, length = 20)
     @Enumerated(EnumType.STRING)
     private PatentType patentType; // 특허 유형
@@ -54,20 +57,16 @@ public class ProjectPatent extends BaseEntity {
     @Column(name = "accept_at", nullable = true)
     private LocalDateTime acceptAt; // 승인일
 
-    @OneToMany(mappedBy = "projectPatent", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "projectPatent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectPatentInventor> projectPatentInventors = new ArrayList<>();
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
 
-    public void setProject(Project project) {
-        this.project = project;
-        project.setProjectPatent(this); // 양방향 연관관계 설정
-    }
-
-    public void setEvidence(String storedFileUrl) {
+    public void setEvidence(String storedFileUrl, String originalFileName) {
         this.evidence = storedFileUrl;
+        this.evidenceName = originalFileName;
     }
 
     public void updatePatent(String applicationNumber, PatentType patentType, String applicationDate, String inventionTitle, String inventionTitleEnglish, String applicantName, String applicantEnglishName) {

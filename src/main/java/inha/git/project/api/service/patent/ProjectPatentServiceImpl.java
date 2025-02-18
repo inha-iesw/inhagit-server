@@ -8,11 +8,15 @@ import inha.git.project.api.controller.dto.request.CreatePatentRequest;
 import inha.git.project.api.controller.dto.request.UpdatePatentInventorRequest;
 import inha.git.project.api.controller.dto.request.UpdatePatentRequest;
 import inha.git.project.api.controller.dto.response.PatentResponse;
+import inha.git.project.api.controller.dto.response.PatentResponses;
 import inha.git.project.api.controller.dto.response.SearchPatentResponse;
+import inha.git.project.api.controller.dto.response.SearchProjectPatentResponse;
+import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectPatent;
 import inha.git.project.domain.ProjectPatentInventor;
+import inha.git.project.domain.enums.PatentType;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentInventorJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentJpaRepository;
@@ -22,6 +26,9 @@ import inha.git.user.domain.enums.Role;
 import inha.git.utils.file.FilePath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
@@ -29,11 +36,11 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.Constant.PATENT;
+import static inha.git.common.Constant.mapRoleToPosition;
 import static inha.git.common.code.status.ErrorStatus.ALREADY_REGISTERED_PATENT;
 import static inha.git.common.code.status.ErrorStatus.FILE_PROCESS_ERROR;
 import static inha.git.common.code.status.ErrorStatus.INVALID_INVENTORS_SHARE;
@@ -59,24 +66,65 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
 
     @Override
     @Transactional(readOnly = true)
-    public SearchPatentResponse searchPatent(User user, Integer projectIdx) {
+    public SearchPatentResponse searchPatent(User user, Integer projectIdx, PatentType type) {
         // 프로젝트 조회
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
 
         // 특허 정보 확인
-        ProjectPatent projectPatent = Optional.ofNullable(project.getProjectPatent())
+        ProjectPatent projectPatent = project.getProjectPatents().stream()
+                .filter(p -> p.getPatentType() == type)
+                .findFirst()
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
+
         if(projectPatent.getState().equals(INACTIVE)) {
             throw new BaseException(NOT_EXIST_PATENT);
         }
+
         if (projectPatent.getAcceptAt() == null) {
             validateAuthorizationForUnacceptedPatent(user, project);
         }
 
+        SearchProjectPatentResponse projectResponse = new SearchProjectPatentResponse(
+                project.getId(),
+                project.getRepoName() != null);
+
         List<ProjectPatentInventor> inventors = projectPatentInventorJpaRepository
                 .findAllByProjectPatentOrderByMainInventorDesc(projectPatent);
-        return projectMapper.toSearchPatentResponse(projectPatent, inventors);
+
+        SearchUserResponse searchUserResponse = new SearchUserResponse(
+                project.getUser().getId(),
+                project.getUser().getName(),
+                mapRoleToPosition(project.getUser().getRole())
+        );
+        return projectMapper.toSearchPatentResponse(projectPatent, inventors, projectResponse, searchUserResponse);
+    }
+
+    /**
+     * 특허 페이징 조회 메서드
+     *
+     * @param pageIndex 페이지 인덱스
+     * @param size 페이지 사이즈
+     * @return 특허 페이징 조회 결과
+     */
+    @Transactional(readOnly = true)
+    public Page<PatentResponses> searchPatentPage(Integer pageIndex, Integer size) {
+        Pageable pageable = PageRequest.of(pageIndex, size);
+        Page<ProjectPatent> patentPage = projectPatentJpaRepository.findByAcceptAtIsNotNullAndStateOrderByCreatedAtDesc(ACTIVE, pageable);
+
+        return patentPage.map(patent -> new PatentResponses(
+                patent.getId(),
+                patent.getProject().getId(),
+                patent.getApplicationNumber(),
+                patent.getPatentType(),
+                patent.getApplicationDate(),
+                patent.getInventionTitle(),
+                patent.getInventionTitleEnglish(),
+                patent.getCreatedAt(),
+                new SearchUserResponse(patent.getProject().getUser().getId(),
+                        patent.getProject().getUser().getName(),
+                        mapRoleToPosition(patent.getProject().getUser().getRole()))
+        ));
     }
 
     /**
@@ -98,7 +146,10 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         if(user.getId() != project.getUser().getId()) {
             throw new BaseException(USER_NOT_PROJECT_OWNER);
         }
-        if(project.getProjectPatent() != null) {
+
+        boolean isAlreadyRegistered = project.getProjectPatents().stream()
+                .anyMatch(patent -> patent.getPatentType() == createPatentRequest.patentType());
+        if (isAlreadyRegistered) {
             throw new BaseException(ALREADY_REGISTERED_PATENT);
         }
 
@@ -106,10 +157,12 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
                 .map(CreatePatentInventorRequest::share)
                 .toList());
         String evidence = null;
+        String evidenceName = null;
         if (file != null && !file.isEmpty()) {
             evidence = FilePath.storeFile(file, PATENT);
+            evidenceName = file.getOriginalFilename();
         }
-        ProjectPatent savePatent = projectPatentJpaRepository.save(projectMapper.toProjectPatent(createPatentRequest, evidence, project));
+        ProjectPatent savePatent = projectPatentJpaRepository.save(projectMapper.toProjectPatent(createPatentRequest, evidence, evidenceName, project));
         List<ProjectPatentInventor> inventors = projectMapper.toPatentInventor(createPatentRequest.inventors(), savePatent);
         inventors.forEach(projectPatentInventorJpaRepository::save);
 
@@ -152,26 +205,27 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
      * 특허 삭제 메서드
      *
      * @param user 로그인한 사용자 정보
-     * @param projectIdx 프로젝트의 식별자
+     * @param patentIdx 삭제할 특허 ID
      * @return PatentResponse 특허 정보
      */
     @Override
-    public PatentResponse deletePatent(User user, Integer projectIdx) {
+    public PatentResponse deletePatent(User user, Integer patentIdx) {
         // 프로젝트 조회 및 권한 검증
-        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
-                .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
+        ProjectPatent projectPatent = projectPatentJpaRepository.findByIdAndState(patentIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
 
+        Project project = projectPatent.getProject();
         if(user.getId() != project.getUser().getId() && user.getRole() != Role.ADMIN) {
             throw new BaseException(USER_NOT_PROJECT_OWNER);
         }
-
-        ProjectPatent projectPatent = Optional.ofNullable(project.getProjectPatent())
-                .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
 
         // 증빙 파일이 있다면 삭제
         if (projectPatent.getEvidence() != null) {
             FilePath.deleteFile(projectPatent.getEvidence());
         }
+
+        // 프로젝트와의 관계 제거
+        project.getProjectPatents().remove(projectPatent);
 
         // 발명자 정보 삭제
         projectPatentInventorJpaRepository.deleteAllByProjectPatent(projectPatent);
@@ -179,8 +233,7 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
         // 특허 삭제
         projectPatentJpaRepository.delete(projectPatent);
 
-        // 프로젝트와의 관계 제거
-        project.setProjectPatent(null);
+
 
         List<Field> field = project.getProjectFields()
                 .stream()
@@ -222,7 +275,8 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
 
             // 새로운 파일 저장
             String storedFileUrl = FilePath.storeFile(file, PATENT);
-            projectPatent.setEvidence(storedFileUrl);
+            String storedFileName = file.getOriginalFilename();
+            projectPatent.setEvidence(storedFileUrl, storedFileName);
 
             // 트랜잭션 롤백 시 파일 삭제를 위한 콜백 등록
             TransactionSynchronizationManager.registerSynchronization(
