@@ -36,7 +36,6 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
@@ -92,7 +91,13 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
 
         List<ProjectPatentInventor> inventors = projectPatentInventorJpaRepository
                 .findAllByProjectPatentOrderByMainInventorDesc(projectPatent);
-        return projectMapper.toSearchPatentResponse(projectPatent, inventors, projectResponse);
+
+        SearchUserResponse searchUserResponse = new SearchUserResponse(
+                project.getUser().getId(),
+                project.getUser().getName(),
+                mapRoleToPosition(project.getUser().getRole())
+        );
+        return projectMapper.toSearchPatentResponse(projectPatent, inventors, projectResponse, searchUserResponse);
     }
 
     /**

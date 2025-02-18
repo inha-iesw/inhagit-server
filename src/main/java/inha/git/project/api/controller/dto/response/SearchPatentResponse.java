@@ -52,6 +52,8 @@ public record SearchPatentResponse(
         @NotNull
         List<SearchInventorResponse> inventor,
 
-        SearchProjectPatentResponse project
+        SearchProjectPatentResponse project,
+
+        SearchUserResponse user
 ) {
 }
