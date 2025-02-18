@@ -100,7 +100,8 @@ public class ProjectQueryRepository {
                         p.getProjectPatents().stream()
                                 .map(pp -> new SearchPatentSummaryResponse(
                                         pp.getId(),
-                                        pp.getAcceptAt() != null
+                                        pp.getAcceptAt() != null,
+                                        pp.getPatentType()
                                 ))
                                 .toList())).toList();
         return new PageImpl<>(content, pageable, total);
@@ -208,7 +209,8 @@ public class ProjectQueryRepository {
                         p.getProjectPatents().stream()
                                 .map(pp -> new SearchPatentSummaryResponse(
                                         pp.getId(),
-                                        pp.getAcceptAt() != null
+                                        pp.getAcceptAt() != null,
+                                        pp.getPatentType()
                                 ))
                                 .toList()))
                 .toList();

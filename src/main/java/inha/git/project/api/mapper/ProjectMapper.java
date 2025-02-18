@@ -380,7 +380,8 @@ public interface ProjectMapper {
         return project.getProjectPatents().stream()
                 .map(pp -> new SearchPatentSummaryResponse(
                         pp.getId(),
-                        pp.getAcceptAt() != null
+                        pp.getAcceptAt() != null,
+                        pp.getPatentType()
                 ))
                 .toList();
     }
