@@ -355,7 +355,7 @@ public interface ProjectMapper {
                 .toList();
     }
 
-    default SearchPatentResponse toSearchPatentResponse(ProjectPatent projectPatent, List<ProjectPatentInventor> inventors) {
+    default SearchPatentResponse toSearchPatentResponse(ProjectPatent projectPatent, List<ProjectPatentInventor> inventors, SearchProjectPatentResponse project) {
         if (projectPatent == null) {
             return null;
         }
@@ -372,7 +372,8 @@ public interface ProjectMapper {
                 projectPatent.getEvidence(),
                 projectPatent.getEvidenceName(),
                 projectPatent.getAcceptAt(),
-                toSearchInventorResponseList(inventors)
+                toSearchInventorResponseList(inventors),
+                project
         );
     }
 

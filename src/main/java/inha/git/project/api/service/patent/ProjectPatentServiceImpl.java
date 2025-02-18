@@ -10,6 +10,7 @@ import inha.git.project.api.controller.dto.request.UpdatePatentRequest;
 import inha.git.project.api.controller.dto.response.PatentResponse;
 import inha.git.project.api.controller.dto.response.PatentResponses;
 import inha.git.project.api.controller.dto.response.SearchPatentResponse;
+import inha.git.project.api.controller.dto.response.SearchProjectPatentResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
@@ -85,9 +86,13 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
             validateAuthorizationForUnacceptedPatent(user, project);
         }
 
+        SearchProjectPatentResponse projectResponse = new SearchProjectPatentResponse(
+                project.getId(),
+                project.getRepoName() != null);
+
         List<ProjectPatentInventor> inventors = projectPatentInventorJpaRepository
                 .findAllByProjectPatentOrderByMainInventorDesc(projectPatent);
-        return projectMapper.toSearchPatentResponse(projectPatent, inventors);
+        return projectMapper.toSearchPatentResponse(projectPatent, inventors, projectResponse);
     }
 
     /**

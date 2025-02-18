@@ -50,6 +50,8 @@ public record SearchPatentResponse(
         LocalDateTime acceptAt,
 
         @NotNull
-        List<SearchInventorResponse> inventors
+        List<SearchInventorResponse> inventor,
+
+        SearchProjectPatentResponse project
 ) {
 }
