@@ -1,6 +1,5 @@
 package inha.git.problem.domain;
 
-
 import inha.git.team.domain.Team;
 import jakarta.persistence.*;
 import lombok.*;
@@ -33,5 +32,4 @@ public class ProblemTeamRequest {
     @OneToOne
     @JoinColumn(name = "problem_request_id", nullable = false)
     private ProblemRequest problemRequest;
-
 }

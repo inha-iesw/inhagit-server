@@ -7,9 +7,9 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 public record CreateRequestProblemRequest(
+
         @NotNull
         @Schema(description = "문제 인덱스", example = "1")
         Integer problemIdx
-
 ) {
 }

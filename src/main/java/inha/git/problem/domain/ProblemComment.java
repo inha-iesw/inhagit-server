@@ -5,7 +5,6 @@ import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 /**
  * ProblemComment 엔티티는 애플리케이션의 문제 댓글 정보를 나타냄.
  */

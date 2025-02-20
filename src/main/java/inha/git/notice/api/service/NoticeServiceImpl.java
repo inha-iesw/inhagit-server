@@ -54,7 +54,6 @@ public class NoticeServiceImpl implements NoticeService {
     private final UserJpaRepository userJpaRepository;
     private final IdempotentProvider idempotentProvider;
 
-
     /**
      * 공지사항 목록을 페이징하여 조회합니다.
      *
@@ -171,7 +170,6 @@ public class NoticeServiceImpl implements NoticeService {
                             .toList()
             );
         }
-
         log.info("공지 수정 성공 - 사용자: {} 공지 제목: {}", user.getName(), notice.getTitle());
         return noticeJpaRepository.save(notice).getTitle() + " 공지가 수정되었습니다.";
     }
@@ -195,8 +193,6 @@ public class NoticeServiceImpl implements NoticeService {
         return noticeJpaRepository.save(notice).getTitle() + " 공지가 삭제되었습니다.";
     }
 
-
-
     /**
      * 사용자 권한 검증
      *
@@ -210,22 +206,11 @@ public class NoticeServiceImpl implements NoticeService {
         }
     }
 
-    /**
-     * 공지 조회
-     *
-     * @param noticeIdx 공지 인덱스
-     * @return 공지
-     */
     private Notice findNotice(Integer noticeIdx) {
         return noticeJpaRepository.findByIdAndState(noticeIdx, BaseEntity.State.ACTIVE)
                 .orElseThrow(() -> new BaseException(NOTICE_NOT_FOUND));
     }
 
-    /**
-     * 트랜잭션 롤백 시 파일 삭제 로직 등록
-     *
-     * @param zipFilePath 파일 경로
-     */
     private void registerRollbackCleanup(String zipFilePath) {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
@@ -234,7 +219,6 @@ public class NoticeServiceImpl implements NoticeService {
                     log.info("트랜잭션 롤백 시 파일 삭제 로직 실행");
                     log.info(BASE_DIR_SOURCE_2 + zipFilePath);
                     boolean isFileDeleted = FilePath.deleteFile(BASE_DIR_SOURCE_2 + zipFilePath);
-
                     if (isFileDeleted ) {
                         log.info("파일이 성공적으로 삭제되었습니다.");
                     } else {

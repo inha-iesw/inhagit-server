@@ -10,7 +10,4 @@ public record ChangeBugReportStateRequest(
         @Schema(description = "버그 상태", example = "CONFIRMED")
         BugStatus bugStatus
 ) {
-
-
-
 }

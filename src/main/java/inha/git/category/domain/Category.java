@@ -9,7 +9,6 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Category 엔티티는 애플리케이션의 교과 / 비교과 / 기타 정보를 나타냄.
  */
@@ -30,13 +29,11 @@ public class Category extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String name;
 
-
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private List<Project> projects = new ArrayList<>();
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     private List<Question> questions = new ArrayList<>();
-
 
     public void setName(String name) {
         this.name = name;

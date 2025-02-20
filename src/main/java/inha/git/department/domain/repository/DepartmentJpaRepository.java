@@ -15,17 +15,9 @@ import java.util.Optional;
  * DepartmentJpaRepository는 Department 엔티티에 대한 데이터 액세스 기능을 제공.
  */
 public interface DepartmentJpaRepository extends JpaRepository<Department, Integer> {
-
-
-
     List<Department> findAllByState(State state);
-
-
     Optional<Department> findByIdAndState(Integer id, State state);
-
     boolean existsByNameAndState(String name, State state);
-
     Optional<Department> findByName(String name);
-
     List<Department> findAllByCollegeAndState(College college, State state);
 }

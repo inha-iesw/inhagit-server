@@ -10,12 +10,12 @@ public interface BaseCode {
      *
      * @return 에러 메시지와 코드가 포함된 ReasonDTO
      */
-    public ReasonDTO getReason();
+    ReasonDTO getReason();
 
     /**
      * HTTP 상태와 에러 메시지, 코드를 포함하는 ReasonDTO를 반환.
      *
      * @return HTTP 상태와 에러 메시지, 코드가 포함된 ReasonDTO
      */
-    public ReasonDTO getReasonHttpStatus();
+    ReasonDTO getReasonHttpStatus();
 }

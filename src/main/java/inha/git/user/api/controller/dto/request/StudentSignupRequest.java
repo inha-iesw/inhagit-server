@@ -9,7 +9,6 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 
-
 /**
  * SignupRequest는 회원 가입 요청 정보를 담는 DTO 클래스.
  */
@@ -38,7 +37,6 @@ public record StudentSignupRequest(
 
         @NotEmpty(message = "학번은 필수 입력 항목입니다.")
         @ValidUserNumber
-        // @UserNumberUnique
         @ValidParameter
         @Schema(description = "학번", example = "12241234")
         String userNumber,

@@ -1,5 +1,4 @@
-package inha.git.project.api.service;
-
+package inha.git.project.api.service.recommend;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.mapping.domain.repository.FoundingRecommendJpaRepository;
@@ -36,7 +35,6 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     private final FoundingRecommendJpaRepository foundingRecommendJpaRepository;
     private final RegistrationRecommendJpaRepository registrationRecommendJpaRepository;
 
-
     /**
      * 프로젝트 창업 추천
      *
@@ -59,8 +57,6 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
             throw new BaseException(ALREADY_RECOMMENDED);
         }
     }
-
-
 
     /**
      * 프로젝트 좋아요 추천

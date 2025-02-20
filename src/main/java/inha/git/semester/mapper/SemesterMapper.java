@@ -17,10 +17,8 @@ public interface SemesterMapper {
     @Mapping(target = "id", ignore = true)
     Semester createSemesterRequestToSemester(CreateSemesterRequest createDepartmentRequest);
 
-
     @Mapping(source = "semester.id", target = "idx")
     SearchSemesterResponse semesterToSearchSemesterResponse(Semester semester);
 
     List<SearchSemesterResponse> semestersToSearchSemesterResponses(List<Semester> semesterList);
-
 }

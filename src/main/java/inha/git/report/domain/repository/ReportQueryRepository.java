@@ -31,21 +31,17 @@ public class ReportQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
-
     public Page<SearchReportResponse> getUserReports(Integer reporterId, Pageable pageable) {
-        // 기본 조건 설정 - ACTIVE 상태이고 특정 reporterId를 가진 신고만 조회
         BooleanExpression condition = report.reporterId.eq(reporterId);
 
         QUser reporter = new QUser("reporter");
         QUser reported = new QUser("reported");
 
-        // 메인 쿼리 구성
         JPAQuery<Report> query = queryFactory
                 .select(report)
                 .from(report)
                 .leftJoin(report.reportType, reportType)
                 .leftJoin(report.reportReason, reportReason)
-                // reporter와 reported user를 각각 조인
                 .leftJoin(reporter).on(report.reporterId.eq(reporter.id))
                 .leftJoin(reported).on(report.reportedUserId.eq(reported.id))
                 .where(condition)
@@ -53,23 +49,19 @@ public class ReportQueryRepository {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
-        // 결과 및 총 개수 조회
         List<Report> reports = query.fetch();
         long total = query.fetchCount();
 
-        // User 정보를 한 번에 조회
         List<Integer> reportedIds = reports.stream()
                 .map(Report::getReportedUserId)
                 .distinct()
                 .toList();
 
-        // Reporter 정보는 이미 알고 있으므로 한 번만 조회
         User reporterUser = queryFactory
                 .selectFrom(QUser.user)
                 .where(QUser.user.id.eq(reporterId))
                 .fetchOne();
 
-        // Reported User 정보 조회
         Map<Integer, User> reportedMap = queryFactory
                 .selectFrom(QUser.user)
                 .where(QUser.user.id.in(reportedIds))
@@ -77,7 +69,6 @@ public class ReportQueryRepository {
                 .stream()
                 .collect(Collectors.toMap(User::getId, user -> user));
 
-        // SearchReportResponse로 변환
         List<SearchReportResponse> content = reports.stream()
                 .map(r -> {
                     User reportedUser = reportedMap.get(r.getReportedUserId());

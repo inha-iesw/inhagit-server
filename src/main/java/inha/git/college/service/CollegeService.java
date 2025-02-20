@@ -8,15 +8,9 @@ import inha.git.user.domain.User;
 import java.util.List;
 
 public interface CollegeService {
-
     List<SearchCollegeResponse> getColleges();
     SearchCollegeResponse getCollege(Integer departmentIdx);
     String createCollege(User admin, CreateCollegeRequest createDepartmentRequest);
     String updateCollegeName(User admin, Integer collegeIdx, UpdateCollegeRequest updateCollegeRequest);
-
     String deleteCollege(User admin, Integer collegeIdx);
-
-
-
-
 }

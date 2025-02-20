@@ -10,7 +10,6 @@ import jakarta.validation.constraints.Size;
 
 public record FindPasswordCheckRequest(
 
-
         @Email
         @ValidEmail
         @ValidParameter
@@ -23,6 +22,5 @@ public record FindPasswordCheckRequest(
         @Size(min = 6, max = 6)
         @Schema(description = "인증 번호", example = "123456")
         String number
-
 ) {
 }

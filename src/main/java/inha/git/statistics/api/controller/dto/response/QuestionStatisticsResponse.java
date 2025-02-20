@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotNull;
 public record QuestionStatisticsResponse(
 
         SearchCollegeResponse college, // 단과대 정보 정보
+
         SearchDepartmentResponse department, // 학과 정보
 
         SearchFieldResponse field, // 분야 정보
@@ -22,6 +23,7 @@ public record QuestionStatisticsResponse(
         @NotNull
         @Schema(description = "등록된 질문", example = "10")
         Integer questionCount,
+
         @NotNull
         @Schema(description = "멘토링 참여 인원", example = "4")
         Integer userCount

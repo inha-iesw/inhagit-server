@@ -75,6 +75,4 @@ public class RedisProvider {
         Duration expireDuration=Duration.ofSeconds(duration);
         valueOperations.set(key,value,expireDuration);
     }
-
-
 }

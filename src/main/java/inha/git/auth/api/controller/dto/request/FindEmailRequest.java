@@ -1,6 +1,5 @@
 package inha.git.auth.api.controller.dto.request;
 
-import inha.git.common.validation.annotation.UserNumberUnique;
 import inha.git.common.validation.annotation.ValidName;
 import inha.git.common.validation.annotation.ValidParameter;
 import inha.git.common.validation.annotation.ValidUserNumber;

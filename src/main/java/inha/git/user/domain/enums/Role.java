@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import static inha.git.user.domain.enums.Permission.*;
 
-
 /**
  * Role 열거형은 사용자 역할을 정의.
  * 각 역할은 해당 역할에 부여된 권한 세트를 가짐.

@@ -9,8 +9,6 @@ import jakarta.validation.ConstraintValidatorContext;
  */
 public class EmailValidator implements ConstraintValidator<ValidEmail, String> {
 
-
-    // 사용자 이메일 정규 표현식 = 일반적인 이메일 정규표현식
     private static final String EMAIL_REGEX = "^[a-zA-Z0-9+\\-_.]+@[a-zA-Z0-9\\-]+\\.[a-zA-Z0-9\\-.]+$";
 
     @Override

@@ -26,7 +26,7 @@ public class CollegeNameFormatValidator implements ConstraintValidator<ValidColl
     @Override
     public boolean isValid(String name, ConstraintValidatorContext context) {
         if (name == null || name.isEmpty()) {
-            return false; // null이나 빈 문자열은 유효하지 않다고 처리
+            return false;
         }
         return name.matches(KOREAN_DEPARTMENT_NAME_REGEX);
     }

@@ -43,5 +43,4 @@ public class EmailDomainServiceImpl implements EmailDomainService {
             throw new BaseException(INVALID_EMAIL_DOMAIN);
         }
     }
-
 }

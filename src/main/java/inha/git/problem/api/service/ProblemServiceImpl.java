@@ -53,9 +53,6 @@ public class ProblemServiceImpl implements ProblemService {
     private final TeamJpaRepository teamJpaRepository;
     private final StatisticsService statisticsService;
 
-
-
-
     /**
      * 문제 목록 조회
      *
@@ -339,7 +336,6 @@ public class ProblemServiceImpl implements ProblemService {
         return participantsResponses;
     }
 
-
     /**
      * 문제 제출 가능 목록 조회
      *
@@ -491,7 +487,6 @@ public class ProblemServiceImpl implements ProblemService {
         return problemMapper.problemSubmitToProblemSubmitResponse(problemSubmit);
     }
 
-
     /**
      * 파일 저장 및 압축 해제
      *
@@ -505,7 +500,6 @@ public class ProblemServiceImpl implements ProblemService {
         log.info("압축 해제될 폴더 경로 " + BASE_DIR_SOURCE + zipFilePath + " " + folderName);
         return new String[] { zipFilePath, folderName };
     }
-
 
     /**
      * 트랜잭션 롤백 시 파일 삭제 로직 등록
@@ -534,5 +528,4 @@ public class ProblemServiceImpl implements ProblemService {
             }
         });
     }
-
 }

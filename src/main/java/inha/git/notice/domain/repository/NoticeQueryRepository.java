@@ -56,7 +56,6 @@ public class NoticeQueryRepository {
                         )
                 ))
                 .toList();
-
         return new PageImpl<>(content, pageable, total);
     }
 }

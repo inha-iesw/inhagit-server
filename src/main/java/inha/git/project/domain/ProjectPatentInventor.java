@@ -23,8 +23,23 @@ public class ProjectPatentInventor {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "english_name")
+    @Column(name = "english_name", nullable = false)
     private String englishName;
+
+    @Column(name = "affiliation", nullable = false)
+    private String affiliation;
+
+    @Column(name = "share", nullable = false)
+    private String share;
+
+    @Column(name = "main_inventor", nullable = false)
+    private Boolean mainInventor;
+
+    @Column(name = "email", nullable = false)
+    private String email;
+
+    @Column(name = "user_number")
+    private String userNumber;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_patent_id")

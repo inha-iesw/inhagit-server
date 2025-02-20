@@ -1,6 +1,7 @@
 package inha.git.project.domain;
 
 import inha.git.common.BaseEntity;
+import inha.git.project.domain.enums.PatentType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -46,7 +47,39 @@ public class ProjectPatent extends BaseEntity {
     @Column(name = "evidence")
     private String evidence; // 증빙 파일
 
-    @OneToMany(mappedBy = "projectPatent", fetch = FetchType.LAZY)
+    @Column(name = "evidence_name")
+    private String evidenceName; // 증빙 파일명
+
+    @Column(name = "patent_type", nullable = false, length = 20)
+    @Enumerated(EnumType.STRING)
+    private PatentType patentType; // 특허 유형
+
+    @Column(name = "accept_at", nullable = true)
+    private LocalDateTime acceptAt; // 승인일
+
+    @OneToMany(mappedBy = "projectPatent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectPatentInventor> projectPatentInventors = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id")
+    private Project project;
+
+    public void setEvidence(String storedFileUrl, String originalFileName) {
+        this.evidence = storedFileUrl;
+        this.evidenceName = originalFileName;
+    }
+
+    public void updatePatent(String applicationNumber, PatentType patentType, String applicationDate, String inventionTitle, String inventionTitleEnglish, String applicantName, String applicantEnglishName) {
+        this.applicationNumber = applicationNumber;
+        this.patentType = patentType;
+        this.applicationDate = applicationDate;
+        this.inventionTitle = inventionTitle;
+        this.inventionTitleEnglish = inventionTitleEnglish;
+        this.applicantName = applicantName;
+        this.applicantEnglishName = applicantEnglishName;
+    }
+
+    public void setAcceptedAt(LocalDateTime now) {
+        this.acceptAt = now;
+    }
 }

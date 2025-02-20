@@ -5,7 +5,6 @@ import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 /**
  * TeamReplyComment 엔티티는 애플리케이션의 팀 대댓글 정보를 나타냄.
  */
@@ -17,6 +16,7 @@ import lombok.*;
 @Entity
 @Table(name = "team_reply_comment_tb")
 public class TeamReplyComment extends BaseEntity {
+
     @Id
     @Column(name = "team_reply_comment_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)

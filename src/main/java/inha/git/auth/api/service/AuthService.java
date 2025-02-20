@@ -9,10 +9,7 @@ import inha.git.auth.api.controller.dto.response.LoginResponse;
 import inha.git.user.api.controller.dto.response.UserResponse;
 
 public interface AuthService {
-
     LoginResponse login(LoginRequest loginRequest);
-
     FindEmailResponse findEmail(FindEmailRequest findEmailRequest);
-
     UserResponse changePassword(ChangePasswordRequest changePasswordRequest);
 }

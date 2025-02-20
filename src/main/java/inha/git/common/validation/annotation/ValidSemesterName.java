@@ -16,7 +16,10 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidSemesterName {
+
     String message() default "올바른 학기 이름이 아닙니다. (예: 22-1학기)";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

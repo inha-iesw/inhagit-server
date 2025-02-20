@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 public record SearchMyTeamsResponse(
+
         @NotNull
         @Schema(description = "팀 인덱스", example = "1")
         Integer idx,

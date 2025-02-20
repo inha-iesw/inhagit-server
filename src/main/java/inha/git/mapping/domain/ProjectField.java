@@ -6,7 +6,6 @@ import inha.git.project.domain.Project;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 /**
  * ProjectField 엔티티는 애플리케이션의 프로젝트와 필드 매핑 정보를 나타냄.
  */
@@ -31,7 +30,6 @@ public class ProjectField  {
     @MapsId("fieldId")
     @JoinColumn(name = "field_id")
     private Field field;
-
 
     public void setProject(Project project) {
         this.project = project;

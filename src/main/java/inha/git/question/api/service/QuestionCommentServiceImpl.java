@@ -71,6 +71,7 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
                 })
                 .toList();
     }
+
     /**
      * 댓글 생성
      *
@@ -83,12 +84,10 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
 
         idempotentProvider.isValidIdempotent(List.of("createComment", user.getId().toString(), user.getName(), createCommentRequest.contents()));
 
-
         Question question = questionJpaRepository.findByIdAndState(createCommentRequest.questionIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
         QuestionComment questionComment = questionMapper.toQuestionComment(createCommentRequest, user, question);
         questionCommentJpaRepository.save(questionComment);
-
         question.increaseCommentCount();
         log.info("질문 댓글 생성 성공 - 사용자: {} 질문 ID: {}", user.getName(), createCommentRequest.questionIdx());
         return questionMapper.toCommentResponse(questionComment);
@@ -102,7 +101,6 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
      * @param updateCommentRequest 댓글 수정 요청
      * @return UpdateCommentResponse
      */
-
     @Override
     public CommentResponse updateComment(User user, Integer commentIdx, UpdateCommentRequest updateCommentRequest) {
         QuestionComment questionComment = questionCommentJpaRepository.findByIdAndState(commentIdx, ACTIVE)
@@ -132,7 +130,6 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
             log.error("질문 댓글 삭제 권한 없음 - 사용자: {} 댓글 ID: {}", user.getName(), commentIdx);
             throw new BaseException(QUESTION_COMMENT_DELETE_NOT_AUTHORIZED);
         }
-
         if(questionComment.getDeletedAt() != null) {
             log.error("질문 댓글 삭제 실패 - 사용자: {} 이미 삭제된 댓글입니다.", user.getName());
             throw new BaseException(QUESTION_COMMENT_ALREADY_DELETED);
@@ -145,10 +142,8 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
             questionComment.setState(INACTIVE);
         }
         questionCommentJpaRepository.save(questionComment);
-
         Question question = questionComment.getQuestion();
         question.decreaseCommentCount();
-
         log.info("질문 댓글 삭제 성공 - 사용자: {} 댓글 ID: {}", user.getName(), commentIdx);
         return questionMapper.toCommentResponse(questionComment);
     }
@@ -165,15 +160,12 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
 
         idempotentProvider.isValidIdempotent(List.of("createReplyComment", user.getId().toString(), user.getName(), createReplyCommentRequest.contents()));
 
-
         QuestionComment questionComment = questionCommentJpaRepository.findByIdAndState(createReplyCommentRequest.commentIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_COMMENT_NOT_FOUND));
         QuestionReplyComment questionReplyComment = questionMapper.toQuestionReplyComment(createReplyCommentRequest, user, questionComment);
         questionReplyCommentJpaRepository.save(questionReplyComment);
-
         Question question = questionComment.getQuestion();
         question.increaseCommentCount();
-
         log.info("질문 대댓글 생성 성공 - 사용자: {} 댓글 ID: {}", user.getName(), createReplyCommentRequest.commentIdx());
         return questionMapper.toReplyCommentResponse(questionReplyComment);
     }
@@ -218,10 +210,8 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         questionReplyComment.setState(INACTIVE);
         questionReplyComment.setDeletedAt();
         questionReplyCommentJpaRepository.save(questionReplyComment);
-
         Question question = questionReplyComment.getQuestionComment().getQuestion();
         question.decreaseCommentCount();
-
         log.info("질문 대댓글 삭제 성공 - 사용자: {} 댓글 ID: {}", user.getName(), replyCommentIdx);
         return questionMapper.toReplyCommentResponse(questionReplyComment);
     }

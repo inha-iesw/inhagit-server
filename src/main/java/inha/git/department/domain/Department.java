@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Department 엔티티는 애플리케이션의 학과 정보를 나타냄.
  */
@@ -41,5 +40,4 @@ public class Department extends BaseEntity {
     public void setName(String name) {
         this.name = name;
     }
-
 }

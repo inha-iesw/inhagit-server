@@ -9,7 +9,6 @@ import inha.git.user.domain.User;
 import java.util.List;
 
 public interface ReportService {
-
     List<ReportTypeResponse> getReportTypes();
     List<ReportReasonResponse> getReportReasons();
     ReportResponse createReport(User user, CreateReportRequest createReportRequest);

@@ -5,7 +5,6 @@ import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 /**
  * Banner 엔티티는 애플리케이션의 배너 정보를 나타냄.
  */

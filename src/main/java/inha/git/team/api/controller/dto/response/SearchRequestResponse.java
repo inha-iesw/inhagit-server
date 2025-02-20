@@ -22,6 +22,5 @@ public record SearchRequestResponse(
         @NotNull
         @Schema(description = "팀 가입 신청일", example = "2021-08-01T00:00:00")
         LocalDateTime createAt
-
 ) {
 }

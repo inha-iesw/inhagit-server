@@ -46,21 +46,19 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_JWT(HttpStatus.UNAUTHORIZED, "JWT4001", "유효하지 않은 JWT입니다."),
     INVALID_USER_JWT(HttpStatus.FORBIDDEN, "JWT4002", "권한이 없는 유저의 접근입니다."),
     MISSING_AUTH_HEADER(HttpStatus.UNAUTHORIZED, "JWT4003","인증 헤더가 없습니다."),
-    //토큰 만료
     INVALID_JWT_EXPIRED(HttpStatus.UNAUTHORIZED, "JWT4004", "만료된 JWT입니다."),
     INVALID_JWT_SIGNATURE(HttpStatus.UNAUTHORIZED, "JWT4005", "유효하지 않은 서명입니다."),
-
 
     KAKAO_TOKEN_RECEIVE_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "TOKEN4000", "카카오 서버로부터 액세스 토큰을 받는데 실패했습니다."),
     TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "TOKEN4001", "토큰이 존재하지 않습니다."),
     INVALID_TOKEN(HttpStatus.BAD_REQUEST, "TOKEN4002,", "유효하지 않은 토큰입니다."),
+
     INVALID_OAUTH_TYPE(HttpStatus.BAD_REQUEST, "OAUTH4000", "알 수 없는 소셜 로그인 형식입니다."),
 
     INVALID_PAGE(HttpStatus.BAD_REQUEST, "PAGE4000", "페이지는 1 이상이어야 합니다."),
     INVALID_SIZE(HttpStatus.BAD_REQUEST, "PAGE4001", "사이즈는 1 이상이어야 합니다."),
 
     JSON_CONVERT_ERROR(HttpStatus.BAD_REQUEST, "JSON4000", "JSON 변환에 실패하였습니다."),
-
 
     REPORT_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, "REPORT4000", "신고 타입을 찾을 수 없습니다."),
     REPORT_REASON_NOT_FOUND(HttpStatus.NOT_FOUND, "REPORT4001", "신고 사유를 찾을 수 없습니다."),
@@ -70,6 +68,7 @@ public enum ErrorStatus implements BaseErrorCode {
     CANNOT_DELETE_REPORT(HttpStatus.BAD_REQUEST, "REPORT4005", "신고를 삭제할 수 없습니다."),
 
     S3_UPLOAD(HttpStatus.BAD_REQUEST, "S3UPLOAD4001", "S3 파일 업로드 실패."),
+
     FAILED_TO_CONVERT_MULTIPARTFILE_RESOURCE(HttpStatus.BAD_REQUEST, "FILE4000", "MultipartFileResource 변환에 실패하였습니다."),
     FILE_CONVERT(HttpStatus.BAD_REQUEST, "FILE4001", "파일 변환 실패."),
     FILE_NOT_FOUND(HttpStatus.BAD_REQUEST, "FILE4002", "파일을 찾을 수 없습니다."),
@@ -83,8 +82,8 @@ public enum ErrorStatus implements BaseErrorCode {
     FILE_PROCESS_ERROR(HttpStatus.BAD_REQUEST, "FILE4010", "파일 처리에 실패하였습니다."),
     FILE_INVALID_NAME(HttpStatus.BAD_REQUEST, "FILE4011", "파일 이름이 유효하지 않습니다."),
     INVALID_FILE_PATH(HttpStatus.BAD_REQUEST, "FILE4012", "유효하지 않은 파일 경로입니다."),
-    EXCEL_CREATE_ERROR(HttpStatus.BAD_REQUEST, "EXCEL4000", "엑셀 파일 생성 중 오류 발생"),
 
+    EXCEL_CREATE_ERROR(HttpStatus.BAD_REQUEST, "EXCEL4000", "엑셀 파일 생성 중 오류 발생"),
 
     EMAIL_NOT_FOUND(HttpStatus.BAD_REQUEST, "EMAIL4001", "이메일이 존재하지 않습니다."),
     EMAIL_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "EMAIL4002", "이미 존재하는 이메일입니다."),
@@ -96,6 +95,7 @@ public enum ErrorStatus implements BaseErrorCode {
     EMAIL_AUTH_NOT_MATCH(HttpStatus.BAD_REQUEST, "EMAIL4008", "이메일 인증번호가 일치하지 않습니다."),
 
     BANNER_FILE_EMPTY(HttpStatus.BAD_REQUEST, "BANNER4000", "배너 파일이 비어있습니다."),
+
     FIELD_NOT_FOUND(HttpStatus.NOT_FOUND, "FIELD4000", "분야를 찾을 수 없습니다"),
 
     NOTICE_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTICE4000", "해당 공지가 존재하지 않습니다."),
@@ -124,13 +124,11 @@ public enum ErrorStatus implements BaseErrorCode {
     PROJECT_NOT_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4020", "좋아요하지 않은 프로젝트입니다."),
     PROJECT_NOT_PUBLIC(HttpStatus.BAD_REQUEST, "PROJECT4021", "비공개 프로젝트입니다."),
     ALREADY_RECOMMENDED(HttpStatus.BAD_REQUEST, "PROJECT4022", "이미 추천한 프로젝트입니다."),
-    TEMPORARY_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "SERVICE4000", "일시적으로 서비스를 이용할 수 없습니다."),
-
     ALREADY_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4017", "이미 좋아요한 댓글입니다."),
     MY_COMMENT_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4018", "자신의 댓글에는 좋아요를 누를 수 없습니다."),
     NOT_LIKE(HttpStatus.BAD_REQUEST, "PROJECT4019", "좋아요하지 않은 댓글입니다."),
 
-
+    TEMPORARY_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "SERVICE4000", "일시적으로 서비스를 이용할 수 없습니다."),
 
     GITHUB_TOKEN_NOT_FOUND(HttpStatus.BAD_REQUEST, "GITHUB4000", "깃허브 토큰이 등록되지 않았습니다. 깃허브 토큰을 먼저 등록해주세요."),
     INVALID_GITHUB_TOKEN(HttpStatus.BAD_REQUEST, "GITHUB4001", "유효하지 않은 GitHub 토큰입니다."),
@@ -138,16 +136,17 @@ public enum ErrorStatus implements BaseErrorCode {
     GITHUB_CLONE_ERROR(HttpStatus.BAD_REQUEST, "GITHUB4003", "깃허브 레포지토리 클론에 실패했습니다."),
     GITHUB_REPO_NOT_FOUND(HttpStatus.BAD_REQUEST, "GITHUB4004", "깃허브로 등록된 프로젝트가 아닙니다."),
 
-
-
-
-
     DEPARTMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "DEPARTMENT4000", "학과를 찾을 수 없습니다."),
     DEPARTMENT_NOT_BELONG_TO_COLLEGE(HttpStatus.BAD_REQUEST, "DEPARTMENT4001", "해당 학과는 해당 단과대에 속하지 않습니다."),
+
     COLLEGE_NOT_FOUND(HttpStatus.NOT_FOUND, "COLLEGE4000", "단과대를 찾을 수 없습니다."),
+
     SEMESTER_NOT_FOUND(HttpStatus.NOT_FOUND, "SEMESTER4000", "학기를 찾을 수 없습니다."),
+
     CATEGORY_NOT_FOUND(HttpStatus.NOT_FOUND, "CATEGORY4000", "카테고리를 찾을 수 없습니다."),
+
     COLLEGE_STATISTICS_NOT_FOUND(HttpStatus.NOT_FOUND, "COLLEGE4001", "단과대 통계를 찾을 수 없습니다."),
+
     ALREADY_ADMIN(HttpStatus.BAD_REQUEST, "ADMIN4000", "이미 관리자 권한이 있습니다."),
     NOT_ADMIN(HttpStatus.BAD_REQUEST, "ADMIN4001", "이미 관리자 권한이 없습니다."),
     NOT_PROFESSOR(HttpStatus.BAD_REQUEST, "ADMIN4002", "교수 계정이 아닙니다."),
@@ -188,7 +187,6 @@ public enum ErrorStatus implements BaseErrorCode {
     NOT_TEAM_PARTICIPANT(HttpStatus.BAD_REQUEST, "PROBLEM4021", "참여자 팀이 아닙니다."),
     ALREADY_SUBMITTED(HttpStatus.BAD_REQUEST, "PROBLEM4022", "이미 제출한 문제입니다."),
     NOT_ALLOWED_SUBMIT_TEAM(HttpStatus.BAD_REQUEST, "PROBLEM4023", "팀 문제 참여가 승인되지 않았습니다."),
-
 
     COMPANY_CANNOT_CREATE_QUESTION(HttpStatus.BAD_REQUEST, "QUESTION4000", "기업 회원은 질문을 생성할 수 없습니다."),
     QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "QUESTION4001", "질문을 찾을 수 없습니다."),
@@ -240,7 +238,9 @@ public enum ErrorStatus implements BaseErrorCode {
     INVALID_ACTION_TYPE(HttpStatus.BAD_REQUEST, "STATISTICS4007", "유효하지 않은 통계 타입입니다."),
 
     INVALID_APPLICATION_NUMBER(HttpStatus.BAD_REQUEST, "APPLICATION4000", "유효하지 않은 신청 번호입니다."),
+
     NOT_EXIST_PATENT(HttpStatus.BAD_REQUEST, "PATENT4000", "존재하지 않는 특허입니다."),
+    INVALID_INVENTORS_SHARE(HttpStatus.BAD_REQUEST, "PATENT4001", "발명자의 점유율이 100%가 아닙니다."),
 
     PATENT_API_CONNECTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PATENT5000", "특허 API와의 연결에 실패하였습니다."),
     PATENT_API_URL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "PATENT5001", "특허 API URL이 잘못되었습니다."),
@@ -250,6 +250,8 @@ public enum ErrorStatus implements BaseErrorCode {
 
     INVALID_SEARCH_QUERY(HttpStatus.BAD_REQUEST, "SEARCH4000", "검색어가 유효하지 않습니다."),
     INVALID_SEARCH_TYPE(HttpStatus.BAD_REQUEST, "SEARCH4001", "검색 타입이 유효하지 않습니다."),
+
+    UTILITY_CLASS(HttpStatus.BAD_REQUEST, "COMMON4000", "유틸리티 클래스는 생성할 수 없습니다."),
 
     /**
      * 500 :  Database, Server 오류
@@ -261,8 +263,6 @@ public enum ErrorStatus implements BaseErrorCode {
     PASSWORD_DECRYPTION_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON5004", "비밀번호 복호화에 실패하였습니다"),
     UNEXPECTED_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON5005", "예상치 못한 에러가 발생했습니다."),
     FAILED_TO_RECEIVE_FRAME(HttpStatus.INTERNAL_SERVER_ERROR, "FRAME4000", "프레임을 받는데 실패하였습니다.");
-
-
 
     private final HttpStatus httpStatus;
     private final String code;
@@ -287,7 +287,6 @@ public enum ErrorStatus implements BaseErrorCode {
      *
      * @return HTTP 상태와 에러 메시지, 코드가 포함된 ErrorReasonDTO
      */
-
     @Override
     public ErrorReasonDTO getReasonHttpStatus() {
         return ErrorReasonDTO.builder()

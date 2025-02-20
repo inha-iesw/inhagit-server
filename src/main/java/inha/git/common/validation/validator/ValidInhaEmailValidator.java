@@ -19,7 +19,6 @@ public class ValidInhaEmailValidator implements ConstraintValidator<ValidInhaEma
             return false;
         }
 
-        // 이메일을 '@' 기준으로 로컬 부분과 도메인 부분으로 나눔
         String[] emailParts = email.split("@");
         if (emailParts.length != 2) {
             return false;
@@ -28,11 +27,9 @@ public class ValidInhaEmailValidator implements ConstraintValidator<ValidInhaEma
         String localPart = emailParts[0];
         String domainPart = emailParts[1];
 
-        // 로컬 부분은 숫자만으로 이루어지지 않고, 특수문자를 포함하지 않아야 함
         if (!localPart.matches(EMAIL_PATTERN)) {
             return false;
         }
-        // 도메인 부분은 'inha.edu' 또는 'inha.ac.kr'이어야 함
         return domainPart.equals("inha.edu") || domainPart.equals("inha.ac.kr");
     }
 }

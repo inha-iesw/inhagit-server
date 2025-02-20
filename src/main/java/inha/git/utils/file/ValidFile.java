@@ -21,7 +21,6 @@ import static inha.git.common.code.status.ErrorStatus.*;
  * ValidFile 클래스는 파일 유효성 검사 기능을 제공하는 클래스
  */
 
-
 @Slf4j
 public class ValidFile {
 
@@ -105,7 +104,6 @@ public class ValidFile {
         return processedZipFile;
     }
 
-    // ZipFile을 생성할 때, UTF-8 또는 CP-949로 처리
     private static ZipFile createZipFileWithFallback(File file) throws IOException {
         try {
             return new ZipFile(file, StandardCharsets.UTF_8);  // UTF-8로 시도
@@ -115,7 +113,6 @@ public class ValidFile {
         }
     }
 
-    // MultipartFile을 File로 변환
     private static File convertMultiPartToFile(MultipartFile file) throws IOException {
         File convFile = File.createTempFile("temp", ".zip");
         try (FileOutputStream fos = new FileOutputStream(convFile)) {
@@ -124,11 +121,9 @@ public class ValidFile {
         return convFile;
     }
 
-    // 파일명을 처리하는 메서드 (공백을 언더스코어로 변경)
     private static String processFileName(String fileName) {
         // 공백을 언더스코어로 변경
         String processed = fileName.replaceAll("\\s", "_");
-
         // 파일 경로에 '..'가 포함되어 있는지 확인 (보안 취약점 방지)
         if (processed.contains("..")) {
             throw new BaseException(FILE_INVALID_NAME);
@@ -137,7 +132,6 @@ public class ValidFile {
         return processed;
     }
 
-    // InputStream에서 데이터를 읽고 OutputStream에 쓰는 메서드
     private static long copyAndCountBytes(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[8192];
         long count = 0;
@@ -149,9 +143,6 @@ public class ValidFile {
         return count;
     }
 
-
-
-    // JPG, PNG, PDF, ZIP 파일 유효성 검사
     private static final long MAX_SIZE_BYTES_2 = MAX_SIZE_MB * 1024 * 1024;
 
     private static final Set<String> ALLOWED_CONTENT_TYPES_2 = new HashSet<>();

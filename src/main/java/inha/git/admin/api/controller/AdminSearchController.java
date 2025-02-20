@@ -58,6 +58,7 @@ public class AdminSearchController {
         log.info("{} 관리자 유저 검색 - 검색어: {}, 페이지: {}", user.getName(), search, page);
         return BaseResponse.of(USER_SEARCH_OK, adminSearchService.getAdminUsers(search, page - 1));
     }
+
     /**
      * 관리자 전용 학생 검색 API
      *
@@ -79,6 +80,7 @@ public class AdminSearchController {
         log.info("{} 관리자 학생 검색 - 검색어: {}, 페이지: {}", user.getName(), search, page);
         return BaseResponse.of(STUDENT_SEARCH_OK, adminSearchService.getAdminStudents(search, page - 1));
     }
+
     /**
      * 관리자 전용 교수 검색 API
      *

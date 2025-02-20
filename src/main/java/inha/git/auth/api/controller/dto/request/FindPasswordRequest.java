@@ -14,6 +14,5 @@ public record FindPasswordRequest(
         @NotEmpty(message = "이메일을 입력해 주세요")
         @Schema(description = "유저 이메일", example = "ghkdrbgur13@inha.edu")
         String email
-
 ) {
 }

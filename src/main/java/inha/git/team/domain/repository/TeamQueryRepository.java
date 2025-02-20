@@ -27,7 +27,6 @@ public class TeamQueryRepository {
 
     private final JPAQueryFactory queryFactory;
 
-
     /**
      * 사용자가 참여 중인 팀 목록 조회
      *

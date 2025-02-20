@@ -13,15 +13,10 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-
 public interface StatisticsJpaRepository extends JpaRepository<Statistics, Long>{
-
     List<Statistics> findByStatisticsTypeAndTargetId(StatisticsType statisticsType, Long targetId);
-
     List<Statistics> findBySemesterIdAndStatisticsType(Long semesterId, StatisticsType statisticsType);
-
     List<Statistics> findByFieldIdAndStatisticsType(Long fieldId, StatisticsType statisticsType);
-
     List<Statistics> findByCategoryIdAndStatisticsType(Long categoryId, StatisticsType statisticsType);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

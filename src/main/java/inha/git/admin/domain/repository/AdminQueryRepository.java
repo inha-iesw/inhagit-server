@@ -54,7 +54,6 @@ public class AdminQueryRepository {
      */
     public Page<SearchUserResponse> searchUsers(String search, Pageable pageable) {
         QUser user = QUser.user;
-
         JPAQuery<User> query = queryFactory
                 .select(user)
                 .from(user)
@@ -133,6 +132,7 @@ public class AdminQueryRepository {
         long total = query.fetchCount();
         return new PageImpl<>(content, pageable, total);
     }
+
     /**
      * 회사 검색
      *
@@ -165,16 +165,9 @@ public class AdminQueryRepository {
         return new PageImpl<>(content, pageable, total);
     }
 
-    /**
-     * 이름 검색
-     *
-     * @param search 검색어
-     * @return 검색 조건
-     */
     private BooleanExpression nameLike(String search) {
         return StringUtils.hasText(search) ? QUser.user.name.contains(search) : null;
     }
-
 
     /**
      * 신고 검색
@@ -184,12 +177,10 @@ public class AdminQueryRepository {
      * @return 신고 목록
      */
     public Page<SearchReportResponse> searchReports(SearchReportCond searchReportCond, Pageable pageable) {
-        // 기본 조건 설정
         BooleanExpression condition = report.isNotNull();
         QUser reporter = new QUser("reporter");
         QUser reported = new QUser("reported");
 
-        // 동적 조건 추가
         if (searchReportCond.reportTypeIdx() != null) {
             condition = condition.and(report.reportType.id.eq(searchReportCond.reportTypeIdx()));
         }
@@ -206,13 +197,11 @@ public class AdminQueryRepository {
             condition = condition.and(report.reportedUserId.eq(searchReportCond.reportedUserId()));
         }
 
-        // 메인 쿼리 구성
         JPAQuery<Report> query = queryFactory
                 .select(report)
                 .from(report)
                 .leftJoin(report.reportType, reportType)
                 .leftJoin(report.reportReason, reportReason)
-                // reporter와 reported user를 각각 조인
                 .leftJoin(reporter).on(report.reporterId.eq(reporter.id))
                 .leftJoin(reported).on(report.reportedUserId.eq(reported.id))
                 .where(condition)
@@ -220,11 +209,9 @@ public class AdminQueryRepository {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
-        // 결과 및 총 개수 조회
         List<Report> reports = query.fetch();
         long total = query.fetchCount();
 
-        // User 정보를 한 번에 조회
         List<Integer> reporterIds = reports.stream()
                 .map(Report::getReporterId)
                 .distinct()
@@ -234,7 +221,6 @@ public class AdminQueryRepository {
                 .distinct()
                 .toList();
 
-        // User 정보 조회
         Map<Integer, User> reporterMap = queryFactory
                 .selectFrom(QUser.user)
                 .where(QUser.user.id.in(reporterIds))
@@ -249,7 +235,6 @@ public class AdminQueryRepository {
                 .stream()
                 .collect(Collectors.toMap(User::getId, user -> user));
 
-        // SearchReportResponse로 변환
         List<SearchReportResponse> content = reports.stream()
                 .map(r -> {
                     User reporterUser = reporterMap.get(r.getReporterId());
@@ -282,7 +267,6 @@ public class AdminQueryRepository {
                     );
                 })
                 .toList();
-
         return new PageImpl<>(content, pageable, total);
     }
 
@@ -294,20 +278,13 @@ public class AdminQueryRepository {
      * @return 버그 리포트 목록
      */
     public Page<SearchBugReportsResponse> searchBugReports(SearchBugReportCond searchBugReportCond, Pageable pageable) {
-        // 동적 조건 생성을 위한 기본 설정
         BooleanExpression condition = bugReport.state.eq(State.ACTIVE);
-
-        // 제목 검색 조건
         if (searchBugReportCond.title() != null && !searchBugReportCond.title().isEmpty()) {
             condition = condition.and(bugReport.title.containsIgnoreCase(searchBugReportCond.title()));
         }
-
-        // 버그 상태 검색 조건
         if (searchBugReportCond.bugStatus() != null) {
             condition = condition.and(bugReport.bugStatus.eq(searchBugReportCond.bugStatus()));
         }
-
-        // 버그 리포트 목록 조회 쿼리
         JPAQuery<BugReport> query = queryFactory
                 .select(bugReport)
                 .from(bugReport)
@@ -317,11 +294,9 @@ public class AdminQueryRepository {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize());
 
-        // 결과 리스트 및 총 개수 가져오기
         List<BugReport> bugReports = query.fetch();
         long total = query.fetchCount();
 
-        // SearchBugReportsResponse 변환
         List<SearchBugReportsResponse> content = bugReports.stream()
                 .map(report -> new SearchBugReportsResponse(
                         report.getId(),

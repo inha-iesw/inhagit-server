@@ -24,6 +24,4 @@ public interface BannerMapper {
     @Mapping(target = "imgPath", source = "bannerPath")
     @Mapping(target = "user", source = "user")
     Banner bannerPathToBanner(User user, String bannerPath);
-
-
 }

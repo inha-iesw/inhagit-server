@@ -69,5 +69,4 @@ public class TeamPostQueryRepository {
                 .toList();
         return new PageImpl<>(content, pageable, total);
     }
-
 }

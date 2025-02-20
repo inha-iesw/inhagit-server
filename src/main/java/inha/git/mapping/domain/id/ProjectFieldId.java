@@ -19,6 +19,6 @@ import java.io.Serializable;
 public class ProjectFieldId implements Serializable {
 
     private Integer projectId;
-    private Integer fieldId;
 
+    private Integer fieldId;
 }

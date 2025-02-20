@@ -29,13 +29,13 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfig {
-    // 관리자 전용 경로
+
     private static final String ADMIN_URL = "/api/v1/admin/**";
-    // 조교 전용 경로
+
     private static final String ASSISTANT_URL = "/api/v1/assistant/**";
-    // 교수 전용 경로
+
     private static final String PROFESSOR_URL = "/api/v1/professors/**";
-    // 기업 전용 경로
+
     private static final String COMPANY_URL = "/api/v1/company/**";
 
     private static final String[] GET_ONLY_WHITE_LIST_URL = {
@@ -53,6 +53,7 @@ public class SecurityConfig {
             "/api/v1/banner/**",
             "/api/v1/image/**",
             "/api/v1/evidence/**",
+            "/api/v1/patent/**",
             "/api/v1/problem-file/**",
             "/api/v1/project/**",
             "/api/v1project-zip/**",
@@ -66,6 +67,7 @@ public class SecurityConfig {
             "/api/v1/problems",
             "/api/v1/projects",
             "/api/v1/projects/cond",
+            "/api/v1/projects/patent",
             "/api/v1/notices/{noticeIdx}",
             "/api/v1/searches",
             "/api/v1/searches/**",
@@ -95,8 +97,6 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
-
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -117,26 +117,22 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL).permitAll().
-                                requestMatchers(GET, GET_ONLY_WHITE_LIST_URL).permitAll()  // GET 요청만 허용
-                                // 관리자 전용 접근 설정
+                                requestMatchers(GET, GET_ONLY_WHITE_LIST_URL).permitAll()
                                 .requestMatchers(ADMIN_URL).hasRole(ADMIN.name())
                                 .requestMatchers(GET, ADMIN_URL).hasAuthority(ADMIN_READ.name())
                                 .requestMatchers(POST, ADMIN_URL).hasAuthority(ADMIN_CREATE.name())
                                 .requestMatchers(PUT, ADMIN_URL).hasAuthority(ADMIN_UPDATE.name())
                                 .requestMatchers(DELETE, ADMIN_URL).hasAuthority(ADMIN_DELETE.name())
-                                // 조교 전용 접근 설정
                                 .requestMatchers(ASSISTANT_URL).hasAnyRole(ASSISTANT.name(), PROFESSOR.name(), ADMIN.name())
                                 .requestMatchers(GET, ASSISTANT_URL).hasAnyAuthority(ASSISTANT_READ.name(), PROFESSOR_READ.name(), ADMIN_READ.name())
                                 .requestMatchers(POST, ASSISTANT_URL).hasAnyAuthority(ASSISTANT_CREATE.name(), PROFESSOR_CREATE.name(), ADMIN_CREATE.name())
                                 .requestMatchers(PUT, ASSISTANT_URL).hasAnyAuthority(ASSISTANT_UPDATE.name(), PROFESSOR_UPDATE.name(), ADMIN_UPDATE.name())
                                 .requestMatchers(DELETE, ASSISTANT_URL).hasAnyAuthority(ASSISTANT_DELETE.name(), PROFESSOR_DELETE.name(), ADMIN_DELETE.name())
-                                // 교수 전용 접근 설정
                                 .requestMatchers(PROFESSOR_URL).hasAnyRole(PROFESSOR.name(), ADMIN.name())
                                 .requestMatchers(GET, PROFESSOR_URL).hasAnyAuthority(PROFESSOR_READ.name(), ADMIN_READ.name())
                                 .requestMatchers(POST, PROFESSOR_URL).hasAnyAuthority(PROFESSOR_CREATE.name(), ADMIN_CREATE.name())
                                 .requestMatchers(PUT, PROFESSOR_URL).hasAnyAuthority(PROFESSOR_UPDATE.name(), ADMIN_UPDATE.name())
                                 .requestMatchers(DELETE, PROFESSOR_URL).hasAnyAuthority(PROFESSOR_DELETE.name(), ADMIN_DELETE.name())
-                                // 기업 전용 접근 설정
                                 .requestMatchers(COMPANY_URL).hasAnyRole(COMPANY.name(), ADMIN.name())
                                 .requestMatchers(GET, COMPANY_URL).hasAnyAuthority(COMPANY_READ.name(), ADMIN.name())
                                 .requestMatchers(POST, COMPANY_URL).hasAnyAuthority(COMPANY_CREATE.name(), ADMIN.name())
@@ -152,7 +148,6 @@ public class SecurityConfig {
                         logout.logoutUrl("/api/v1/auth/logout")
                                 .addLogoutHandler(logoutHandler)
                                 .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext())
-
                 )
                 .exceptionHandling(exceptionHandling ->
                         exceptionHandling
@@ -160,6 +155,5 @@ public class SecurityConfig {
                                 .accessDeniedHandler(customAccessDeniedHandler)
                 );
         return http.build();
-
     }
 }

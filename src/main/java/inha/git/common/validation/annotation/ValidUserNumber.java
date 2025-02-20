@@ -14,6 +14,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidUserNumber {
+
     String message() default "6~8자리의 숫자를 입력하세요.";
 
     Class<?>[] groups() default {};

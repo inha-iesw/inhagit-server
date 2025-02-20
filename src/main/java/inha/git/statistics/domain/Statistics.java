@@ -25,7 +25,6 @@ public class Statistics {
     @Column(name = "statistics_type", nullable = false)
     private StatisticsType statisticsType;
 
-
     @Column(name = "target_id")
     private Integer targetId;
 
@@ -47,13 +46,17 @@ public class Statistics {
     @Column(name = "question_count", nullable = false)
     private Integer questionCount = 0;
 
+    @Column(name = "patent_count", nullable = false)
+    private Integer patentCount = 0;
+
     @Column(name = "project_participation_count", nullable = false)
     private Integer projectParticipationCount = 0;
 
     @Column(name = "question_participation_count", nullable = false)
     private Integer questionParticipationCount = 0;
 
-
+    @Column(name = "patent_participation_count", nullable = false)
+    private Integer patentParticipationCount = 0;
 
     public void incrementLocalProjectCount() {
         this.localProjectCount++;
@@ -73,6 +76,14 @@ public class Statistics {
 
     public void incrementQuestionParticipation() {
         this.questionParticipationCount++;
+    }
+
+    public void incrementPatentCount() {
+        this.patentCount++;
+    }
+
+    public void incrementPatentParticipation() {
+        this.patentParticipationCount++;
     }
 
     public void decrementLocalProjectCount() {
@@ -105,11 +116,15 @@ public class Statistics {
         }
     }
 
-    public Integer getTotalProjectCount() {
-        return localProjectCount + githubProjectCount;
+    public void decrementPatentCount() {
+        if (patentCount > 0) {
+            patentCount--;
+        }
     }
 
-    public void setProjectParticipationCount(int size) {
-        this.projectParticipationCount = size;
+    public void decrementPatentParticipation() {
+        if (patentParticipationCount > 0) {
+            patentParticipationCount--;
+        }
     }
 }

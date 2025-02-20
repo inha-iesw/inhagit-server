@@ -14,6 +14,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidNumber {
+
     String message() default "숫자만 입력하세요.";
 
     Class<?>[] groups() default {};

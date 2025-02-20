@@ -40,5 +40,4 @@ public class ImageServiceImpl implements ImageService {
         log.info("이미지 생성 성공 - 유저: {}", user.getName());
         return imageMapper.imageToImageResponse(image);
     }
-
 }

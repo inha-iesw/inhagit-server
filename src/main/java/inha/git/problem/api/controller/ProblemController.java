@@ -70,6 +70,7 @@ public class ProblemController {
     public BaseResponse<SearchProblemResponse> getProblem(@PathVariable("problemIdx") Integer problemIdx) {
         return BaseResponse.of(PROBLEM_DETAIL_OK, problemService.getProblem(problemIdx));
     }
+
     /**
      * 문제 생성 API
      *

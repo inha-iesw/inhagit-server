@@ -10,11 +10,14 @@ public record SearchTeamRequestProblemResponse(
         @NotNull
         @Schema(description = "문제 신청 팀 인덱스", example = "1")
         Integer idx,
+
         @NotNull
         @Schema(description = "문제 신청 팀 이름", example = "팀1")
         String name,
+
         @NotNull
         SearchUserResponse leader,
+
         @NotNull
         List<SearchUserResponse> users
 ) {

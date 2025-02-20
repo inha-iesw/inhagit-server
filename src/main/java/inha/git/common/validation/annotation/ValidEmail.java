@@ -14,6 +14,7 @@ import java.lang.annotation.*;
 @Target({ ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidEmail {
+
     String message() default "유효한 이메일 주소를 입력하세요.";
 
     Class<?>[] groups() default {};

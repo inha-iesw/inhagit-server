@@ -16,11 +16,8 @@ public enum SuccessStatus implements BaseCode {
     OK(HttpStatus.OK, "COMMON2000", "성공입니다."),
 
     LOGIN_OK(HttpStatus.OK, "AUTH2000", "로그인 성공"),
-    //이메일 발송 성공
     EMAIL_SEND_OK(HttpStatus.CREATED, "AUTH2010", "이메일 발송 성공"),
-    //이메일 인증 성공
     EMAIL_AUTH_OK(HttpStatus.CREATED, "AUTH2001", "이메일 인증 성공"),
-    //학생 회원가입 성공
     STUDENT_SIGN_UP_OK(HttpStatus.CREATED, "AUTH2012", "학생 회원가입 성공"),
     PROFESSOR_SIGN_UP_OK(HttpStatus.CREATED, "AUTH2013", "교수 회원가입 성공"),
     COMPANY_SIGN_UP_OK(HttpStatus.CREATED, "AUTH2014", "기업 회원가입 성공"),
@@ -30,7 +27,6 @@ public enum SuccessStatus implements BaseCode {
     FIND_PASSWORD_EMAIL_AUTH_OK(HttpStatus.OK, "AUTH2006", "비밀번호 찾기 이메일 인증 성공"),
     CHANGE_PASSWORD_OK(HttpStatus.OK, "AUTH2007", "비밀번호 변경 성공"),
 
-    //관리자전용
     USER_SEARCH_OK(HttpStatus.OK, "ADMIN2000", "유저 검색 성공"),
     STUDENT_SEARCH_OK(HttpStatus.OK, "ADMIN2001", "학생 검색 성공"),
     PROFESSOR_SEARCH_OK(HttpStatus.OK, "ADMIN2002", "교수 검색 성공"),
@@ -47,20 +43,22 @@ public enum SuccessStatus implements BaseCode {
     USER_BLOCK_OK(HttpStatus.CREATED, "ADMIN2018", "유저 차단 성공"),
     USER_UNBLOCK_OK(HttpStatus.CREATED, "ADMIN2019", "유저 차단 해제 성공"),
     BUG_REPORT_STATE_CHANGE_OK(HttpStatus.CREATED, "ADMIN2020", "버그 제보 상태 변경 성공"),
-
+    PATENT_ACCEPT_OK(HttpStatus.CREATED, "ADMIN2021", "특허 승인 성공"),
+    PATENT_ACCEPT_CANCEL_OK(HttpStatus.CREATED, "ADMIN2022", "특허 승인 취소 성공"),
 
     DEPARTMENT_CREATE_OK(HttpStatus.CREATED, "DEPARTMENT2010", "학과 생성 성공"),
     DEPARTMENT_SEARCH_OK(HttpStatus.OK, "DEPARTMENT2000", "학과 전체 조회 성공"),
     DEPARTMENT_UPDATE_OK(HttpStatus.OK, "DEPARTMENT2001", "학과명 수정 성공"),
     DEPARTMENT_DELETE_OK(HttpStatus.OK, "DEPARTMENT2002", "학과 삭제 성공"),
+
     BANNER_CREATED_OK(HttpStatus.CREATED, "BANNER2010", "배너 생성 성공"),
     BANNER_SEARCH_OK(HttpStatus.OK, "BANNER2000", "배너 조회 성공"),
+
     FIELD_CREATE_OK(HttpStatus.CREATED, "FIELD2010", "분야 생성 성공"),
     FIELD_UPDATE_OK(HttpStatus.OK, "FIELD2001", "분야 수정 성공"),
     FIELD_DELETE_OK(HttpStatus.OK, "FIELD2002", "분야 삭제 성공"),
     FIELD_SEARCH_OK(HttpStatus.OK, "FIELD2000", "분야 전체 조회 성공"),
 
-    //이미지 생성
     IMAGE_CREATE_OK(HttpStatus.CREATED, "IMAGE2010", "이미지 생성 성공"),
 
     COLLEGE_CREATE_OK(HttpStatus.CREATED, "COLLEGE2010", "단과대 생성 성공"),
@@ -112,7 +110,6 @@ public enum SuccessStatus implements BaseCode {
     PROJECT_COMMENT_REPLY_DELETE_OK(HttpStatus.OK, "PROJECT2022", "프로젝트 대댓글 삭제 성공"),
     PROJECT_COMMENT_REPLY_UPDATE_OK(HttpStatus.OK, "PROJECT2023", "프로젝트 대댓글 수정 성공"),
 
-
     GITHUB_TOKEN_REFRESH_OK(HttpStatus.OK, "GITHUB2000", "깃허브 토큰 갱신 성공"),
     GITHUB_REPOSITORIES_OK(HttpStatus.OK, "GITHUB2001", "깃허브 레포지토리 조회 성공"),
 
@@ -144,7 +141,6 @@ public enum SuccessStatus implements BaseCode {
     QUESTION_COMMENT_REPLY_DELETE_OK(HttpStatus.OK, "QUESTION2016", "질문 대댓글 삭제 성공"),
     QUESTION_COMMENT_REPLY_UPDATE_OK(HttpStatus.OK, "QUESTION2017", "질문 대댓글 수정 성공"),
 
-    //팀
     TEAM_CREATE_OK(HttpStatus.CREATED, "TEAM2010", "팀 생성 성공"),
     TEAM_SEARCH_OK(HttpStatus.OK, "TEAM2000", "팀 전체 조회 성공"),
     TEAM_UPDATE_OK(HttpStatus.OK, "TEAM2001", "팀 수정 성공"),
@@ -168,7 +164,6 @@ public enum SuccessStatus implements BaseCode {
     TEAM_COMMENT_REPLY_UPDATE_OK(HttpStatus.OK, "TEAM2025", "팀 게시글 대댓글 수정 성공"),
     TEAM_REQUEST_LIST_OK(HttpStatus.OK, "TEAM2026", "팀 가입 요청 목록 조회 성공"),
 
-
     MY_PAGE_USER_SEARCH_OK(HttpStatus.OK, "USER2000", "마이페이지 유저 조회 성공"),
     MY_PAGE_PROJECT_SEARCH_OK(HttpStatus.OK, "USER2001", "마이페이지 프로젝트 조회 성공"),
     MY_PAGE_QUESTION_SEARCH_OK(HttpStatus.OK, "USER2002", "마이페이지 질문 조회 성공"),
@@ -190,11 +185,14 @@ public enum SuccessStatus implements BaseCode {
     PROBLEM_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2003", "문제 통계 조회 성공"),
     DEPARTMENT_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2004", "학과별 전체 통계 조회 성공"),
     BATCH_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2005", "단과대별 학기별 통계 일괄 조회 성공"),
+    PATENT_STATISTICS_SEARCH_OK(HttpStatus.OK, "STATISTICS2006", "특허 통계 조회 성공"),
 
     PATENT_SEARCH_OK(HttpStatus.OK, "PATENT2000", "특허 조회 성공"),
     PATENT_SEARCH_SUCCESS(HttpStatus.OK, "PATENT2001", "특허 검색 성공"),
     PATENT_REGISTER_SUCCESS(HttpStatus.CREATED, "PATENT2010", "특허 등록 성공"),
+    PATENT_UPDATE_SUCCESS(HttpStatus.OK, "PATENT2002", "특허 수정 성공"),
     PATENT_DELETE_SUCCESS(HttpStatus.OK, "PATENT2011", "특허 삭제 성공"),
+    PATENT_SEARCH_PAGE_SUCCESS(HttpStatus.OK, "PATENT2003", "특허 페이지 조회 성공"),
 
     SEARCH_OK(HttpStatus.OK, "SEARCH2000", "검색 성공");
 

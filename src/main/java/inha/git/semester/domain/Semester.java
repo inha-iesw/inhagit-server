@@ -10,7 +10,6 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Field 엔티티는 애플리케이션의 필드 정보를 나타냄.
  */
@@ -31,13 +30,11 @@ public class Semester extends BaseEntity {
     @Column(nullable = false, length = 20)
     private String name;
 
-
     @OneToMany(mappedBy = "semester", fetch = FetchType.LAZY)
     private List<Project> projects = new ArrayList<>();
 
     @OneToMany(mappedBy = "semester", fetch = FetchType.LAZY)
     private List<Question> questions = new ArrayList<>();
-
 
     public void setName(String name) {
         this.name = name;

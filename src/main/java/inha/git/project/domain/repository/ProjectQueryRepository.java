@@ -7,6 +7,7 @@ import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.mapping.domain.QProjectField;
 import inha.git.project.api.controller.dto.request.SearchProjectCond;
 import inha.git.project.api.controller.dto.response.SearchFieldResponse;
+import inha.git.project.api.controller.dto.response.SearchPatentSummaryResponse;
 import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.project.domain.Project;
@@ -23,6 +24,7 @@ import java.util.List;
 
 import static inha.git.category.domain.QCategory.category;
 import static inha.git.college.domain.QCollege.college;
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.Constant.mapRoleToPosition;
 import static inha.git.department.domain.QDepartment.department;
 import static inha.git.mapping.domain.QProjectField.projectField;
@@ -39,65 +41,6 @@ import static inha.git.user.domain.QUser.user;
 public class ProjectQueryRepository {
 
     private final JPAQueryFactory queryFactory;
-
-    /**
-     * 프로젝트 목록 조회
-     *
-     * @param pageable 페이지 정보
-     * @return 프로젝트 페이지
-     */
-    public Page<SearchProjectsResponse> getProjects(Pageable pageable) {
-        QProject project = QProject.project;
-        QUser user = QUser.user;
-        QProjectField projectField = QProjectField.projectField;
-
-        // 프로젝트 목록 조회 쿼리
-        JPAQuery<Project> query = queryFactory
-                .select(project)
-                .from(project)
-                .leftJoin(project.user, user)
-                .leftJoin(project.projectFields, projectField)
-                .where(project.state.eq(Project.State.ACTIVE))
-                .orderBy(project.id.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize());
-
-        // 결과 리스트 및 총 개수 가져오기
-        List<Project> projects = query.fetch();
-        long total = query.fetchCount();
-        // SearchProjectsResponse 변환
-        List<SearchProjectsResponse> content = projects.stream()
-                .map(p -> new SearchProjectsResponse(
-                        p.getId(),
-                        p.getTitle(),
-                        p.getCreatedAt(),
-                        p.getRepoName() != null,
-                        new SearchSemesterResponse(
-                                p.getSemester().getId(),
-                                p.getSemester().getName()),
-                        new SearchCategoryResponse(
-                                p.getCategory().getId(),
-                                p.getCategory().getName()),
-                        p.getSubjectName(),
-                        p.getLikeCount(),
-                        p.getCommentCount(),
-                        p.getIsPublic(),
-                        p.getProjectFields().stream()
-                                .map(f -> new SearchFieldResponse(
-                                        f.getField().getId(),
-                                        f.getField().getName()
-                                ))
-                                .toList(),
-                        new SearchUserResponse(
-                                p.getUser().getId(),
-                                p.getUser().getName(),
-                                mapRoleToPosition(p.getUser().getRole())
-                        )
-
-                ))
-                .toList();
-        return new PageImpl<>(content, pageable, total);
-    }
 
     /**
      * 특정 유저의 프로젝트 목록 조회
@@ -126,6 +69,7 @@ public class ProjectQueryRepository {
         List<Project> projects = query.fetch();
         long total = query.fetchCount();
         // SearchProjectsResponse 변환
+
         List<SearchProjectsResponse> content = projects.stream()
                 .map(p -> new SearchProjectsResponse(
                         p.getId(),
@@ -152,9 +96,14 @@ public class ProjectQueryRepository {
                                 p.getUser().getId(),
                                 p.getUser().getName(),
                                 mapRoleToPosition(p.getUser().getRole())
-                        )
-                ))
-                .toList();
+                        ),
+                        p.getProjectPatents().stream()
+                                .map(pp -> new SearchPatentSummaryResponse(
+                                        pp.getId(),
+                                        pp.getAcceptAt() != null,
+                                        pp.getPatentType()
+                                ))
+                                .toList())).toList();
         return new PageImpl<>(content, pageable, total);
     }
 
@@ -199,6 +148,14 @@ public class ProjectQueryRepository {
         if(searchProjectCond.title() != null && !searchProjectCond.title().isEmpty()) {
             // 제목 조건: LIKE '%title%'
             condition = condition.and(project.title.containsIgnoreCase(searchProjectCond.title()));
+        }
+
+        if (searchProjectCond.isPatent() != null) {
+            if (searchProjectCond.isPatent()) {
+                condition = condition.and(project.projectPatents.isNotEmpty());
+            } else {
+                condition = condition.and(project.projectPatents.isEmpty());
+            }
         }
 
         // 프로젝트 목록 조회 쿼리
@@ -248,8 +205,14 @@ public class ProjectQueryRepository {
                                 p.getUser().getId(),
                                 p.getUser().getName(),
                                 mapRoleToPosition(p.getUser().getRole())
-                        )
-                ))
+                        ),
+                        p.getProjectPatents().stream()
+                                .map(pp -> new SearchPatentSummaryResponse(
+                                        pp.getId(),
+                                        pp.getAcceptAt() != null,
+                                        pp.getPatentType()
+                                ))
+                                .toList()))
                 .toList();
 
         return new PageImpl<>(content, pageable, total);

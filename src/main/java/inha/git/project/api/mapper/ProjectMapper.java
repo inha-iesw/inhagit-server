@@ -18,6 +18,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static inha.git.common.Constant.mapRoleToPosition;
@@ -27,7 +28,6 @@ import static inha.git.common.Constant.mapRoleToPosition;
  */
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ProjectMapper {
-
 
     /**
      * CreateProjectRequest를 Project 엔티티로 변환
@@ -71,7 +71,6 @@ public interface ProjectMapper {
      */
     @Mapping(target = "idx", source = "project.id")
     ProjectResponse projectToProjectResponse(Project project);
-
 
     /**
      * Project 엔티티를 UpdateProjectResponse로 변환
@@ -127,7 +126,6 @@ public interface ProjectMapper {
     @Mapping(target = "registration", source = "registrationRecommendCount")
     SearchRecommendCount projectToSearchRecommendCountResponse(Project project);
 
-
     /**
      * User 엔티티를 SearchUserResponse로 변환
      *
@@ -138,9 +136,7 @@ public interface ProjectMapper {
         if (user == null) {
             return null;
         }
-
         Integer position = mapRoleToPosition(user.getRole());
-
         return new SearchUserResponse(
                 user.getId(),    // idx
                 user.getName(),  // name
@@ -182,7 +178,7 @@ public interface ProjectMapper {
     @Mapping(target = "semester", source = "semester")
     @Mapping(target = "category", source = "category")
     @Mapping(target = "isPublic", source = "project.isPublic")
-    SearchProjectResponse projectToSearchProjectResponse(Project project, ProjectUpload projectUpload, List<SearchFieldResponse> fieldList, SearchRecommendCount recommendCount, SearchUserResponse author, SearchRecommendState recommendState, SearchSemesterResponse semester, SearchCategoryResponse category);
+    SearchProjectResponse projectToSearchProjectResponse(Project project, ProjectUpload projectUpload, List<SearchFieldResponse> fieldList, SearchRecommendCount recommendCount, SearchUserResponse author, SearchRecommendState recommendState, SearchSemesterResponse semester, SearchCategoryResponse category, List<SearchPatentSummaryResponse> patent);
 
     /**
      * FoundingRecommend 엔티티 생성
@@ -265,7 +261,6 @@ public interface ProjectMapper {
     @Mapping(target = "idx", source = "projectReplyComment.id")
     ReplyCommentResponse toReplyCommentResponse(ProjectReplyComment projectReplyComment);
 
-
     /**
      * ProjectComment 엔티티를 CommentWithRepliesResponse로 변환
      *
@@ -304,7 +299,6 @@ public interface ProjectMapper {
     @Mapping(target = "createdAt", source = "projectReplyComment.createdAt")
     SearchReplyCommentResponse toSearchReplyCommentResponse(ProjectReplyComment projectReplyComment);
 
-
     /**
      * CreateGithubProjectRequest를 Project 엔티티로 변환
      *
@@ -324,42 +318,20 @@ public interface ProjectMapper {
     @Mapping(target = "isPublic", source = "createGithubProjectRequest.isPublic")
     Project createGithubProjectRequestToProject(CreateGithubProjectRequest createGithubProjectRequest, User user, Semester semester, Category category);
 
-
-    SearchPatentResponse toSearchPatentResponse(String applicationNumber, String applicationDate, String inventionTitle,
-                                                String inventionTitleEnglish, String applicantName, String applicantEnglishName,
-                                                List<SearchInventorResponse> inventors);
-    @Mapping(target = "applicationDate", source = "applicationDate")
-    @Mapping(target = "inventionTitle", source = "inventionTitle")
-    @Mapping(target = "inventionTitleEnglish", source = "inventionTitleEng")
-    SearchPatentResponse toSearchPatentResponse(String applicationDate, String inventionTitle, String inventionTitleEng);
-
-    @Mapping(target = "applicantName", source = "applicantName")
-    @Mapping(target = "applicantEnglishName", source = "applicantEnglishName")
-    SearchPatentResponse toSearchPatentResponse(String applicantName, String applicantEnglishName);
-
-
-    default List<ProjectPatentInventor> toPatentInventor(List<SearchInventorResponse> inventors, ProjectPatent projectPatent) {
+    default List<ProjectPatentInventor> toPatentInventor(List<CreatePatentInventorRequest> inventors, ProjectPatent projectPatent) {
         List<ProjectPatentInventor> result = new ArrayList<>();
-        for (SearchInventorResponse inventor : inventors) {
+        for (CreatePatentInventorRequest inventor : inventors) {
             result.add(toPatentInventor(inventor, projectPatent));
         }
         return result;
     }
 
     @Mapping(target ="id", ignore = true)
-    ProjectPatentInventor toPatentInventor(SearchInventorResponse inventor, ProjectPatent projectPatent);
-
-    @Mapping(target = "applicationNumber", source = "projectPatent.applicationNumber")
-    @Mapping(target = "applicationDate", source = "projectPatent.applicationDate")
-    @Mapping(target = "inventionTitle", source = "projectPatent.inventionTitle")
-    @Mapping(target = "inventionTitleEnglish", source = "projectPatent.inventionTitleEnglish")
-    @Mapping(target = "applicantName", source = "projectPatent.applicantName")
-    @Mapping(target = "applicantEnglishName", source = "projectPatent.applicantEnglishName")
-    @Mapping(target = "inventors", source = "patentInventors")
-    SearchPatentResponse toSearchPatentResponse(ProjectPatent projectPatent, List<ProjectPatentInventor> patentInventors);
+    ProjectPatentInventor toPatentInventor(CreatePatentInventorRequest inventor, ProjectPatent projectPatent);
 
     @Mapping(target = "id", ignore = true)
-    ProjectPatent toProjectPatent(String applicationNumber, String applicationDate, String inventionTitle, String inventionTitleEnglish, String applicantName, String applicantEnglishName);
+    @Mapping(target = "acceptAt", ignore = true)
+    ProjectPatent toProjectPatent(CreatePatentRequest createPatentRequest, String evidence, String evidenceName,Project project);
 
     @Mapping(target = "idx", source = "projectPatent.id")
     PatentResponse toPatentResponse(ProjectPatent projectPatent);
@@ -372,4 +344,47 @@ public interface ProjectMapper {
         return new ProjectReplyCommentLike(new ProjectReplyCommentLikeId(user.getId(), projectReplyComment.getId()), projectReplyComment, user);
     }
 
+    SearchInventorResponse toSearchInventorResponse(ProjectPatentInventor inventor);
+
+    default List<SearchInventorResponse> toSearchInventorResponseList(List<ProjectPatentInventor> inventors) {
+        if (inventors == null) {
+            return Collections.emptyList();
+        }
+        return inventors.stream()
+                .map(this::toSearchInventorResponse)
+                .toList();
+    }
+
+    default SearchPatentResponse toSearchPatentResponse(ProjectPatent projectPatent, List<ProjectPatentInventor> inventors, SearchProjectPatentResponse project, SearchUserResponse user) {
+        if (projectPatent == null) {
+            return null;
+        }
+
+        return new SearchPatentResponse(
+                projectPatent.getId(),
+                projectPatent.getApplicationNumber(),
+                projectPatent.getPatentType(),
+                projectPatent.getApplicationDate(),
+                projectPatent.getInventionTitle(),
+                projectPatent.getInventionTitleEnglish(),
+                projectPatent.getApplicantName(),
+                projectPatent.getApplicantEnglishName(),
+                projectPatent.getEvidence(),
+                projectPatent.getEvidenceName(),
+                projectPatent.getAcceptAt(),
+                toSearchInventorResponseList(inventors),
+                project,
+                user
+        );
+    }
+
+    default List<SearchPatentSummaryResponse> projectToSearchPatentSummaryResponse(Project project) {
+        return project.getProjectPatents().stream()
+                .map(pp -> new SearchPatentSummaryResponse(
+                        pp.getId(),
+                        pp.getAcceptAt() != null,
+                        pp.getPatentType()
+                ))
+                .toList();
+    }
 }

@@ -31,6 +31,7 @@ public interface FieldMapper {
      */
     @Mapping(source = "id", target = "idx")
     SearchFieldResponse fieldToSearchFieldResponse(Field field);
+
     /**
      * Field 엔티티 목록을 SearchFieldResponse 목록으로 변환
      *
@@ -38,6 +39,4 @@ public interface FieldMapper {
      * @return SearchFieldResponse 목록
      */
     List<SearchFieldResponse> fieldsToSearchFieldResponses(List<Field> fields);
-
 }
-

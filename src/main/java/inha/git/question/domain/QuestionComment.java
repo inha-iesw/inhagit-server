@@ -9,7 +9,6 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * QuestionComment 엔티티는 애플리케이션의 질문 댓글 정보를 나타냄.
  */
@@ -21,6 +20,7 @@ import java.util.List;
 @Entity
 @Table(name = "question_comment_tb")
 public class QuestionComment extends BaseEntity {
+
     @Id
     @Column(name = "question_comment_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)

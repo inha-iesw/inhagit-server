@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import static inha.git.common.Constant.STUDENT_SIGN_UP_TYPE;
 import static inha.git.common.Constant.STUDENT_TYPE;
 
-
 /**
  * 학생 관련 비즈니스 로직을 처리하는 서비스 구현체입니다.
  * 학생 회원가입과 관련된 도메인 로직을 수행합니다.
@@ -53,7 +52,6 @@ public class StudentServiceImpl implements StudentService{
         userMapper.mapDepartmentsToUser(user, studentSignupRequest.departmentIdList(), departmentRepository);
         user.setPassword(passwordEncoder.encode(studentSignupRequest.pw()));
         User savedUser = userJpaRepository.save(user);
-
         log.info("학생 회원가입 성공 - 이메일: {}", studentSignupRequest.email());
         return userMapper.userToStudentSignupResponse(savedUser);
     }

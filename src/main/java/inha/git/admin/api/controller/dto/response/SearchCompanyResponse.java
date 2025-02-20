@@ -44,6 +44,7 @@ public record SearchCompanyResponse(
         @NotNull
         @Schema(description = "증빙파일", example = "/file/user/8/evidence")
         String evidence,
+
         @Schema(description = "기업 계정 승인일", example = "2024-05-31 04:26:56.831000 +00:00")
         LocalDateTime acceptedAt,
 
@@ -66,7 +67,4 @@ public record SearchCompanyResponse(
 
         );
     }
-
-
-
 }

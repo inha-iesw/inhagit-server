@@ -6,7 +6,6 @@ import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 /**
  * QuestionReplyComment는 엔티티는 애플리케이션의 질문 대댓글 정보를 나타냄.
  */
@@ -29,7 +28,6 @@ public class QuestionReplyComment extends BaseEntity {
 
     @Column(nullable = false, name = "like_count")
     private Integer likeCount;
-
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_comment_id")

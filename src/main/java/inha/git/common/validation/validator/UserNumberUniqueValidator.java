@@ -24,7 +24,6 @@ public class UserNumberUniqueValidator implements ConstraintValidator<UserNumber
         ConstraintValidator.super.initialize(constraintAnnotation);
     }
 
-
     @Override
     public boolean isValid(String userNumber, ConstraintValidatorContext context) {
         return !userJpaRepository.existsByUserNumberAndState(userNumber, ACTIVE);

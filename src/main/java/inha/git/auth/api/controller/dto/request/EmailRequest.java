@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 public record EmailRequest(
+
         @NotEmpty(message = "이메일을 입력해 주세요")
         @EmailUnique
         @Email
@@ -20,5 +21,4 @@ public record EmailRequest(
         @Schema(description = "인증 타입", example = "1")
         Integer type
 ) {
-
 }

@@ -7,7 +7,6 @@ import lombok.*;
 
 import java.util.List;
 
-
 /**
  * TeamComment 엔티티는 애플리케이션의 팀 댓글 정보를 나타냄.
  */
@@ -19,6 +18,7 @@ import java.util.List;
 @Entity
 @Table(name = "team_comment_tb")
 public class TeamComment extends BaseEntity {
+
     @Id
     @Column(name = "team_comment_id", nullable = false, updatable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
