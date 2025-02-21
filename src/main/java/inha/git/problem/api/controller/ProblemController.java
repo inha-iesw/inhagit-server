@@ -76,17 +76,17 @@ public class ProblemController {
      *
      * @param user 유저 정보
      * @param createProblemRequest 문제 생성 요청 정보
-     * @param file 문제 파일
+     * @param files 문제 파일들
      * @return 생성된 문제 정보
      */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAuthority('assistant:create')")
-    @Operation(summary = "문제 생성(조교, 교수, 관리자 전용) API", description = "문제를 생성합니다.")
+    @PreAuthorize("hasAnyAuthority('professor:create', 'company:create')")
+    @Operation(summary = "문제 생성(교수, 기업, 관리자 전용) API", description = "문제를 생성합니다.")
     public BaseResponse<ProblemResponse> createProblem(@AuthenticationPrincipal User user,
                                                        @Validated @RequestPart("createProblemRequest") CreateProblemRequest createProblemRequest,
-                                                       @RequestPart(value = "file") MultipartFile file) {
-        ValidFile.validateImagePdfZipFile(file);
-        return BaseResponse.of(PROBLEM_CREATE_OK, problemService.createProblem(user, createProblemRequest, file));
+                                                       @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+        log.info("문제 생성 - 사용자: {} 문제 제목: {}", user.getName(), createProblemRequest.title());
+        return BaseResponse.of(PROBLEM_CREATE_OK, problemService.createProblem(user, createProblemRequest, files));
     }
 
     /**

@@ -21,13 +21,11 @@ public interface ProblemMapper {
     /**
      * CreateProblemRequest를 Problem 엔티티로 변환
      * @param createProblemRequest
-     * @param filePath
      * @param user
      * @return
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", source = "user")
-    @Mapping(target = "filePath", source = "filePath")
     Problem createProblemRequestToProblem(CreateProblemRequest createProblemRequest,String filePath, User user);
 
     /**
@@ -57,7 +55,6 @@ public interface ProblemMapper {
     @Mapping(target = "title", source = "updateProblemRequest.title")
     @Mapping(target = "duration", source = "updateProblemRequest.duration")
     @Mapping(target = "contents", source = "updateProblemRequest.contents")
-    @Mapping(target = "filePath", source = "filePath") // 새로운 파일 경로를 매핑
     void updateProblemRequestToProblem(UpdateProblemRequest updateProblemRequest, String filePath, @MappingTarget Problem problem);
 
     /**
@@ -88,7 +85,6 @@ public interface ProblemMapper {
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "problem", source = "problem")
-    @Mapping(target = "type", source = "type")
     ProblemRequest createProblemRequestToProblemRequest(Problem problem, Integer type);
 
     /**
@@ -99,37 +95,10 @@ public interface ProblemMapper {
     @Mapping(target = "idx", source = "problemRequest.id")
     RequestProblemResponse problemRequestToRequestProblemResponse(ProblemRequest problemRequest);
 
-    /**
-     * User와 ProblemRequest를 ProblemPersonalRequest로 변환
-     * @param user
-     * @param problemRequest
-     * @return
-     */
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", source = "user")
-    @Mapping(target = "problemRequest", source = "problemRequest")
-    @Mapping(target = "problem", source = "problemRequest.problem")
-    ProblemPersonalRequest createRequestProblemRequestToProblemPersonalRequest(User user, ProblemRequest problemRequest);
-
-    /**
-     * Team과 ProblemRequest를 ProblemTeamRequest로 변환
-     * @param team
-     * @param problemRequest
-     * @return
-     */
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "team", source = "team")
-    @Mapping(target = "problemRequest", source = "problemRequest")
-    @Mapping(target = "problem", source = "problemRequest.problem")
-    ProblemTeamRequest createTeamRequestProblemRequestToProblemTeamRequest(Team team, ProblemRequest problemRequest);
-
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "problemRequest", source = "problemRequest")
-    @Mapping(target = "directoryName", source = "folderName")
-    @Mapping(target = "zipDirectoryName", source = "zipFilePath")
     ProblemSubmit createProblemSubmitRequestToProblemSubmit(ProblemRequest problemRequest, String zipFilePath, String folderName);
 
     @Mapping(target = "idx", source = "problemSubmit.id")
-    @Mapping(target = "zipFilePath", source = "problemSubmit.zipDirectoryName")
     ProblemSubmitResponse problemSubmitToProblemSubmitResponse(ProblemSubmit problemSubmit);
 }
