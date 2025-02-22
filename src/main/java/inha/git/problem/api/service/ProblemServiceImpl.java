@@ -6,6 +6,7 @@ import inha.git.problem.api.controller.dto.response.*;
 import inha.git.problem.api.mapper.ProblemMapper;
 import inha.git.problem.domain.*;
 import inha.git.problem.domain.repository.*;
+import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.utils.IdempotentProvider;
@@ -68,7 +69,11 @@ public class ProblemServiceImpl implements ProblemService {
     public SearchProblemResponse getProblem(Integer problemIdx) {
         Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
-        return problemMapper.problemToSearchProblemResponse(problem, problem.getUser());
+        SearchUserResponse author = new SearchUserResponse(problem.getUser().getId(), problem.getUser().getName(), mapRoleToPosition(problem.getUser().getRole()));
+        List<SearchProblemAttachmentResponse> attachments = problem.getProblemAttachments().stream()
+                .map(attachment -> new SearchProblemAttachmentResponse(attachment.getId(), attachment.getOriginalFileName(), attachment.getStoredFileUrl()))
+                .toList();
+        return problemMapper.problemToSearchProblemResponse(problem, author, attachments);
     }
 
     /**
