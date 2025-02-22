@@ -57,18 +57,23 @@ public class Problem extends BaseEntity {
     private User user;
 
     @Builder.Default
-    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "problem", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProblemField> problemFields = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "problem", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProblemRequest> problemRequests = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "problem", fetch = FetchType.LAZY)
     private List<ProblemAttachment> problemAttachments = new ArrayList<>();
 
     public void setHasAttachment(boolean hasAttachment) {
         this.hasAttachment = hasAttachment;
+    }
+
+    public void setProblemAttachments(List<ProblemAttachment> problemAttachments) {
+        this.problemAttachments = problemAttachments;
+        problemAttachments.forEach(problemAttachment -> problemAttachment.setProblem(this));  // 양방향 연관관계 설정
     }
 }

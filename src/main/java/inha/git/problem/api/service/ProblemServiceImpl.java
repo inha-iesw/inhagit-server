@@ -6,10 +6,6 @@ import inha.git.problem.api.controller.dto.response.*;
 import inha.git.problem.api.mapper.ProblemMapper;
 import inha.git.problem.domain.*;
 import inha.git.problem.domain.repository.*;
-import inha.git.project.api.controller.dto.response.SearchUserResponse;
-import inha.git.statistics.api.service.StatisticsService;
-import inha.git.team.domain.Team;
-import inha.git.team.domain.repository.TeamJpaRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.utils.IdempotentProvider;
@@ -27,15 +23,13 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.Constant.*;
-import static inha.git.common.Constant.mapRoleToPosition;
+
 import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
@@ -91,7 +85,7 @@ public class ProblemServiceImpl implements ProblemService {
         idempotentProvider.isValidIdempotent(List.of("createNoticeRequest", user.getId().toString(), user.getName(), createProblemRequest.title()));
 
         Problem problem = problemMapper.createProblemRequestToProblem(user, createProblemRequest);
-        if (!files.isEmpty()){
+        if (files != null && !files.isEmpty()) {
             problem.setHasAttachment(true);
         }
         else {
@@ -99,7 +93,7 @@ public class ProblemServiceImpl implements ProblemService {
         }
         Problem savedProblem = problemJpaRepository.save(problem);
 
-        if (!files.isEmpty()) {
+        if (files != null && !files.isEmpty()) {
             List<ProblemAttachment> problemAttachments = new ArrayList<>();
             files.forEach(file -> {
                 String filePath = FilePath.storeFile(file, PROBLEM);
@@ -120,30 +114,48 @@ public class ProblemServiceImpl implements ProblemService {
      * @param user 유저 정보
      * @param problemIdx 문제 인덱스
      * @param updateProblemRequest 문제 수정 요청 정보
-     * @param file 문제 파일
+     * @param files 문제 파일들
      * @return 수정된 문제 정보
      */
     @Override
     @Transactional
-    public ProblemResponse updateProblem(User user, Integer problemIdx, UpdateProblemRequest updateProblemRequest, MultipartFile file) {
-//        Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
-//                .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
-//        if (!problem.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
-//            throw new BaseException(NOT_AUTHORIZED_PROBLEM);
-//        }
-//        if (file.isEmpty()) {
-//            problemMapper.updateProblemRequestToProblem(updateProblemRequest, problem);
-//        } else {
-//            if(FilePath.deleteFile(BASE_DIR_SOURCE_2 + problem.getFilePath())){
-//                log.info("기존 파일 삭제 성공");
-//            }else {
-//                log.info("기존 파일 삭제 실패");
-//            }
-//            String newFilePath = FilePath.storeFile(file, PROBLEM_FILE);
-//            problemMapper.updateProblemRequestToProblem(updateProblemRequest, newFilePath, problem);
-//        }
-//        return problemMapper.problemToProblemResponse(problem);
-        return null;
+    public ProblemResponse updateProblem(User user, Integer problemIdx, UpdateProblemRequest updateProblemRequest, List<MultipartFile> files) {
+        Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
+        if (!problem.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new BaseException(NOT_AUTHORIZED_PROBLEM);
+        }
+        problemMapper.updateProblemRequestToProblem(updateProblemRequest, problem);
+        Problem savedProblem = problemJpaRepository.save(problem);
+        // 기존 첨부파일들의 실제 파일 삭제 및 DB에서 삭제
+        if (problem.getProblemAttachments() != null && !problem.getProblemAttachments().isEmpty()) {
+            problem.setHasAttachment(false);
+            problem.getProblemAttachments().forEach(attachment -> {
+                FilePath.deleteFile(BASE_DIR_SOURCE_2 + attachment.getStoredFileUrl());
+                problemAttachmentJpaRepository.delete(attachment);
+            });
+            problem.setProblemAttachments(new ArrayList<>());
+        }
+        if (files != null && !files.isEmpty()) {
+            problem.setHasAttachment(true);
+            problem.getProblemAttachments().addAll(
+                    files.stream()
+                            .map(file -> {
+                                String originalFileName = file.getOriginalFilename();
+                                String storedFileUrl = FilePath.storeFile(file, ATTACHMENT);
+                                // 트랜잭션 롤백 시 파일 삭제를 위한 등록
+                                registerRollbackCleanup(storedFileUrl);
+                                ProblemAttachment attachment = problemMapper.createProblemAttachmentRequestToProblemAttachment(
+                                        originalFileName,
+                                        storedFileUrl,
+                                        savedProblem
+                                );
+                                return problemAttachmentJpaRepository.save(attachment);
+                            })
+                            .toList()
+            );
+        }
+        return problemMapper.problemToProblemResponse(savedProblem);
     }
 
     /**
@@ -524,26 +536,16 @@ public class ProblemServiceImpl implements ProblemService {
         return new String[] { zipFilePath, folderName };
     }
 
-    /**
-     * 트랜잭션 롤백 시 파일 삭제 로직 등록
-     *
-     * @param zipFilePath 압축 파일 경로
-     * @param folderName  압축 해제된 폴더명
-     */
-    private void registerRollbackCleanup(String zipFilePath, String folderName) {
+    private void registerRollbackCleanup(String zipFilePath) {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
             public void afterCompletion(int status) {
                 if (status == STATUS_ROLLED_BACK) {
                     log.info("트랜잭션 롤백 시 파일 삭제 로직 실행");
                     log.info(BASE_DIR_SOURCE_2 + zipFilePath);
-                    log.info(BASE_DIR_SOURCE_2 + PROJECT_UPLOAD + folderName);
-
                     boolean isFileDeleted = FilePath.deleteFile(BASE_DIR_SOURCE_2 + zipFilePath);
-                    boolean isDirDeleted = FilePath.deleteDirectory(BASE_DIR_SOURCE_2 + PROJECT_UPLOAD + folderName);
-
-                    if (isFileDeleted && isDirDeleted) {
-                        log.info("파일과 디렉토리가 성공적으로 삭제되었습니다.");
+                    if (isFileDeleted ) {
+                        log.info("파일이 성공적으로 삭제되었습니다.");
                     } else {
                         log.error("파일 또는 디렉토리 삭제에 실패했습니다.");
                     }

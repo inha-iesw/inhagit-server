@@ -95,20 +95,17 @@ public class ProblemController {
      * @param user 유저 정보
      * @param problemIdx 문제 인덱스
      * @param updateProblemRequest 문제 수정 요청 정보
-     * @param file 문제 파일
+     * @param files 문제 파일들
      * @return 수정된 문제 정보
      */
     @PutMapping(value = "/{problemIdx}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAuthority('assistant:update')")
-    @Operation(summary = "문제 수정(조교, 교수, 관리자 전용) API", description = "문제를 수정합니다.")
+    @PreAuthorize("hasAnyAuthority('professor:update', 'company:update')")
+    @Operation(summary = "문제 수정(교수, 기업, 관리자 전용) API", description = "문제를 수정합니다.")
     public BaseResponse<ProblemResponse> updateProblem(@AuthenticationPrincipal User user,
                                                    @PathVariable("problemIdx") Integer problemIdx,
                                                    @Validated @RequestPart("updateProblemRequest") UpdateProblemRequest updateProblemRequest,
-                                                   @RequestPart(value = "file", required = false) MultipartFile file) {
-        if(!file.isEmpty()) {
-            ValidFile.validateImagePdfZipFile(file);
-        }
-        return BaseResponse.of(PROBLEM_UPDATE_OK, problemService.updateProblem(user, problemIdx, updateProblemRequest, file));
+                                                   @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+        return BaseResponse.of(PROBLEM_UPDATE_OK, problemService.updateProblem(user, problemIdx, updateProblemRequest, files));
     }
 
     /**

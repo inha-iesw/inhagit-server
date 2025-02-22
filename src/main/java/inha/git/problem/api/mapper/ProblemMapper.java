@@ -91,4 +91,7 @@ public interface ProblemMapper {
 
     @Mapping(target = "idx", source = "problemSubmit.id")
     ProblemSubmitResponse problemSubmitToProblemSubmitResponse(ProblemSubmit problemSubmit);
+
+    @Mapping(target = "id", ignore = true)
+    ProblemAttachment createProblemAttachmentRequestToProblemAttachment(String originalFileName, String storedFileUrl, Problem problem);
 }

@@ -5,9 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import java.time.LocalDateTime;
-
 public record CreateProblemRequest(
+
         @NotNull
         @ValidParameter
         @Size(min = 1, max = 200)
@@ -23,6 +22,5 @@ public record CreateProblemRequest(
         @ValidParameter
         @Schema(description = "문제 내용", example = "문제 내용")
         String contents
-
 ) {
 }
