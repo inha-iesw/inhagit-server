@@ -2,6 +2,7 @@ package inha.git.problem.domain;
 
 import inha.git.common.BaseEntity;
 import inha.git.problem.domain.enums.ProblemRequestStatus;
+import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,7 +36,6 @@ public class ProblemRequest extends BaseEntity {
     @Column(nullable = false, length = 20, name = "problem_request_status", columnDefinition = "varchar(20) default 'REQUEST'")
     private ProblemRequestStatus problemRequestStatus;
 
-
     @Column(name = "original_fileName", length = 200)
     private String originalFileName; // 원본 파일명
 
@@ -45,6 +45,10 @@ public class ProblemRequest extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_id")
     private Problem problem;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Builder.Default
     @OneToMany(mappedBy = "problemRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -57,5 +61,10 @@ public class ProblemRequest extends BaseEntity {
     public void setProblem(Problem problem) {
         this.problem = problem;
         problem.getProblemRequests().add(this);  // 양방향 연관관계 설정
+    }
+
+    public void setFile(String originalFilename, String filePath) {
+        this.originalFileName = originalFilename;
+        this.storedFileUrl = filePath;
     }
 }

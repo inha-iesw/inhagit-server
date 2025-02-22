@@ -45,6 +45,7 @@ public class Constant {
     public final static String PROJECT_ZIP = "project-zip";
     public final static String PROJECT = "project";
     public final static String PROBLEM = "problem";
+    public final static String PROBLEM_REQUEST = "problem-request";
     public final static String PROBLEM_ZIP = "problem-zip";
     public final static String ZIP = ".zip";
     public final static String EVIDENCE = "evidence";

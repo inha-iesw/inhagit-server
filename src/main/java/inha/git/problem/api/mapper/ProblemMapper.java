@@ -36,31 +36,6 @@ public interface ProblemMapper {
     @Mapping(target = "idx", source = "problem.id")
     SearchProblemResponse problemToSearchProblemResponse(Problem problem, SearchUserResponse author, List<SearchProblemAttachmentResponse> attachments);
 
-    /**
-     * User와 Problem을 ProblemRequest로 변환
-     * @param problem
-     * @param type
-     * @return
-     */
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "problem", source = "problem")
-    ProblemRequest createProblemRequestToProblemRequest(Problem problem, Integer type);
-
-    /**
-     * ProblemReuqest를 RequestProblemResponse로 변환
-     * @param problemRequest
-     * @return
-     */
-    @Mapping(target = "idx", source = "problemRequest.id")
-    RequestProblemResponse problemRequestToRequestProblemResponse(ProblemRequest problemRequest);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "problemRequest", source = "problemRequest")
-    ProblemSubmit createProblemSubmitRequestToProblemSubmit(ProblemRequest problemRequest, String zipFilePath, String folderName);
-
-    @Mapping(target = "idx", source = "problemSubmit.id")
-    ProblemSubmitResponse problemSubmitToProblemSubmitResponse(ProblemSubmit problemSubmit);
-
     @Mapping(target = "id", ignore = true)
     ProblemAttachment createProblemAttachmentRequestToProblemAttachment(String originalFileName, String storedFileUrl, Problem problem);
 }

@@ -3,13 +3,11 @@ package inha.git.problem.api.controller.dto.request;
 import inha.git.common.validation.annotation.ValidParameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 public record CreateProblemRequest(
 
         @NotNull
         @ValidParameter
-        @Size(min = 1, max = 200)
         @Schema(description = "문제 제목", example = "문제 제목")
         String title,
 

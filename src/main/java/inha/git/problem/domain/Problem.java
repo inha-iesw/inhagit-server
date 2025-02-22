@@ -80,4 +80,8 @@ public class Problem extends BaseEntity {
     public void setStatus(ProblemStatus status) {
         this.status = status;
     }
+
+    public void increaseParticipantCount() {
+        this.participantCount++;
+    }
 }

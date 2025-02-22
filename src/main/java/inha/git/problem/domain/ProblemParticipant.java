@@ -63,4 +63,8 @@ public class ProblemParticipant {
         this.problemRequest = problemRequest;
         problemRequest.getProblemParticipants().add(this);  // 양방향 연관관계 설정
     }
+
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
 }

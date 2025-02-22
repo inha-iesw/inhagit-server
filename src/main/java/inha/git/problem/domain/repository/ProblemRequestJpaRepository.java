@@ -1,6 +1,9 @@
 package inha.git.problem.domain.repository;
 
+import inha.git.common.BaseEntity;
+import inha.git.problem.domain.Problem;
 import inha.git.problem.domain.ProblemRequest;
+import inha.git.user.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -12,4 +15,6 @@ import static inha.git.common.BaseEntity.*;
  */
 public interface ProblemRequestJpaRepository extends JpaRepository<ProblemRequest, Integer> {
     Optional<ProblemRequest> findByIdAndState(Integer integer, State state);
+
+    boolean existsByProblemAndUserAndState(Problem problem, User user, State state);
 }
