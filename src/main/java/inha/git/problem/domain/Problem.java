@@ -46,7 +46,7 @@ public class Problem extends BaseEntity {
     @Column(nullable = false, length = 20, columnDefinition = "varchar(20) default 'PROGRESS'")
     private ProblemStatus status;
 
-    @Column(name = "has_attachment",nullable = false)
+    @Column(name = "has_attachment",nullable = false, columnDefinition = "boolean default false")
     private Boolean hasAttachment;
 
     @Column(name = "participant_count", nullable = false, columnDefinition = "int default 0")
@@ -67,4 +67,8 @@ public class Problem extends BaseEntity {
     @Builder.Default
     @OneToMany(mappedBy = "problem", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProblemAttachment> problemAttachments = new ArrayList<>();
+
+    public void setHasAttachment(boolean hasAttachment) {
+        this.hasAttachment = hasAttachment;
+    }
 }

@@ -45,11 +45,10 @@ import static inha.git.common.code.status.ErrorStatus.*;
 public class ProblemServiceImpl implements ProblemService {
 
     private final ProblemJpaRepository problemJpaRepository;
+    private final ProblemRequestJpaRepository problemRequestJpaRepository;
+    private final ProblemAttachmentJpaRepository problemAttachmentJpaRepository;
     private final ProblemMapper problemMapper;
     private final ProblemQueryRepository problemQueryRepository;
-    private final ProblemRequestJpaRepository problemRequestJpaRepository;
-    private final ProblemSubmitJpaRepository problemSubmitJpaRepository;
-    private final TeamJpaRepository teamJpaRepository;
     private final IdempotentProvider idempotentProvider;
 
     /**
@@ -89,39 +88,32 @@ public class ProblemServiceImpl implements ProblemService {
     @Override
     @Transactional
     public ProblemResponse createProblem(User user, CreateProblemRequest createProblemRequest, List<MultipartFile> files) {
-//        idempotentProvider.isValidIdempotent(List.of(
-//                "createNoticeRequest",
-//                user.getId().toString(),
-//                user.getName(),
-//                createProblemRequest.title()
-//        ));
-//
-//        Problem problem = problemMapper.createProblemRequestToProblem(user, createProblemRequest);
-//        Problem savedProblem = problemJpaRepository.save(problem);
-//
-//        if (files != null && !files.isEmpty()) {
-//            savedProblem.setProblemFiles(
-//                    files.stream()
-//                            .map(file -> {
-//                                String originalFileName = file.getOriginalFilename();
-//                                String storedFileUrl = FilePath.storeFile(file, PROBLEM_FILE);
-//                                registerRollbackCleanup(storedFileUrl);
-//
-//                                ProblemFile problemFile = problemMapper.createProblemFileRequestToProblemFile(
-//                                        originalFileName,
-//                                        storedFileUrl,
-//                                        savedProblem
-//                                );
-//                                return problemFileRepository.save(problemFile);
-//                            })
-//                            .toList()
-//            );
-//        }
+        idempotentProvider.isValidIdempotent(List.of("createNoticeRequest", user.getId().toString(), user.getName(), createProblemRequest.title()));
 
-       // log.info("문제 생성 성공 - 사용자: {} 문제 제목: {}", user.getName(), problem.getTitle());
-  //      return problemMapper.problemToProblemResponse(savedProblem);
-        return null;
+        Problem problem = problemMapper.createProblemRequestToProblem(user, createProblemRequest);
+        if (!files.isEmpty()){
+            problem.setHasAttachment(true);
+        }
+        else {
+            problem.setHasAttachment(false);
+        }
+        Problem savedProblem = problemJpaRepository.save(problem);
+
+        if (!files.isEmpty()) {
+            List<ProblemAttachment> problemAttachments = new ArrayList<>();
+            files.forEach(file -> {
+                String filePath = FilePath.storeFile(file, PROBLEM);
+                problemAttachments.add(ProblemAttachment.builder()
+                        .storedFileUrl(filePath)
+                        .originalFileName(file.getOriginalFilename())
+                        .problem(savedProblem)
+                        .build());
+            });
+            problemAttachmentJpaRepository.saveAll(problemAttachments);
+        }
+        return problemMapper.problemToProblemResponse(savedProblem);
     }
+
     /**
      * 문제 수정
      *

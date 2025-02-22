@@ -51,7 +51,6 @@ public class Constant {
     public final static String PATENT = "patent";
     public final static String BANNER = "banner";
     public final static String PROJECT_UPLOAD = "/project/";
-    public final static String PROBLEM_FILE = "problem-file";
     public final static String GIT = ".git";
     public final static String PYC = ".pyc";
     public final static String DS_STORE = ".DS_Store";

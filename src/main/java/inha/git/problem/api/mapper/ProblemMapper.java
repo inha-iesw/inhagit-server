@@ -18,21 +18,11 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ProblemMapper {
 
-    /**
-     * CreateProblemRequest를 Problem 엔티티로 변환
-     * @param createProblemRequest
-     * @param user
-     * @return
-     */
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user", source = "user")
-    Problem createProblemRequestToProblem(CreateProblemRequest createProblemRequest,String filePath, User user);
+    @Mapping(target = "participantCount", constant = "0")
+    @Mapping(target = "status", constant = "PROGRESS")
+    Problem createProblemRequestToProblem(User user, CreateProblemRequest createProblemReques);
 
-    /**
-     * Problem 엔티티를 ProblemResponse로 변환
-     * @param problem
-     * @return
-     */
     @Mapping(target = "idx", source = "problem.id")
     ProblemResponse problemToProblemResponse(Problem problem);
 
