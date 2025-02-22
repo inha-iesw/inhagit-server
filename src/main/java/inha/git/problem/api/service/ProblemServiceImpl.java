@@ -5,6 +5,7 @@ import inha.git.problem.api.controller.dto.request.*;
 import inha.git.problem.api.controller.dto.response.*;
 import inha.git.problem.api.mapper.ProblemMapper;
 import inha.git.problem.domain.*;
+import inha.git.problem.domain.enums.ProblemStatus;
 import inha.git.problem.domain.repository.*;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.user.domain.User;
@@ -161,6 +162,27 @@ public class ProblemServiceImpl implements ProblemService {
             );
         }
         return problemMapper.problemToProblemResponse(savedProblem);
+    }
+
+    /**
+     * 문제 상태 변경
+     *
+     * @param user 유저 정보
+     * @param problemIdx 문제 인덱스
+     * @param status 변경할 상태
+     * @return 변경된 문제 정보
+     */
+    @Override
+    @Transactional
+    public ProblemResponse updateProblemStatus(User user, Integer problemIdx, ProblemStatus status) {
+        Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
+        if (!problem.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
+            throw new BaseException(NOT_AUTHORIZED_PROBLEM);
+        }
+        problem.setStatus(status);
+        Problem saveldProblem = problemJpaRepository.save(problem);
+        return problemMapper.problemToProblemResponse(saveldProblem);
     }
 
     /**

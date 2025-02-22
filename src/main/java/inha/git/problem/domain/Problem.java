@@ -76,4 +76,8 @@ public class Problem extends BaseEntity {
         this.problemAttachments = problemAttachments;
         problemAttachments.forEach(problemAttachment -> problemAttachment.setProblem(this));  // 양방향 연관관계 설정
     }
+
+    public void setStatus(ProblemStatus status) {
+        this.status = status;
+    }
 }

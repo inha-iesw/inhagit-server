@@ -5,6 +5,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.problem.api.controller.dto.request.*;
 import inha.git.problem.api.controller.dto.response.*;
 import inha.git.problem.api.service.ProblemService;
+import inha.git.problem.domain.enums.ProblemStatus;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.utils.PagingUtils;
@@ -102,6 +103,23 @@ public class ProblemController {
                                                    @Validated @RequestPart("updateProblemRequest") UpdateProblemRequest updateProblemRequest,
                                                    @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         return BaseResponse.of(PROBLEM_UPDATE_OK, problemService.updateProblem(user, problemIdx, updateProblemRequest, files));
+    }
+
+    /**
+     * 문제 상태 수정 API
+     *
+     * @param user 유저 정보
+     * @param problemIdx 문제 인덱스
+     * @param status 문제 상태
+     * @return 수정된 문제 정보
+     */
+    @PatchMapping(value = "/{problemIdx}")
+    @PreAuthorize("hasAnyAuthority('professor:update', 'company:update')")
+    @Operation(summary = "문제 상태 수정(교수, 기업, 관리자 전용) API", description = "문제를 상태를 수정합니다.")
+    public BaseResponse<ProblemResponse> updateProblemStatus(@AuthenticationPrincipal User user,
+                                                             @PathVariable("problemIdx") Integer problemIdx,
+                                                             @Validated @RequestParam("status") ProblemStatus status) {
+        return BaseResponse.of(PROBLEM_UPDATE_OK, problemService.updateProblemStatus(user, problemIdx, status));
     }
 
     /**
