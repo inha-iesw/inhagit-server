@@ -23,6 +23,8 @@ import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.Constant.mapRoleToPosition;
+import static inha.git.problem.domain.QProblem.problem;
+import static inha.git.user.domain.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
@@ -31,8 +33,6 @@ public class ProblemQueryRepository {
     private final JPAQueryFactory queryFactory;
 
     public Page<SearchProblemsResponse> getProblems(Pageable pageable) {
-        QProblem problem = QProblem.problem;
-        QUser user = QUser.user;
         JPAQuery<Problem> query = queryFactory
                 .select(problem)
                 .from(problem)
@@ -50,7 +50,9 @@ public class ProblemQueryRepository {
                         p.getId(),
                         p.getTitle(),
                         p.getCreatedAt(),
-                       0,
+                        p.getParticipantCount(),
+                        p.getStatus(),
+                        p.getHasAttachment(),
                         new SearchUserResponse(
                                 p.getUser().getId(),
                                 p.getUser().getName(),

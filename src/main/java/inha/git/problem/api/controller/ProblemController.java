@@ -7,6 +7,7 @@ import inha.git.problem.api.controller.dto.response.*;
 import inha.git.problem.api.service.ProblemService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
+import inha.git.utils.PagingUtils;
 import inha.git.utils.file.ValidFile;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -50,13 +51,8 @@ public class ProblemController {
     @Operation(summary = "문제 목록 조회 API", description = "문제 목록을 조회합니다.")
     public BaseResponse<Page<SearchProblemsResponse>> getProblems(@RequestParam("page") Integer page,
                                                                   @RequestParam("size") Integer size) {
-        if (page < 1) {
-            throw new BaseException(INVALID_PAGE);
-        }
-        if (size < 1) {
-            throw new BaseException(INVALID_PAGE);
-        }
-        return BaseResponse.of(PROBLEM_SEARCH_OK, problemService.getProblems(page - 1, size - 1));
+        PagingUtils.validatePage(page, size);
+        return BaseResponse.of(PROBLEM_SEARCH_OK, problemService.getProblems(PagingUtils.toPageIndex(page), size));
     }
 
     /**
