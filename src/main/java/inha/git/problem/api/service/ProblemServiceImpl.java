@@ -175,7 +175,6 @@ public class ProblemServiceImpl implements ProblemService {
         }
         problem.setDeletedAt();
         problem.setState(INACTIVE);
-        //statisticsService.decreaseCount(problem.getUser(), 6);
         return problemMapper.problemToProblemResponse(problem);
     }
 

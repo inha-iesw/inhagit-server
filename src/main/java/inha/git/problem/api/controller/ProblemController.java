@@ -116,8 +116,8 @@ public class ProblemController {
      * @return 삭제된 문제 정보
      */
     @DeleteMapping("/{problemIdx}")
-    @PreAuthorize("hasAuthority('assistant:delete')")
-    @Operation(summary = "문제 삭제(조교, 교수, 관리자 전용) API", description = "문제를 삭제합니다.")
+    @PreAuthorize("hasAnyAuthority('professor:update', 'company:update')")
+    @Operation(summary = "문제 삭제(교수, 기업, 관리자 전용) API", description = "문제를 삭제합니다.")
     public BaseResponse<ProblemResponse> deleteProblem(@AuthenticationPrincipal User user,
                                                        @PathVariable("problemIdx") Integer problemIdx) {
         return BaseResponse.of(PROBLEM_DELETE_OK, problemService.deleteProblem(user, problemIdx));
