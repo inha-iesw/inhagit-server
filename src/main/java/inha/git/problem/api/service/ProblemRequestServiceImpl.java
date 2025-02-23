@@ -16,6 +16,7 @@ import inha.git.problem.domain.enums.ProblemRequestStatus;
 import inha.git.problem.domain.repository.ProblemJpaRepository;
 import inha.git.problem.domain.repository.ProblemParticipantJpaRepository;
 import inha.git.problem.domain.repository.ProblemRequestJpaRepository;
+import inha.git.problem.domain.repository.ProblemSubmitJpaRepository;
 import inha.git.user.domain.User;
 import inha.git.utils.file.FilePath;
 import lombok.RequiredArgsConstructor;
@@ -60,6 +61,7 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
     private final ProblemJpaRepository problemJpaRepository;
     private final ProblemRequestJpaRepository problemRequestJpaRepository;
     private final ProblemParticipantJpaRepository problemParticipantJpaRepository;
+    private final ProblemSubmitJpaRepository problemSubmitJpaRepository;
     private final DepartmentJpaRepository departmentRepository;
     private final ProblemRequestMapper problemRequestMapper;
 
@@ -272,6 +274,7 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
     }
 
     private SearchRequestProblemsResponse convertToSearchRequestProblemResponse(ProblemRequest problemRequest) {
+        Integer projectIdx = problemSubmitJpaRepository.findProjectIdByProblemRequestId(problemRequest.getId()).orElse(null);
         return new SearchRequestProblemsResponse(
                 problemRequest.getId(),
                 problemRequest.getTitle(),
@@ -280,6 +283,7 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
                         problemRequest.getUser().getId(),
                         problemRequest.getUser().getName()
                 ),
+                projectIdx,
                 problemRequest.getCreatedAt()
         );
     }

@@ -22,6 +22,8 @@ public record SearchRequestProblemsResponse(
 
         SearchUserRequestProblemResponse user,
 
+        Integer projectidx,
+
         @NotNull
         @Schema(description = "문제 신청 날짜", example = "2021-08-01T00:00:00")
         LocalDateTime createdAt
