@@ -4,7 +4,6 @@ import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.problem.api.controller.dto.request.CreateRequestProblemRequest;
 import inha.git.problem.api.controller.dto.request.UpdateRequestProblemRequest;
-import inha.git.problem.api.controller.dto.response.ProblemParticipantsResponse;
 import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchRequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchRequestProblemsResponse;
@@ -32,8 +31,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 import static inha.git.common.code.status.ErrorStatus.COMPANY_PROFESSOR_CANNOT_PARTICIPATE;
 import static inha.git.common.code.status.SuccessStatus.PROBLEM_PARTICIPANT_STATE_CHANGE_OK;
@@ -63,10 +60,11 @@ public class ProblemRequestController {
     public BaseResponse<Page<SearchRequestProblemsResponse>> getRequestProblems(
             @AuthenticationPrincipal User user,
             @PathVariable("problemIdx") Integer problemIdx,
+            @RequestParam(value = "problemRequestStatus", required = false) ProblemRequestStatus problemRequestStatus,
             @RequestParam("page") Integer page,
             @RequestParam("size") Integer size) {
         PagingUtils.validatePage(page, size);
-        return BaseResponse.of(PROBLEM_REQUEST_SEARCH_OK, problemRequestService.getRequestProblems(user, problemIdx, PagingUtils.toPageIndex(page), size));
+        return BaseResponse.of(PROBLEM_REQUEST_SEARCH_OK, problemRequestService.getRequestProblems(user, problemRequestStatus, problemIdx, PagingUtils.toPageIndex(page), size));
     }
 
     /**
@@ -145,18 +143,5 @@ public class ProblemRequestController {
                                                                @PathVariable("problemRequestIdx") Integer problemRequestIdx,
                                                                @RequestParam("problemRequestStatus") ProblemRequestStatus problemRequestStatus) {
         return BaseResponse.of(PROBLEM_PARTICIPANT_STATE_CHANGE_OK, problemRequestService.updateproblemRequestStatus(user, problemIdx, problemRequestIdx, problemRequestStatus));
-    }
-
-    /**
-     * 문제 참여자 목록 조회 API
-     *
-     * @param problemIdx 문제 인덱스
-     * @return 문제 참여자 목록
-     */
-    @GetMapping("/{problemIdx}/participants")
-    @Operation(summary = "문제 참여자 목록 조회 API", description = "문제 참여자 목록을 조회합니다.")
-    public BaseResponse<List<ProblemParticipantsResponse>> getParticipants(@AuthenticationPrincipal User user,
-                                                                           @PathVariable("problemIdx") Integer problemIdx) {
-        return BaseResponse.of(PROBLEM_REQUEST_UPDATE_OK, problemRequestService.getParticipants(user, problemIdx));
     }
 }

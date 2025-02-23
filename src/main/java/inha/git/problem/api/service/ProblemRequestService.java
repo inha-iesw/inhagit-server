@@ -11,14 +11,11 @@ import inha.git.user.domain.User;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 public interface ProblemRequestService {
-    Page<SearchRequestProblemsResponse> getRequestProblems(User user, Integer problemIdx, Integer page, Integer size);
+    Page<SearchRequestProblemsResponse> getRequestProblems(User user, ProblemRequestStatus problemRequestStatus, Integer problemIdx, Integer page, Integer size);
     SearchRequestProblemResponse getRequestProblem(User user, Integer problemIdx, Integer problemRequestIdx);
     RequestProblemResponse requestProblem(User user, Integer problemIdx, CreateRequestProblemRequest createRequestProblemRequest, MultipartFile file);
     RequestProblemResponse updateRequestProblem(User user, Integer problemRequestIdx, UpdateRequestProblemRequest updateRequestProblemRequest, MultipartFile file);
     RequestProblemResponse deleteRequestProblem(User user, Integer problemRequestIdx);
     RequestProblemResponse updateproblemRequestStatus(User user, Integer problemIdx, Integer problemRequestIdx, ProblemRequestStatus problemRequestStatus);
-    List<ProblemParticipantsResponse> getParticipants(User user, Integer problemIdx);
 }

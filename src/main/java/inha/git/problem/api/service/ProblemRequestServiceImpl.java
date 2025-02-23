@@ -2,10 +2,8 @@ package inha.git.problem.api.service;
 
 import inha.git.common.exceptions.BaseException;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
-import inha.git.problem.api.controller.dto.request.CreateProblemApproveRequest;
 import inha.git.problem.api.controller.dto.request.CreateRequestProblemRequest;
 import inha.git.problem.api.controller.dto.request.UpdateRequestProblemRequest;
-import inha.git.problem.api.controller.dto.response.ProblemParticipantsResponse;
 import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchRequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchRequestProblemsResponse;
@@ -74,14 +72,21 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
      * @return 문제 신청 목록
      */
     @Override
-    public Page<SearchRequestProblemsResponse> getRequestProblems(User user, Integer problemIdx, Integer page, Integer size) {
+    public Page<SearchRequestProblemsResponse> getRequestProblems(User user, ProblemRequestStatus problemRequestStatus, Integer problemIdx, Integer page, Integer size) {
         Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
         if (!problem.getUser().getId().equals(user.getId()) && !user.getRole().equals(ADMIN)) {
             throw new BaseException(NOT_ALLOWED_VIEW_REQUESTS_PROBLEM);
         }
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<ProblemRequest> problemRequests = problemRequestJpaRepository.findByProblemAndState(problem, ACTIVE, pageable);
+
+        Page<ProblemRequest> problemRequests;
+        if (problemRequestStatus != null) {
+            problemRequests = problemRequestJpaRepository.findByProblemAndStateAndProblemRequestStatus(problem, ACTIVE, problemRequestStatus, pageable);
+        } else {
+            problemRequests = problemRequestJpaRepository.findByProblemAndState(problem, ACTIVE, pageable);
+        }
+
         return problemRequests.map(this::convertToSearchRequestProblemResponse);
     }
 
@@ -264,73 +269,6 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
 
         ProblemRequest updatedProblemRequest = problemRequestJpaRepository.save(problemRequest);
         return problemRequestMapper.toRequestProblemResponse(updatedProblemRequest);
-    }
-
-    /**
-     * 문제 참여자 목록 조회
-     * 나중에 mapper 쓰는 것으로 변경해야함
-     *
-     * @param user 유저 정보
-     * @param problemIdx 문제 인덱스
-     * @return 참여자 목록
-     */
-    @Override
-    public List<ProblemParticipantsResponse> getParticipants(User user, Integer problemIdx) {
-//        Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
-//                .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
-//
-//        if (!problem.getUser().getId().equals(user.getId())) {
-//            throw new BaseException(NOT_ALLOWED_VIEW_PARTICIPANT);
-//        }
-//        // 문제 요청 가져오기
-//        List<ProblemRequest> problemRequests = problemRequestJpaRepository.findByProblemIdAndAcceptAtIsNotNullAndState(problemIdx, ACTIVE);
-//
-//        // 반환할 List 생성
-//        List<ProblemParticipantsResponse> participantsResponses = new ArrayList<>();
-//        problemRequests.forEach(request -> {
-//            // problemSubmitResponse를 Optional로 받기
-//            ProblemSubmitResponse problemSubmitResponse = problemSubmitJpaRepository.findByProblemRequestAndState(request, ACTIVE)
-//                    .map(problemSubmit -> problemMapper.problemSubmitToProblemSubmitResponse(problemSubmit))
-//                    .orElse(null);  // 없으면 null
-//
-//            if (request.getType() == 1) { // 개인 신청일 경우
-//                ProblemPersonalRequest personalRequest = problemPersonalRequestJpaRepository.findByProblemRequestId(request.getId())
-//                        .orElseThrow(() -> new BaseException(NOT_EXIST_PERSONAL_REQUEST));
-//                User personalRequestUser = personalRequest.getUser();
-//                participantsResponses.add(
-//                        new ProblemParticipantsResponse(
-//                                personalRequest.getId(), // 문제 참여 인덱스
-//                                request.getAcceptAt(), // 승인 날짜
-//                                request.getCreatedAt(), // 생성 날짜
-//                                1, // 타입은 개인 유저
-//                                problemSubmitResponse, // ProblemSubmitResponse 추가
-//                                new SearchUserResponse(personalRequestUser.getId(), personalRequestUser.getName(),mapRoleToPosition(personalRequestUser.getRole())), // 유저 정보
-//                                null // 팀 정보는 null
-//                        )
-//                );
-//            } else if (request.getType() == 2) { // 팀 신청일 경우
-//                ProblemTeamRequest teamRequest = problemTeamRequestJpaRepository.findByProblemRequestId(request.getId())
-//                        .orElseThrow(() -> new BaseException(NOT_EXIST_TEAM_REQUEST));
-//                Team team = teamRequest.getTeam();
-//                participantsResponses.add(
-//                        new ProblemParticipantsResponse(
-//                                teamRequest.getId(), // 문제 참여 인덱스
-//                                request.getAcceptAt(), // 승인 날짜
-//                                request.getCreatedAt(), // 생성 날짜
-//                                2, // 타입은 팀
-//                                problemSubmitResponse, // ProblemSubmitResponse 추가
-//                                null, // 유저 정보는 null
-//                                new SearchTeamRequestProblemResponse(team.getId(), team.getName(),
-//                                        new SearchUserResponse(team.getUser().getId(), team.getUser().getName(), mapRoleToPosition(team.getUser().getRole())),
-//                                        team.getTeamUsers().stream()
-//                                                .map(tu -> new SearchUserResponse(tu.getUser().getId(), tu.getUser().getName(), mapRoleToPosition(tu.getUser().getRole()))
-//                                                ).toList()
-//                                ) // 팀 정보
-//                        )
-//                );
-//            }
-//        });
-        return null;
     }
 
     private SearchRequestProblemsResponse convertToSearchRequestProblemResponse(ProblemRequest problemRequest) {
