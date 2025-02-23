@@ -192,6 +192,7 @@ public enum ErrorStatus implements BaseErrorCode {
     PROBLEM_REQUEST_CANNOT_BE_DELETED(HttpStatus.BAD_REQUEST, "PROBLEM4026", "현재는 문제 참여 요청을 삭제할 수 없습니다."),
     NOT_ALLOWED_VIEW_REQUESTS_PROBLEM(HttpStatus.BAD_REQUEST, "PROBLEM4027", "출제자만 해당 문제 신청 목록을 볼 수 있습니다."),
     NOT_ALLOWED_VIEW_REQUEST_PROBLEM(HttpStatus.BAD_REQUEST, "PROBLEM4028", "문제 신청 조회 권한이 없습니다."),
+    PROBLEM_SUBMIT_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "PROBLEM4029", "문제 제출이 허용되지 않았습니다."),
 
     COMPANY_CANNOT_CREATE_QUESTION(HttpStatus.BAD_REQUEST, "QUESTION4000", "기업 회원은 질문을 생성할 수 없습니다."),
     QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "QUESTION4001", "질문을 찾을 수 없습니다."),

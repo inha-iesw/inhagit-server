@@ -1,5 +1,6 @@
 package inha.git.problem.domain.repository;
 
+import inha.git.common.BaseEntity;
 import inha.git.problem.domain.Problem;
 import inha.git.problem.domain.ProblemRequest;
 import inha.git.problem.domain.enums.ProblemRequestStatus;
@@ -23,4 +24,6 @@ public interface ProblemRequestJpaRepository extends JpaRepository<ProblemReques
     Page<ProblemRequest> findByProblemAndState(Problem problem, State state, Pageable pageable);
 
     Page<ProblemRequest> findByProblemAndStateAndProblemRequestStatus(Problem problem, State state, ProblemRequestStatus problemRequestStatus, Pageable pageable);
+
+    Optional<ProblemRequest> findByProblemIdAndUserAndState(Integer problemIdx, User user, State state);
 }

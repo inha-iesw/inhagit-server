@@ -127,7 +127,7 @@ public enum SuccessStatus implements BaseCode {
 
     PROBLEM_SUBMITS_OK(HttpStatus.OK, "PROBLEM2006", "문제 제출 목록 조회 성공"),
     PROBLEM_AVAILABLE_SUBMITS_OK(HttpStatus.OK, "PROBLEM2007", "문제 제출 가능 여부 조회 성공"),
-    PROBLEM_SUBMIT_PERSONAL_OK(HttpStatus.CREATED, "PROBLEM2014", "문제 개인 제출 성공"),
+    PROBLEM_SUBMIT_OK(HttpStatus.CREATED, "PROBLEM2014", "문제 제출 성공"),
     PROBLEM_SUBMIT_TEAM_OK(HttpStatus.CREATED, "PROBLEM2015", "문제 팀 제출 성공"),
 
     QUESTION_CREATE_OK(HttpStatus.CREATED, "QUESTION2010", "질문 생성 성공"),
