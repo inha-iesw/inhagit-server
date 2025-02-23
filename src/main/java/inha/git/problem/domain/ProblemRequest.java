@@ -72,4 +72,8 @@ public class ProblemRequest extends BaseEntity {
         this.title = title;
         this.contents = contents;
     }
+
+    public void setProblemRequestStatus(ProblemRequestStatus problemRequestStatus) {
+        this.problemRequestStatus = problemRequestStatus;
+    }
 }

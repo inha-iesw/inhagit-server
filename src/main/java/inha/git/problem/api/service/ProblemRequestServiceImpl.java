@@ -237,40 +237,33 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
         return problemRequestMapper.toRequestProblemResponse(deletedProblemRequest);
     }
 
-
     /**
-     * 문제 참여 승인
+     * 문제 신청 상태 변경
      *
      * @param user 유저 정보
-     * @param createProblemApproveRequest 문제 참여 승인 요청 정보
-     * @return 승인된 문제 정보
+     * @param problemIdx 문제 인덱스
+     * @param problemRequestIdx 문제 신청 인덱스
+     * @param problemRequestStatus 문제 신청 상태
+     * @return 변경된 문제 정보
      */
     @Override
     @Transactional
-    public RequestProblemResponse approveRequest(User user, CreateProblemApproveRequest createProblemApproveRequest) {
-        ProblemRequest problemRequest = problemRequestJpaRepository.findByIdAndState(createProblemApproveRequest.requestIdx(), ACTIVE)
+    public RequestProblemResponse updateproblemRequestStatus(User user, Integer problemIdx, Integer problemRequestIdx, ProblemRequestStatus problemRequestStatus) {
+        ProblemRequest problemRequest = problemRequestJpaRepository.findByIdAndState(problemRequestIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_REQUEST_PROBLEM));
-//        if(!problemRequest.getProblem().getUser().getId().equals(user.getId())){
-//            throw new BaseException(NOT_ALLOWED_APPROVE);
-//        }
-//        if(problemRequest.getAcceptAt() != null){
-//            throw new BaseException(ALREADY_APPROVED_REQUEST);
-//        }
-//        problemRequest.setAcceptAt();
-//
-//        if(problemRequest.getType().equals(1)) {
-////            problemPersonalRequestJpaRepository.findByProblemRequestId(problemRequest.getId())
-////                    .ifPresent(personalRequest -> statisticsService.increaseCount(personalRequest.getUser(), 7));
-//        }
-//        else if(problemRequest.getType().equals(2)) {
-//            problemTeamRequestJpaRepository.findByProblemRequestId(problemRequest.getId())
-//                    .ifPresent(teamRequest -> teamJpaRepository.findById(teamRequest.getTeam().getId())
-//                            .ifPresent(team -> team.getTeamUsers().forEach(teamUser -> {
-//                                statisticsService.increaseCount(teamUser.getUser(), 7);
-//                            })));
-        //    }
-        //    return problemMapper.problemRequestToRequestProblemResponse(problemRequest);
-        return null;
+
+        if (!problemRequest.getProblem().getId().equals(problemIdx)) {
+            throw new BaseException(NOT_EXIST_REQUEST_PROBLEM);
+        }
+
+        if (!problemRequest.getProblem().getUser().getId().equals(user.getId()) && !user.getRole().equals(ADMIN)) {
+            throw new BaseException(NOT_AUTHORIZED_PROBLEM_REQUEST);
+        }
+
+        problemRequest.setProblemRequestStatus(problemRequestStatus);
+
+        ProblemRequest updatedProblemRequest = problemRequestJpaRepository.save(problemRequest);
+        return problemRequestMapper.toRequestProblemResponse(updatedProblemRequest);
     }
 
     /**

@@ -2,7 +2,6 @@ package inha.git.problem.api.controller;
 
 import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
-import inha.git.problem.api.controller.dto.request.CreateProblemApproveRequest;
 import inha.git.problem.api.controller.dto.request.CreateRequestProblemRequest;
 import inha.git.problem.api.controller.dto.request.UpdateRequestProblemRequest;
 import inha.git.problem.api.controller.dto.response.ProblemParticipantsResponse;
@@ -10,6 +9,7 @@ import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchRequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchRequestProblemsResponse;
 import inha.git.problem.api.service.ProblemRequestService;
+import inha.git.problem.domain.enums.ProblemRequestStatus;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.utils.PagingUtils;
@@ -23,10 +23,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -36,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 import static inha.git.common.code.status.ErrorStatus.COMPANY_PROFESSOR_CANNOT_PARTICIPATE;
+import static inha.git.common.code.status.SuccessStatus.PROBLEM_PARTICIPANT_STATE_CHANGE_OK;
 import static inha.git.common.code.status.SuccessStatus.PROBLEM_REQUEST_DETAIL_OK;
 import static inha.git.common.code.status.SuccessStatus.PROBLEM_REQUEST_OK;
 import static inha.git.common.code.status.SuccessStatus.PROBLEM_REQUEST_SEARCH_OK;
@@ -129,17 +130,21 @@ public class ProblemRequestController {
     }
 
     /**
-     * 문제 참여 승인 API
+     * 문제 신청 상태 변경 API
      *
      * @param user 유저 정보
-     * @param createProblemApproveRequest 문제 참여 승인 요청 정보
-     * @return 승인된 문제 정보
+     * @param problemIdx 문제 인덱스
+     * @param problemRequestIdx 문제 신청 인덱스
+     * @param problemRequestStatus 문제 신청 상태
+     * @return 변경된 문제 신청 정보
      */
-    @PutMapping("/requests/approve")
-    @Operation(summary = "문제 참여 승인 API", description = "문제 참여를 승인합니다.")
-    public BaseResponse<RequestProblemResponse> approveRequest(@AuthenticationPrincipal User user,
-                                                               @Validated @RequestBody CreateProblemApproveRequest createProblemApproveRequest) {
-        return BaseResponse.of(PROBLEM_REQUEST_UPDATE_OK, problemRequestService.approveRequest(user, createProblemApproveRequest));
+    @PatchMapping("/{problemIdx}/requests/{problemRequestIdx}")
+    @Operation(summary = "문제 신청 상태 변경 API", description = "문제 신청 상태를 변경합니다.")
+    public BaseResponse<RequestProblemResponse> updateproblemRequestStatus(@AuthenticationPrincipal User user,
+                                                               @PathVariable("problemIdx") Integer problemIdx,
+                                                               @PathVariable("problemRequestIdx") Integer problemRequestIdx,
+                                                               @RequestParam("problemRequestStatus") ProblemRequestStatus problemRequestStatus) {
+        return BaseResponse.of(PROBLEM_PARTICIPANT_STATE_CHANGE_OK, problemRequestService.updateproblemRequestStatus(user, problemIdx, problemRequestIdx, problemRequestStatus));
     }
 
     /**
