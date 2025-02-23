@@ -2,7 +2,6 @@ package inha.git.problem.api.service;
 
 import inha.git.problem.api.controller.dto.request.CreateRequestProblemRequest;
 import inha.git.problem.api.controller.dto.request.UpdateRequestProblemRequest;
-import inha.git.problem.api.controller.dto.response.ProblemParticipantsResponse;
 import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchRequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchRequestProblemsResponse;
