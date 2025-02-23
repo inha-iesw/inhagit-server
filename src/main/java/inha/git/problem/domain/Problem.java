@@ -84,4 +84,10 @@ public class Problem extends BaseEntity {
     public void increaseParticipantCount() {
         this.participantCount++;
     }
+
+    public void decreaseParticipantCount() {
+        if (this.participantCount > 0) {
+            this.participantCount--;
+        }
+    }
 }

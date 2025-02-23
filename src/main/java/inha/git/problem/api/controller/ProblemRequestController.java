@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -103,6 +104,13 @@ public class ProblemRequestController {
                                                                      @Validated @RequestPart("updateRequestProblemRequest") UpdateRequestProblemRequest updateRequestProblemRequest,
                                                                      @RequestPart(value = "file", required = false) MultipartFile file) {
         return BaseResponse.of(PROBLEM_REQUEST_UPDATE_OK, problemRequestService.updateRequestProblem(user, problemRequestIdx, updateRequestProblemRequest, file));
+    }
+
+    @DeleteMapping("/{problemRequestIdx}")
+    @Operation(summary = "문제 신청 삭제 API", description = "문제 신청을 삭제합니다.")
+    public BaseResponse<RequestProblemResponse> deleteRequestProblem(@AuthenticationPrincipal User user,
+                                                                     @PathVariable("problemRequestIdx") Integer problemRequestIdx) {
+        return BaseResponse.of(PROBLEM_REQUEST_UPDATE_OK, problemRequestService.deleteRequestProblem(user, problemRequestIdx));
     }
 
     /**

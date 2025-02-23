@@ -18,6 +18,7 @@ import inha.git.problem.domain.repository.ProblemParticipantJpaRepository;
 import inha.git.problem.domain.repository.ProblemQueryRepository;
 import inha.git.problem.domain.repository.ProblemRequestJpaRepository;
 import inha.git.user.domain.User;
+import inha.git.user.domain.enums.Role;
 import inha.git.utils.file.FilePath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.Constant.CREATE_AT;
 import static inha.git.common.Constant.PROBLEM_REQUEST;
 import static inha.git.common.code.status.ErrorStatus.ALREADY_REQUESTED_PROBLEM;
@@ -44,8 +46,10 @@ import static inha.git.common.code.status.ErrorStatus.NOT_ALLOWED_PARTICIPATE;
 import static inha.git.common.code.status.ErrorStatus.NOT_AUTHORIZED_PROBLEM_REQUEST;
 import static inha.git.common.code.status.ErrorStatus.NOT_EXIST_REQUEST_PROBLEM;
 import static inha.git.common.code.status.ErrorStatus.PROBLEM_DEADLINE_PASSED;
+import static inha.git.common.code.status.ErrorStatus.PROBLEM_REQUEST_CANNOT_BE_DELETED;
 import static inha.git.common.code.status.ErrorStatus.PROBLEM_REQUEST_CANNOT_BE_MODIFIED;
 import static inha.git.problem.domain.enums.ProblemStatus.PROGRESS;
+import static inha.git.user.domain.enums.Role.*;
 
 @Service
 @RequiredArgsConstructor
@@ -179,6 +183,30 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
 
         return problemRequestMapper.toRequestProblemResponse(updatedProblemRequest);
     }
+
+    @Override
+    @Transactional
+    public RequestProblemResponse deleteRequestProblem(User user, Integer problemRequestIdx) {
+        ProblemRequest problemRequest = problemRequestJpaRepository.findById(problemRequestIdx)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_REQUEST_PROBLEM));
+
+        if (!problemRequest.getUser().getId().equals(user.getId()) && !user.getRole().equals(ADMIN)) {
+            throw new BaseException(NOT_AUTHORIZED_PROBLEM_REQUEST);
+        }
+
+        if (!problemRequest.getProblemRequestStatus().equals(ProblemRequestStatus.REQUEST)) {
+            throw new BaseException(PROBLEM_REQUEST_CANNOT_BE_DELETED);
+        }
+
+        problemRequest.setState(INACTIVE);
+        problemRequest.setDeletedAt();
+
+        problemRequest.getProblem().decreaseParticipantCount();
+
+        ProblemRequest deletedProblemRequest = problemRequestJpaRepository.save(problemRequest);
+        return problemRequestMapper.toRequestProblemResponse(deletedProblemRequest);
+    }
+
 
     /**
      * 문제 참여 승인
