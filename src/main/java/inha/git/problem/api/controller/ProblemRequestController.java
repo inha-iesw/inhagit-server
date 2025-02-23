@@ -4,6 +4,7 @@ import inha.git.common.BaseResponse;
 import inha.git.common.exceptions.BaseException;
 import inha.git.problem.api.controller.dto.request.CreateProblemApproveRequest;
 import inha.git.problem.api.controller.dto.request.CreateRequestProblemRequest;
+import inha.git.problem.api.controller.dto.request.UpdateRequestProblemRequest;
 import inha.git.problem.api.controller.dto.response.ProblemParticipantsResponse;
 import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchRequestProblemResponse;
@@ -33,10 +34,8 @@ import java.util.List;
 
 import static inha.git.common.code.status.ErrorStatus.COMPANY_PROFESSOR_CANNOT_PARTICIPATE;
 import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
-import static inha.git.common.code.status.SuccessStatus.PROBLEM_APPROVE_OK;
-import static inha.git.common.code.status.SuccessStatus.PROBLEM_PARTICIPANTS_OK;
 import static inha.git.common.code.status.SuccessStatus.PROBLEM_REQUEST_OK;
-import static inha.git.common.code.status.SuccessStatus.PROBLEM_REQUEST_SEARCH_OK;
+import static inha.git.common.code.status.SuccessStatus.PROBLEM_REQUEST_UPDATE_OK;
 
 @Slf4j
 @Tag(name = "problem request controller", description = "problem 신청 관련 API")
@@ -66,7 +65,7 @@ public class ProblemRequestController {
         if (size < 1) {
             throw new BaseException(INVALID_PAGE);
         }
-        return BaseResponse.of(PROBLEM_REQUEST_SEARCH_OK, problemRequestService.getRequestProblems(problemIdx, page - 1, size - 1));
+        return BaseResponse.of(PROBLEM_REQUEST_UPDATE_OK, problemRequestService.getRequestProblems(problemIdx, page - 1, size - 1));
     }
 
     /**
@@ -89,6 +88,24 @@ public class ProblemRequestController {
     }
 
     /**
+     * 문제 신청 수정 API
+     *
+     * @param user 유저 정보
+     * @param problemRequestIdx 문제 신청 인덱스
+     * @param updateRequestProblemRequest 문제 신청 수정 요청 정보
+     * @param file 파일
+     * @return 수정된 문제 정보
+     */
+    @PutMapping(value = "/{problemRequestIdx}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "문제 신청 수정 API", description = "문제 신청을 수정합니다.")
+    public BaseResponse<RequestProblemResponse> updateRequestProblem(@AuthenticationPrincipal User user,
+                                                                     @PathVariable("problemRequestIdx") Integer problemRequestIdx,
+                                                                     @Validated @RequestPart("updateRequestProblemRequest") UpdateRequestProblemRequest updateRequestProblemRequest,
+                                                                     @RequestPart(value = "file", required = false) MultipartFile file) {
+        return BaseResponse.of(PROBLEM_REQUEST_UPDATE_OK, problemRequestService.updateRequestProblem(user, problemRequestIdx, updateRequestProblemRequest, file));
+    }
+
+    /**
      * 문제 참여 승인 API
      *
      * @param user 유저 정보
@@ -99,7 +116,7 @@ public class ProblemRequestController {
     @Operation(summary = "문제 참여 승인 API", description = "문제 참여를 승인합니다.")
     public BaseResponse<RequestProblemResponse> approveRequest(@AuthenticationPrincipal User user,
                                                                @Validated @RequestBody CreateProblemApproveRequest createProblemApproveRequest) {
-        return BaseResponse.of(PROBLEM_APPROVE_OK, problemRequestService.approveRequest(user, createProblemApproveRequest));
+        return BaseResponse.of(PROBLEM_REQUEST_UPDATE_OK, problemRequestService.approveRequest(user, createProblemApproveRequest));
     }
 
     /**
@@ -112,6 +129,6 @@ public class ProblemRequestController {
     @Operation(summary = "문제 참여자 목록 조회 API", description = "문제 참여자 목록을 조회합니다.")
     public BaseResponse<List<ProblemParticipantsResponse>> getParticipants(@AuthenticationPrincipal User user,
                                                                            @PathVariable("problemIdx") Integer problemIdx) {
-        return BaseResponse.of(PROBLEM_PARTICIPANTS_OK, problemRequestService.getParticipants(user, problemIdx));
+        return BaseResponse.of(PROBLEM_REQUEST_UPDATE_OK, problemRequestService.getParticipants(user, problemIdx));
     }
 }

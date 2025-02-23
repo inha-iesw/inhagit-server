@@ -119,10 +119,8 @@ public enum SuccessStatus implements BaseCode {
     PROBLEM_DELETE_OK(HttpStatus.OK, "PROBLEM2002", "문제 삭제 성공"),
     PROBLEM_DETAIL_OK(HttpStatus.OK, "PROBLEM2003", "문제 상세 조회 성공"),
     PROBLEM_REQUEST_OK(HttpStatus.CREATED, "PROBLEM2011", "문제 참여 성공"),
-    PROBLEM_REQUEST_TEAM_OK(HttpStatus.CREATED, "PROBLEM2012", "문제 팀 참여 성공"),
-    PROBLEM_APPROVE_OK(HttpStatus.CREATED, "PROBLEM2013", "문제 참여 승인 성공"),
-    PROBLEM_REQUEST_SEARCH_OK(HttpStatus.OK, "PROBLEM2004", "문제 신청 목록 조회 성공"),
-    PROBLEM_PARTICIPANTS_OK(HttpStatus.OK, "PROBLEM2005", "문제 참여자 목록 조회 성공"),
+    PROBLEM_REQUEST_UPDATE_OK(HttpStatus.OK, "PROBLEM2012", "문제 참여 수정 성공"),
+
     PROBLEM_SUBMITS_OK(HttpStatus.OK, "PROBLEM2006", "문제 제출 목록 조회 성공"),
     PROBLEM_AVAILABLE_SUBMITS_OK(HttpStatus.OK, "PROBLEM2007", "문제 제출 가능 여부 조회 성공"),
     PROBLEM_SUBMIT_PERSONAL_OK(HttpStatus.CREATED, "PROBLEM2014", "문제 개인 제출 성공"),

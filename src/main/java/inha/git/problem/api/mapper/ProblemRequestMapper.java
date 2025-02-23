@@ -3,6 +3,7 @@ package inha.git.problem.api.mapper;
 import inha.git.problem.api.controller.dto.request.CreateProblemParticipantRequest;
 import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
 import inha.git.problem.api.controller.dto.request.CreateRequestProblemRequest;
+import inha.git.problem.api.controller.dto.request.UpdateProblemParticipantRequest;
 import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
 import inha.git.problem.api.controller.dto.response.ProblemResponse;
 import inha.git.problem.api.controller.dto.response.ProblemSubmitResponse;
@@ -40,6 +41,10 @@ public interface ProblemRequestMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "problemRequest", source = "problemRequest")
     ProblemParticipant toProblemParticipant(CreateProblemParticipantRequest request, ProblemRequest problemRequest);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "problemRequest", source = "problemRequest")
+    ProblemParticipant toProblemParticipant(UpdateProblemParticipantRequest request, ProblemRequest problemRequest);
 
     @Mapping(target = "idx", source = "id")
     RequestProblemResponse toRequestProblemResponse(ProblemRequest savedProblemRequest);

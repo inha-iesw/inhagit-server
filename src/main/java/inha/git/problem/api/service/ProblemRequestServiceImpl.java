@@ -4,6 +4,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.department.domain.repository.DepartmentJpaRepository;
 import inha.git.problem.api.controller.dto.request.CreateProblemApproveRequest;
 import inha.git.problem.api.controller.dto.request.CreateRequestProblemRequest;
+import inha.git.problem.api.controller.dto.request.UpdateRequestProblemRequest;
 import inha.git.problem.api.controller.dto.response.ProblemParticipantsResponse;
 import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchRequestProblemResponse;
@@ -11,6 +12,7 @@ import inha.git.problem.api.mapper.ProblemRequestMapper;
 import inha.git.problem.domain.Problem;
 import inha.git.problem.domain.ProblemParticipant;
 import inha.git.problem.domain.ProblemRequest;
+import inha.git.problem.domain.enums.ProblemRequestStatus;
 import inha.git.problem.domain.repository.ProblemJpaRepository;
 import inha.git.problem.domain.repository.ProblemParticipantJpaRepository;
 import inha.git.problem.domain.repository.ProblemQueryRepository;
@@ -39,8 +41,10 @@ import static inha.git.common.Constant.PROBLEM_REQUEST;
 import static inha.git.common.code.status.ErrorStatus.ALREADY_REQUESTED_PROBLEM;
 import static inha.git.common.code.status.ErrorStatus.DEPARTMENT_NOT_FOUND;
 import static inha.git.common.code.status.ErrorStatus.NOT_ALLOWED_PARTICIPATE;
+import static inha.git.common.code.status.ErrorStatus.NOT_AUTHORIZED_PROBLEM_REQUEST;
 import static inha.git.common.code.status.ErrorStatus.NOT_EXIST_REQUEST_PROBLEM;
 import static inha.git.common.code.status.ErrorStatus.PROBLEM_DEADLINE_PASSED;
+import static inha.git.common.code.status.ErrorStatus.PROBLEM_REQUEST_CANNOT_BE_MODIFIED;
 import static inha.git.problem.domain.enums.ProblemStatus.PROGRESS;
 
 @Service
@@ -122,6 +126,58 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
         ProblemRequest savedProblemRequest = problemRequestJpaRepository.save(problemRequest);
         problem.increaseParticipantCount();
         return problemRequestMapper.toRequestProblemResponse(savedProblemRequest);
+    }
+
+    /**
+     * 문제 신청 수정
+     *
+     * @param user 유저 정보
+     * @param problemRequestIdx 문제 신청 인덱스
+     * @param updateRequestProblemRequest 문제 신청 수정 요청 정보
+     * @param file 파일
+     * @return 수정된 문제 정보
+     */
+    @Override
+    @Transactional
+    public RequestProblemResponse updateRequestProblem(User user, Integer problemRequestIdx, UpdateRequestProblemRequest updateRequestProblemRequest, MultipartFile file) {
+        ProblemRequest problemRequest = problemRequestJpaRepository.findByIdAndState(problemRequestIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_REQUEST_PROBLEM));
+
+        if (!problemRequest.getUser().getId().equals(user.getId())) {
+            throw new BaseException(NOT_AUTHORIZED_PROBLEM_REQUEST);
+        }
+
+        if (!problemRequest.getProblemRequestStatus().equals(ProblemRequestStatus.REQUEST)) {
+            throw new BaseException(PROBLEM_REQUEST_CANNOT_BE_MODIFIED);
+        }
+
+        problemRequest.updateRequestProblem(updateRequestProblemRequest.title(), updateRequestProblemRequest.contents());
+
+        if (file != null && !file.isEmpty()) {
+            if (problemRequest.getStoredFileUrl() != null) {
+                FilePath.deleteFile(problemRequest.getStoredFileUrl());
+            }
+            String filePath = FilePath.storeFile(file, PROBLEM_REQUEST);
+            problemRequest.setFile(file.getOriginalFilename(), filePath);
+        }
+
+        problemParticipantJpaRepository.deleteAll(problemRequest.getProblemParticipants());
+        List<ProblemParticipant> participants = updateRequestProblemRequest.participants().stream()
+                .map(participantRequest -> {
+                    ProblemParticipant problemParticipant = problemRequestMapper.toProblemParticipant(participantRequest, problemRequest);
+                    problemParticipant.setDepartment(departmentRepository.findById(participantRequest.departmentId())
+                            .orElseThrow(() -> new BaseException(DEPARTMENT_NOT_FOUND)));
+                    return problemParticipant;
+                })
+                .toList();
+
+        problemParticipantJpaRepository.saveAll(participants);
+        problemRequest.getProblemParticipants().clear();
+        problemRequest.getProblemParticipants().addAll(participants);
+
+        ProblemRequest updatedProblemRequest = problemRequestJpaRepository.save(problemRequest);
+
+        return problemRequestMapper.toRequestProblemResponse(updatedProblemRequest);
     }
 
     /**

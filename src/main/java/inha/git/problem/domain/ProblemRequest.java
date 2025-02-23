@@ -67,4 +67,9 @@ public class ProblemRequest extends BaseEntity {
         this.originalFileName = originalFilename;
         this.storedFileUrl = filePath;
     }
+
+    public void updateRequestProblem(String title, String contents) {
+        this.title = title;
+        this.contents = contents;
+    }
 }
