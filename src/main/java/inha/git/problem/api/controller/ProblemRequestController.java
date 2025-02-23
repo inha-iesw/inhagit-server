@@ -11,6 +11,7 @@ import inha.git.problem.api.controller.dto.response.SearchRequestProblemResponse
 import inha.git.problem.api.service.ProblemRequestService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
+import inha.git.utils.PagingUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +35,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 import static inha.git.common.code.status.ErrorStatus.COMPANY_PROFESSOR_CANNOT_PARTICIPATE;
-import static inha.git.common.code.status.ErrorStatus.INVALID_PAGE;
 import static inha.git.common.code.status.SuccessStatus.PROBLEM_REQUEST_OK;
+import static inha.git.common.code.status.SuccessStatus.PROBLEM_REQUEST_SEARCH_OK;
 import static inha.git.common.code.status.SuccessStatus.PROBLEM_REQUEST_UPDATE_OK;
 
 @Slf4j
@@ -54,19 +55,15 @@ public class ProblemRequestController {
      * @param size 사이즈
      * @return 문제 신청 목록
      */
-    @GetMapping("/requests")
+    @GetMapping("/requests/{problemIdx}")
     @Operation(summary = "문제 신청 목록 조회 API", description = "문제 신청 목록을 조회합니다.")
     public BaseResponse<Page<SearchRequestProblemResponse>> getRequestProblems(
-            @RequestParam("problemIdx") Integer problemIdx,
+            @AuthenticationPrincipal User user,
+            @PathVariable("problemIdx") Integer problemIdx,
             @RequestParam("page") Integer page,
             @RequestParam("size") Integer size) {
-        if (page < 1) {
-            throw new BaseException(INVALID_PAGE);
-        }
-        if (size < 1) {
-            throw new BaseException(INVALID_PAGE);
-        }
-        return BaseResponse.of(PROBLEM_REQUEST_UPDATE_OK, problemRequestService.getRequestProblems(problemIdx, page - 1, size - 1));
+        PagingUtils.validatePage(page, size);
+        return BaseResponse.of(PROBLEM_REQUEST_SEARCH_OK, problemRequestService.getRequestProblems(user, problemIdx, PagingUtils.toPageIndex(page), size));
     }
 
     /**

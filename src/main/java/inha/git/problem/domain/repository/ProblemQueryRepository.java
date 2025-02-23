@@ -24,6 +24,7 @@ import java.util.List;
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.Constant.mapRoleToPosition;
 import static inha.git.problem.domain.QProblem.problem;
+import static inha.git.problem.domain.QProblemRequest.problemRequest;
 import static inha.git.user.domain.QUser.user;
 
 @Repository
@@ -70,66 +71,7 @@ public class ProblemQueryRepository {
      * @return 문제 신청 목록
      */
     public Page<SearchRequestProblemResponse> getRequestProblems(Integer problemIdx, Pageable pageable) {
-        QProblemRequest problemRequest = QProblemRequest.problemRequest;
-//        QProblemPersonalRequest personalRequest = QProblemPersonalRequest.problemPersonalRequest;
-//        QProblemTeamRequest teamRequest = QProblemTeamRequest.problemTeamRequest;
-//
-//        // 별칭을 다르게 지정
-//        QUser personalUser = new QUser("personalUser");
-//        QUser teamLeaderUser = new QUser("teamLeaderUser");
-//        QTeam team = QTeam.team;
-//
-//        JPAQuery<ProblemRequest> query = queryFactory
-//                .selectFrom(problemRequest)
-//                .leftJoin(problemRequest.personalRequest, personalRequest)
-//                .leftJoin(personalRequest.user, personalUser)
-//                .leftJoin(problemRequest.teamRequest, teamRequest)
-//                .leftJoin(teamRequest.team, team)
-//                .leftJoin(team.user, teamLeaderUser)
-//                .where(problemRequest.state.eq(ACTIVE), problemRequest.problem.id.eq(problemIdx))
-//                .orderBy(problemRequest.id.desc())
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize());
-//
-//        List<ProblemRequest> problemRequests = query.fetch();
-//        long total = query.fetchCount();
-//
-//        List<SearchRequestProblemResponse> content = problemRequests.stream()
-//                .map(pr -> {
-//                    SearchUserRequestProblemResponse userResponse = null;
-//                    SearchTeamRequestProblemResponse teamResponse = null;
-//
-//                    if (pr.getPersonalRequest() != null) {
-//                        userResponse = new SearchUserRequestProblemResponse(
-//                                pr.getPersonalRequest().getUser().getId(),
-//                                pr.getPersonalRequest().getUser().getName()
-//                        );
-//                    }
-//
-//                    if (pr.getTeamRequest() != null) {
-//                        teamResponse = new SearchTeamRequestProblemResponse(
-//                                pr.getTeamRequest().getTeam().getId(),
-//                                pr.getTeamRequest().getTeam().getName(),
-//                                new SearchUserResponse(
-//                                        pr.getTeamRequest().getTeam().getUser().getId(),
-//                                        pr.getTeamRequest().getTeam().getUser().getName(),
-//                                        mapRoleToPosition(pr.getTeamRequest().getTeam().getUser().getRole())
-//                                ),
-//                                pr.getTeamRequest().getTeam().getTeamUsers().stream()
-//                                        .map(tu -> new SearchUserResponse(tu.getUser().getId(), tu.getUser().getName(), mapRoleToPosition(tu.getUser().getRole())))
-//                                        .toList()
-//                        );
-//                    }
-//                    return new SearchRequestProblemResponse(
-//                            pr.getId(),
-//                            pr.getType(),
-//                            pr.getCreatedAt(),
-//                            pr.getAcceptAt(),
-//                            userResponse,
-//                            teamResponse
-//                    );
-//                })
-//                .toList();
+
         return null;
     }
 

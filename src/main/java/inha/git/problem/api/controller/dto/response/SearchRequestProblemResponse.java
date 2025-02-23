@@ -1,5 +1,6 @@
 package inha.git.problem.api.controller.dto.response;
 
+import inha.git.problem.domain.enums.ProblemRequestStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
@@ -9,21 +10,20 @@ public record SearchRequestProblemResponse(
 
         @NotNull
         @Schema(description = "문제 신청 인덱스", example = "1")
-        Integer idx,
+        int idx,
 
         @NotNull
-        @Schema(description = "문제 신청 타입", example = "1")
-        Integer type,
+        @Schema(description = "문제 신청 제목", example = "문제 신청")
+        String title,
 
         @NotNull
-        @Schema(description = "문제 신청 날짜", example = "2021-08-01T00:00:00")
-        LocalDateTime createdAt,
-
-        @Schema(description = "문제 승인 날짜", example = "2021-08-01T00:00:00", nullable = true)
-        LocalDateTime acceptAt,
+        @Schema(description = "문제 신청 상태", example = "REQUEST")
+        ProblemRequestStatus problemRequestStatus,
 
         SearchUserRequestProblemResponse user,
 
-        SearchTeamRequestProblemResponse team
+        @NotNull
+        @Schema(description = "문제 신청 날짜", example = "2021-08-01T00:00:00")
+        LocalDateTime createdAt
 ) {
 }

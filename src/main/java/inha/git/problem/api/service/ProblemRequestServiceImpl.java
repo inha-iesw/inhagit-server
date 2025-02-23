@@ -8,6 +8,7 @@ import inha.git.problem.api.controller.dto.request.UpdateRequestProblemRequest;
 import inha.git.problem.api.controller.dto.response.ProblemParticipantsResponse;
 import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchRequestProblemResponse;
+import inha.git.problem.api.controller.dto.response.SearchUserRequestProblemResponse;
 import inha.git.problem.api.mapper.ProblemRequestMapper;
 import inha.git.problem.domain.Problem;
 import inha.git.problem.domain.ProblemParticipant;
@@ -15,10 +16,8 @@ import inha.git.problem.domain.ProblemRequest;
 import inha.git.problem.domain.enums.ProblemRequestStatus;
 import inha.git.problem.domain.repository.ProblemJpaRepository;
 import inha.git.problem.domain.repository.ProblemParticipantJpaRepository;
-import inha.git.problem.domain.repository.ProblemQueryRepository;
 import inha.git.problem.domain.repository.ProblemRequestJpaRepository;
 import inha.git.user.domain.User;
-import inha.git.user.domain.enums.Role;
 import inha.git.utils.file.FilePath;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +42,9 @@ import static inha.git.common.Constant.PROBLEM_REQUEST;
 import static inha.git.common.code.status.ErrorStatus.ALREADY_REQUESTED_PROBLEM;
 import static inha.git.common.code.status.ErrorStatus.DEPARTMENT_NOT_FOUND;
 import static inha.git.common.code.status.ErrorStatus.NOT_ALLOWED_PARTICIPATE;
+import static inha.git.common.code.status.ErrorStatus.NOT_ALLOWED_VIEW_REQUEST_PROBLEM;
 import static inha.git.common.code.status.ErrorStatus.NOT_AUTHORIZED_PROBLEM_REQUEST;
+import static inha.git.common.code.status.ErrorStatus.NOT_EXIST_PROBLEM;
 import static inha.git.common.code.status.ErrorStatus.NOT_EXIST_REQUEST_PROBLEM;
 import static inha.git.common.code.status.ErrorStatus.PROBLEM_DEADLINE_PASSED;
 import static inha.git.common.code.status.ErrorStatus.PROBLEM_REQUEST_CANNOT_BE_DELETED;
@@ -61,7 +62,6 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
     private final ProblemRequestJpaRepository problemRequestJpaRepository;
     private final ProblemParticipantJpaRepository problemParticipantJpaRepository;
     private final DepartmentJpaRepository departmentRepository;
-    private final ProblemQueryRepository problemQueryRepository;
     private final ProblemRequestMapper problemRequestMapper;
 
     /**
@@ -73,9 +73,15 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
      * @return 문제 신청 목록
      */
     @Override
-    public Page<SearchRequestProblemResponse> getRequestProblems(Integer problemIdx, Integer page, Integer size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, CREATE_AT));
-        return problemQueryRepository.getRequestProblems(problemIdx, pageable);
+    public Page<SearchRequestProblemResponse> getRequestProblems(User user, Integer problemIdx, Integer page, Integer size) {
+        Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
+        if (!problem.getUser().getId().equals(user.getId()) && !user.getRole().equals(ADMIN)) {
+            throw new BaseException(NOT_ALLOWED_VIEW_REQUEST_PROBLEM);
+        }
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<ProblemRequest> problemRequests = problemRequestJpaRepository.findByProblemAndState(problem, ACTIVE, pageable);
+        return problemRequests.map(this::convertToSearchRequestProblemResponse);
     }
 
     /**
@@ -308,5 +314,18 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
 //            }
 //        });
         return null;
+    }
+
+    private SearchRequestProblemResponse convertToSearchRequestProblemResponse(ProblemRequest problemRequest) {
+        return new SearchRequestProblemResponse(
+                problemRequest.getId(),
+                problemRequest.getTitle(),
+                problemRequest.getProblemRequestStatus(),
+                new SearchUserRequestProblemResponse(
+                        problemRequest.getUser().getId(),
+                        problemRequest.getUser().getName()
+                ),
+                problemRequest.getCreatedAt()
+        );
     }
 }
