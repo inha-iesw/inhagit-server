@@ -9,10 +9,6 @@ import java.util.List;
 public record CreateRequestProblemRequest(
 
         @NotNull
-        @Schema(description = "문제 인덱스", example = "1")
-        Integer problemIdx,
-
-        @NotNull
         @ValidParameter
         @Schema(description = "문제 참여 제목", example = "문제 참여 제목")
         String title,

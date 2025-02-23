@@ -142,8 +142,8 @@ public class ProblemController {
      */
     @GetMapping("{problemIdx}/submits")
     @Operation(summary = "문제 제출 가능 여부 조회 API", description = "문제 제출 가능 여부를 조회합니다.")
-    public BaseResponse<List<SearchRequestProblemResponse>> getAvailableSubmits(@AuthenticationPrincipal User user,
-                                                                               @PathVariable("problemIdx") Integer problemIdx) {
+    public BaseResponse<List<SearchRequestProblemsResponse>> getAvailableSubmits(@AuthenticationPrincipal User user,
+                                                                                 @PathVariable("problemIdx") Integer problemIdx) {
         return BaseResponse.of(PROBLEM_AVAILABLE_SUBMITS_OK, problemService.getAvailableSubmits(user, problemIdx));
     }
 

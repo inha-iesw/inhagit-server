@@ -2,17 +2,10 @@ package inha.git.problem.domain.repository;
 
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import inha.git.common.BaseEntity;
-import inha.git.common.BaseEntity.State;
-import inha.git.mapping.domain.QTeamUser;
 import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
-import inha.git.problem.api.controller.dto.response.SearchRequestProblemResponse;
-import inha.git.problem.api.controller.dto.response.SearchTeamRequestProblemResponse;
-import inha.git.problem.api.controller.dto.response.SearchUserRequestProblemResponse;
+import inha.git.problem.api.controller.dto.response.SearchRequestProblemsResponse;
 import inha.git.problem.domain.*;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
-import inha.git.team.domain.QTeam;
-import inha.git.user.domain.QUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -24,7 +17,6 @@ import java.util.List;
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.Constant.mapRoleToPosition;
 import static inha.git.problem.domain.QProblem.problem;
-import static inha.git.problem.domain.QProblemRequest.problemRequest;
 import static inha.git.user.domain.QUser.user;
 
 @Repository
@@ -70,7 +62,7 @@ public class ProblemQueryRepository {
      * @param pageable 페이징 정보
      * @return 문제 신청 목록
      */
-    public Page<SearchRequestProblemResponse> getRequestProblems(Integer problemIdx, Pageable pageable) {
+    public Page<SearchRequestProblemsResponse> getRequestProblems(Integer problemIdx, Pageable pageable) {
 
         return null;
     }

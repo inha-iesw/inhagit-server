@@ -1,15 +1,20 @@
 package inha.git.problem.api.mapper;
 
+import inha.git.admin.api.controller.dto.response.SearchDepartmentResponse;
+import inha.git.department.domain.Department;
 import inha.git.problem.api.controller.dto.request.CreateProblemParticipantRequest;
 import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
 import inha.git.problem.api.controller.dto.request.CreateRequestProblemRequest;
 import inha.git.problem.api.controller.dto.request.UpdateProblemParticipantRequest;
 import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
+import inha.git.problem.api.controller.dto.response.ProblemParticipantResponse;
 import inha.git.problem.api.controller.dto.response.ProblemResponse;
 import inha.git.problem.api.controller.dto.response.ProblemSubmitResponse;
 import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchProblemAttachmentResponse;
 import inha.git.problem.api.controller.dto.response.SearchProblemResponse;
+import inha.git.problem.api.controller.dto.response.SearchRequestProblemResponse;
+import inha.git.problem.api.controller.dto.response.SearchUserRequestProblemResponse;
 import inha.git.problem.domain.Problem;
 import inha.git.problem.domain.ProblemAttachment;
 import inha.git.problem.domain.ProblemParticipant;
@@ -48,4 +53,22 @@ public interface ProblemRequestMapper {
 
     @Mapping(target = "idx", source = "id")
     RequestProblemResponse toRequestProblemResponse(ProblemRequest savedProblemRequest);
+
+    @Mapping(target = "idx", source = "id")
+    @Mapping(target = "user", source = "user")
+    @Mapping(target = "participants", source = "problemParticipants")
+    SearchRequestProblemResponse toSearchRequestProblemResponse(ProblemRequest problemRequest);
+
+    @Mapping(target = "idx", source = "id")
+    SearchUserRequestProblemResponse toSearchUserRequestProblemResponse(User user);
+
+    @Mapping(target = "idx", source = "id")
+    @Mapping(target = "department", source = "department")
+    ProblemParticipantResponse toProblemParticipantResponse(ProblemParticipant participant);
+
+    @Mapping(target = "idx", source = "id")
+    SearchDepartmentResponse toSearchDepartmentResponse(Department department);
+
+    List<ProblemParticipantResponse> toProblemParticipantResponseList(List<ProblemParticipant> participants);
+
 }

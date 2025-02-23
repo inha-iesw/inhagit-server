@@ -8,6 +8,7 @@ import inha.git.problem.api.controller.dto.request.UpdateRequestProblemRequest;
 import inha.git.problem.api.controller.dto.response.ProblemParticipantsResponse;
 import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchRequestProblemResponse;
+import inha.git.problem.api.controller.dto.response.SearchRequestProblemsResponse;
 import inha.git.problem.api.service.ProblemRequestService;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
@@ -35,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 import static inha.git.common.code.status.ErrorStatus.COMPANY_PROFESSOR_CANNOT_PARTICIPATE;
+import static inha.git.common.code.status.SuccessStatus.PROBLEM_REQUEST_DETAIL_OK;
 import static inha.git.common.code.status.SuccessStatus.PROBLEM_REQUEST_OK;
 import static inha.git.common.code.status.SuccessStatus.PROBLEM_REQUEST_SEARCH_OK;
 import static inha.git.common.code.status.SuccessStatus.PROBLEM_REQUEST_UPDATE_OK;
@@ -43,7 +45,7 @@ import static inha.git.common.code.status.SuccessStatus.PROBLEM_REQUEST_UPDATE_O
 @Tag(name = "problem request controller", description = "problem 신청 관련 API")
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/v1/problems/requests")
+@RequestMapping("/api/v1/problems")
 public class ProblemRequestController {
 
     private final ProblemRequestService problemRequestService;
@@ -55,15 +57,30 @@ public class ProblemRequestController {
      * @param size 사이즈
      * @return 문제 신청 목록
      */
-    @GetMapping("/requests/{problemIdx}")
+    @GetMapping("/{problemIdx}/requests")
     @Operation(summary = "문제 신청 목록 조회 API", description = "문제 신청 목록을 조회합니다.")
-    public BaseResponse<Page<SearchRequestProblemResponse>> getRequestProblems(
+    public BaseResponse<Page<SearchRequestProblemsResponse>> getRequestProblems(
             @AuthenticationPrincipal User user,
             @PathVariable("problemIdx") Integer problemIdx,
             @RequestParam("page") Integer page,
             @RequestParam("size") Integer size) {
         PagingUtils.validatePage(page, size);
         return BaseResponse.of(PROBLEM_REQUEST_SEARCH_OK, problemRequestService.getRequestProblems(user, problemIdx, PagingUtils.toPageIndex(page), size));
+    }
+
+    /**
+     * 문제 신청 조회 API
+     *
+     * @param problemIdx 문제 인덱스
+     * @param problemRequestIdx 문제 신청 인덱스
+     * @return 문제 신청 정보
+     */
+    @GetMapping("/{problemIdx}/requests/{problemRequestIdx}")
+    @Operation(summary = "문제 신청 조회 API", description = "문제 신청을 조회합니다.")
+    public BaseResponse<SearchRequestProblemResponse> getRequestProblem(@AuthenticationPrincipal User user,
+                                                                        @PathVariable("problemIdx") Integer problemIdx,
+                                                                        @PathVariable("problemRequestIdx") Integer problemRequestIdx) {
+        return BaseResponse.of(PROBLEM_REQUEST_DETAIL_OK, problemRequestService.getRequestProblem(user, problemIdx, problemRequestIdx));
     }
 
     /**
@@ -74,15 +91,16 @@ public class ProblemRequestController {
      * @param file 파일
      * @return 신청된 문제 정보
      */
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{problemIdx}/requests", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "문제 신청 API", description = "문제를 신청합니다.")
     public BaseResponse<RequestProblemResponse> requestProblem(@AuthenticationPrincipal User user,
+                                                               @PathVariable("problemIdx") Integer problemIdx,
                                                                @Validated @RequestPart("createRequestProblemRequest") CreateRequestProblemRequest createRequestProblemRequest,
                                                                @RequestPart(value = "file", required = false) MultipartFile file) {
         if(user.getRole().equals(Role.COMPANY) || user.getRole().equals(Role.PROFESSOR)) {
             throw new BaseException(COMPANY_PROFESSOR_CANNOT_PARTICIPATE);
         }
-        return BaseResponse.of(PROBLEM_REQUEST_OK, problemRequestService.requestProblem(user, createRequestProblemRequest, file));
+        return BaseResponse.of(PROBLEM_REQUEST_OK, problemRequestService.requestProblem(user, problemIdx, createRequestProblemRequest, file));
     }
 
     /**
@@ -94,7 +112,7 @@ public class ProblemRequestController {
      * @param file 파일
      * @return 수정된 문제 정보
      */
-    @PutMapping(value = "/{problemRequestIdx}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{problemIdx}/requests/{problemRequestIdx}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "문제 신청 수정 API", description = "문제 신청을 수정합니다.")
     public BaseResponse<RequestProblemResponse> updateRequestProblem(@AuthenticationPrincipal User user,
                                                                      @PathVariable("problemRequestIdx") Integer problemRequestIdx,
@@ -103,7 +121,7 @@ public class ProblemRequestController {
         return BaseResponse.of(PROBLEM_REQUEST_UPDATE_OK, problemRequestService.updateRequestProblem(user, problemRequestIdx, updateRequestProblemRequest, file));
     }
 
-    @DeleteMapping("/{problemRequestIdx}")
+    @DeleteMapping("/{problemIdx}/requests/{problemRequestIdx}")
     @Operation(summary = "문제 신청 삭제 API", description = "문제 신청을 삭제합니다.")
     public BaseResponse<RequestProblemResponse> deleteRequestProblem(@AuthenticationPrincipal User user,
                                                                      @PathVariable("problemRequestIdx") Integer problemRequestIdx) {

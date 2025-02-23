@@ -214,7 +214,7 @@ public class ProblemServiceImpl implements ProblemService {
      * @return 제출 가능 목록
      */
     @Override
-    public List<SearchRequestProblemResponse> getAvailableSubmits(User user, Integer problemIdx) {
+    public List<SearchRequestProblemsResponse> getAvailableSubmits(User user, Integer problemIdx) {
 //        Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
 //                .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
 //        if (problem.getUser().getId().equals(user.getId())) {

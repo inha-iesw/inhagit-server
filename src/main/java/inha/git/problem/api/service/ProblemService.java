@@ -16,7 +16,7 @@ public interface ProblemService {
     ProblemResponse updateProblem(User user, Integer problemIdx, UpdateProblemRequest updateProblemRequest, List<MultipartFile> files);
     ProblemResponse updateProblemStatus(User user, Integer problemIdx, ProblemStatus status);
     ProblemResponse deleteProblem(User user, Integer problemIdx);
-    List<SearchRequestProblemResponse> getAvailableSubmits(User user, Integer problemIdx);
+    List<SearchRequestProblemsResponse> getAvailableSubmits(User user, Integer problemIdx);
     ProblemSubmitResponse submitPersonal(User user, Integer personalIdx, MultipartFile file);
     ProblemSubmitResponse submitTeam(User user, Integer teamIdx, MultipartFile file);
 

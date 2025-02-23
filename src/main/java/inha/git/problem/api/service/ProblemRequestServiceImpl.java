@@ -8,6 +8,7 @@ import inha.git.problem.api.controller.dto.request.UpdateRequestProblemRequest;
 import inha.git.problem.api.controller.dto.response.ProblemParticipantsResponse;
 import inha.git.problem.api.controller.dto.response.RequestProblemResponse;
 import inha.git.problem.api.controller.dto.response.SearchRequestProblemResponse;
+import inha.git.problem.api.controller.dto.response.SearchRequestProblemsResponse;
 import inha.git.problem.api.controller.dto.response.SearchUserRequestProblemResponse;
 import inha.git.problem.api.mapper.ProblemRequestMapper;
 import inha.git.problem.domain.Problem;
@@ -37,11 +38,11 @@ import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
-import static inha.git.common.Constant.CREATE_AT;
 import static inha.git.common.Constant.PROBLEM_REQUEST;
 import static inha.git.common.code.status.ErrorStatus.ALREADY_REQUESTED_PROBLEM;
 import static inha.git.common.code.status.ErrorStatus.DEPARTMENT_NOT_FOUND;
 import static inha.git.common.code.status.ErrorStatus.NOT_ALLOWED_PARTICIPATE;
+import static inha.git.common.code.status.ErrorStatus.NOT_ALLOWED_VIEW_REQUESTS_PROBLEM;
 import static inha.git.common.code.status.ErrorStatus.NOT_ALLOWED_VIEW_REQUEST_PROBLEM;
 import static inha.git.common.code.status.ErrorStatus.NOT_AUTHORIZED_PROBLEM_REQUEST;
 import static inha.git.common.code.status.ErrorStatus.NOT_EXIST_PROBLEM;
@@ -73,15 +74,38 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
      * @return 문제 신청 목록
      */
     @Override
-    public Page<SearchRequestProblemResponse> getRequestProblems(User user, Integer problemIdx, Integer page, Integer size) {
+    public Page<SearchRequestProblemsResponse> getRequestProblems(User user, Integer problemIdx, Integer page, Integer size) {
         Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
         if (!problem.getUser().getId().equals(user.getId()) && !user.getRole().equals(ADMIN)) {
-            throw new BaseException(NOT_ALLOWED_VIEW_REQUEST_PROBLEM);
+            throw new BaseException(NOT_ALLOWED_VIEW_REQUESTS_PROBLEM);
         }
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<ProblemRequest> problemRequests = problemRequestJpaRepository.findByProblemAndState(problem, ACTIVE, pageable);
         return problemRequests.map(this::convertToSearchRequestProblemResponse);
+    }
+
+    /**
+     * 문제 신청 조회
+     *
+     * @param user 유저 정보
+     * @param problemIdx 문제 인덱스
+     * @param problemRequestIdx 문제 신청 인덱스
+     * @return 문제 신청 정보
+     */
+    @Override
+    public SearchRequestProblemResponse getRequestProblem(User user, Integer problemIdx, Integer problemRequestIdx) {
+        ProblemRequest problemRequest = problemRequestJpaRepository.findByIdAndState(problemRequestIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(NOT_EXIST_REQUEST_PROBLEM));
+
+        if (!problemRequest.getProblem().getId().equals(problemIdx)) {
+            throw new BaseException(NOT_EXIST_REQUEST_PROBLEM);
+        }
+
+        if (!problemRequest.getUser().getId().equals(user.getId()) && !problemRequest.getProblem().getUser().getId().equals(user.getId()) && !user.getRole().equals(ADMIN)) {
+            throw new BaseException(NOT_ALLOWED_VIEW_REQUEST_PROBLEM);
+        }
+        return problemRequestMapper.toSearchRequestProblemResponse(problemRequest);
     }
 
     /**
@@ -94,8 +118,8 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
      */
     @Override
     @Transactional
-    public RequestProblemResponse requestProblem(User user, CreateRequestProblemRequest createRequestProblemRequest, MultipartFile file) {
-        Problem problem = problemJpaRepository.findByIdAndState(createRequestProblemRequest.problemIdx(), ACTIVE)
+    public RequestProblemResponse requestProblem(User user, Integer problemIdx, CreateRequestProblemRequest createRequestProblemRequest, MultipartFile file) {
+        Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_REQUEST_PROBLEM));
 
         if (problem.getUser().getId().equals(user.getId())) {
@@ -316,8 +340,8 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
         return null;
     }
 
-    private SearchRequestProblemResponse convertToSearchRequestProblemResponse(ProblemRequest problemRequest) {
-        return new SearchRequestProblemResponse(
+    private SearchRequestProblemsResponse convertToSearchRequestProblemResponse(ProblemRequest problemRequest) {
+        return new SearchRequestProblemsResponse(
                 problemRequest.getId(),
                 problemRequest.getTitle(),
                 problemRequest.getProblemRequestStatus(),
