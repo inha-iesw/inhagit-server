@@ -23,13 +23,15 @@ public class ProblemSubmit extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 255, name = "directory_name")
-    private String directoryName;
-
-    @Column(nullable = false, length = 255, name = "zip_directory_name")
-    private String zipDirectoryName;
+    @Column(nullable = false)
+    private Integer projectId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_request_id")
     private ProblemRequest problemRequest;
+
+    public void setProblemRequest(ProblemRequest problemRequest) {
+        this.problemRequest = problemRequest;
+        problemRequest.getProblemSubmits().add(this);  // 양방향 연관관계 설정
+    }
 }

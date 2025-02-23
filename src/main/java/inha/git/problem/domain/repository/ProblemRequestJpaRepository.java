@@ -2,9 +2,12 @@ package inha.git.problem.domain.repository;
 
 import inha.git.problem.domain.Problem;
 import inha.git.problem.domain.ProblemRequest;
+import inha.git.problem.domain.enums.ProblemRequestStatus;
+import inha.git.user.domain.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 import static inha.git.common.BaseEntity.*;
@@ -14,7 +17,12 @@ import static inha.git.common.BaseEntity.*;
  */
 public interface ProblemRequestJpaRepository extends JpaRepository<ProblemRequest, Integer> {
     Optional<ProblemRequest> findByIdAndState(Integer integer, State state);
-    List<ProblemRequest> findByProblemIdAndAcceptAtIsNotNullAndState(Integer problemId, State state);
-    List<ProblemRequest> findByProblemIdAndState(Integer problemIdx, State state);
-    Optional<ProblemRequest> findByProblemAndAcceptAtIsNotNullAndState(Problem problem, State state);
+
+    boolean existsByProblemAndUserAndState(Problem problem, User user, State state);
+
+    Page<ProblemRequest> findByProblemAndState(Problem problem, State state, Pageable pageable);
+
+    Page<ProblemRequest> findByProblemAndStateAndProblemRequestStatus(Problem problem, State state, ProblemRequestStatus problemRequestStatus, Pageable pageable);
+
+    Optional<ProblemRequest> findByProblemIdAndUserAndState(Integer problemIdx, User user, State state);
 }
