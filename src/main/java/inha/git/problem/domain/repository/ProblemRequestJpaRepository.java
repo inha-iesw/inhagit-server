@@ -1,6 +1,5 @@
 package inha.git.problem.domain.repository;
 
-import inha.git.common.BaseEntity;
 import inha.git.problem.domain.Problem;
 import inha.git.problem.domain.ProblemRequest;
 import inha.git.problem.domain.enums.ProblemRequestStatus;

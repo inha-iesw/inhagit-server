@@ -17,6 +17,7 @@ import java.util.List;
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.Constant.mapRoleToPosition;
 import static inha.git.problem.domain.QProblem.problem;
+import static inha.git.problem.domain.QProblemRequest.problemRequest;
 import static inha.git.user.domain.QUser.user;
 
 @Repository
@@ -56,69 +57,50 @@ public class ProblemQueryRepository {
         return new PageImpl<>(content, pageable, total);
     }
 
-    /**
-     * 문제 신청 목록 조회
-     *
-     * @param pageable 페이징 정보
-     * @return 문제 신청 목록
-     */
-    public Page<SearchRequestProblemsResponse> getRequestProblems(Integer problemIdx, Pageable pageable) {
+    public Page<SearchProblemsResponse> getUserProblems(Integer userId, Pageable pageable) {
+        JPAQuery<Problem> query = queryFactory
+                .select(problemRequest.problem)
+                .from(problemRequest)
+                .where(
+                        problemRequest.user.id.eq(userId),
+                        problemRequest.state.eq(ACTIVE)
+                )
+                .orderBy(problemRequest.problem.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
 
-        return null;
+        List<Problem> problems = query.fetch();
+        Long total = queryFactory
+                .select(problemRequest.problem.countDistinct())
+                .from(problemRequest)
+                .where(
+                        problemRequest.user.id.eq(userId),
+                        problemRequest.state.eq(ACTIVE)
+                )
+                .fetchOne();
+
+        return new PageImpl<>(
+                problems.stream()
+                        .map(this::convertToSearchProblemsResponse)
+                        .toList(),
+                pageable,
+                total != null ? total : 0
+        );
     }
 
-    /**
-     * 사용자가 신청한 문제 목록 조회
-     *
-     * @param userId 사용자 인덱스
-     * @param pageable 페이징 정보
-     * @return 사용자가 신청한 문제 목록
-     */
-    public Page<SearchProblemsResponse> getUserProblems(Integer userId, Pageable pageable) {
-//        QProblem problem = QProblem.problem;
-//        QProblemRequest problemRequest = QProblemRequest.problemRequest;
-//        QTeamUser teamUser = QTeamUser.teamUser;
-//        QTeam team = QTeam.team;
-//        QUser user = QUser.user;
-//
-//        JPAQuery<Problem> query = queryFactory
-//                .selectDistinct(problem)  // 중복을 제거하기 위해 distinct 사용
-//                .from(problemRequest)
-//                .leftJoin(problemRequest.personalRequest, personalRequest)
-//                .leftJoin(problemRequest.teamRequest, teamRequest)
-//                .leftJoin(personalRequest.user, user)  // 개인 신청의 경우 유저 조인
-//                .leftJoin(teamRequest.team, team)      // 팀 신청의 경우 팀 조인
-//                .leftJoin(team.teamUsers, teamUser)    // 팀에 속한 유저 조인 (팀원 여부 확인)
-//                .leftJoin(problemRequest.problem, problem)
-//                .where(problemRequest.state.eq(ACTIVE)
-//                        .and(problemRequest.acceptAt.isNotNull())  // 승인된 요청만 조회
-//                        .and(
-//                                personalRequest.user.id.eq(userId)     // 개인 신청의 경우 유저 필터링
-//                                        .or(team.user.id.eq(userId))           // 팀장이 해당 유저일 경우
-//                                        .or(teamUser.user.id.eq(userId))       // 팀에 속한 유저일 경우
-//                        ))
-//                .orderBy(problem.id.desc())
-//                .offset(pageable.getOffset())
-//                .limit(pageable.getPageSize());
-//
-//        List<Problem> problems = query.fetch();
-//        long total = query.fetchCount();
-//
-//        List<SearchProblemsResponse> content = problems.stream()
-//                .map(p -> new SearchProblemsResponse(
-//                        p.getId(),
-//                        p.getTitle(),
-//                        p.getCreatedAt(),
-//                        0,
-//                        new SearchUserResponse(
-//                                p.getUser().getId(),
-//                                p.getUser().getName(),
-//                                mapRoleToPosition(p.getUser().getRole())
-//                        )
-//                ))
-//                .toList();
-
-       // return new PageImpl<>(content, pageable, total);
-        return null;
+    private SearchProblemsResponse convertToSearchProblemsResponse(Problem problem) {
+        return new SearchProblemsResponse(
+                problem.getId(),
+                problem.getTitle(),
+                problem.getCreatedAt(),
+                problem.getParticipantCount(),
+                problem.getStatus(),
+                problem.getHasAttachment(),
+                new inha.git.project.api.controller.dto.response.SearchUserResponse(
+                        problem.getUser().getId(),
+                        problem.getUser().getName(),
+                        mapRoleToPosition(problem.getUser().getRole())
+                )
+        );
     }
 }

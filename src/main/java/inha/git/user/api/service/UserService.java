@@ -17,7 +17,6 @@ public interface UserService {
     SearchUserResponse getUser(Integer userIdx);
     Page<SearchProjectsResponse> getUserProjects(User user, Integer userIdx, Integer page);
     Page<SearchQuestionsResponse> getUserQuestions(User user, Integer userIdx, Integer page);
-    Page<SearchMyTeamsResponse> getUserTeams(User user, Integer userIdx, Integer page);
     Page<SearchProblemsResponse> getUserProblems(User user, Integer userIdx, Integer page);
     Page<SearchReportResponse> getUserReports(User user, Integer userIdx, Integer page);
     Page<SearchBugReportsResponse> getUserBugReports(User user, Integer userIdx, SearchBugReportCond searchBugReportCond, Integer page);

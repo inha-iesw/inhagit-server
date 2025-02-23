@@ -4,7 +4,6 @@ import inha.git.problem.domain.enums.ProblemStatus;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
