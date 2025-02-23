@@ -1,10 +1,11 @@
 package inha.git.problem.domain;
 
 import inha.git.common.BaseEntity;
+import inha.git.problem.domain.enums.ProblemRequestStatus;
+import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,26 +26,54 @@ public class ProblemRequest extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false)
-    private Integer type;
+    @Column(nullable = false, length = 200)
+    private String title;
 
-    @Column(name = "accept_at")
-    private LocalDateTime acceptAt;
+    @Column(nullable = false, length = 3000)
+    private String contents;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20, name = "problem_request_status", columnDefinition = "varchar(20) default 'REQUEST'")
+    private ProblemRequestStatus problemRequestStatus;
+
+    @Column(name = "original_fileName", length = 200)
+    private String originalFileName; // 원본 파일명
+
+    @Column(name = "stored_file_url", length = 200)
+    private String storedFileUrl; // 저장 파일명
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "problem_id")
     private Problem problem;
 
-    @OneToOne(mappedBy = "problemRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private ProblemPersonalRequest personalRequest;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @OneToOne(mappedBy = "problemRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private ProblemTeamRequest teamRequest;
-
+    @Builder.Default
     @OneToMany(mappedBy = "problemRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ProblemSubmit> problemSubmits = new ArrayList<>();
 
-    public void setAcceptAt() {
-        this.acceptAt = LocalDateTime.now();
+    @Builder.Default
+    @OneToMany(mappedBy = "problemRequest", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<ProblemParticipant> problemParticipants = new ArrayList<>();
+
+    public void setProblem(Problem problem) {
+        this.problem = problem;
+        problem.getProblemRequests().add(this);  // 양방향 연관관계 설정
+    }
+
+    public void setFile(String originalFilename, String filePath) {
+        this.originalFileName = originalFilename;
+        this.storedFileUrl = filePath;
+    }
+
+    public void updateRequestProblem(String title, String contents) {
+        this.title = title;
+        this.contents = contents;
+    }
+
+    public void setProblemRequestStatus(ProblemRequestStatus problemRequestStatus) {
+        this.problemRequestStatus = problemRequestStatus;
     }
 }

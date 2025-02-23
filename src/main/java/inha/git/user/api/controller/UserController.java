@@ -113,24 +113,6 @@ public class UserController {
     }
 
     /**
-     * 특정 사용자가 참여중인 팀 목록을 조회합니다.
-     *
-     * @param user 현재 인증된 사용자 정보
-     * @param userIdx 조회할 대상 사용자의 식별자
-     * @param page 조회할 페이지 번호 (1부터 시작)
-     * @return BaseResponse<Page<SearchMyTeamsResponse>> 팀 목록을 포함한 페이징 응답
-     * @throws BaseException 페이지 번호가 1 미만이거나, 조회 권한이 없는 경우
-     */
-    @GetMapping("/{userIdx}/teams")
-    @Operation(summary = "특정 유저의 팀 조회 API", description = "특정 유저의 팀을 조회합니다.")
-    public BaseResponse<Page<SearchMyTeamsResponse>> getUserTeams(@AuthenticationPrincipal User user,
-                                                                  @PathVariable("userIdx") Integer userIdx,
-                                                                  @RequestParam("page") Integer page) {
-        PagingUtils.validatePage(page);
-        return BaseResponse.of(MY_PAGE_TEAM_SEARCH_OK, userService.getUserTeams(user, userIdx, PagingUtils.toPageIndex(page)));
-    }
-
-    /**
      * 특정 사용자가 참여중인 문제 목록을 조회합니다.
      *
      * @param user 현재 인증된 사용자 정보
