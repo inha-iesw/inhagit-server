@@ -3,8 +3,8 @@ package inha.git.problem.domain.repository;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
-import inha.git.problem.api.controller.dto.response.SearchRequestProblemsResponse;
 import inha.git.problem.domain.*;
+import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -47,6 +47,12 @@ public class ProblemQueryRepository {
                         p.getParticipantCount(),
                         p.getStatus(),
                         p.getHasAttachment(),
+                        p.getProblemFields().stream()
+                                .map(f -> new SearchFieldResponse(
+                                        f.getField().getId(),
+                                        f.getField().getName()
+                                ))
+                                .toList(),
                         new SearchUserResponse(
                                 p.getUser().getId(),
                                 p.getUser().getName(),
@@ -58,6 +64,38 @@ public class ProblemQueryRepository {
     }
 
     public Page<SearchProblemsResponse> getUserProblems(Integer userId, Pageable pageable) {
+        JPAQuery<Problem> query = queryFactory
+                .select(problem)
+                .from(problem)
+                .where(
+                        problem.user.id.eq(userId),
+                        problem.state.eq(ACTIVE)
+                )
+                .orderBy(problem.createdAt.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize());
+
+        List<Problem> problems = query.fetch();
+
+        Long total = queryFactory
+                .select(problem.countDistinct())
+                .from(problem)
+                .where(
+                        problem.user.id.eq(userId),
+                        problem.state.eq(ACTIVE)
+                )
+                .fetchOne();
+
+        return new PageImpl<>(
+                problems.stream()
+                        .map(this::convertToSearchProblemsResponse)
+                        .toList(),
+                pageable,
+                total != null ? total : 0
+        );
+    }
+
+    public Page<SearchProblemsResponse> getUserProblemsParticipating(Integer userId, Pageable pageable) {
         JPAQuery<Problem> query = queryFactory
                 .select(problemRequest.problem)
                 .from(problemRequest)
@@ -96,6 +134,12 @@ public class ProblemQueryRepository {
                 problem.getParticipantCount(),
                 problem.getStatus(),
                 problem.getHasAttachment(),
+                problem.getProblemFields().stream()
+                        .map(f -> new SearchFieldResponse(
+                                f.getField().getId(),
+                                f.getField().getName()
+                        ))
+                        .toList(),
                 new inha.git.project.api.controller.dto.response.SearchUserResponse(
                         problem.getUser().getId(),
                         problem.getUser().getName(),
