@@ -233,21 +233,21 @@ public class StatisticsServiceImpl implements StatisticsService {
                 }
                 case 4 -> {  // 특허
                     if (isIncrease) {
-                        if (isFirstPatent(user, semester, field)) {
+                        boolean isFirst = isFirstPatent(user, semester, field);
+                        if (isFirst) {
                             statistics.incrementPatentParticipation();
                         }
                         statistics.incrementPatentCount();
                     } else {
                         statistics.decrementPatentCount();
-                        if (isLastPatent(user, semester, field)) {
+                        boolean isLast = isLastPatent(user, semester, field);
+                        if (isLast) {
                             statistics.decrementPatentParticipation();
                         }
                     }
                 }
                 default -> throw new BaseException(INVALID_ACTION_TYPE);
             }
-
-            // 변경된 통계 저장
             statisticsJpaRepository.save(statistics);
         }
     }
@@ -269,12 +269,14 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     private boolean isFirstPatent(User user, Semester semester, Field field) {
-        return projectPatentJpaRepository.countByProject_UserAndProject_SemesterAndProject_ProjectFields_FieldAndProject_State(
-                user, semester, field, ACTIVE) == 1;
+        long count = projectPatentJpaRepository.countByProject_UserAndProject_SemesterAndProject_ProjectFields_FieldAndProject_State(
+                user, semester, field, ACTIVE);
+        return count == 1;
     }
 
     private boolean isLastPatent(User user, Semester semester, Field field) {
-        return projectPatentJpaRepository.countByProject_UserAndProject_SemesterAndProject_ProjectFields_FieldAndProject_State(
-                user, semester, field, ACTIVE) == 0;
+        long count = projectPatentJpaRepository.countByProject_UserAndProject_SemesterAndProject_ProjectFields_FieldAndProject_State(
+                user, semester, field, ACTIVE);
+        return count == 0;
     }
 }
