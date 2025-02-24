@@ -127,14 +127,28 @@ public class UserServiceImpl implements UserService {
      * 사용자 문제 조회
      *
      * @param user 사용자 정보
+     * @param pageIndex 페이지 번호
+     * @return 사용자 문제 조회 결과
+     */
+    @Override
+    public Page<SearchProblemsResponse> getUserProblems(User user, Integer userIdx, Integer pageIndex) {
+        User findUser = validUser(user, userIdx);
+        Pageable pageable = PageRequest.of(pageIndex, 10, Sort.by(Sort.Direction.DESC, CREATE_AT));
+        return problemQueryRepository.getUserProblems(findUser.getId(), pageable);
+    }
+
+    /**
+     * 사용자 문제 조회
+     *
+     * @param user 사용자 정보
      * @param page 페이지 번호
      * @return 사용자 문제 조회 결과
      */
     @Override
-    public Page<SearchProblemsResponse> getUserProblems(User user, Integer userIdx, Integer page) {
+    public Page<SearchProblemsResponse> getUserProblemsParticipating(User user, Integer userIdx, Integer page) {
         User findUser = validUser(user, userIdx);
         Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
-        return problemQueryRepository.getUserProblems(findUser.getId(), pageable);
+        return problemQueryRepository.getUserProblemsParticipating(findUser.getId(), pageable);
     }
 
     /**
