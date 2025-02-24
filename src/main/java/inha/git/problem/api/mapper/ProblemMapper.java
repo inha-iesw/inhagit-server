@@ -1,5 +1,8 @@
 package inha.git.problem.api.mapper;
 
+import inha.git.field.domain.Field;
+import inha.git.mapping.domain.ProblemField;
+import inha.git.mapping.domain.id.ProblemFieldId;
 import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
 import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
 import inha.git.problem.api.controller.dto.response.*;
@@ -38,4 +41,8 @@ public interface ProblemMapper {
 
     @Mapping(target = "id", ignore = true)
     ProblemAttachment createProblemAttachmentRequestToProblemAttachment(String originalFileName, String storedFileUrl, Problem problem);
+
+    default ProblemField createProblemField(Problem problem, Field field) {
+        return new ProblemField(new ProblemFieldId(problem.getId(), field.getId()), problem, field);
+    }
 }

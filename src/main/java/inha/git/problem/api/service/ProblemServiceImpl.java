@@ -1,18 +1,28 @@
 package inha.git.problem.api.service;
 
 import inha.git.common.exceptions.BaseException;
-import inha.git.problem.api.controller.dto.request.*;
-import inha.git.problem.api.controller.dto.response.*;
+import inha.git.field.domain.Field;
+import inha.git.field.domain.repository.FieldJpaRepository;
+import inha.git.mapping.domain.ProblemField;
+import inha.git.mapping.domain.repository.ProblemFieldJpaRepository;
+import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
+import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
+import inha.git.problem.api.controller.dto.response.ProblemResponse;
+import inha.git.problem.api.controller.dto.response.SearchProblemAttachmentResponse;
+import inha.git.problem.api.controller.dto.response.SearchProblemResponse;
+import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
 import inha.git.problem.api.mapper.ProblemMapper;
-import inha.git.problem.domain.*;
+import inha.git.problem.domain.Problem;
+import inha.git.problem.domain.ProblemAttachment;
 import inha.git.problem.domain.enums.ProblemStatus;
-import inha.git.problem.domain.repository.*;
+import inha.git.problem.domain.repository.ProblemAttachmentJpaRepository;
+import inha.git.problem.domain.repository.ProblemJpaRepository;
+import inha.git.problem.domain.repository.ProblemQueryRepository;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.utils.IdempotentProvider;
 import inha.git.utils.file.FilePath;
-import inha.git.utils.file.UnZip;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,9 +40,15 @@ import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
-import static inha.git.common.Constant.*;
+import static inha.git.common.Constant.ATTACHMENT;
+import static inha.git.common.Constant.BASE_DIR_SOURCE_2;
 
-import static inha.git.common.code.status.ErrorStatus.*;
+import static inha.git.common.Constant.CREATE_AT;
+import static inha.git.common.Constant.PROBLEM;
+import static inha.git.common.Constant.mapRoleToPosition;
+import static inha.git.common.code.status.ErrorStatus.FIELD_NOT_FOUND;
+import static inha.git.common.code.status.ErrorStatus.NOT_AUTHORIZED_PROBLEM;
+import static inha.git.common.code.status.ErrorStatus.NOT_EXIST_PROBLEM;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +58,8 @@ public class ProblemServiceImpl implements ProblemService {
 
     private final ProblemJpaRepository problemJpaRepository;
     private final ProblemAttachmentJpaRepository problemAttachmentJpaRepository;
+    private final ProblemFieldJpaRepository problemFieldJpaRepository;
+    private final FieldJpaRepository fieldJpaRepository;
     private final ProblemMapper problemMapper;
     private final ProblemQueryRepository problemQueryRepository;
     private final IdempotentProvider idempotentProvider;
@@ -110,6 +128,10 @@ public class ProblemServiceImpl implements ProblemService {
             });
             problemAttachmentJpaRepository.saveAll(problemAttachments);
         }
+
+        List<ProblemField> problemFields = createAndSaveProblemFields(createProblemRequest.fieldIdxList(), savedProblem);
+        problemFieldJpaRepository.saveAll(problemFields);
+
         return problemMapper.problemToProblemResponse(savedProblem);
     }
 
@@ -204,20 +226,6 @@ public class ProblemServiceImpl implements ProblemService {
         return problemMapper.problemToProblemResponse(problem);
     }
 
-    /**
-     * 파일 저장 및 압축 해제
-     *
-     * @param file 저장할 파일
-     * @return 압축 해제된 폴더명
-     */
-    private String[] storeAndUnzipFile(MultipartFile file) {
-        String zipFilePath = FilePath.storeFile(file, PROBLEM_ZIP);
-        String folderName = zipFilePath.substring(zipFilePath.lastIndexOf("/") + 1, zipFilePath.lastIndexOf(".zip"));
-        UnZip.unzipFile(BASE_DIR_SOURCE + zipFilePath, BASE_DIR_SOURCE + PROBLEM + '/' + folderName);
-        log.info("압축 해제될 폴더 경로 " + BASE_DIR_SOURCE + zipFilePath + " " + folderName);
-        return new String[] { zipFilePath, folderName };
-    }
-
     private void registerRollbackCleanup(String zipFilePath) {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
@@ -234,5 +242,14 @@ public class ProblemServiceImpl implements ProblemService {
                 }
             }
         });
+    }
+
+    private List<ProblemField>  createAndSaveProblemFields(List<Integer> fieldIdxList, Problem problem) {
+        return fieldIdxList.stream()
+                .map(fieldIdx -> {
+                    Field field = fieldJpaRepository.findByIdAndState(fieldIdx, ACTIVE)
+                            .orElseThrow(() -> new BaseException(FIELD_NOT_FOUND));
+                    return problemMapper.createProblemField(problem, field);
+                }).toList();
     }
 }
