@@ -210,36 +210,27 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
      */
     @Override
     public PatentResponse deletePatent(User user, Integer patentIdx) {
-        // 프로젝트 조회 및 권한 검증
         ProjectPatent projectPatent = projectPatentJpaRepository.findByIdAndState(patentIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
-
         Project project = projectPatent.getProject();
+
         if(user.getId() != project.getUser().getId() && user.getRole() != Role.ADMIN) {
             throw new BaseException(USER_NOT_PROJECT_OWNER);
         }
 
-        // 증빙 파일이 있다면 삭제
         if (projectPatent.getEvidence() != null) {
             FilePath.deleteFile(projectPatent.getEvidence());
         }
-
-        // 프로젝트와의 관계 제거
         project.getProjectPatents().remove(projectPatent);
-
-        // 발명자 정보 삭제
         projectPatentInventorJpaRepository.deleteAllByProjectPatent(projectPatent);
-
-        // 특허 삭제
         projectPatentJpaRepository.delete(projectPatent);
 
-
-
-        List<Field> field = project.getProjectFields()
+        List<Field> fields = project.getProjectFields()
                 .stream()
                 .map(ProjectField::getField)
                 .toList();
-        statisticsService.adjustCount(user, field, project.getSemester(), project.getCategory(),  4, false);
+        statisticsService.adjustCount(user, fields, project.getSemester(), project.getCategory(), 4, false);
+
         return projectMapper.toPatentResponse(projectPatent);
     }
 

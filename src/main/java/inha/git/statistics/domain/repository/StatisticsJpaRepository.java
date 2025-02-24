@@ -21,7 +21,12 @@ public interface StatisticsJpaRepository extends JpaRepository<Statistics, Long>
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "3000")})
-    @Query("SELECT s FROM Statistics s WHERE s.statisticsType = :statisticsType AND s.targetId = :targetId AND s.semesterId = :semesterId AND s.fieldId = :fieldId AND s.categoryId = :categoryId")
+    @Query("SELECT s FROM Statistics s " +
+            "WHERE s.statisticsType = :statisticsType " +
+            "AND (:targetId IS NULL AND s.targetId IS NULL OR s.targetId = :targetId) " +
+            "AND s.semesterId = :semesterId " +
+            "AND s.fieldId = :fieldId " +
+            "AND s.categoryId = :categoryId")
     Optional<Statistics> findByStatisticsTypeAndTargetIdAndSemesterIdAndFieldIdAndCategoryIdWithPessimisticLock(
             @Param("statisticsType") StatisticsType statisticsType,
             @Param("targetId") Long targetId,
