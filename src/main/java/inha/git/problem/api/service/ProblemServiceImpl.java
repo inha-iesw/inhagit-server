@@ -4,6 +4,7 @@ import inha.git.common.exceptions.BaseException;
 import inha.git.field.domain.Field;
 import inha.git.field.domain.repository.FieldJpaRepository;
 import inha.git.mapping.domain.ProblemField;
+import inha.git.mapping.domain.id.ProblemFieldId;
 import inha.git.mapping.domain.repository.ProblemFieldJpaRepository;
 import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
 import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
@@ -36,7 +37,11 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
@@ -149,40 +154,66 @@ public class ProblemServiceImpl implements ProblemService {
     public ProblemResponse updateProblem(User user, Integer problemIdx, UpdateProblemRequest updateProblemRequest, List<MultipartFile> files) {
         Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
+
         if (!problem.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
             throw new BaseException(NOT_AUTHORIZED_PROBLEM);
         }
+
+        Set<Integer> existingFieldIds = problem.getProblemFields().stream()
+                .map(pf -> pf.getField().getId())
+                .collect(Collectors.toSet());
+
         problemMapper.updateProblemRequestToProblem(updateProblemRequest, problem);
-        Problem savedProblem = problemJpaRepository.save(problem);
-        // 기존 첨부파일들의 실제 파일 삭제 및 DB에서 삭제
+        Problem savedProblem = problemJpaRepository.saveAndFlush(problem);
+
+        handleAttachments(problem, files);
+
+        Set<Integer> newFieldIdSet = new HashSet<>(updateProblemRequest.fieldIdxList());
+
+        problem.getProblemFields().removeIf(problemField ->
+                !newFieldIdSet.contains(problemField.getField().getId()));
+        problemJpaRepository.saveAndFlush(problem);
+
+        newFieldIdSet.stream()
+                .filter(id -> !existingFieldIds.contains(id))
+                .forEach(id -> {
+                    Field field = fieldJpaRepository.findById(id)
+                            .orElseThrow(() -> new BaseException(FIELD_NOT_FOUND));
+                    ProblemField newProblemField = new ProblemField(
+                            new ProblemFieldId(problem.getId(), field.getId()),
+                            problem,
+                            field
+                    );
+                    problem.getProblemFields().add(newProblemField);
+                });
+
+        Problem finalSavedProblem = problemJpaRepository.saveAndFlush(problem);
+        return problemMapper.problemToProblemResponse(finalSavedProblem);
+    }
+
+    private void handleAttachments(Problem problem, List<MultipartFile> files) {
         if (problem.getProblemAttachments() != null && !problem.getProblemAttachments().isEmpty()) {
             problem.setHasAttachment(false);
             problem.getProblemAttachments().forEach(attachment -> {
                 FilePath.deleteFile(BASE_DIR_SOURCE_2 + attachment.getStoredFileUrl());
                 problemAttachmentJpaRepository.delete(attachment);
             });
-            problem.setProblemAttachments(new ArrayList<>());
+            problem.getProblemAttachments().clear();
         }
+
         if (files != null && !files.isEmpty()) {
             problem.setHasAttachment(true);
-            problem.getProblemAttachments().addAll(
-                    files.stream()
-                            .map(file -> {
-                                String originalFileName = file.getOriginalFilename();
-                                String storedFileUrl = FilePath.storeFile(file, ATTACHMENT);
-                                // 트랜잭션 롤백 시 파일 삭제를 위한 등록
-                                registerRollbackCleanup(storedFileUrl);
-                                ProblemAttachment attachment = problemMapper.createProblemAttachmentRequestToProblemAttachment(
-                                        originalFileName,
-                                        storedFileUrl,
-                                        savedProblem
-                                );
-                                return problemAttachmentJpaRepository.save(attachment);
-                            })
-                            .toList()
-            );
+            files.forEach(file -> {
+                String originalFileName = file.getOriginalFilename();
+                String storedFileUrl = FilePath.storeFile(file, ATTACHMENT);
+                registerRollbackCleanup(storedFileUrl);
+
+                ProblemAttachment attachment = problemMapper.createProblemAttachmentRequestToProblemAttachment(
+                        originalFileName, storedFileUrl, problem
+                );
+                problem.getProblemAttachments().add(attachment);
+            });
         }
-        return problemMapper.problemToProblemResponse(savedProblem);
     }
 
     /**
