@@ -5,6 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
 import inha.git.problem.api.controller.dto.response.SearchRequestProblemsResponse;
 import inha.git.problem.domain.*;
+import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -47,6 +48,12 @@ public class ProblemQueryRepository {
                         p.getParticipantCount(),
                         p.getStatus(),
                         p.getHasAttachment(),
+                        p.getProblemFields().stream()
+                                .map(f -> new SearchFieldResponse(
+                                        f.getField().getId(),
+                                        f.getField().getName()
+                                ))
+                                .toList(),
                         new SearchUserResponse(
                                 p.getUser().getId(),
                                 p.getUser().getName(),
@@ -96,6 +103,12 @@ public class ProblemQueryRepository {
                 problem.getParticipantCount(),
                 problem.getStatus(),
                 problem.getHasAttachment(),
+                problem.getProblemFields().stream()
+                        .map(f -> new SearchFieldResponse(
+                                f.getField().getId(),
+                                f.getField().getName()
+                        ))
+                        .toList(),
                 new inha.git.project.api.controller.dto.response.SearchUserResponse(
                         problem.getUser().getId(),
                         problem.getUser().getName(),
