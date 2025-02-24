@@ -29,6 +29,9 @@ public class ProblemRequest extends BaseEntity {
     @Column(nullable = false, length = 200)
     private String title;
 
+    @Column(nullable = false, length = 200)
+    private String team;
+
     @Column(nullable = false, length = 3000)
     private String contents;
 
@@ -68,8 +71,9 @@ public class ProblemRequest extends BaseEntity {
         this.storedFileUrl = filePath;
     }
 
-    public void updateRequestProblem(String title, String contents) {
+    public void updateRequestProblem(String title, String team, String contents) {
         this.title = title;
+        this.team = team;
         this.contents = contents;
     }
 

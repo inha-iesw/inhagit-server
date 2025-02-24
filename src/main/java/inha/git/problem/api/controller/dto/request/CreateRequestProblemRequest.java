@@ -15,6 +15,11 @@ public record CreateRequestProblemRequest(
 
         @NotNull
         @ValidParameter
+        @Schema(description = "문제 참여 팀", example = "문제 참여 팀")
+        String team,
+
+        @NotNull
+        @ValidParameter
         @Schema(description = "문제 참여 내용", example = "문제 참여 내용")
         String contents,
 

@@ -39,6 +39,7 @@ public interface ProblemRequestMapper {
     @Mapping(target = "problemRequestStatus", constant = "REQUEST")
     @Mapping(target = "title", source = "createRequestProblemRequest.title")
     @Mapping(target = "contents", source = "createRequestProblemRequest.contents")
+    @Mapping(target = "team", source = "createRequestProblemRequest.team")
     @Mapping(target = "problem", source = "problem")
     @Mapping(target = "user", source = "user")
     ProblemRequest toProblemRequest(CreateRequestProblemRequest createRequestProblemRequest, Problem problem, User user);
