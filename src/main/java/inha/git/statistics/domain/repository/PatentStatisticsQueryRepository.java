@@ -5,6 +5,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.statistics.api.controller.dto.response.PatentStatisticsResponse;
+import inha.git.statistics.domain.enums.StatisticsType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -23,7 +24,6 @@ public class PatentStatisticsQueryRepository {
     private final JPAQueryFactory queryFactory;
 
     public List<PatentStatisticsResponse> getPatentStatistics() {
-
         // 1. 모든 학기 정보 조회
         List<SearchSemesterResponse> semesters = queryFactory
                 .select(Projections.constructor(SearchSemesterResponse.class,
@@ -34,13 +34,11 @@ public class PatentStatisticsQueryRepository {
                 .orderBy(semester.id.asc())
                 .fetch();
 
-        // 2. 학기별 특허 수 조회
         Map<Integer, Integer> patentCountBySemester = queryFactory
                 .select(statistics.semesterId,
-                        Expressions.numberTemplate(Integer.class,
-                                "COALESCE(SUM({0}), 0)",
-                                statistics.patentCount))
+                        Expressions.numberTemplate(Integer.class, "COALESCE(SUM({0}), 0)", statistics.patentCount))
                 .from(statistics)
+                .where(statistics.statisticsType.eq(StatisticsType.TOTAL))
                 .groupBy(statistics.semesterId)
                 .fetch()
                 .stream()
