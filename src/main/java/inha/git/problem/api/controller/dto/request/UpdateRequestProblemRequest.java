@@ -15,6 +15,11 @@ public record UpdateRequestProblemRequest(
 
         @NotNull
         @ValidParameter
+        @Schema(description = "문제 참여 팀", example = "문제 참여 팀 수정")
+        String team,
+
+        @NotNull
+        @ValidParameter
         @Schema(description = "문제 참여 내용", example = "문제 참여 내용 수정")
         String contents,
 

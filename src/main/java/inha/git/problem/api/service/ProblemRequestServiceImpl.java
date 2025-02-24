@@ -192,7 +192,7 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
             throw new BaseException(PROBLEM_REQUEST_CANNOT_BE_MODIFIED);
         }
 
-        problemRequest.updateRequestProblem(updateRequestProblemRequest.title(), updateRequestProblemRequest.contents());
+        problemRequest.updateRequestProblem(updateRequestProblemRequest.title(), updateRequestProblemRequest.team(), updateRequestProblemRequest.contents());
 
         if (file != null && !file.isEmpty()) {
             if (problemRequest.getStoredFileUrl() != null) {
@@ -278,6 +278,7 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
         return new SearchRequestProblemsResponse(
                 problemRequest.getId(),
                 problemRequest.getTitle(),
+                problemRequest.getTeam(),
                 problemRequest.getProblemRequestStatus(),
                 new SearchUserRequestProblemResponse(
                         problemRequest.getUser().getId(),

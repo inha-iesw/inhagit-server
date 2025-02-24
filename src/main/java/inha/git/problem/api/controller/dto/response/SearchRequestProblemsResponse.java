@@ -17,6 +17,10 @@ public record SearchRequestProblemsResponse(
         String title,
 
         @NotNull
+        @Schema(description = "문제 신청 팀", example = "팀")
+        String team,
+
+        @NotNull
         @Schema(description = "문제 신청 상태", example = "REQUEST")
         ProblemRequestStatus problemRequestStatus,
 
