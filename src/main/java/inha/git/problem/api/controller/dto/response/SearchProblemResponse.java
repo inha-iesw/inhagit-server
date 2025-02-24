@@ -1,6 +1,7 @@
 package inha.git.problem.api.controller.dto.response;
 
 import inha.git.problem.domain.enums.ProblemStatus;
+import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -44,6 +45,8 @@ public record SearchProblemResponse(
 
         @NotNull
         SearchUserResponse author,
+
+        List<SearchFieldResponse> fieldList,
 
         List<SearchProblemAttachmentResponse> attachments
 ) {

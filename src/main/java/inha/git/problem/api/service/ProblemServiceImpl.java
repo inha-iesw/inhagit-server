@@ -19,6 +19,7 @@ import inha.git.problem.domain.enums.ProblemStatus;
 import inha.git.problem.domain.repository.ProblemAttachmentJpaRepository;
 import inha.git.problem.domain.repository.ProblemJpaRepository;
 import inha.git.problem.domain.repository.ProblemQueryRepository;
+import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
@@ -95,7 +96,11 @@ public class ProblemServiceImpl implements ProblemService {
         List<SearchProblemAttachmentResponse> attachments = problem.getProblemAttachments().stream()
                 .map(attachment -> new SearchProblemAttachmentResponse(attachment.getId(), attachment.getOriginalFileName(), attachment.getStoredFileUrl()))
                 .toList();
-        return problemMapper.problemToSearchProblemResponse(problem, author, attachments);
+
+        List<SearchFieldResponse> fieldList = problem.getProblemFields().stream()
+                .map(problemField -> new SearchFieldResponse(problemField.getField().getId(), problemField.getField().getName()))
+                .toList();
+        return problemMapper.problemToSearchProblemResponse(problem, author, attachments, fieldList);
     }
 
     /**
