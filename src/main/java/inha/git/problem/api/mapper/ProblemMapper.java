@@ -1,11 +1,14 @@
 package inha.git.problem.api.mapper;
 
+import inha.git.field.domain.Field;
+import inha.git.mapping.domain.ProblemField;
+import inha.git.mapping.domain.id.ProblemFieldId;
 import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
 import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
 import inha.git.problem.api.controller.dto.response.*;
 import inha.git.problem.domain.*;
+import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
-import inha.git.team.domain.Team;
 import inha.git.user.domain.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -34,8 +37,12 @@ public interface ProblemMapper {
     void updateProblemRequestToProblem(UpdateProblemRequest updateProblemRequest, @MappingTarget Problem problem);
 
     @Mapping(target = "idx", source = "problem.id")
-    SearchProblemResponse problemToSearchProblemResponse(Problem problem, SearchUserResponse author, List<SearchProblemAttachmentResponse> attachments);
+    SearchProblemResponse problemToSearchProblemResponse(Problem problem, SearchUserResponse author, List<SearchProblemAttachmentResponse> attachments, List<SearchFieldResponse> fieldList);
 
     @Mapping(target = "id", ignore = true)
     ProblemAttachment createProblemAttachmentRequestToProblemAttachment(String originalFileName, String storedFileUrl, Problem problem);
+
+    default ProblemField createProblemField(Problem problem, Field field) {
+        return new ProblemField(new ProblemFieldId(problem.getId(), field.getId()), problem, field);
+    }
 }

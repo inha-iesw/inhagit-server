@@ -1,11 +1,13 @@
 package inha.git.problem.api.controller.dto.response;
 
 import inha.git.problem.domain.enums.ProblemStatus;
+import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record SearchProblemsResponse(
 
@@ -32,6 +34,8 @@ public record SearchProblemsResponse(
         @NotNull
         @Schema(description = "첨부파일 여부", example = "true")
         boolean hasAttachment,
+
+        List<SearchFieldResponse> fieldList,
 
         @NotNull
         SearchUserResponse author

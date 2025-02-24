@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+
 public record UpdateProblemRequest(
 
         @NotNull
@@ -20,7 +22,11 @@ public record UpdateProblemRequest(
 
         @NotNull
         @Schema(description = "문제 내용 수정", example = "문제 내용 수정")
-        String contents
+        String contents,
 
+        @NotNull(message = "분야를 선택해주세요.")
+        @Size(min = 1, max = 1, message = "하나의 분야만 선택해야 합니다.")
+        @Schema(description = "분야 인덱스 리스트", example = "[1]")
+        List<Integer> fieldIdxList
 ) {
 }

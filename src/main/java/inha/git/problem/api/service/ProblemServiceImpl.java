@@ -1,18 +1,30 @@
 package inha.git.problem.api.service;
 
 import inha.git.common.exceptions.BaseException;
-import inha.git.problem.api.controller.dto.request.*;
-import inha.git.problem.api.controller.dto.response.*;
+import inha.git.field.domain.Field;
+import inha.git.field.domain.repository.FieldJpaRepository;
+import inha.git.mapping.domain.ProblemField;
+import inha.git.mapping.domain.id.ProblemFieldId;
+import inha.git.mapping.domain.repository.ProblemFieldJpaRepository;
+import inha.git.problem.api.controller.dto.request.CreateProblemRequest;
+import inha.git.problem.api.controller.dto.request.UpdateProblemRequest;
+import inha.git.problem.api.controller.dto.response.ProblemResponse;
+import inha.git.problem.api.controller.dto.response.SearchProblemAttachmentResponse;
+import inha.git.problem.api.controller.dto.response.SearchProblemResponse;
+import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
 import inha.git.problem.api.mapper.ProblemMapper;
-import inha.git.problem.domain.*;
+import inha.git.problem.domain.Problem;
+import inha.git.problem.domain.ProblemAttachment;
 import inha.git.problem.domain.enums.ProblemStatus;
-import inha.git.problem.domain.repository.*;
+import inha.git.problem.domain.repository.ProblemAttachmentJpaRepository;
+import inha.git.problem.domain.repository.ProblemJpaRepository;
+import inha.git.problem.domain.repository.ProblemQueryRepository;
+import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import inha.git.user.domain.User;
 import inha.git.user.domain.enums.Role;
 import inha.git.utils.IdempotentProvider;
 import inha.git.utils.file.FilePath;
-import inha.git.utils.file.UnZip;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -26,13 +38,22 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
-import static inha.git.common.Constant.*;
+import static inha.git.common.Constant.ATTACHMENT;
+import static inha.git.common.Constant.BASE_DIR_SOURCE_2;
 
-import static inha.git.common.code.status.ErrorStatus.*;
+import static inha.git.common.Constant.CREATE_AT;
+import static inha.git.common.Constant.PROBLEM;
+import static inha.git.common.Constant.mapRoleToPosition;
+import static inha.git.common.code.status.ErrorStatus.FIELD_NOT_FOUND;
+import static inha.git.common.code.status.ErrorStatus.NOT_AUTHORIZED_PROBLEM;
+import static inha.git.common.code.status.ErrorStatus.NOT_EXIST_PROBLEM;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +63,8 @@ public class ProblemServiceImpl implements ProblemService {
 
     private final ProblemJpaRepository problemJpaRepository;
     private final ProblemAttachmentJpaRepository problemAttachmentJpaRepository;
+    private final ProblemFieldJpaRepository problemFieldJpaRepository;
+    private final FieldJpaRepository fieldJpaRepository;
     private final ProblemMapper problemMapper;
     private final ProblemQueryRepository problemQueryRepository;
     private final IdempotentProvider idempotentProvider;
@@ -73,7 +96,11 @@ public class ProblemServiceImpl implements ProblemService {
         List<SearchProblemAttachmentResponse> attachments = problem.getProblemAttachments().stream()
                 .map(attachment -> new SearchProblemAttachmentResponse(attachment.getId(), attachment.getOriginalFileName(), attachment.getStoredFileUrl()))
                 .toList();
-        return problemMapper.problemToSearchProblemResponse(problem, author, attachments);
+
+        List<SearchFieldResponse> fieldList = problem.getProblemFields().stream()
+                .map(problemField -> new SearchFieldResponse(problemField.getField().getId(), problemField.getField().getName()))
+                .toList();
+        return problemMapper.problemToSearchProblemResponse(problem, author, attachments, fieldList);
     }
 
     /**
@@ -110,6 +137,10 @@ public class ProblemServiceImpl implements ProblemService {
             });
             problemAttachmentJpaRepository.saveAll(problemAttachments);
         }
+
+        List<ProblemField> problemFields = createAndSaveProblemFields(createProblemRequest.fieldIdxList(), savedProblem);
+        problemFieldJpaRepository.saveAll(problemFields);
+
         return problemMapper.problemToProblemResponse(savedProblem);
     }
 
@@ -127,40 +158,66 @@ public class ProblemServiceImpl implements ProblemService {
     public ProblemResponse updateProblem(User user, Integer problemIdx, UpdateProblemRequest updateProblemRequest, List<MultipartFile> files) {
         Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
+
         if (!problem.getUser().getId().equals(user.getId()) && user.getRole() != Role.ADMIN) {
             throw new BaseException(NOT_AUTHORIZED_PROBLEM);
         }
+
+        Set<Integer> existingFieldIds = problem.getProblemFields().stream()
+                .map(pf -> pf.getField().getId())
+                .collect(Collectors.toSet());
+
         problemMapper.updateProblemRequestToProblem(updateProblemRequest, problem);
-        Problem savedProblem = problemJpaRepository.save(problem);
-        // 기존 첨부파일들의 실제 파일 삭제 및 DB에서 삭제
+        Problem savedProblem = problemJpaRepository.saveAndFlush(problem);
+
+        handleAttachments(problem, files);
+
+        Set<Integer> newFieldIdSet = new HashSet<>(updateProblemRequest.fieldIdxList());
+
+        problem.getProblemFields().removeIf(problemField ->
+                !newFieldIdSet.contains(problemField.getField().getId()));
+        problemJpaRepository.saveAndFlush(problem);
+
+        newFieldIdSet.stream()
+                .filter(id -> !existingFieldIds.contains(id))
+                .forEach(id -> {
+                    Field field = fieldJpaRepository.findById(id)
+                            .orElseThrow(() -> new BaseException(FIELD_NOT_FOUND));
+                    ProblemField newProblemField = new ProblemField(
+                            new ProblemFieldId(problem.getId(), field.getId()),
+                            problem,
+                            field
+                    );
+                    problem.getProblemFields().add(newProblemField);
+                });
+
+        Problem finalSavedProblem = problemJpaRepository.saveAndFlush(problem);
+        return problemMapper.problemToProblemResponse(finalSavedProblem);
+    }
+
+    private void handleAttachments(Problem problem, List<MultipartFile> files) {
         if (problem.getProblemAttachments() != null && !problem.getProblemAttachments().isEmpty()) {
             problem.setHasAttachment(false);
             problem.getProblemAttachments().forEach(attachment -> {
                 FilePath.deleteFile(BASE_DIR_SOURCE_2 + attachment.getStoredFileUrl());
                 problemAttachmentJpaRepository.delete(attachment);
             });
-            problem.setProblemAttachments(new ArrayList<>());
+            problem.getProblemAttachments().clear();
         }
+
         if (files != null && !files.isEmpty()) {
             problem.setHasAttachment(true);
-            problem.getProblemAttachments().addAll(
-                    files.stream()
-                            .map(file -> {
-                                String originalFileName = file.getOriginalFilename();
-                                String storedFileUrl = FilePath.storeFile(file, ATTACHMENT);
-                                // 트랜잭션 롤백 시 파일 삭제를 위한 등록
-                                registerRollbackCleanup(storedFileUrl);
-                                ProblemAttachment attachment = problemMapper.createProblemAttachmentRequestToProblemAttachment(
-                                        originalFileName,
-                                        storedFileUrl,
-                                        savedProblem
-                                );
-                                return problemAttachmentJpaRepository.save(attachment);
-                            })
-                            .toList()
-            );
+            files.forEach(file -> {
+                String originalFileName = file.getOriginalFilename();
+                String storedFileUrl = FilePath.storeFile(file, ATTACHMENT);
+                registerRollbackCleanup(storedFileUrl);
+
+                ProblemAttachment attachment = problemMapper.createProblemAttachmentRequestToProblemAttachment(
+                        originalFileName, storedFileUrl, problem
+                );
+                problem.getProblemAttachments().add(attachment);
+            });
         }
-        return problemMapper.problemToProblemResponse(savedProblem);
     }
 
     /**
@@ -204,20 +261,6 @@ public class ProblemServiceImpl implements ProblemService {
         return problemMapper.problemToProblemResponse(problem);
     }
 
-    /**
-     * 파일 저장 및 압축 해제
-     *
-     * @param file 저장할 파일
-     * @return 압축 해제된 폴더명
-     */
-    private String[] storeAndUnzipFile(MultipartFile file) {
-        String zipFilePath = FilePath.storeFile(file, PROBLEM_ZIP);
-        String folderName = zipFilePath.substring(zipFilePath.lastIndexOf("/") + 1, zipFilePath.lastIndexOf(".zip"));
-        UnZip.unzipFile(BASE_DIR_SOURCE + zipFilePath, BASE_DIR_SOURCE + PROBLEM + '/' + folderName);
-        log.info("압축 해제될 폴더 경로 " + BASE_DIR_SOURCE + zipFilePath + " " + folderName);
-        return new String[] { zipFilePath, folderName };
-    }
-
     private void registerRollbackCleanup(String zipFilePath) {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
@@ -234,5 +277,14 @@ public class ProblemServiceImpl implements ProblemService {
                 }
             }
         });
+    }
+
+    private List<ProblemField>  createAndSaveProblemFields(List<Integer> fieldIdxList, Problem problem) {
+        return fieldIdxList.stream()
+                .map(fieldIdx -> {
+                    Field field = fieldJpaRepository.findByIdAndState(fieldIdx, ACTIVE)
+                            .orElseThrow(() -> new BaseException(FIELD_NOT_FOUND));
+                    return problemMapper.createProblemField(problem, field);
+                }).toList();
     }
 }
