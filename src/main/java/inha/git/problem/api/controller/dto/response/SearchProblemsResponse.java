@@ -1,19 +1,21 @@
 package inha.git.problem.api.controller.dto.response;
 
+import inha.git.problem.domain.enums.ProblemStatus;
+import inha.git.project.api.controller.dto.response.SearchFieldResponse;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record SearchProblemsResponse(
-        @NotNull
-        @Schema(description = "문제 아이디", example = "1")
-        Integer idx,
 
         @NotNull
-        @Size(min = 1, max = 12)
+        @Schema(description = "문제 아이디", example = "1")
+        int idx,
+
+        @NotNull
         @Schema(description = "제목", example = "공지사항 제목")
         String title,
 
@@ -23,7 +25,17 @@ public record SearchProblemsResponse(
 
         @NotNull
         @Schema(description = "문제 참여자 수", example = "1")
-        Integer joinUserNumber,
+        int participantCount,
+
+        @NotNull
+        @Schema(description = "문제 상태", example = "PROGRESS")
+        ProblemStatus status,
+
+        @NotNull
+        @Schema(description = "첨부파일 여부", example = "true")
+        boolean hasAttachment,
+
+        List<SearchFieldResponse> fieldList,
 
         @NotNull
         SearchUserResponse author

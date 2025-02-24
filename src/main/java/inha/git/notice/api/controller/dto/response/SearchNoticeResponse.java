@@ -14,12 +14,10 @@ public record SearchNoticeResponse(
         Integer idx,
 
         @NotNull
-        @Size(min = 1, max = 12)
         @Schema(description = "제목", example = "공지사항 제목")
         String title,
 
         @NotNull
-        @Size(min = 1)
         @Schema(description = "내용", example = "공지사항 내용")
         String contents,
 

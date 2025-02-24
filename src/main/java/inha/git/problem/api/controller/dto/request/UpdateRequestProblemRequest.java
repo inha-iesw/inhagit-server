@@ -6,23 +6,23 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record CreateRequestProblemRequest(
+public record UpdateRequestProblemRequest(
 
         @NotNull
         @ValidParameter
-        @Schema(description = "문제 참여 제목", example = "문제 참여 제목")
+        @Schema(description = "문제 참여 제목", example = "문제 참여 제목 수정")
         String title,
 
         @NotNull
         @ValidParameter
-        @Schema(description = "문제 참여 팀", example = "문제 참여 팀")
+        @Schema(description = "문제 참여 팀", example = "문제 참여 팀 수정")
         String team,
 
         @NotNull
         @ValidParameter
-        @Schema(description = "문제 참여 내용", example = "문제 참여 내용")
+        @Schema(description = "문제 참여 내용", example = "문제 참여 내용 수정")
         String contents,
 
-        List<CreateProblemParticipantRequest> participants
+        List<UpdateProblemParticipantRequest> participants
 ) {
 }

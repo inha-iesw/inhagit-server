@@ -1,7 +1,6 @@
 package inha.git.question.domain;
 
 import inha.git.common.BaseEntity;
-import inha.git.problem.domain.ProblemComment;
 import inha.git.user.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
