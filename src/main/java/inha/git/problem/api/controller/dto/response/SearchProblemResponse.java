@@ -43,6 +43,9 @@ public record SearchProblemResponse(
         @Schema(description = "문제 제출 기한", example = "2025-08-31")
         String duration,
 
+        @Schema(description = "문제 신청 인덱스", example = "1")
+        Integer problemRequestIdx,
+
         @NotNull
         SearchUserResponse author,
 

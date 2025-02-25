@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface ProblemService {
     Page<SearchProblemsResponse> getProblems(Integer page, Integer size);
-    SearchProblemResponse getProblem(Integer problemIdx);
+    SearchProblemResponse getProblem(User userm, Integer problemIdx);
     ProblemResponse createProblem(User user, CreateProblemRequest createProblemRequest, List<MultipartFile> files);
     ProblemResponse updateProblem(User user, Integer problemIdx, UpdateProblemRequest updateProblemRequest, List<MultipartFile> files);
     ProblemResponse updateProblemStatus(User user, Integer problemIdx, ProblemStatus status);

@@ -56,13 +56,15 @@ public class ProblemController {
     /**
      * 문제 상세 조회 API
      *
+     * @param user 유저 정보
      * @param problemIdx 문제 인덱스
      * @return 문제 상세 정보
      */
     @GetMapping("/{problemIdx}")
     @Operation(summary = "문제 상세 조회 API", description = "문제를 상세 조회합니다.")
-    public BaseResponse<SearchProblemResponse> getProblem(@PathVariable("problemIdx") Integer problemIdx) {
-        return BaseResponse.of(PROBLEM_DETAIL_OK, problemService.getProblem(problemIdx));
+    public BaseResponse<SearchProblemResponse> getProblem(@AuthenticationPrincipal User user,
+                                                          @PathVariable("problemIdx") Integer problemIdx) {
+        return BaseResponse.of(PROBLEM_DETAIL_OK, problemService.getProblem(user, problemIdx));
     }
 
     /**
