@@ -55,10 +55,11 @@ public interface ProblemRequestMapper {
     @Mapping(target = "idx", source = "id")
     RequestProblemResponse toRequestProblemResponse(ProblemRequest savedProblemRequest);
 
-    @Mapping(target = "idx", source = "id")
-    @Mapping(target = "user", source = "user")
-    @Mapping(target = "participants", source = "problemParticipants")
-    SearchRequestProblemResponse toSearchRequestProblemResponse(ProblemRequest problemRequest);
+    @Mapping(target = "idx", source = "problemRequest.id")
+    @Mapping(target = "user", source = "problemRequest.user")
+    @Mapping(target = "participants", source = "problemRequest.problemParticipants")
+    @Mapping(target = "projectIdx", source = "projectIdx")
+    SearchRequestProblemResponse toSearchRequestProblemResponse(ProblemRequest problemRequest, Integer projectIdx);
 
     @Mapping(target = "idx", source = "id")
     SearchUserRequestProblemResponse toSearchUserRequestProblemResponse(User user);
