@@ -196,28 +196,33 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     private void handleAttachments(Problem problem, List<MultipartFile> files) {
-        if (problem.getProblemAttachments() != null && !problem.getProblemAttachments().isEmpty()) {
-            problem.setHasAttachment(false);
-            problem.getProblemAttachments().forEach(attachment -> {
+        List<ProblemAttachment> existingAttachments = new ArrayList<>(problem.getProblemAttachments());
+        problem.getProblemAttachments().clear();
+
+        if (!existingAttachments.isEmpty()) {
+            existingAttachments.forEach(attachment -> {
                 FilePath.deleteFile(BASE_DIR_SOURCE_2 + attachment.getStoredFileUrl());
                 problemAttachmentJpaRepository.delete(attachment);
             });
-            problem.getProblemAttachments().clear();
         }
 
         if (files != null && !files.isEmpty()) {
             problem.setHasAttachment(true);
             files.forEach(file -> {
                 String originalFileName = file.getOriginalFilename();
-                String storedFileUrl = FilePath.storeFile(file, ATTACHMENT);
+                String storedFileUrl = FilePath.storeFile(file, PROBLEM);
                 registerRollbackCleanup(storedFileUrl);
 
                 ProblemAttachment attachment = problemMapper.createProblemAttachmentRequestToProblemAttachment(
                         originalFileName, storedFileUrl, problem
                 );
-                problem.getProblemAttachments().add(attachment);
+                ProblemAttachment savedAttachment = problemAttachmentJpaRepository.save(attachment);
+                problem.getProblemAttachments().add(savedAttachment);
             });
+        } else {
+            problem.setHasAttachment(false);
         }
+        problemJpaRepository.save(problem);
     }
 
     /**
