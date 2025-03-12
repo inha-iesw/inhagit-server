@@ -37,7 +37,7 @@ public interface ProblemMapper {
     void updateProblemRequestToProblem(UpdateProblemRequest updateProblemRequest, @MappingTarget Problem problem);
 
     @Mapping(target = "idx", source = "problem.id")
-    SearchProblemResponse problemToSearchProblemResponse(Problem problem, SearchUserResponse author, List<SearchProblemAttachmentResponse> attachments, List<SearchFieldResponse> fieldList);
+    SearchProblemResponse problemToSearchProblemResponse(Problem problem, SearchUserResponse author, List<SearchProblemAttachmentResponse> attachments, List<SearchFieldResponse> fieldList, Integer problemRequestIdx);
 
     @Mapping(target = "id", ignore = true)
     ProblemAttachment createProblemAttachmentRequestToProblemAttachment(String originalFileName, String storedFileUrl, Problem problem);

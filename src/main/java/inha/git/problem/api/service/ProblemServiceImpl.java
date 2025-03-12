@@ -15,6 +15,7 @@ import inha.git.problem.api.controller.dto.response.SearchProblemsResponse;
 import inha.git.problem.api.mapper.ProblemMapper;
 import inha.git.problem.domain.Problem;
 import inha.git.problem.domain.ProblemAttachment;
+import inha.git.problem.domain.ProblemRequest;
 import inha.git.problem.domain.enums.ProblemStatus;
 import inha.git.problem.domain.repository.ProblemAttachmentJpaRepository;
 import inha.git.problem.domain.repository.ProblemJpaRepository;
@@ -45,7 +46,6 @@ import java.util.stream.Collectors;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.BaseEntity.State.INACTIVE;
-import static inha.git.common.Constant.ATTACHMENT;
 import static inha.git.common.Constant.BASE_DIR_SOURCE_2;
 
 import static inha.git.common.Constant.CREATE_AT;
@@ -89,7 +89,7 @@ public class ProblemServiceImpl implements ProblemService {
      * @return 문제 상세 정보
      */
     @Override
-    public SearchProblemResponse getProblem(Integer problemIdx) {
+    public SearchProblemResponse getProblem(User user, Integer problemIdx) {
         Problem problem = problemJpaRepository.findByIdAndState(problemIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PROBLEM));
         SearchUserResponse author = new SearchUserResponse(problem.getUser().getId(), problem.getUser().getName(), mapRoleToPosition(problem.getUser().getRole()));
@@ -100,7 +100,14 @@ public class ProblemServiceImpl implements ProblemService {
         List<SearchFieldResponse> fieldList = problem.getProblemFields().stream()
                 .map(problemField -> new SearchFieldResponse(problemField.getField().getId(), problemField.getField().getName()))
                 .toList();
-        return problemMapper.problemToSearchProblemResponse(problem, author, attachments, fieldList);
+
+        Integer problemRequestIdx = problem.getProblemRequests().stream()
+                .filter(request -> request.getUser().getId().equals(user.getId())
+                        && request.getState().equals(ACTIVE))
+                .findFirst()
+                .map(ProblemRequest::getId)
+                .orElse(null);
+        return problemMapper.problemToSearchProblemResponse(problem, author, attachments, fieldList, problemRequestIdx);
     }
 
     /**
@@ -196,28 +203,33 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     private void handleAttachments(Problem problem, List<MultipartFile> files) {
-        if (problem.getProblemAttachments() != null && !problem.getProblemAttachments().isEmpty()) {
-            problem.setHasAttachment(false);
-            problem.getProblemAttachments().forEach(attachment -> {
+        List<ProblemAttachment> existingAttachments = new ArrayList<>(problem.getProblemAttachments());
+        problem.getProblemAttachments().clear();
+
+        if (!existingAttachments.isEmpty()) {
+            existingAttachments.forEach(attachment -> {
                 FilePath.deleteFile(BASE_DIR_SOURCE_2 + attachment.getStoredFileUrl());
                 problemAttachmentJpaRepository.delete(attachment);
             });
-            problem.getProblemAttachments().clear();
         }
 
         if (files != null && !files.isEmpty()) {
             problem.setHasAttachment(true);
             files.forEach(file -> {
                 String originalFileName = file.getOriginalFilename();
-                String storedFileUrl = FilePath.storeFile(file, ATTACHMENT);
+                String storedFileUrl = FilePath.storeFile(file, PROBLEM);
                 registerRollbackCleanup(storedFileUrl);
 
                 ProblemAttachment attachment = problemMapper.createProblemAttachmentRequestToProblemAttachment(
                         originalFileName, storedFileUrl, problem
                 );
-                problem.getProblemAttachments().add(attachment);
+                ProblemAttachment savedAttachment = problemAttachmentJpaRepository.save(attachment);
+                problem.getProblemAttachments().add(savedAttachment);
             });
+        } else {
+            problem.setHasAttachment(false);
         }
+        problemJpaRepository.save(problem);
     }
 
     /**

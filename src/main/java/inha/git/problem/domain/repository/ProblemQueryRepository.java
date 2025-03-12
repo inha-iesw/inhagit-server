@@ -43,6 +43,7 @@ public class ProblemQueryRepository {
                 .map(p -> new SearchProblemsResponse(
                         p.getId(),
                         p.getTitle(),
+                        p.getDuration(),
                         p.getCreatedAt(),
                         p.getParticipantCount(),
                         p.getStatus(),
@@ -130,6 +131,7 @@ public class ProblemQueryRepository {
         return new SearchProblemsResponse(
                 problem.getId(),
                 problem.getTitle(),
+                problem.getDuration(),
                 problem.getCreatedAt(),
                 problem.getParticipantCount(),
                 problem.getStatus(),

@@ -112,7 +112,8 @@ public class ProblemRequestServiceImpl implements ProblemRequestService {
         if (!problemRequest.getUser().getId().equals(user.getId()) && !problemRequest.getProblem().getUser().getId().equals(user.getId()) && !user.getRole().equals(ADMIN)) {
             throw new BaseException(NOT_ALLOWED_VIEW_REQUEST_PROBLEM);
         }
-        return problemRequestMapper.toSearchRequestProblemResponse(problemRequest);
+        Integer projectIdx = problemSubmitJpaRepository.findProjectIdByProblemRequestId(problemRequest.getId()).orElse(null);
+        return problemRequestMapper.toSearchRequestProblemResponse(problemRequest, projectIdx);
     }
 
     /**

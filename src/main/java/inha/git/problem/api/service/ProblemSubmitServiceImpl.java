@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.code.status.ErrorStatus.DUPLICATE_PROBLEM_SUBMISSION;
 import static inha.git.common.code.status.ErrorStatus.NOT_ALLOWED_VIEW_SUBMITS_PROBLEM;
 import static inha.git.common.code.status.ErrorStatus.NOT_EXIST_REQUEST_PROBLEM;
 import static inha.git.common.code.status.ErrorStatus.PROBLEM_SUBMIT_NOT_ALLOWED;
@@ -77,6 +78,10 @@ public class ProblemSubmitServiceImpl implements ProblemSubmitService {
 
         if (!problemRequest.getProblemRequestStatus().equals(ProblemRequestStatus.APPROVAL)) {
             throw new BaseException(PROBLEM_SUBMIT_NOT_ALLOWED);
+        }
+        boolean isAlreadySubmitted = problemSubmitJpaRepository.existsByProblemRequest(problemRequest);
+        if (isAlreadySubmitted) {
+            throw new BaseException(DUPLICATE_PROBLEM_SUBMISSION);
         }
         ProblemSubmit problemSubmit = problemSubmitMapper.toProblemSubmit(projectIdx, problemRequest);
         problemSubmitJpaRepository.save(problemSubmit);

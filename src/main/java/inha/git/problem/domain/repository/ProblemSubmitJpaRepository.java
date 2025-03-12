@@ -1,5 +1,6 @@
 package inha.git.problem.domain.repository;
 
+import inha.git.problem.domain.ProblemRequest;
 import inha.git.problem.domain.ProblemSubmit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,4 +19,6 @@ public interface ProblemSubmitJpaRepository extends JpaRepository<ProblemSubmit,
 
     @Query("SELECT ps.projectId FROM ProblemSubmit ps WHERE ps.problemRequest.id = :problemRequestId")
     Optional<Integer> findProjectIdByProblemRequestId(@Param("problemRequestId") Integer problemRequestId);
+
+    boolean existsByProblemRequest(ProblemRequest problemRequest);
 }
