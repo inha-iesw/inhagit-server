@@ -36,6 +36,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
@@ -61,6 +62,16 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
     private final ProjectLikeJpaRepository projectLikeJpaRepository;
     private final FoundingRecommendJpaRepository foundingRecommendJpaRepository;
     private final RegistrationRecommendJpaRepository registrationRecommendJpaRepository;
+
+    private static final Set<String> TEXT_EXTENSIONS = Set.of(
+            ".sh", ".yml", ".yaml", ".sql", ".txt", ".json", ".xml",
+            ".md", ".csv", ".js", ".html", ".css", ".java", ".py"
+    );
+
+    private static final Set<String> TEXT_MIME_PATTERNS = Set.of(
+            "text/", "application/json", "application/xml", "application/javascript",
+            "application/sql", "text/x-sql", "application/yaml"
+    );
 
     /**
      * 프로젝트 조건 조회
@@ -197,51 +208,81 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
         }
     }
 
-    private String extractFileContent(Path filePath) throws IOException {
+    public String extractFileContent(Path filePath) throws IOException {
         String fileName = filePath.getFileName().toString().toLowerCase();
+        String extension = getFileExtension(fileName);
         String contentType = Files.probeContentType(filePath);
 
-        // 파일 확장자에 따른 처리 추가
-        if (fileName.endsWith(".sh") || fileName.endsWith(".yml") || fileName.endsWith(".yaml")) {
-            return Files.readString(filePath);
+        if (TEXT_EXTENSIONS.contains(extension)) {
+            return readTextFile(filePath);
         }
-
-        // MIME 타입에 따른 처리
+        // 2. MIME 타입으로 처리 방식 결정
         if (contentType != null) {
-            if (contentType.equals("text/csv")) {
-                // UTF-8 시도 후 실패하면 CP-949로 시도
-                try {
-                    return Files.readString(filePath);  // 기본적으로 UTF-8로 시도
-                } catch (MalformedInputException e) {
-                    log.info("UTF-8로 읽기 실패, MS949로 다시 시도합니다.");
-                    try (BufferedReader reader = Files.newBufferedReader(filePath, Charset.forName("MS949"))) {
-                        StringBuilder content = new StringBuilder();
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            content.append(line).append("\n");
-                        }
-                        return content.toString();
-                    }
-                }
-            } else if (contentType.startsWith("image")) {
-                // 이미지 파일 처리
-                byte[] imageBytes = Files.readAllBytes(filePath);
-                return Base64.getEncoder().encodeToString(imageBytes);
-            } else if (contentType.startsWith("text") ||
-                    contentType.contains("json") ||
-                    contentType.contains("javascript") ||
-                    contentType.contains("xml") ||
-                    contentType.contains("yaml")) {
-                // 텍스트, JSON, JavaScript, XML, YAML 파일 처리
-                return Files.readString(filePath);
+            // CSV 파일 특별 처리 (인코딩 문제)
+            if (contentType.equals("text/csv") || fileName.endsWith(".csv")) {
+                return readCsvFile(filePath);
+            }
+            // 이미지 파일 처리
+            if (contentType.startsWith("image/")) {
+                return readImageFile(filePath);
+            }
+            // 텍스트 계열 파일 처리
+            if (isTextMimeType(contentType)) {
+                return readTextFile(filePath);
             }
         }
-        // MIME 타입을 확인할 수 없을 때 기본적으로 텍스트 파일로 처리
-        if (contentType == null || contentType.startsWith("text")) {
-            return Files.readString(filePath);
-        }
 
+        // 3. MIME 타입이 없거나 확인할 수 없는 경우 확장자나 휴리스틱 기반으로 처리
+        if (contentType == null || isTextMimeType(contentType)) {
+            return readTextFile(filePath);
+        }
+        // 처리할 수 없는 파일 타입
+        log.warn("처리할 수 없는 파일 타입: {}, MIME: {}", fileName, contentType);
         return null;
+    }
+
+    private String getFileExtension(String fileName) {
+        int lastDotIndex = fileName.lastIndexOf('.');
+        if (lastDotIndex > 0) {
+            return fileName.substring(lastDotIndex);
+        }
+        return "";
+    }
+
+    private boolean isTextMimeType(String mimeType) {
+        if (mimeType == null) return false;
+        return TEXT_MIME_PATTERNS.stream()
+                .anyMatch(mimeType::contains);
+    }
+
+    private String readTextFile(Path filePath) throws IOException {
+        try {
+            return Files.readString(filePath);
+        } catch (IOException e) {
+            log.warn("기본 방식으로 파일 읽기 실패: {}", e.getMessage());
+            throw e;
+        }
+    }
+
+    private String readCsvFile(Path filePath) throws IOException {
+        try {
+            return Files.readString(filePath); // 기본적으로 UTF-8로 시도
+        } catch (MalformedInputException e) {
+            log.info("UTF-8로 읽기 실패, MS949로 다시 시도합니다.");
+            try (BufferedReader reader = Files.newBufferedReader(filePath, Charset.forName("MS949"))) {
+                StringBuilder content = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    content.append(line).append("\n");
+                }
+                return content.toString();
+            }
+        }
+    }
+
+    private String readImageFile(Path filePath) throws IOException {
+        byte[] imageBytes = Files.readAllBytes(filePath);
+        return Base64.getEncoder().encodeToString(imageBytes);
     }
 
     private ProjectUpload getProjectUploadIfNeeded(Project project, Integer projectIdx) {
