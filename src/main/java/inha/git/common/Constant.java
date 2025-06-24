@@ -121,6 +121,7 @@ public class Constant {
         return project.getIsPublic() ||
                 project.getUser().getId().equals(user.getId()) ||
                 user.getRole().equals(Role.ADMIN) ||
-                user.getRole().equals(Role.PROFESSOR);
+                user.getRole().equals(Role.PROFESSOR) ||
+                user.getRole().equals(Role.COMPANY);
     }
 }
