@@ -1,5 +1,8 @@
 package inha.git.category.controller.dto.response;
 
+import inha.git.category.domain.Category;
+import inha.git.semester.controller.dto.response.SearchSemesterResponse;
+import inha.git.semester.domain.Semester;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
@@ -11,4 +14,13 @@ public record SearchCategoryResponse(
         @Schema(description = "카테고리 이름", example = "교과")
         String name
 ) {
+        public static SearchCategoryResponse from(Category category) {
+                if (category == null) {
+                        return null;
+                }
+                return new SearchCategoryResponse(
+                        category.getId(),
+                        category.getName()
+                );
+        }
 }
