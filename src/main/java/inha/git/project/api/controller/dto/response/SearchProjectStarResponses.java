@@ -23,6 +23,10 @@ public record SearchProjectStarResponses(
         String title,
 
         @NotNull
+        @Schema(description = "프로젝트 내용", example = "프로젝트 내용")
+        String contents,
+
+        @NotNull
         @Schema(description = "프로젝트 생성 날짜", example = "2021-08-01T00:00:00")
         LocalDateTime createdAt,
 
