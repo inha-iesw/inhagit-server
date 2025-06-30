@@ -1,7 +1,9 @@
 package inha.git.project.api.controller.dto.response;
 
+import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
+import static inha.git.common.Constant.mapRoleToPosition;
 
 public record SearchUserResponse(
 
@@ -16,4 +18,15 @@ public record SearchUserResponse(
         @Schema(description = "유저 포지션", example = "1")
         Integer postion
 ) {
+        public static SearchUserResponse from(User user) {
+                if (user == null) {
+                        return null;
+                }
+
+                return new SearchUserResponse(
+                        user.getId(),
+                        user.getName(),
+                        mapRoleToPosition(user.getRole())
+                );
+        }
 }
