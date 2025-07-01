@@ -50,6 +50,7 @@ public class Constant {
     public final static String ZIP = ".zip";
     public final static String EVIDENCE = "evidence";
     public final static String PATENT = "patent";
+    public final static String STAR = "star";
     public final static String BANNER = "banner";
     public final static String PROJECT_UPLOAD = "/project/";
     public final static String GIT = ".git";
@@ -121,6 +122,7 @@ public class Constant {
         return project.getIsPublic() ||
                 project.getUser().getId().equals(user.getId()) ||
                 user.getRole().equals(Role.ADMIN) ||
-                user.getRole().equals(Role.PROFESSOR);
+                user.getRole().equals(Role.PROFESSOR) ||
+                user.getRole().equals(Role.COMPANY);
     }
 }
