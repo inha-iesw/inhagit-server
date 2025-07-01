@@ -59,6 +59,10 @@ public class Project extends BaseEntity {
     @Column(name = "is_public")
     private Boolean isPublic;
 
+    @Setter
+    @Column(name = "star_state")
+    private Boolean starState;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;

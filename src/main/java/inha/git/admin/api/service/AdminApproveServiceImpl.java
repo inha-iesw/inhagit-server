@@ -7,8 +7,13 @@ import inha.git.bug_report.domain.BugReport;
 import inha.git.bug_report.domain.repository.BugReportJpaRepository;
 import inha.git.common.exceptions.BaseException;
 import inha.git.project.api.controller.dto.response.PatentResponse;
+import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectPatent;
+import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectPatentJpaRepository;
+import inha.git.project.api.controller.dto.response.ProjectStarResponse;
+import inha.git.project.domain.ProjectStar;
+import inha.git.project.domain.repository.ProjectStarJpaRepository;
 import inha.git.user.domain.Company;
 import inha.git.user.domain.Professor;
 import inha.git.user.domain.User;
@@ -24,8 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
+import static inha.git.common.BaseEntity.State.INACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
 
 @Service
@@ -41,6 +48,8 @@ public class AdminApproveServiceImpl implements AdminApproveService {
     private final BugReportMapper bugReportMapper;
     private final ProjectPatentJpaRepository projectPatentJpaRepository;
     private final IdempotentProvider idempotentProvider;
+    private final ProjectStarJpaRepository projectStarJpaRepository;
+    private final ProjectJpaRepository projectJpaRepository;
 
     /**
      * 관리자 권한 부여
@@ -330,6 +339,78 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         ProjectPatent savedProjectPatent = projectPatentJpaRepository.save(projectPatent);
         log.info("특허 취소 성공 - 사용자: {} 특허 ID: {}", user.getName(), projectPatent.getId());
         return new PatentResponse(savedProjectPatent.getId());
+    }
+
+    /**
+     * 프로젝트 Star 승인
+     *
+     * @param user 사용자
+     * @param ProjectStarAcceptRequest 프로젝트 Star 승인 요청
+     * @return 프로젝트 Star 승인 응답
+     */
+    @Override
+    public ProjectStarResponse acceptProjectStar(User user, ProjectStarAcceptRequest ProjectStarAcceptRequest) {
+        idempotentProvider.isValidIdempotent(List.of("acceptProjectStar", user.getName(), user.getId().toString(), ProjectStarAcceptRequest.projectIdx().toString()));
+
+        Project project = projectJpaRepository.findById(ProjectStarAcceptRequest.projectIdx())
+                .orElseThrow(() -> {
+                    return new BaseException(PROJECT_NOT_FOUND);
+                });
+
+        Optional<ProjectStar> optionalProjectStar = projectStarJpaRepository.findByProject_Id(ProjectStarAcceptRequest.projectIdx());
+        ProjectStar projectStar;
+        if (optionalProjectStar.isPresent()) {
+            projectStar = optionalProjectStar.get();
+
+            if (projectStar.getState() == INACTIVE) {
+                projectStar.setState(ACTIVE);
+            }
+        } else {
+            // 새로 생성
+            projectStar = ProjectStar.builder()
+                    .project(project)
+                    .state(ACTIVE)
+                    .build();
+        }
+
+        projectStar.setAcceptedAt(LocalDateTime.now());
+        ProjectStar saved = projectStarJpaRepository.save(projectStar);
+
+        project.setStarState(true);
+        projectJpaRepository.save(project);
+
+        log.info("프로젝트 Star 승인 성공 - 사용자: {} 특허 ID: {}", user.getName(), saved.getId());
+        return new ProjectStarResponse(saved.getId());
+    }
+
+    /**
+     * 프로젝트 Star 승인 취소
+     *
+     * @param user 사용자
+     * @param ProjectStarCancelRequest 프로젝트 Star 승인 취소 요청
+     * @return 프로젝트 Star 취소 응답
+     */
+    @Override
+    public ProjectStarResponse cancelProjectStar(User user, ProjectStarCancelRequest ProjectStarCancelRequest) {
+        idempotentProvider.isValidIdempotent(List.of("cancelProjectStar", user.getName(), user.getId().toString(), ProjectStarCancelRequest.projectIdx().toString()));
+
+        Project project = projectJpaRepository.findById(ProjectStarCancelRequest.projectIdx())
+                .orElseThrow(() -> {
+                    return new BaseException(PROJECT_NOT_FOUND);
+                });
+
+        ProjectStar projectStar = projectStarJpaRepository.findByProject_Id(ProjectStarCancelRequest.projectIdx())
+                .orElseThrow(() -> new BaseException(NOT_EXIST_PROJECT_STAR));
+
+        projectStar.setAcceptedAt(null);
+        projectStar.setState(INACTIVE);
+        ProjectStar saved = projectStarJpaRepository.save(projectStar);
+
+        project.setStarState(false);
+        projectJpaRepository.save(project);
+
+        log.info("프로젝트 Star 취소 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
+        return new ProjectStarResponse(saved.getId());
     }
 
     private User getUser(Integer userIdx) {

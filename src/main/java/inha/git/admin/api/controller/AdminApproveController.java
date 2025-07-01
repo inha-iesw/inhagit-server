@@ -5,6 +5,7 @@ import inha.git.admin.api.service.AdminApproveService;
 import inha.git.bug_report.api.controller.dto.response.BugReportResponse;
 import inha.git.common.BaseResponse;
 import inha.git.project.api.controller.dto.response.PatentResponse;
+import inha.git.project.api.controller.dto.response.ProjectStarResponse;
 import inha.git.user.domain.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -172,6 +173,38 @@ public class AdminApproveController {
                                                      @RequestBody PatentCancelRequest patentCancelRequest) {
         log.info("특허 승인 취소 - 관리자: {}, 특허 ID: {}", user.getName(), patentCancelRequest.patentIdx());
         return BaseResponse.of(PATENT_ACCEPT_CANCEL_OK, adminApproveService.cancelPatent(user, patentCancelRequest));
+    }
+
+    /**
+     * 프로젝트 Star 승인 API
+     *
+     * <p>프로젝트를 Star 게시글로 승인합니다.</p>
+     *
+     * @param projectStarAcceptRequest 프로젝트 Star 게시글 승인할 프로젝트 인덱스
+     * @return 승인된 프로젝트 정보를 포함하는 BaseResponse<PatentResponse>
+     */
+    @PostMapping("/project/star/accept")
+    @Operation(summary = "프로젝트 Star 등록 API(관리자 전용)", description = "관리자가 프로젝트를 Star로 등록합니다.")
+    public BaseResponse<ProjectStarResponse> acceptProjectStar(@AuthenticationPrincipal User user,
+                                                     @RequestBody ProjectStarAcceptRequest projectStarAcceptRequest) {
+        log.info("project Star 등록 - 관리자: {}, 프로젝트 ID: {}", user.getName(), projectStarAcceptRequest.projectIdx());
+        return BaseResponse.of(PROJECT_STAR_ACCEPT_OK, adminApproveService.acceptProjectStar(user, projectStarAcceptRequest));
+    }
+
+    /**
+     * 프로젝트 Star 승인 취소 API
+     *
+     * <p>프로젝트를 Star 게시글을 취소합니다.</p>
+     *
+     * @param projectStarCancelRequest 프로젝트 Star 게시글 승인 취소할 프로젝트 인덱스
+     * @return 승인 취소된 프로젝트 정보를 포함하는 BaseResponse<PatentResponse>
+     */
+    @PostMapping("/project/star/cancel")
+    @Operation(summary = "프로젝트 Star 취소 API(관리자 전용)", description = "관리자가 Star 등록을 취소합니다.")
+    public BaseResponse<ProjectStarResponse> cancelProjectStar(@AuthenticationPrincipal User user,
+                                                     @RequestBody ProjectStarCancelRequest projectStarCancelRequest) {
+        log.info("Star 승인 취소 - 관리자: {}, 프로젝트 ID: {}", user.getName(), projectStarCancelRequest.projectIdx());
+        return BaseResponse.of(PROJECT_STAR_ACCEPT_CANCEL_OK, adminApproveService.cancelProjectStar(user, projectStarCancelRequest));
     }
 
 }

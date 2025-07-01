@@ -378,6 +378,37 @@ public interface ProjectMapper {
         );
     }
 
+    default SearchProjectStarResponses toSearchProjectStarResponse(ProjectStar projectStar, SearchUserResponse user) {
+        if (projectStar == null) {
+            return null;
+        }
+
+        Project project = projectStar.getProject();
+
+        return new SearchProjectStarResponses(
+                projectStar.getId(),
+                project.getId(),
+                project.getTitle(),
+                project.getContents(),
+                project.getCreatedAt(),
+                project.getRepoName() != null,
+                SearchSemesterResponse.from(project.getSemester()),
+                SearchCategoryResponse.from(project.getCategory()),
+                project.getSubjectName(),
+                project.getLikeCount(),
+                project.getCommentCount(),
+                project.getIsPublic(),
+                project.getProjectFields().stream()
+                        .map(SearchFieldResponse::from)
+                        .toList(),
+                SearchUserResponse.from(project.getUser()),
+                project.getProjectPatents().stream()
+                        .map(SearchPatentSummaryResponse::from)
+                        .toList(),
+                user
+        );
+    }
+
     default List<SearchPatentSummaryResponse> projectToSearchPatentSummaryResponse(Project project) {
         return project.getProjectPatents().stream()
                 .map(pp -> new SearchPatentSummaryResponse(

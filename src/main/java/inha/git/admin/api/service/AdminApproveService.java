@@ -4,6 +4,7 @@ package inha.git.admin.api.service;
 import inha.git.admin.api.controller.dto.request.*;
 import inha.git.bug_report.api.controller.dto.response.BugReportResponse;
 import inha.git.project.api.controller.dto.response.PatentResponse;
+import inha.git.project.api.controller.dto.response.ProjectStarResponse;
 import inha.git.user.domain.User;
 
 public interface AdminApproveService {
@@ -20,4 +21,6 @@ public interface AdminApproveService {
     BugReportResponse changeBugReportState(User user, Integer bugReportId, ChangeBugReportStateRequest changeBugReportStateRequest);
     PatentResponse acceptPatent(User user, PatentAcceptRequest patentAcceptRequest);
     PatentResponse cancelPatent(User user, PatentCancelRequest patentCancelRequest);
+    ProjectStarResponse acceptProjectStar(User user, ProjectStarAcceptRequest ProjectStarAcceptRequest);
+    ProjectStarResponse cancelProjectStar(User user, ProjectStarCancelRequest ProjectStarCancelRequest);
 }

@@ -15,6 +15,7 @@ import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectUpload;
 import inha.git.project.domain.repository.ProjectJpaRepository;
+import inha.git.project.domain.repository.ProjectStarJpaRepository;
 import inha.git.project.domain.repository.ProjectUploadJpaRepository;
 import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
@@ -60,6 +61,7 @@ public class ProjectCommandServiceImpl implements ProjectCommandService {
     private final ProjectMapper projectMapper;
     private final StatisticsService statisticsService;
     private final IdempotentProvider idempotentProvider;
+    private final ProjectStarJpaRepository projectStarJpaRepository;
 
     /**
      * 프로젝트 생성
@@ -218,14 +220,14 @@ public class ProjectCommandServiceImpl implements ProjectCommandService {
      * @return 삭제된 프로젝트 정보
      */
     @Override
-    public ProjectResponse
-    deleteProject(User user, Integer projectIdx) {
+    public ProjectResponse deleteProject(User user, Integer projectIdx) {
         Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
         if(!project.getUser().getId().equals(user.getId()) && !user.getRole().equals(Role.ADMIN)) {
             log.error("프로젝트 삭제 권한이 없습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
             throw new BaseException(PROJECT_DELETE_NOT_AUTHORIZED);
         }
+        projectStarJpaRepository.deleteByProject_Id(projectIdx);
         project.setDeletedAt();
         project.setState(INACTIVE);
         projectJpaRepository.save(project);

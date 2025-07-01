@@ -60,6 +60,9 @@ public record SearchProjectResponse(
         @Schema(description = "프로젝트 공개 여부", example = "true")
         Boolean isPublic,
 
+        @Schema(description = "프로젝트 Star 여부", example = "true")
+        Boolean starState,
+
         @NotNull
         SearchCategoryResponse category,
 
