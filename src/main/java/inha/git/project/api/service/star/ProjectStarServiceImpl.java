@@ -116,6 +116,9 @@ public class ProjectStarServiceImpl implements ProjectStarService {
                             .map(SearchFieldResponse::from)
                             .toList(),
                     SearchUserResponse.from(project.getUser()),
+                    project.getProjectPatents().stream()
+                            .map(SearchPatentSummaryResponse::from)
+                            .toList(),
                     userResponse
             );
         });

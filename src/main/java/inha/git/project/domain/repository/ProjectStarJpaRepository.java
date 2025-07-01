@@ -21,9 +21,13 @@ public interface ProjectStarJpaRepository extends JpaRepository<ProjectStar, Int
 
     Optional<ProjectStar> findByProject_IdAndState(Integer projectId, State state);
 
+    Optional<ProjectStar> findByProject_Id(Integer projectId);
+
     List<ProjectStar> findAllByState(State state);
 
     List<ProjectStar> findAllByStateOrderByCreatedAtDesc(State state);
 
     Page<ProjectStar> findByAcceptAtIsNotNullAndStateOrderByCreatedAtDesc(State state, Pageable pageable);
+
+    void deleteByProject_Id(Integer projectId);
 }

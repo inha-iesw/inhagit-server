@@ -22,6 +22,5 @@ public record ProjectStarResponses(
         BaseEntity.State state,
 
         SearchUserResponse user
-
 ) {
 }
