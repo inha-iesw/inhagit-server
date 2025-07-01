@@ -62,5 +62,4 @@ public class ProjectStarController {
         validatePage(page, size);
         return BaseResponse.of(PROJECT_STAR_SEARCH_PAGE_SUCCESS, projectStarService.searchProjectStarPage(toPageIndex(page), size));
     }
-
 }

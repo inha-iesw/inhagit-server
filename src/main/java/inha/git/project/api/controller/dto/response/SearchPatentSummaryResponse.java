@@ -1,5 +1,6 @@
 package inha.git.project.api.controller.dto.response;
 
+import inha.git.project.domain.ProjectPatent;
 import inha.git.project.domain.enums.PatentType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -14,4 +15,13 @@ public record SearchPatentSummaryResponse(
         @Schema(description = "특허 유형", example = "PATENT", nullable = true)
         PatentType patentType
 ) {
+        public static SearchPatentSummaryResponse from(ProjectPatent entity) {
+                if (entity == null) return null;
+
+                return new SearchPatentSummaryResponse(
+                        entity.getId(),
+                        entity.getAcceptAt() != null,
+                        entity.getPatentType()
+                );
+        }
 }

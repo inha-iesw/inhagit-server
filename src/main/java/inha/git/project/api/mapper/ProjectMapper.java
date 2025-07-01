@@ -402,6 +402,9 @@ public interface ProjectMapper {
                         .map(SearchFieldResponse::from)
                         .toList(),
                 SearchUserResponse.from(project.getUser()),
+                project.getProjectPatents().stream()
+                        .map(SearchPatentSummaryResponse::from)
+                        .toList(),
                 user
         );
     }

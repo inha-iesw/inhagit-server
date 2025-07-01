@@ -357,7 +357,7 @@ public class AdminApproveServiceImpl implements AdminApproveService {
                     return new BaseException(PROJECT_NOT_FOUND);
                 });
 
-        Optional<ProjectStar> optionalProjectStar = projectStarJpaRepository.findById(ProjectStarAcceptRequest.projectIdx());
+        Optional<ProjectStar> optionalProjectStar = projectStarJpaRepository.findByProject_Id(ProjectStarAcceptRequest.projectIdx());
         ProjectStar projectStar;
         if (optionalProjectStar.isPresent()) {
             projectStar = optionalProjectStar.get();
@@ -399,7 +399,7 @@ public class AdminApproveServiceImpl implements AdminApproveService {
                     return new BaseException(PROJECT_NOT_FOUND);
                 });
 
-        ProjectStar projectStar = projectStarJpaRepository.findById(ProjectStarCancelRequest.projectIdx())
+        ProjectStar projectStar = projectStarJpaRepository.findByProject_Id(ProjectStarCancelRequest.projectIdx())
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PROJECT_STAR));
 
         projectStar.setAcceptedAt(null);
