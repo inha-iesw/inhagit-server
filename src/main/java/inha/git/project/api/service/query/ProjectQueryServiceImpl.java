@@ -14,6 +14,7 @@ import inha.git.project.domain.Project;
 import inha.git.project.domain.ProjectUpload;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectQueryRepository;
+import inha.git.project.domain.repository.ProjectTeamMemberJpaRepository;
 import inha.git.project.domain.repository.ProjectUploadJpaRepository;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
 import inha.git.semester.mapper.SemesterMapper;
@@ -62,6 +63,7 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
     private final ProjectLikeJpaRepository projectLikeJpaRepository;
     private final FoundingRecommendJpaRepository foundingRecommendJpaRepository;
     private final RegistrationRecommendJpaRepository registrationRecommendJpaRepository;
+    private final ProjectTeamMemberJpaRepository projectTeamMemberJpaRepository;
 
     private static final Set<String> TEXT_EXTENSIONS = Set.of(
             ".sh", ".yml", ".yaml", ".sql", ".txt", ".json", ".xml",
@@ -121,8 +123,10 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
                 (isLike, isRecommendFounding, isRecommendRegistration);
 
         List<SearchPatentSummaryResponse> searchPatentSummaryResponse = projectMapper.projectToSearchPatentSummaryResponse(project);
+        List<SearchTeamMemberResponse> searchTeamMemberResponses = projectTeamMemberJpaRepository.findByProject(project)
+                .stream().map(projectTeamMember -> projectMapper.projectTeamMemberToSearchTeamMemberResponse(projectTeamMember)).toList();
         return projectMapper.projectToSearchProjectResponse(
-                project, projectUpload, searchFieldResponses, searchRecommendCountResponse, searchUserResponse, searchRecommendState, searchSemesterResponse, searchCategoryResponse, searchPatentSummaryResponse
+                project, projectUpload, searchFieldResponses, searchRecommendCountResponse, searchUserResponse, searchRecommendState, searchSemesterResponse, searchCategoryResponse, searchPatentSummaryResponse, searchTeamMemberResponses
         );
     }
 

@@ -27,6 +27,10 @@ public record SearchProjectResponse(
         LocalDateTime createdAt,
 
         @NotNull
+        @Schema(description = "프로젝 수정 날짜", example = "2021-08-01T00:00:00")
+        LocalDateTime updatedAt,
+
+        @NotNull
         List<SearchFieldResponse> fieldList,
 
         @NotNull
@@ -66,6 +70,8 @@ public record SearchProjectResponse(
         @NotNull
         SearchCategoryResponse category,
 
-        List<SearchPatentSummaryResponse> patent
+        List<SearchPatentSummaryResponse> patent,
+
+        List<SearchTeamMemberResponse> teamMembers
 ) {
 }

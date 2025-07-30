@@ -105,6 +105,7 @@ public class ProjectStarServiceImpl implements ProjectStarService {
                     project.getTitle(),
                     project.getContents(),
                     project.getCreatedAt(),
+                    project.getUpdatedAt(),
                     project.getRepoName() != null,
                     SearchSemesterResponse.from(project.getSemester()),
                     SearchCategoryResponse.from(project.getCategory()),

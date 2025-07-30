@@ -40,6 +40,8 @@ public record CreateProjectRequest(
 
         @NotNull
         @Schema(description = "공개 여부", example = "true")
-        Boolean isPublic
+        Boolean isPublic,
+
+        List<CreateProjectTeamMemberRequest> teamMembers
 ) {
 }

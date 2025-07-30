@@ -98,4 +98,9 @@ public interface ProjectJpaRepository extends JpaRepository<Project, Integer> {
             "JOIN FETCH pf.field " +
             "WHERE pf.project.id IN :projectIds")
     List<ProjectField> findProjectFieldsByProjectIds(@Param("projectIds") List<Integer> projectIds);
+
+    @Query("SELECT DISTINCT p FROM Project p " +
+            "LEFT JOIN FETCH p.projectTeamMembers " +
+            "WHERE p.id = :id")
+    Optional<Project> findByIdWithTeamMembers(@Param("id") Integer id);
 }

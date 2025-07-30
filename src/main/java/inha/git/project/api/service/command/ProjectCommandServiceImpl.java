@@ -9,13 +9,15 @@ import inha.git.mapping.domain.ProjectField;
 import inha.git.mapping.domain.id.ProjectFieldId;
 import inha.git.mapping.domain.repository.ProjectFieldJpaRepository;
 import inha.git.project.api.controller.dto.request.CreateProjectRequest;
+import inha.git.project.api.controller.dto.request.UpdatePatentInventorRequest;
 import inha.git.project.api.controller.dto.request.UpdateProjectRequest;
+import inha.git.project.api.controller.dto.request.UpdateProjectTeamMemberRequest;
 import inha.git.project.api.controller.dto.response.ProjectResponse;
 import inha.git.project.api.mapper.ProjectMapper;
-import inha.git.project.domain.Project;
-import inha.git.project.domain.ProjectUpload;
+import inha.git.project.domain.*;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.project.domain.repository.ProjectStarJpaRepository;
+import inha.git.project.domain.repository.ProjectTeamMemberJpaRepository;
 import inha.git.project.domain.repository.ProjectUploadJpaRepository;
 import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
@@ -33,6 +35,7 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -62,6 +65,7 @@ public class ProjectCommandServiceImpl implements ProjectCommandService {
     private final StatisticsService statisticsService;
     private final IdempotentProvider idempotentProvider;
     private final ProjectStarJpaRepository projectStarJpaRepository;
+    private final ProjectTeamMemberJpaRepository projectTeamMemberJpaRepository;
 
     /**
      * 프로젝트 생성
@@ -89,6 +93,11 @@ public class ProjectCommandServiceImpl implements ProjectCommandService {
 
         Project project = projectMapper.createProjectRequestToProject(createProjectRequest, user, semester, category);
         Project savedProject = projectJpaRepository.saveAndFlush(project);
+
+        List<ProjectTeamMember> teamMembers = projectMapper.toProjectTeamMembers(createProjectRequest.teamMembers(), savedProject);
+        if(teamMembers != null) {
+            teamMembers.forEach(projectTeamMemberJpaRepository::save);
+        }
 
         ProjectUpload projectUpload = projectMapper.createProjectUpload(PROJECT_UPLOAD + folderName, zipFilePath, savedProject);
         projectUploadJpaRepository.save(projectUpload);
@@ -208,6 +217,9 @@ public class ProjectCommandServiceImpl implements ProjectCommandService {
                 }
             }
         }
+
+        updateTeamMembers(project, updateProjectRequest.teamMembers());
+        project.setUpdatedAt(LocalDateTime.now());
         log.info("프로젝트 수정 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), savedProject.getId());
         return projectMapper.projectToProjectResponse(savedProject);
     }
@@ -227,6 +239,7 @@ public class ProjectCommandServiceImpl implements ProjectCommandService {
             log.error("프로젝트 삭제 권한이 없습니다. - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
             throw new BaseException(PROJECT_DELETE_NOT_AUTHORIZED);
         }
+        projectTeamMemberJpaRepository.deleteAllByProject(project);
         projectStarJpaRepository.deleteByProject_Id(projectIdx);
         project.setDeletedAt();
         project.setState(INACTIVE);
@@ -281,5 +294,32 @@ public class ProjectCommandServiceImpl implements ProjectCommandService {
                             .orElseThrow(() -> new BaseException(FIELD_NOT_FOUND));
                     return projectMapper.createProjectField(project, field);
                 }).toList();
+    }
+
+    private void updateTeamMembers(Project project, List<UpdateProjectTeamMemberRequest> teamMemberRequests) {
+        List<ProjectTeamMember> existingMembers = projectTeamMemberJpaRepository.findByProject(project);
+
+        // 기존 발명자 정보 삭제
+        projectTeamMemberJpaRepository.deleteAllByProject(project);
+
+        List<ProjectTeamMember> deletedMembers = projectTeamMemberJpaRepository.findByProject(project);
+
+        // 새로운 발명자 정보 등록
+        if (teamMemberRequests != null && !teamMemberRequests.isEmpty()) {
+            List<ProjectTeamMember> teamMembers = teamMemberRequests.stream()
+                    .map(request -> ProjectTeamMember.builder()
+                            .project(project)
+                            .email(request.email())
+                            .name(request.name())
+                            .userNumber(request.userNumber())
+                            .departmentIdx(request.departmentIdx())
+                            .collegeIdx(request.collegeIdx())
+                            .departmentName(request.departmentName())
+                            .collegeName(request.collegeName())
+                            .build())
+                    .toList();
+
+            teamMembers.forEach(projectTeamMemberJpaRepository::save);
+        }
     }
 }
