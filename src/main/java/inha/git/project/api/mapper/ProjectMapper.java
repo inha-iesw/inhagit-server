@@ -61,6 +61,7 @@ public interface ProjectMapper {
     @Mapping(target = "category", source = "category")
     @Mapping(target = "isPublic", source = "updateProjectRequest.isPublic")
     @Mapping(target = "state", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     void updateProjectRequestToProject(UpdateProjectRequest updateProjectRequest, @MappingTarget Project project, Semester semester, Category category);
 
     /**
@@ -70,7 +71,10 @@ public interface ProjectMapper {
      * @return ProjectResponse
      */
     @Mapping(target = "idx", source = "project.id")
+    @Mapping(target = "teamMembers", source = "projectTeamMembers")
     ProjectResponse projectToProjectResponse(Project project);
+
+    SearchTeamMemberResponse toSearchTeamMemberResponse(ProjectTeamMember member);
 
     /**
      * Project 엔티티를 UpdateProjectResponse로 변환
@@ -175,10 +179,11 @@ public interface ProjectMapper {
     @Mapping(target = "zipFilePath", source = "projectUpload.zipDirectoryName")
     @Mapping(target = "repoName", source = "project.repoName")
     @Mapping(target = "createdAt", source = "project.createdAt")
+    @Mapping(target = "updatedAt", source = "project.updatedAt")
     @Mapping(target = "semester", source = "semester")
     @Mapping(target = "category", source = "category")
     @Mapping(target = "isPublic", source = "project.isPublic")
-    SearchProjectResponse projectToSearchProjectResponse(Project project, ProjectUpload projectUpload, List<SearchFieldResponse> fieldList, SearchRecommendCount recommendCount, SearchUserResponse author, SearchRecommendState recommendState, SearchSemesterResponse semester, SearchCategoryResponse category, List<SearchPatentSummaryResponse> patent);
+    SearchProjectResponse projectToSearchProjectResponse(Project project, ProjectUpload projectUpload, List<SearchFieldResponse> fieldList, SearchRecommendCount recommendCount, SearchUserResponse author, SearchRecommendState recommendState, SearchSemesterResponse semester, SearchCategoryResponse category, List<SearchPatentSummaryResponse> patent, List<SearchTeamMemberResponse> teamMembers);
 
     /**
      * FoundingRecommend 엔티티 생성
@@ -329,12 +334,39 @@ public interface ProjectMapper {
     @Mapping(target ="id", ignore = true)
     ProjectPatentInventor toPatentInventor(CreatePatentInventorRequest inventor, ProjectPatent projectPatent);
 
+    default List<ProjectTeamMember> toProjectTeamMembers(List<CreateProjectTeamMemberRequest> members, Project project) {
+        if (members == null) {
+            return null;
+        }
+
+        List<ProjectTeamMember> result = new ArrayList<>();
+        for (CreateProjectTeamMemberRequest member : members) {
+            result.add(toProjectTeamMember(member, project));
+        }
+        return result;
+    }
+
+    @Mapping(target = "id", ignore = true)
+    ProjectTeamMember toProjectTeamMember(CreateProjectTeamMemberRequest member, Project project);
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "acceptAt", ignore = true)
     ProjectPatent toProjectPatent(CreatePatentRequest createPatentRequest, String evidence, String evidenceName,Project project);
 
     @Mapping(target = "idx", source = "projectPatent.id")
     PatentResponse toPatentResponse(ProjectPatent projectPatent);
+
+    @Mapping(target = "departmentIdx", source = "departmentIdx")
+    @Mapping(target = "collegeIdx", source = "collegeIdx")
+    SearchTeamMemberResponse toProjectTeamMemberResponse(ProjectTeamMember member);
+
+    // Entity List → Response List
+    default List<SearchTeamMemberResponse> toProjectTeamMemberResponses(List<ProjectTeamMember> members) {
+        if (members == null) return Collections.emptyList();
+        return members.stream()
+                .map(this::toProjectTeamMemberResponse)
+                .toList();
+    }
 
     default ProjectCommentLike createProjectCommentLike(User user, ProjectComment projectComment) {
         return new ProjectCommentLike(new ProjectCommentLikeId(user.getId(), projectComment.getId()), projectComment, user);
@@ -391,6 +423,7 @@ public interface ProjectMapper {
                 project.getTitle(),
                 project.getContents(),
                 project.getCreatedAt(),
+                project.getUpdatedAt(),
                 project.getRepoName() != null,
                 SearchSemesterResponse.from(project.getSemester()),
                 SearchCategoryResponse.from(project.getCategory()),
@@ -418,4 +451,13 @@ public interface ProjectMapper {
                 ))
                 .toList();
     }
+
+    @Mapping(target = "name", source = "member.name")
+    @Mapping(target = "email", source = "member.email")
+    @Mapping(target = "userNumber", source = "member.userNumber")
+    @Mapping(target = "departmentName", source = "member.departmentName")
+    @Mapping(target = "collegeName", source = "member.collegeName")
+    @Mapping(target = "departmentIdx", source = "member.departmentIdx")
+    @Mapping(target = "collegeIdx", source = "member.collegeIdx")
+    SearchTeamMemberResponse projectTeamMemberToSearchTeamMemberResponse(ProjectTeamMember member);
 }

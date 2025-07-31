@@ -8,10 +8,7 @@ import inha.git.semester.domain.Semester;
 import inha.git.user.domain.User;
 import jakarta.persistence.LockModeType;
 import jakarta.persistence.QueryHint;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.jpa.repository.QueryHints;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -25,6 +22,11 @@ import static inha.git.common.BaseEntity.*;
  */
 public interface ProjectJpaRepository extends JpaRepository<Project, Integer> {
     Optional<Project> findByIdAndState(Integer projectIdx, State state);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE Project p SET p.starState = :starState WHERE p.id = :projectIdx")
+    void updateStarState(@Param("projectIdx") Integer projectIdx, @Param("starState") boolean starState);
+
     long countByUserAndSemesterAndProjectFields_FieldAndState(User user, Semester semester, Field field, State state);
     List<Project> findAllByStateOrderById(State state);
 
@@ -98,4 +100,9 @@ public interface ProjectJpaRepository extends JpaRepository<Project, Integer> {
             "JOIN FETCH pf.field " +
             "WHERE pf.project.id IN :projectIds")
     List<ProjectField> findProjectFieldsByProjectIds(@Param("projectIds") List<Integer> projectIds);
+
+    @Query("SELECT DISTINCT p FROM Project p " +
+            "LEFT JOIN FETCH p.projectTeamMembers " +
+            "WHERE p.id = :id")
+    Optional<Project> findByIdWithTeamMembers(@Param("id") Integer id);
 }

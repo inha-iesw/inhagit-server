@@ -32,7 +32,7 @@ public class ProjectExcelService extends AbstractExcelService {
 
     private static final String[] HEADERS = {
             "순번", "단과대", "학과", "학번", "이름", "I-FOSS 제목",
-            "학기", "카테고리", "분야", "저장소 타입", "링크", "업로드 날짜"
+            "학기", "카테고리", "분야", "저장소 타입", "링크", "업로드 날짜", "팀원1", "팀원2", "팀원3", "팀원4", "팀원5"
     };
 
     @Override
@@ -118,9 +118,14 @@ public class ProjectExcelService extends AbstractExcelService {
             row.createCell(colNum++).setCellValue(getFieldNames(project));
             row.createCell(colNum++).setCellValue(project.getRepoName() != null ? "Github" : "Local");
             row.createCell(colNum++).setCellValue(getProjectLink(project));
-            row.createCell(colNum).setCellValue(
+            row.createCell(colNum++).setCellValue(
                     project.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
             );
+            List<String> teamMembers = getTeamMembers(project); // 수정된 메서드 사용
+
+            for (String member : teamMembers) {
+                row.createCell(colNum++).setCellValue(member);
+            }
         }
 
         rowNum++;
@@ -144,5 +149,20 @@ public class ProjectExcelService extends AbstractExcelService {
         return project.getRepoName() != null ?
                 GITHUB_URL + project.getRepoName() :
                 OSS_PROJECT_URL + project.getId();
+    }
+
+    private List<String> getTeamMembers(Project project) {
+        if (project.getProjectTeamMembers() == null || project.getProjectTeamMembers().isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return project.getProjectTeamMembers().stream()
+                .map(tm -> {
+                    String name = tm.getName() != null ? tm.getName() : "";
+                    String userNumber = tm.getUserNumber() != null ? tm.getUserNumber() : "";
+                    String departmentName = tm.getDepartmentName() != null ? tm.getDepartmentName() : "";
+                    return name + "(" + userNumber + "," + departmentName + ")";
+                })
+                .collect(Collectors.toList());
     }
 }
