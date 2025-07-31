@@ -376,8 +376,7 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         projectStar.setAcceptedAt(LocalDateTime.now());
         ProjectStar saved = projectStarJpaRepository.save(projectStar);
 
-        project.setStarState(true);
-        projectJpaRepository.save(project);
+        projectJpaRepository.updateStarState(project.getId(), true);
 
         log.info("프로젝트 Star 승인 성공 - 사용자: {} 특허 ID: {}", user.getName(), saved.getId());
         return new ProjectStarResponse(saved.getId());
@@ -406,8 +405,7 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         projectStar.setState(INACTIVE);
         ProjectStar saved = projectStarJpaRepository.save(projectStar);
 
-        project.setStarState(false);
-        projectJpaRepository.save(project);
+        projectJpaRepository.updateStarState(project.getId(), false);
 
         log.info("프로젝트 Star 취소 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
         return new ProjectStarResponse(saved.getId());
