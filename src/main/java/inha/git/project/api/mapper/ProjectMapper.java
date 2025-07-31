@@ -61,6 +61,7 @@ public interface ProjectMapper {
     @Mapping(target = "category", source = "category")
     @Mapping(target = "isPublic", source = "updateProjectRequest.isPublic")
     @Mapping(target = "state", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     void updateProjectRequestToProject(UpdateProjectRequest updateProjectRequest, @MappingTarget Project project, Semester semester, Category category);
 
     /**

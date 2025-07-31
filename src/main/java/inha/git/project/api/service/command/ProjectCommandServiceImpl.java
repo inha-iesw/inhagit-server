@@ -219,7 +219,7 @@ public class ProjectCommandServiceImpl implements ProjectCommandService {
         }
 
         updateTeamMembers(project, updateProjectRequest.teamMembers());
-        project.setUpdatedAt(LocalDateTime.now());
+        project.setUpdatedAt();
         log.info("프로젝트 수정 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), savedProject.getId());
         return projectMapper.projectToProjectResponse(savedProject);
     }
