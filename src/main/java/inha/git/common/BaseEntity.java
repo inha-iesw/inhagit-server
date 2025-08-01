@@ -63,4 +63,6 @@ public class BaseEntity {
     public void setDeletedAt() {
         this.deletedAt = LocalDateTime.now();
     }
+
+    public void setUpdatedAt() { this.updatedAt = LocalDateTime.now(); }
 }

@@ -87,6 +87,9 @@ public class Project extends BaseEntity {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProjectPatent> projectPatents = new ArrayList<>();
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProjectTeamMember> projectTeamMembers = new ArrayList<>();
+
 
     public void setFoundRecommendCount(int foundingRecommendCount) {
         this.foundingRecommendCount = foundingRecommendCount;

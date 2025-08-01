@@ -6,10 +6,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import inha.git.category.controller.dto.response.SearchCategoryResponse;
 import inha.git.mapping.domain.QProjectField;
 import inha.git.project.api.controller.dto.request.SearchProjectCond;
-import inha.git.project.api.controller.dto.response.SearchFieldResponse;
-import inha.git.project.api.controller.dto.response.SearchPatentSummaryResponse;
-import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
-import inha.git.project.api.controller.dto.response.SearchUserResponse;
+import inha.git.project.api.controller.dto.response.*;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.QProject;
 import inha.git.semester.controller.dto.response.SearchSemesterResponse;
@@ -75,6 +72,7 @@ public class ProjectQueryRepository {
                         p.getId(),
                         p.getTitle(),
                         p.getCreatedAt(),
+                        p.getUpdatedAt(),
                         p.getRepoName() != null,
                         new SearchSemesterResponse(
                                 p.getSemester().getId(),
@@ -103,7 +101,19 @@ public class ProjectQueryRepository {
                                         pp.getAcceptAt() != null,
                                         pp.getPatentType()
                                 ))
-                                .toList())).toList();
+                                .toList(),
+                        p.getProjectTeamMembers().stream()
+                                .map(tm -> new SearchTeamMemberResponse(
+                                        tm.getName(),
+                                        tm.getEmail(),
+                                        tm.getUserNumber(),
+                                        tm.getDepartmentName(),
+                                        tm.getCollegeName(),
+                                        tm.getDepartmentIdx(),
+                                        tm.getCollegeIdx()
+                                ))
+                                .toList()
+                )).toList();
         return new PageImpl<>(content, pageable, total);
     }
 
@@ -184,6 +194,7 @@ public class ProjectQueryRepository {
                         p.getId(),
                         p.getTitle(),
                         p.getCreatedAt(),
+                        p.getUpdatedAt(),
                         p.getRepoName() != null,
                         new SearchSemesterResponse(
                                 p.getSemester().getId(),
@@ -212,7 +223,19 @@ public class ProjectQueryRepository {
                                         pp.getAcceptAt() != null,
                                         pp.getPatentType()
                                 ))
-                                .toList()))
+                                .toList(),
+                        p.getProjectTeamMembers().stream()
+                                .map(tm -> new SearchTeamMemberResponse(
+                                        tm.getName(),
+                                        tm.getEmail(),
+                                        tm.getUserNumber(),
+                                        tm.getDepartmentName(),
+                                        tm.getCollegeName(),
+                                        tm.getDepartmentIdx(),
+                                        tm.getCollegeIdx()
+                                ))
+                                .toList()
+                ))
                 .toList();
 
         return new PageImpl<>(content, pageable, total);
