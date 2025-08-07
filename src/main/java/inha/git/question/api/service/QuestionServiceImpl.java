@@ -29,7 +29,9 @@ import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.semester.mapper.SemesterMapper;
 import inha.git.statistics.api.service.StatisticsService;
 import inha.git.user.domain.User;
+import inha.git.user.domain.UserRanking;
 import inha.git.user.domain.enums.Role;
+import inha.git.user.domain.repository.UserRankingJpaRepository;
 import inha.git.utils.IdempotentProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,6 +76,7 @@ public class QuestionServiceImpl implements QuestionService {
     private final QuestionQueryRepository questionQueryRepository;
     private final IdempotentProvider idempotentProvider;
     private final StatisticsService statisticsService;
+    private final UserRankingJpaRepository userRankingJpaRepository;
 
     /**
      * 전체 질문을 페이징하여 조회합니다.
@@ -150,6 +153,12 @@ public class QuestionServiceImpl implements QuestionService {
         questionFieldJpaRepository.saveAll(questionFields);
         List<Field> fields = fieldJpaRepository.findAllById(createQuestionRequest.fieldIdxList());
         statisticsService.adjustCount(user, fields, semester, category, 3, true);
+
+        UserRanking userRanking = userRankingJpaRepository.findByUser(question.getUser())
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        userRanking.setQuestionCount(userRanking.getQuestionCount() + 1);
+        userRankingJpaRepository.save(userRanking);
+
         log.info("질문 생성 성공 - 사용자: {} 질문 ID: {}", user.getName(), saveQuestion.getId());
         return questionMapper.questionToQuestionResponse(saveQuestion);
     }
@@ -250,6 +259,13 @@ public class QuestionServiceImpl implements QuestionService {
                 .map(QuestionField::getField)
                 .toList();
         statisticsService.adjustCount(question.getUser(), fields, question.getSemester(), question.getCategory(), 3, false);
+
+        UserRanking userRanking = userRankingJpaRepository.findByUser(question.getUser())
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        int current = userRanking.getQuestionCount();
+        userRanking.setQuestionCount(Math.max(0, current - 1));
+        userRankingJpaRepository.save(userRanking);
+
         log.info("질문 삭제 성공 - 사용자: {} 질문 ID: {}", user.getName(), questionIdx);
         return questionMapper.questionToQuestionResponse(question);
     }

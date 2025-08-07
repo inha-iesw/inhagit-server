@@ -6,12 +6,17 @@ import inha.git.user.api.controller.dto.request.StudentSignupRequest;
 import inha.git.user.api.controller.dto.response.StudentSignupResponse;
 import inha.git.user.api.mapper.UserMapper;
 import inha.git.user.domain.User;
+import inha.git.user.domain.UserRanking;
+import inha.git.user.domain.enums.Role;
 import inha.git.user.domain.repository.UserJpaRepository;
+import inha.git.user.domain.repository.UserRankingJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 import static inha.git.common.Constant.STUDENT_SIGN_UP_TYPE;
 import static inha.git.common.Constant.STUDENT_TYPE;
@@ -32,6 +37,7 @@ public class StudentServiceImpl implements StudentService{
     private final UserMapper userMapper;
     private final MailService mailService;
     private final EmailDomainService emailDomainService;
+    private final UserRankingJpaRepository userRankingJpaRepository;
 
     /**
      * 학생 회원가입을 처리합니다.
@@ -52,6 +58,26 @@ public class StudentServiceImpl implements StudentService{
         userMapper.mapDepartmentsToUser(user, studentSignupRequest.departmentIdList(), departmentRepository);
         user.setPassword(passwordEncoder.encode(studentSignupRequest.pw()));
         User savedUser = userJpaRepository.save(user);
+        UserRanking userRanking = UserRanking.builder()
+                .user(user)
+                .loginCount(1)
+                .githubNoncurricularCount(0)
+                .localNoncurricularCount(0)
+                .githubCurricularCount(0)
+                .localCurricularCount(0)
+                .questionCount(0)
+                .questionCommentCount(0)
+                .patentProgramCount(0)
+                .likeCount(0)
+                .recommendCount(0)
+                .projectStarCount(0)
+                .problemParticipationCount(0)
+                .adminScore(0)
+                .totalScore(0)
+                .updatedAt(LocalDateTime.now())
+                .role(Role.USER)
+                .build();
+        userRankingJpaRepository.save(userRanking);
         log.info("학생 회원가입 성공 - 이메일: {}", studentSignupRequest.email());
         return userMapper.userToStudentSignupResponse(savedUser);
     }

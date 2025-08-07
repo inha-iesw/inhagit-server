@@ -121,4 +121,7 @@ public interface ProjectPatentJpaRepository extends JpaRepository<ProjectPatent,
     );
 
     Page<ProjectPatent> findByAcceptAtIsNotNullAndStateOrderByCreatedAtDesc(State state, Pageable pageable);
+
+    @Query("SELECT COUNT(p) FROM ProjectPatent p WHERE p.project.id = :projectId AND p.acceptAt IS NOT NULL")
+    int countAcceptedByProjectId(@Param("projectId") Integer projectId);
 }

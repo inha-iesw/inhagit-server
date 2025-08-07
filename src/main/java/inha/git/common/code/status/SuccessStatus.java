@@ -203,7 +203,9 @@ public enum SuccessStatus implements BaseCode {
     PROJECT_STAR_SEARCH_OK(HttpStatus.OK, "PROJECT_STAR2000", "프로젝트 Star 조회 성공"),
     PROJECT_STAR_SEARCH_PAGE_SUCCESS(HttpStatus.OK, "PROJECT_STAR2003", "프로젝트 Star 페이지 조회 성공"),
 
-    SEARCH_OK(HttpStatus.OK, "SEARCH2000", "검색 성공");
+    SEARCH_OK(HttpStatus.OK, "SEARCH2000", "검색 성공"),
+
+    ADMIN_USER_RANKING_SCORE_OK(HttpStatus.OK, "USERRANKING2000", "관리자 점수 입력 성공");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -11,10 +11,12 @@ import inha.git.user.api.controller.dto.response.UserResponse;
 import inha.git.user.domain.Company;
 import inha.git.user.domain.Professor;
 import inha.git.user.domain.User;
+import inha.git.user.domain.UserRanking;
 import inha.git.user.domain.enums.Role;
 import inha.git.user.domain.repository.CompanyJpaRepository;
 import inha.git.user.domain.repository.ProfessorJpaRepository;
 import inha.git.user.domain.repository.UserJpaRepository;
+import inha.git.user.domain.repository.UserRankingJpaRepository;
 import inha.git.utils.RedisProvider;
 import inha.git.utils.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.Optional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.Constant.*;
@@ -49,11 +54,13 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RedisProvider redisProvider;
     private final JwtProvider jwtProvider;
+    private final UserRankingJpaRepository UserRankingJpaRepository;
 
     /**
      * 사용자 로그인을 처리하는 서비스입니다.
      *
      * @param loginRequest 이메일과 비밀번호를 포함한 로그인 요청 정보
+     *                     로그인 시 하루 한번 로그인 횟수 UserRanking Table에 추가
      * @return LoginResponse JWT 토큰과 사용자 정보를 포함한 로그인 응답
      * @throws BaseException 다음의 경우에 발생:
      *      - NOT_FIND_USER: 존재하지 않는 이메일이거나 비밀번호가 일치하지 않는 경우
@@ -62,6 +69,7 @@ public class AuthServiceImpl implements AuthService {
      *      - NOT_APPROVED_USER: 승인되지 않은 교수/기업 회원인 경우
      */
     @Override
+    @Transactional
     public LoginResponse login(LoginRequest loginRequest) {
         User findUser = userJpaRepository.findByEmailAndState(loginRequest.email(), ACTIVE)
                 .orElseThrow(() -> new BaseException(NOT_FIND_USER));
@@ -116,7 +124,23 @@ public class AuthServiceImpl implements AuthService {
             }
         }
         String accessToken = jwtProvider.generateToken(findUser);
+
+        Optional<UserRanking> optionalRanking = UserRankingJpaRepository.findById(findUser.getId());
+
+        if (optionalRanking.isPresent()) {
+            UserRanking ranking = optionalRanking.get();
+
+            LocalDate lastUpdatedDate = ranking.getUpdatedAt().toLocalDate(); // java.time.LocalDateTime → LocalDate
+            LocalDate today = LocalDate.now();
+            log.info("UserRanking login 기록 확인 - 이전 기록 날짜: {}, 오늘 날짜: {}", lastUpdatedDate, today);
+            if (!lastUpdatedDate.isEqual(today)) {
+                ranking.increaseLoginCount(); // loginCount + 1
+                ranking.updateTimestamp();    // updatedAt = LocalDateTime.now()
+                UserRankingJpaRepository.save(ranking);
+            }
+        }
         log.info("사용자 {} 로그인 성공", findUser.getEmail());
+
         return authMapper.userToLoginResponse(findUser, TOKEN_PREFIX + accessToken);
     }
 
