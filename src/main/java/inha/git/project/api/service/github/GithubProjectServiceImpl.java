@@ -16,6 +16,8 @@ import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.api.service.StatisticsService;
 import inha.git.user.domain.User;
+import inha.git.user.domain.UserRanking;
+import inha.git.user.domain.repository.UserRankingJpaRepository;
 import inha.git.utils.IdempotentProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
-import static inha.git.common.code.status.ErrorStatus.CATEGORY_NOT_FOUND;
-import static inha.git.common.code.status.ErrorStatus.FIELD_NOT_FOUND;
-import static inha.git.common.code.status.ErrorStatus.SEMESTER_NOT_FOUND;
+import static inha.git.common.code.status.ErrorStatus.*;
 
 /**
  * GithubProjectServiceImpl은 깃허브 프로젝트 관련 비즈니스 로직을 처리합니다.
@@ -46,6 +46,7 @@ public class GithubProjectServiceImpl implements GithubProjectService {
     private final ProjectMapper projectMapper;
     private final StatisticsService statisticsService;
     private final IdempotentProvider idempotentProvider;
+    private final UserRankingJpaRepository userRankingJpaRepository;
 
     /**
      * 깃허브 프로젝트 생성
@@ -71,6 +72,16 @@ public class GithubProjectServiceImpl implements GithubProjectService {
         List<ProjectField> projectFields = createAndSaveProjectFields(createGithubProjectRequest.fieldIdxList(), savedProject);
         projectFieldJpaRepository.saveAll(projectFields);
         List<Field> fields = fieldJpaRepository.findAllById(createGithubProjectRequest.fieldIdxList());
+
+        UserRanking userRanking = userRankingJpaRepository.findByUser(user)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        if(category.getId() == 1) {
+            userRanking.setGithubCurricularCount(userRanking.getGithubCurricularCount() + 1);
+        } else {
+            userRanking.setGithubNoncurricularCount(userRanking.getGithubNoncurricularCount() + 1);
+        }
+        userRankingJpaRepository.save(userRanking);
+
         statisticsService.adjustCount(user, fields, semester,  category, 2, true);
         log.info("깃허브 프로젝트 생성 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), savedProject.getId());
         return projectMapper.projectToProjectResponse(savedProject);

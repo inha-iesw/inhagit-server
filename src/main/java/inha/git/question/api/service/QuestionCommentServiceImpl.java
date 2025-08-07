@@ -14,7 +14,9 @@ import inha.git.question.domain.repository.QuestionCommentJpaRepository;
 import inha.git.question.domain.repository.QuestionJpaRepository;
 import inha.git.question.domain.repository.QuestionReplyCommentJpaRepository;
 import inha.git.user.domain.User;
+import inha.git.user.domain.UserRanking;
 import inha.git.user.domain.enums.Role;
+import inha.git.user.domain.repository.UserRankingJpaRepository;
 import inha.git.utils.IdempotentProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +44,7 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
     private final QuestionReplyCommentLikeJpaRepository questionReplyCommentLikeJpaRepository;
     private final QuestionMapper questionMapper;
     private final IdempotentProvider idempotentProvider;
+    private final UserRankingJpaRepository userRankingJpaRepository;
 
     /**
      * 특정 질문 댓글 전체 조회
@@ -86,9 +89,20 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
 
         Question question = questionJpaRepository.findByIdAndState(createCommentRequest.questionIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_NOT_FOUND));
+
+        boolean existsActiveComment = questionCommentJpaRepository.existsByUserIdAndQuestionIdAndDeletedatIsNull(user.getId(), question.getId());
+        boolean existsActiveReplyComment = questionReplyCommentJpaRepository.existsByUserIdAndQuestionIdAndDeletedatIsNull(user.getId(), question.getId());
+        if (!existsActiveComment && !existsActiveReplyComment) {
+            UserRanking userRanking = userRankingJpaRepository.findByUser(user)
+                    .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+            userRanking.setQuestionCommentCount(userRanking.getQuestionCommentCount() + 1);
+            log.info("사용자 랭킹 점수 업데이트 완료 - 사용자: {}", user.getName());
+        }
+
         QuestionComment questionComment = questionMapper.toQuestionComment(createCommentRequest, user, question);
         questionCommentJpaRepository.save(questionComment);
         question.increaseCommentCount();
+
         log.info("질문 댓글 생성 성공 - 사용자: {} 질문 ID: {}", user.getName(), createCommentRequest.questionIdx());
         return questionMapper.toCommentResponse(questionComment);
     }
@@ -144,6 +158,24 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         questionCommentJpaRepository.save(questionComment);
         Question question = questionComment.getQuestion();
         question.decreaseCommentCount();
+
+        User writer = questionComment.getUser();
+        Integer writerIdx = writer.getId();
+
+        boolean existsActiveComment = questionCommentJpaRepository.existsByUserIdAndQuestionIdAndDeletedatIsNull(writerIdx, questionComment.getQuestion().getId());
+        boolean existsActiveReplyComment = questionReplyCommentJpaRepository.existsByUserIdAndQuestionIdAndDeletedatIsNull(writerIdx, questionComment.getQuestion().getId());
+
+        log.info("사용자: {}, question_id: {}", writer, questionComment.getQuestion().getId());
+
+        if (!existsActiveComment && !existsActiveReplyComment) {
+            UserRanking userRanking = userRankingJpaRepository.findByUser(writer)
+                    .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+
+            int current = userRanking.getQuestionCommentCount();
+            userRanking.setQuestionCommentCount(Math.max(0, current - 1));
+            log.info("사용자 랭킹 점수 업데이트 완료 - 사용자: {}", writer.getName());
+        }
+
         log.info("질문 댓글 삭제 성공 - 사용자: {} 댓글 ID: {}", user.getName(), commentIdx);
         return questionMapper.toCommentResponse(questionComment);
     }
@@ -162,6 +194,18 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
 
         QuestionComment questionComment = questionCommentJpaRepository.findByIdAndState(createReplyCommentRequest.commentIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(QUESTION_COMMENT_NOT_FOUND));
+
+        boolean existsActiveComment = questionCommentJpaRepository.existsByUserIdAndQuestionIdAndDeletedatIsNull(user.getId(), questionComment.getQuestion().getId());
+        boolean existsActiveReplyComment = questionReplyCommentJpaRepository.existsByUserIdAndQuestionIdAndDeletedatIsNull(user.getId(), questionComment.getQuestion().getId());
+
+        log.info("사용자 랭킹 점수 - project_id: {}", questionComment.getQuestion().getId());
+        if (!existsActiveComment && !existsActiveReplyComment) {
+            UserRanking userRanking = userRankingJpaRepository.findByUser(user)
+                    .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+            userRanking.setQuestionCommentCount(userRanking.getQuestionCommentCount() + 1);
+            log.info("사용자 랭킹 점수 업데이트 완료 - 사용자: {}", user.getName());
+        }
+
         QuestionReplyComment questionReplyComment = questionMapper.toQuestionReplyComment(createReplyCommentRequest, user, questionComment);
         questionReplyCommentJpaRepository.save(questionReplyComment);
         Question question = questionComment.getQuestion();
@@ -212,6 +256,24 @@ public class QuestionCommentServiceImpl implements QuestionCommentService {
         questionReplyCommentJpaRepository.save(questionReplyComment);
         Question question = questionReplyComment.getQuestionComment().getQuestion();
         question.decreaseCommentCount();
+
+        User writer = questionReplyComment.getUser();
+        Integer writerIdx = writer.getId();
+
+        boolean existsActiveComment = questionCommentJpaRepository.existsByUserIdAndQuestionIdAndDeletedatIsNull(writerIdx, questionReplyComment.getQuestion().getId());
+        boolean existsActiveReplyComment = questionReplyCommentJpaRepository.existsByUserIdAndQuestionIdAndDeletedatIsNull(writerIdx, questionReplyComment.getQuestion().getId());
+
+        log.info("사용자: {}, question_id: {}", writer, questionReplyComment.getQuestion().getId());
+
+        if (!existsActiveComment && !existsActiveReplyComment) {
+            UserRanking userRanking = userRankingJpaRepository.findByUser(writer)
+                    .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+
+            int current = userRanking.getQuestionCommentCount();
+            userRanking.setQuestionCommentCount(Math.max(0, current - 1));
+            log.info("사용자 랭킹 점수 업데이트 완료 - 사용자: {}", writer.getName());
+        }
+
         log.info("질문 대댓글 삭제 성공 - 사용자: {} 댓글 ID: {}", user.getName(), replyCommentIdx);
         return questionMapper.toReplyCommentResponse(questionReplyComment);
     }

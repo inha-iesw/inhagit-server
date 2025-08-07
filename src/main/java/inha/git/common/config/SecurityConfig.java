@@ -72,6 +72,7 @@ public class SecurityConfig {
             "/api/v1/notices/{noticeIdx}",
             "/api/v1/searches",
             "/api/v1/searches/**",
+            "/api/v1/userRanking/top10",
     };
     private static final String[] WHITE_LIST_URL = {
             "/",

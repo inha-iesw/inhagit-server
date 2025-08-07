@@ -12,6 +12,8 @@ import inha.git.problem.domain.repository.ProblemJpaRepository;
 import inha.git.problem.domain.repository.ProblemRequestJpaRepository;
 import inha.git.problem.domain.repository.ProblemSubmitJpaRepository;
 import inha.git.user.domain.User;
+import inha.git.user.domain.UserRanking;
+import inha.git.user.domain.repository.UserRankingJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,10 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
-import static inha.git.common.code.status.ErrorStatus.DUPLICATE_PROBLEM_SUBMISSION;
-import static inha.git.common.code.status.ErrorStatus.NOT_ALLOWED_VIEW_SUBMITS_PROBLEM;
-import static inha.git.common.code.status.ErrorStatus.NOT_EXIST_REQUEST_PROBLEM;
-import static inha.git.common.code.status.ErrorStatus.PROBLEM_SUBMIT_NOT_ALLOWED;
+import static inha.git.common.code.status.ErrorStatus.*;
 import static inha.git.user.domain.enums.Role.ADMIN;
 
 /**
@@ -41,6 +40,7 @@ public class ProblemSubmitServiceImpl implements ProblemSubmitService {
     private final ProblemRequestJpaRepository problemRequestJpaRepository;
     private final ProblemSubmitJpaRepository problemSubmitJpaRepository;
     private final ProblemSubmitMapper problemSubmitMapper;
+    private final UserRankingJpaRepository userRankingJpaRepository;
 
     /**
      * 문제 제출 목록 조회
@@ -87,6 +87,12 @@ public class ProblemSubmitServiceImpl implements ProblemSubmitService {
         problemSubmitJpaRepository.save(problemSubmit);
         problemRequest.setProblemRequestStatus(ProblemRequestStatus.COMPLETE);
         problemRequestJpaRepository.save(problemRequest);
+
+        UserRanking userRanking = userRankingJpaRepository.findByUser(user)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        userRanking.setProblemParticipationCount(userRanking.getProblemParticipationCount() + 1);
+        userRankingJpaRepository.save(userRanking);
+
         return problemSubmitMapper.toProblemSubmitResponse(problemSubmit);
     }
 }

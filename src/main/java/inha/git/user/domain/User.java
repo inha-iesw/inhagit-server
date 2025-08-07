@@ -161,4 +161,11 @@ public class User extends BaseEntity implements UserDetails {
         if(this.reportCount > 0)
             this.reportCount--;
     }
+
+    public String getMajor() {
+        // User가 소속된 첫 번째 학과명을 반환하거나 null
+        return userDepartments != null && !userDepartments.isEmpty()
+                ? userDepartments.get(0).getDepartment().getName()
+                : null;
+    }
 }

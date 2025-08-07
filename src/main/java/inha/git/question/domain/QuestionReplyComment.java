@@ -32,6 +32,11 @@ public class QuestionReplyComment extends BaseEntity {
     @JoinColumn(name = "question_comment_id")
     private QuestionComment questionComment;
 
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "question_id")
+    private Question question;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
