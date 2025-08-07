@@ -143,7 +143,7 @@ public class ProjectPatentServiceImpl implements ProjectPatentService {
     public PatentResponse createPatent(User user, CreatePatentRequest createPatentRequest, MultipartFile file) {
         Project project = projectJpaRepository.findByIdAndState(createPatentRequest.projectIdx(), ACTIVE)
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
-        if(user.getId() != project.getUser().getId()) {
+        if(!user.getId().equals(project.getUser().getId())) {
             throw new BaseException(USER_NOT_PROJECT_OWNER);
         }
 
