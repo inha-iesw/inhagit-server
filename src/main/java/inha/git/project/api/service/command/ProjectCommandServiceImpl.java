@@ -7,7 +7,10 @@ import inha.git.field.domain.Field;
 import inha.git.field.domain.repository.FieldJpaRepository;
 import inha.git.mapping.domain.ProjectField;
 import inha.git.mapping.domain.id.ProjectFieldId;
+import inha.git.mapping.domain.repository.FoundingRecommendJpaRepository;
 import inha.git.mapping.domain.repository.ProjectFieldJpaRepository;
+import inha.git.mapping.domain.repository.ProjectLikeJpaRepository;
+import inha.git.mapping.domain.repository.RegistrationRecommendJpaRepository;
 import inha.git.project.api.controller.dto.request.CreateProjectRequest;
 import inha.git.project.api.controller.dto.request.UpdatePatentInventorRequest;
 import inha.git.project.api.controller.dto.request.UpdateProjectRequest;
@@ -15,15 +18,14 @@ import inha.git.project.api.controller.dto.request.UpdateProjectTeamMemberReques
 import inha.git.project.api.controller.dto.response.ProjectResponse;
 import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.*;
-import inha.git.project.domain.repository.ProjectJpaRepository;
-import inha.git.project.domain.repository.ProjectStarJpaRepository;
-import inha.git.project.domain.repository.ProjectTeamMemberJpaRepository;
-import inha.git.project.domain.repository.ProjectUploadJpaRepository;
+import inha.git.project.domain.repository.*;
 import inha.git.semester.domain.Semester;
 import inha.git.semester.domain.repository.SemesterJpaRepository;
 import inha.git.statistics.api.service.StatisticsService;
 import inha.git.user.domain.User;
+import inha.git.user.domain.UserRanking;
 import inha.git.user.domain.enums.Role;
+import inha.git.user.domain.repository.UserRankingJpaRepository;
 import inha.git.utils.IdempotentProvider;
 import inha.git.utils.file.FilePath;
 import inha.git.utils.file.UnZip;
@@ -66,6 +68,11 @@ public class ProjectCommandServiceImpl implements ProjectCommandService {
     private final IdempotentProvider idempotentProvider;
     private final ProjectStarJpaRepository projectStarJpaRepository;
     private final ProjectTeamMemberJpaRepository projectTeamMemberJpaRepository;
+    private final UserRankingJpaRepository userRankingJpaRepository;
+    private final RegistrationRecommendJpaRepository registrationRecommendJpaRepository;
+    private final FoundingRecommendJpaRepository foundingRecommendJpaRepository;
+    private final ProjectLikeJpaRepository projectLikeJpaRepository;
+    private final ProjectPatentJpaRepository projectPatentRepository;
 
     /**
      * 프로젝트 생성
@@ -106,6 +113,15 @@ public class ProjectCommandServiceImpl implements ProjectCommandService {
         projectFieldJpaRepository.saveAll(projectFields);
 
         List<Field> fields = fieldJpaRepository.findAllById(createProjectRequest.fieldIdxList());
+
+        UserRanking userRanking = userRankingJpaRepository.findByUser(user)
+                        .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        if(category.getId() == 1) {
+            userRanking.setLocalCurricularCount(userRanking.getLocalCurricularCount() + 1);
+        } else {
+            userRanking.setLocalNoncurricularCount(userRanking.getLocalNoncurricularCount() + 1);
+        }
+        userRankingJpaRepository.save(userRanking);
 
         statisticsService.adjustCount(user, fields, semester, category,  1, true);
         log.info("프로젝트 생성 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), savedProject.getId());
@@ -253,6 +269,49 @@ public class ProjectCommandServiceImpl implements ProjectCommandService {
         else {
             statisticsService.adjustCount(project.getUser(), fields, project.getSemester(), project.getCategory(), 2, false);
         }
+
+        UserRanking userRanking = userRankingJpaRepository.findByUser(project.getUser())
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        Category category = project.getCategory();
+        if (project.getRepoName() == null) {
+            if (category.getId() == 1) {
+                int current = userRanking.getLocalCurricularCount();
+                userRanking.setLocalCurricularCount(Math.max(0, current - 1));
+            } else {
+                int current = userRanking.getLocalNoncurricularCount();
+                userRanking.setLocalNoncurricularCount(Math.max(0, current - 1));
+            }
+        } else {
+            if (category.getId() == 1) {
+                int current = userRanking.getGithubCurricularCount();
+                userRanking.setGithubCurricularCount(Math.max(0, current - 1));
+            } else {
+                int current = userRanking.getGithubNoncurricularCount();
+                userRanking.setGithubNoncurricularCount(Math.max(0, current - 1));
+            }
+        }
+
+        if (Boolean.TRUE.equals(project.getStarState())) {
+            int current = userRanking.getProjectStarCount();
+            userRanking.setProjectStarCount(Math.max(0, current - 1));
+        }
+
+        int registrationRecommendCount = registrationRecommendJpaRepository.countByProject_Id(project.getId());
+        int foundingRecommendCount = foundingRecommendJpaRepository.countByProject_Id(project.getId());
+        int currentRecommend = userRanking.getRecommendCount();
+        userRanking.setRecommendCount(Math.max(0, currentRecommend - registrationRecommendCount - foundingRecommendCount));
+
+        int likeCount = projectLikeJpaRepository.countByProject_Id(project.getId());
+        int currentLike = userRanking.getLikeCount();
+        userRanking.setLikeCount(Math.max(0, currentLike - likeCount));
+
+        int patentCount = projectPatentRepository.countAcceptedByProjectId(project.getId());
+        int currentPatent = userRanking.getPatentProgramCount();
+        log.info("기존 점수: {} 삭제 점수: {}", currentPatent, patentCount);
+        userRanking.setPatentProgramCount(Math.max(0, currentPatent - patentCount));
+
+        userRankingJpaRepository.save(userRanking);
+
         log.info("프로젝트 삭제 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
         return projectMapper.projectToProjectResponse(project);
     }

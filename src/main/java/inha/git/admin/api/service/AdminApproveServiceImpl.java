@@ -17,10 +17,12 @@ import inha.git.project.domain.repository.ProjectStarJpaRepository;
 import inha.git.user.domain.Company;
 import inha.git.user.domain.Professor;
 import inha.git.user.domain.User;
+import inha.git.user.domain.UserRanking;
 import inha.git.user.domain.enums.Role;
 import inha.git.user.domain.repository.CompanyJpaRepository;
 import inha.git.user.domain.repository.ProfessorJpaRepository;
 import inha.git.user.domain.repository.UserJpaRepository;
+import inha.git.user.domain.repository.UserRankingJpaRepository;
 import inha.git.utils.IdempotentProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +52,7 @@ public class AdminApproveServiceImpl implements AdminApproveService {
     private final IdempotentProvider idempotentProvider;
     private final ProjectStarJpaRepository projectStarJpaRepository;
     private final ProjectJpaRepository projectJpaRepository;
+    private final UserRankingJpaRepository userRankingJpaRepository;
 
     /**
      * 관리자 권한 부여
@@ -67,6 +70,11 @@ public class AdminApproveServiceImpl implements AdminApproveService {
             throw new BaseException(ALREADY_ADMIN);
         }
         user.setRole(Role.ADMIN);
+
+        UserRanking userRanking = userRankingJpaRepository.findByUser(user)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        userRanking.setRole(Role.ADMIN);
+
         log.info("관리자로 승격 성공 - 관리자: {}, 승격할 유저: {}", admin.getName(), adminPromotionRequest.userIdx());
         return adminPromotionRequest.userIdx() + ": 관리자 권한 부여 완료";
     }
@@ -89,12 +97,21 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         if(professorJpaRepository.findByUserId(user.getId()).isPresent()) {
             log.info("관리자 권한 교수로 박탈 성공 - 관리자: {}, 박탈할 유저: {}", admin.getName(), adminDemotionRequest.userIdx());
             user.setRole(Role.PROFESSOR);
+            UserRanking userRanking = userRankingJpaRepository.findByUser(user)
+                    .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+            userRanking.setRole(Role.PROFESSOR);
         } else if(companyJpaRepository.findByUserId(user.getId()).isPresent()) {
             log.info("관리자 권한 기업으로 박탈 성공 - 관리자: {}, 박탈할 유저: {}", admin.getName(), adminDemotionRequest.userIdx());
             user.setRole(Role.COMPANY);
+            UserRanking userRanking = userRankingJpaRepository.findByUser(user)
+                    .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+            userRanking.setRole(Role.COMPANY);
         } else {
             log.info("관리자 권한 학생으로 박탈 성공 - 관리자: {}, 박탈할 유저: {}", admin.getName(), adminDemotionRequest.userIdx());
             user.setRole(Role.USER);
+            UserRanking userRanking = userRankingJpaRepository.findByUser(user)
+                    .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+            userRanking.setRole(Role.USER);
         }
         return adminDemotionRequest.userIdx() + ": 관리자 권한 박탈 완료 -> " + user.getRole() + "로 변경 완료";
     }
@@ -213,6 +230,11 @@ public class AdminApproveServiceImpl implements AdminApproveService {
             throw new BaseException(NOT_STUDENT);
         }
         user.setRole(Role.ASSISTANT);
+
+        UserRanking userRanking = userRankingJpaRepository.findByUser(user)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        userRanking.setRole(Role.ASSISTANT);
+
         log.info("조교 승인 성공 - 관리자: {}, 승인할 유저: {}", admin.getName(), assistantPromotionRequest.userIdx());
         return assistantPromotionRequest.userIdx() + ": 조교 승격 완료";
     }
@@ -233,6 +255,11 @@ public class AdminApproveServiceImpl implements AdminApproveService {
             throw new BaseException(NOT_ASSISTANT);
         }
         user.setRole(Role.USER);
+
+        UserRanking userRanking = userRankingJpaRepository.findByUser(user)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        userRanking.setRole(Role.USER);
+
         log.info("조교 승격 취소 성공 - 관리자: {}, 승인할 유저: {}", admin.getName(), assistantDemotionRequest.userIdx());
         return assistantDemotionRequest.userIdx() + ": 조교 승격 취소 완료";
     }
@@ -318,6 +345,14 @@ public class AdminApproveServiceImpl implements AdminApproveService {
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
         projectPatent.setAcceptedAt(LocalDateTime.now());
         ProjectPatent savedProjectPatent = projectPatentJpaRepository.save(projectPatent);
+
+        User writer = projectPatent.getProject().getUser();
+
+        UserRanking userRanking = userRankingJpaRepository.findByUser(writer)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        userRanking.setPatentProgramCount(userRanking.getPatentProgramCount() + 1);
+        userRankingJpaRepository.save(userRanking);
+
         log.info("특허 승인 성공 - 사용자: {} 특허 ID: {}", user.getName(), projectPatent.getId());
         return new PatentResponse(savedProjectPatent.getId());
     }
@@ -337,6 +372,16 @@ public class AdminApproveServiceImpl implements AdminApproveService {
                 .orElseThrow(() -> new BaseException(NOT_EXIST_PATENT));
         projectPatent.setAcceptedAt(null);
         ProjectPatent savedProjectPatent = projectPatentJpaRepository.save(projectPatent);
+
+        User writer = projectPatent.getProject().getUser();
+
+        UserRanking userRanking = userRankingJpaRepository.findByUser(writer)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+
+        int current = userRanking.getPatentProgramCount();
+        userRanking.setPatentProgramCount(Math.max(0, current - 1));
+
+        userRankingJpaRepository.save(userRanking);
         log.info("특허 취소 성공 - 사용자: {} 특허 ID: {}", user.getName(), projectPatent.getId());
         return new PatentResponse(savedProjectPatent.getId());
     }
@@ -378,6 +423,13 @@ public class AdminApproveServiceImpl implements AdminApproveService {
 
         projectJpaRepository.updateStarState(project.getId(), true);
 
+        User writer = projectStar.getProject().getUser();
+
+        UserRanking userRanking = userRankingJpaRepository.findByUser(writer)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        userRanking.setProjectStarCount(userRanking.getProjectStarCount() + 1);
+        userRankingJpaRepository.save(userRanking);
+
         log.info("프로젝트 Star 승인 성공 - 사용자: {} 특허 ID: {}", user.getName(), saved.getId());
         return new ProjectStarResponse(saved.getId());
     }
@@ -404,8 +456,17 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         projectStar.setAcceptedAt(null);
         projectStar.setState(INACTIVE);
         ProjectStar saved = projectStarJpaRepository.save(projectStar);
+        projectStarJpaRepository.flush();
 
         projectJpaRepository.updateStarState(project.getId(), false);
+
+        User writer = projectStar.getProject().getUser();
+
+        UserRanking userRanking = userRankingJpaRepository.findByUser(writer)
+                .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+        int current = userRanking.getProjectStarCount();
+        userRanking.setProjectStarCount(Math.max(0, current - 1));
+        userRankingJpaRepository.save(userRanking);
 
         log.info("프로젝트 Star 취소 성공 - 사용자: {} 프로젝트 ID: {}", user.getName(), project.getId());
         return new ProjectStarResponse(saved.getId());

@@ -8,9 +8,12 @@ import inha.git.user.api.controller.dto.response.ProfessorSignupResponse;
 import inha.git.user.api.mapper.UserMapper;
 import inha.git.user.domain.Professor;
 import inha.git.user.domain.User;
+import inha.git.user.domain.UserRanking;
+import inha.git.user.domain.enums.Role;
 import inha.git.user.domain.repository.ProfessorJpaRepository;
 import inha.git.user.domain.repository.ProfessorQueryRepository;
 import inha.git.user.domain.repository.UserJpaRepository;
+import inha.git.user.domain.repository.UserRankingJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,6 +23,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 import static inha.git.common.Constant.*;
 
@@ -41,6 +46,7 @@ public class ProfessorServiceImpl implements ProfessorService{
     private final MailService mailService;
     private final EmailDomainService emailDomainService;
     private final ProfessorQueryRepository professorQueryRepository;
+    private final UserRankingJpaRepository userRankingJpaRepository;
 
     /**
      * 교수 학생 조회
@@ -76,6 +82,26 @@ public class ProfessorServiceImpl implements ProfessorService{
         Professor professor = userMapper.professorSignupRequestToProfessor(professorSignupRequest);
         professor.setUser(user);
         professorJpaRepository.save(professor);
+        UserRanking userRanking = UserRanking.builder()
+                .user(user)
+                .loginCount(1)
+                .githubNoncurricularCount(0)
+                .localNoncurricularCount(0)
+                .githubCurricularCount(0)
+                .localCurricularCount(0)
+                .questionCount(0)
+                .questionCommentCount(0)
+                .patentProgramCount(0)
+                .likeCount(0)
+                .recommendCount(0)
+                .projectStarCount(0)
+                .problemParticipationCount(0)
+                .adminScore(0)
+                .totalScore(0)
+                .updatedAt(LocalDateTime.now())
+                .role(Role.PROFESSOR)
+                .build();
+        userRankingJpaRepository.save(userRanking);
         log.info("교수 회원가입 성공 - 이메일: {}", professorSignupRequest.email());
         return userMapper.userToProfessorSignupResponse(userJpaRepository.save(user));
     }

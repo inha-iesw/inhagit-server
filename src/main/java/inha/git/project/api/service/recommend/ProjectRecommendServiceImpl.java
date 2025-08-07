@@ -9,6 +9,8 @@ import inha.git.project.api.mapper.ProjectMapper;
 import inha.git.project.domain.Project;
 import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.user.domain.User;
+import inha.git.user.domain.UserRanking;
+import inha.git.user.domain.repository.UserRankingJpaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -34,6 +36,7 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
     private final ProjectLikeJpaRepository projectLikeJpaRepository;
     private final FoundingRecommendJpaRepository foundingRecommendJpaRepository;
     private final RegistrationRecommendJpaRepository registrationRecommendJpaRepository;
+    private final UserRankingJpaRepository userRankingJpaRepository;
 
     /**
      * 프로젝트 창업 추천
@@ -50,6 +53,14 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
             validRecommend(project, user, foundingRecommendJpaRepository.existsByUserAndProject(user, project));
             foundingRecommendJpaRepository.save(projectMapper.createProjectFoundingRecommend(user, project));
             project.setFoundRecommendCount(project.getFoundingRecommendCount() + 1);
+
+            User writer = project.getUser();
+
+            UserRanking userRanking = userRankingJpaRepository.findByUser(writer)
+                    .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+            userRanking.setRecommendCount(userRanking.getRecommendCount() + 1);
+            userRankingJpaRepository.save(userRanking);
+
             log.info("프로젝트 창업 추천 성공 - 사용자: {} 프로젝트 ID: {} 추천 개수: {}", user.getName(), recommendRequest.idx(), project.getFoundingRecommendCount());
             return recommendRequest.idx() + "번 프로젝트 창업 추천 완료";
         } catch (DataIntegrityViolationException e) {
@@ -72,6 +83,14 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
             validLike(project, user, projectLikeJpaRepository.existsByUserAndProject(user, project));
             projectLikeJpaRepository.save(projectMapper.createProjectLike(user, project));
             project.setLikeCount(project.getLikeCount() + 1);
+
+            User writer = project.getUser();
+
+            UserRanking userRanking = userRankingJpaRepository.findByUser(writer)
+                    .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+            userRanking.setLikeCount(userRanking.getLikeCount() + 1);
+            userRankingJpaRepository.save(userRanking);
+
             log.info("프로젝트 좋아요 - 사용자: {} 프로젝트 ID: {} 좋아요 개수: {}", user.getName(), recommendRequest.idx(), project.getLikeCount());
             return recommendRequest.idx() + "번 프로젝트 창업 추천 완료";
         } catch (DataIntegrityViolationException e) {
@@ -94,6 +113,14 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
             validRecommend(project, user, registrationRecommendJpaRepository.existsByUserAndProject(user, project));
             registrationRecommendJpaRepository.save(projectMapper.createProjectRegistrationRecommend(user, project));
             project.setRegistrationRecommendCount(project.getRegistrationRecommendCount() + 1);
+
+            User writer = project.getUser();
+
+            UserRanking userRanking = userRankingJpaRepository.findByUser(writer)
+                    .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+            userRanking.setRecommendCount(userRanking.getRecommendCount() + 1);
+            userRankingJpaRepository.save(userRanking);
+
             log.info("프로젝트 등록 추천 - 사용자: {} 프로젝트 ID: {} 추천 개수: {}", user.getName(), recommendRequest.idx(), project.getRegistrationRecommendCount());
             return recommendRequest.idx() + "번 프로젝트 등록 추천 완료";
         } catch (DataIntegrityViolationException e) {
@@ -119,6 +146,15 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
                 project.setFoundRecommendCount(0);
             }
             project.setFoundRecommendCount(project.getFoundingRecommendCount() - 1);
+
+            User writer = project.getUser();
+
+            UserRanking userRanking = userRankingJpaRepository.findByUser(writer)
+                    .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+
+            int current = userRanking.getRecommendCount();
+            userRanking.setRecommendCount(Math.max(0, current - 1));
+
             log.info("프로젝트 창업 추천 취소 - 사용자: {} 프로젝트 ID: {} 추천 개수: {}", user.getName(), recommendRequest.idx(), project.getFoundingRecommendCount());
             return recommendRequest.idx() + "번 프로젝트 창업 추천 취소 완료";
         } catch (DataIntegrityViolationException e) {
@@ -144,6 +180,15 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
                 project.setLikeCount(0);
             }
             project.setLikeCount(project.getLikeCount() - 1);
+
+            User writer = project.getUser();
+
+            UserRanking userRanking = userRankingJpaRepository.findByUser(writer)
+                    .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+
+            int current = userRanking.getLikeCount();
+            userRanking.setLikeCount(Math.max(0, current - 1));
+
             log.info("프로젝트 좋아요 취소 - 사용자: {} 프로젝트 ID: {} 좋아요 개수: {}", user.getName(), recommendRequest.idx(), project.getLikeCount());
             return recommendRequest.idx() + "번 프로젝트 좋아요 취소 완료";
         } catch (DataIntegrityViolationException e) {
@@ -169,6 +214,15 @@ public class ProjectRecommendServiceImpl implements ProjectRecommendService{
                 project.setRegistrationRecommendCount(0);
             }
             project.setRegistrationRecommendCount(project.getRegistrationRecommendCount() - 1);
+
+            User writer = project.getUser();
+
+            UserRanking userRanking = userRankingJpaRepository.findByUser(writer)
+                    .orElseThrow(() -> new BaseException(NOT_FIND_USER));
+
+            int current = userRanking.getRecommendCount();
+            userRanking.setRecommendCount(Math.max(0, current - 1));
+
             log.info("프로젝트 등록 추천 취소 - 사용자: {} 프로젝트 ID: {} 추천 개수: {}", user.getName(), recommendRequest.idx(), project.getRegistrationRecommendCount());
             return recommendRequest.idx() + "번 프로젝트 등록 추천 취소 완료";
         } catch (DataIntegrityViolationException e) {

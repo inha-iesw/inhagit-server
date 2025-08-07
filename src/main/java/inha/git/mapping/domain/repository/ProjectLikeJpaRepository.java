@@ -18,10 +18,9 @@ import java.util.Optional;
  * ProjectLikeJpaRepository는 ProjectLike 엔티티에 대한 데이터 액세스 기능을 제공.
  */
 public interface ProjectLikeJpaRepository extends JpaRepository<ProjectLike, ProjectLikeId> {
+    int countByProject_Id(Integer projectId);
 
     boolean existsByUserAndProject(User user, Project project);
 
     void deleteByUserAndProject(User user, Project project);
-
-
 }

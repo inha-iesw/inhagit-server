@@ -4,6 +4,7 @@ import inha.git.common.BaseEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.List;
 @Getter
 @Builder
 @Entity
+@DynamicUpdate
 @Table(name = "project_star_tb")
 public class ProjectStar extends BaseEntity {
 
@@ -33,6 +35,8 @@ public class ProjectStar extends BaseEntity {
     @Column(name = "accept_at", nullable = true)
     private LocalDateTime acceptAt; // 승인일
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "state", nullable = true)
     @Schema(description = "상태", example = "ACTIVE")
     BaseEntity.State state;
 
