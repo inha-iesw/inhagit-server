@@ -13,7 +13,11 @@ public record SearchFileDetailResponse(
         String type,
 
         @Schema(description = "파일 내용")
-        String contents
+        String contents,
+
+        @Schema(description = "파일 url")
+        String fileUrl
+
 ) implements SearchFileResponse {
 
         @Override
@@ -21,8 +25,8 @@ public record SearchFileDetailResponse(
                 return "file";
         }
 
-        public SearchFileDetailResponse(String name, String contents) {
-                this(name, "file", contents);  // type을 "file"로 설정
+        public SearchFileDetailResponse(String name, String contents, String fileUrl) {
+                this(name, "file", contents, fileUrl);  // type을 "file"로 설정
         }
 
         @Override

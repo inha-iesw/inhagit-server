@@ -6,6 +6,8 @@ import inha.git.project.api.controller.dto.response.SearchProjectResponse;
 import inha.git.project.api.controller.dto.response.SearchProjectsResponse;
 import inha.git.user.domain.User;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.Resource;
 
 import java.util.List;
 
@@ -13,4 +15,5 @@ public interface ProjectQueryService {
     Page<SearchProjectsResponse> getCondProjects(SearchProjectCond searchProjectCond, Integer page, Integer size);
     SearchProjectResponse getProject(User user, Integer projectIdx);
     List<SearchFileResponse> getProjectFileByIdx(User user, Integer projectIdx, String path);
+    ResponseEntity<Resource> downloadProjectFile(User user, Integer projectIdx, String path);
 }

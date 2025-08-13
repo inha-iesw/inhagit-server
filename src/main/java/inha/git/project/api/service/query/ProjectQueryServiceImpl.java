@@ -21,17 +21,25 @@ import inha.git.semester.mapper.SemesterMapper;
 import inha.git.user.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.MalformedInputException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -178,12 +186,18 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
                                     !f.getFileName().toString().endsWith(BUILD) &&
                                     !f.getFileName().toString().endsWith(CLASS)
                             )
-                            .map(this::mapToFileResponse)
+                            .map(p -> mapToFileResponse(p, projectIdx, path))
                             .toList();
                 }
             } else {
                 String content = extractFileContent(filePath);
-                return List.of(new SearchFileDetailResponse(filePath.getFileName().toString(), FILE, content));
+                String fileUrl = buildFileUrl(projectIdx, path);
+                return List.of(new SearchFileDetailResponse(
+                        filePath.getFileName().toString(),
+                        FILE,
+                        content,
+                        fileUrl
+                ));
             }
         } catch (IOException e) {
             log.error("Error reading file: " + e.getMessage(), e);
@@ -196,18 +210,26 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
                 .orElseThrow(() -> new BaseException(PROJECT_NOT_FOUND));
     }
 
-    private SearchFileResponse mapToFileResponse(Path path) {
-        if (Files.isDirectory(path)) {
+    private SearchFileResponse mapToFileResponse(Path child, Integer projectIdx, String currentPath) {
+        String name = child.getFileName().toString();
+        String base = (currentPath == null || currentPath.isBlank() || "/".equals(currentPath)) ? "" :
+                (currentPath.endsWith("/") ? currentPath : currentPath + "/");
+        String relPath = base + name;
+
+        if (Files.isDirectory(child)) {
             return new SearchDirectoryResponse(
-                    path.getFileName().toString(),
+                    name,
                     DIRECTORY,
-                    null // 하위 파일 리스트는 상위 메소드에서 처리됨
+                    null
             );
         } else {
+            // 파일이면 URL 세팅
+            String fileUrl = buildFileUrl(projectIdx, relPath);
             return new SearchFileDetailResponse(
-                    path.getFileName().toString(),
+                    name,
                     FILE,
-                    null // 내용은 상위 메소드에서 처리됨
+                    null,
+                    fileUrl
             );
         }
     }
@@ -309,5 +331,57 @@ public class ProjectQueryServiceImpl implements ProjectQueryService {
                 fileName.equals("Rakefile") ||
                 fileName.equals("Procfile") ||
                 fileName.equals("Vagrantfile");
+    }
+
+    private String buildFileUrl (Integer projectIdx, String relativePath){
+        String enc = URLEncoder.encode(
+                relativePath.startsWith("/") ? relativePath.substring(1) : relativePath,
+                StandardCharsets.UTF_8);
+        return "/api/v1/projects/" + projectIdx + "/file/download?path=" + enc;
+    }
+
+    public ResponseEntity<Resource> downloadProjectFile(User user, Integer projectIdx, String path) {
+        if (path.contains("..") || path.contains("\0")) {
+            throw new BaseException(INVALID_FILE_PATH);
+        }
+
+        Project project = findProject(projectIdx);
+        if (!hasAccessToProject(project, user)) {
+            throw new BaseException(PROJECT_NOT_PUBLIC);
+        }
+
+        ProjectUpload upload = projectUploadJpaRepository.findByProjectIdAndState(projectIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROJECT_UPLOAD_NOT_FOUND));
+
+        Path absolute = Paths.get(BASE_DIR_SOURCE + upload.getDirectoryName() + '/' + path);
+        if (!Files.exists(absolute) || Files.isDirectory(absolute)) {
+            throw new BaseException(FILE_NOT_FOUND);
+        }
+
+        try {
+            String contentType = Files.probeContentType(absolute);
+            if (contentType == null) contentType = "application/octet-stream";
+
+            // 5) inline/attachment 분기
+            boolean inline = contentType.startsWith("video/")
+                    || contentType.startsWith("audio/")
+                    || contentType.equals("application/pdf")
+                    || contentType.startsWith("text/");
+
+            String filename = absolute.getFileName().toString();
+            String dispo = (inline ? "inline" : "attachment")
+                    + "; filename=\"" + URLEncoder.encode(filename, StandardCharsets.UTF_8) + "\"";
+
+            Resource body = new FileSystemResource(absolute);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, dispo)
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .contentLength(Files.size(absolute))
+                    .body(body);
+
+        } catch (IOException e) {
+            log.error("파일 스트리밍 실패: {}", e.getMessage(), e);
+            throw new BaseException(FILE_CONVERT);
+        }
     }
 }

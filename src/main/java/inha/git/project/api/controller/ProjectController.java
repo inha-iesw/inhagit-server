@@ -21,8 +21,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -98,6 +100,23 @@ public class ProjectController {
             @RequestParam(value = "path", defaultValue = "/") String path) {
         return BaseResponse.of(FILE_SEARCH_OK, projectSearchService.getProjectFileByIdx(user, projectIdx, path));
     }
+
+    /**
+     * 프로젝트 파일 다운로드/미리보기 API
+     *
+     * <p>프로젝트 파일을 다운로드/미리보기합니다.</p>
+     *
+     * @param projectIdx 프로젝트 ID
+     * @param path       파일 경로
+     * @return 프로젝트 파일 조회 결과를 포함하는 BaseResponse<List<SearchFileResponse>>
+     */
+    @GetMapping("/{projectIdx}/file/download")
+    @Operation(summary = "프로젝트 파일 다운로드/미리보기", description = "파일을 다운로드하거나 브라우저에서 미리봅니다.")
+    public ResponseEntity<Resource> downloadProjectFile(
+            @AuthenticationPrincipal User user,
+            @PathVariable("projectIdx") Integer projectIdx,
+            @RequestParam("path") String path
+    ){ return projectSearchService.downloadProjectFile(user, projectIdx, path);}
 
     /**
      * 프로젝트 생성
