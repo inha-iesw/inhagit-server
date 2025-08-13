@@ -255,7 +255,7 @@ public class GithubServiceImpl implements GithubService {
                         !f.name().endsWith(CLASS) &&
                         !f.name().endsWith(BUILD) &&
                         !f.name().endsWith(BAT))
-                .map(this::mapToFileResponse)
+                .map(item -> mapToFileResponse(item, user, project.getRepoName()))
                 .toList();
         try {
             String jsonFileResponses = objectMapper.writerFor(new TypeReference<List<SearchFileResponse>>() {}).writeValueAsString(fileResponses);
@@ -273,11 +273,17 @@ public class GithubServiceImpl implements GithubService {
      * @param item Github 파일 정보
      * @return SearchFileResponse
      */
-    private SearchFileResponse mapToFileResponse(GithubItemResponse item) {
+    private SearchFileResponse mapToFileResponse(GithubItemResponse item, User user, String repoName) {
         if (DIR.equals(item.type())) {
             return new SearchDirectoryResponse(item.name(), null);  // fileList는 null로 설정
         } else {
-            return new SearchFileDetailResponse(item.name(), null, null);  // contents는 null로 설정
+            String githubToken = user.getGithubToken();
+            String path = item.path();
+
+            String fileCacheKey = GITHUB_FILE_CONTENT_CACHE_PREFIX + repoName + ":" + path;
+            SearchFileDetailResponse fileDetailResponse = getGithubFileContent(user, githubToken, repoName, path, fileCacheKey);
+
+            return fileDetailResponse;  // contents는 null로 설정
         }
     }
 
@@ -318,7 +324,7 @@ public class GithubServiceImpl implements GithubService {
             content = new String(decodedBytes, StandardCharsets.UTF_8);
         }
 
-        SearchFileDetailResponse fileDetailResponse = new SearchFileDetailResponse(fileName, FILE, content);
+        SearchFileDetailResponse fileDetailResponse = new SearchFileDetailResponse(fileName, FILE, content, null);
 
         // 파일 내용을 Redis에 캐싱 (TTL 1시간)
         redisProvider.setDataExpire(fileCacheKey, toJson(fileDetailResponse), 3600);
