@@ -422,7 +422,6 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         ProjectStar saved = projectStarJpaRepository.save(projectStar);
 
         projectJpaRepository.updateStarState(project.getId(), true);
-
         User writer = projectStar.getProject().getUser();
 
         UserRanking userRanking = userRankingJpaRepository.findByUser(writer)
@@ -459,7 +458,7 @@ public class AdminApproveServiceImpl implements AdminApproveService {
         projectStarJpaRepository.flush();
 
         projectJpaRepository.updateStarState(project.getId(), false);
-
+      
         User writer = projectStar.getProject().getUser();
 
         UserRanking userRanking = userRankingJpaRepository.findByUser(writer)
