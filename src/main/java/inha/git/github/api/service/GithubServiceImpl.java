@@ -277,7 +277,7 @@ public class GithubServiceImpl implements GithubService {
         if (DIR.equals(item.type())) {
             return new SearchDirectoryResponse(item.name(), null);  // fileList는 null로 설정
         } else {
-            return new SearchFileDetailResponse(item.name(), null);  // contents는 null로 설정
+            return new SearchFileDetailResponse(item.name(), null, null);  // contents는 null로 설정
         }
     }
 
