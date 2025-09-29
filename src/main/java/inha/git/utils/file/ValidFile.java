@@ -24,7 +24,7 @@ import static inha.git.common.code.status.ErrorStatus.*;
 @Slf4j
 public class ValidFile {
 
-    public static final long MAX_SIZE_MB = 80;
+    public static final long MAX_SIZE_MB = 500;
     public static final long MAX_SIZE_BYTES = MAX_SIZE_MB * 1024 * 1024;
     public static final Set<String> ALLOWED_CONTENT_TYPES = new HashSet<>();
 
