@@ -143,7 +143,7 @@ Local 혹은 GitHub과 연동하여 프로젝트를 관리하고, 멘토링, 특
     </td>
     <td align="center" width="160px">
       <a href="https://github.com/Gyuhyeok99" target="_blank">
-        <img src="https://github.com/Gyuhyeok99.png" width="100" height="100" alt="황규혁" />
+        <img src="https://github.com/user-attachments/assets/347fc96e-2b51-4996-ba2b-a1de1cc5c52e" width="100" height="100" alt="황규혁" />
       </a>
     </td>
   </tr>
