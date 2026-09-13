@@ -136,27 +136,26 @@ Local 혹은 GitHub과 연동하여 프로젝트를 관리하고, 멘토링, 특
 
 <table>
   <tr>
-    <td align="center" width="150px">
-      <a href="https://github.com/dayjiwon" target="박지원">
-        <img src="https://avatars.githubusercontent.com/u/87654321?v=4" alt="박지원" />
+    <td align="center" width="160px">
+      <a href="https://github.com/dayjiwon" target="_blank">
+        <img src="https://github.com/dayjiwon.png" width="100" height="100" alt="박지원" />
       </a>
     </td>
-    <td align="center" width="150px">
-      <a href="https://github.com/Gyuhyeok99" target="gyuhyeok99">
-        <img src="https://github.com/user-attachments/assets/347fc96e-2b51-4996-ba2b-a1de1cc5c52e" alt="황규혁" />
+    <td align="center" width="160px">
+      <a href="https://github.com/Gyuhyeok99" target="_blank">
+        <img src="https://github.com/Gyuhyeok99.png" width="100" height="100" alt="황규혁" />
       </a>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <a href="https://github.com/dayjiwon" target="박지원">
-        박지원<br />(Front-end, <br/> 현재 유지보수 담당)
-      </a>
+      <a href="https://github.com/dayjiwon" target="_blank">박지원</a>
+      <br />Front-end
+      <br /><sub>현재 유지보수 담당</sub>
     </td>
     <td align="center">
-      <a href="https://github.com/Gyuhyeok99" target="황규혁">
-        황규혁<br />(Back-end)
-      </a>
+      <a href="https://github.com/Gyuhyeok99" target="_blank">황규혁</a>
+      <br />Back-end
     </td>
   </tr>
 </table>
