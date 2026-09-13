@@ -150,7 +150,7 @@ Local 혹은 GitHub과 연동하여 프로젝트를 관리하고, 멘토링, 특
   <tr>
     <td align="center">
       <a href="https://github.com/dayjiwon" target="박지원">
-        박지원<br />(Front-end, 현대 단독 유지보수)
+        박지원<br />(Front-end, 현재 유지보수 담당)
       </a>
     </td>
     <td align="center">
