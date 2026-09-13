@@ -136,14 +136,14 @@ Local 혹은 GitHub과 연동하여 프로젝트를 관리하고, 멘토링, 특
 
 <table>
   <tr>
-    <td align="center" width="160px">
+    <td align="center" width="200px">
       <a href="https://github.com/dayjiwon" target="_blank">
-        <img src="https://github.com/dayjiwon.png" width="100" height="100" alt="박지원" />
+        <img src="https://github.com/dayjiwon.png" width="150" height="150" alt="박지원" />
       </a>
     </td>
-    <td align="center" width="160px">
+    <td align="center" width="200px">
       <a href="https://github.com/Gyuhyeok99" target="_blank">
-        <img src="https://github.com/user-attachments/assets/347fc96e-2b51-4996-ba2b-a1de1cc5c52e" width="100" height="100" alt="황규혁" />
+        <img src="https://github.com/user-attachments/assets/347fc96e-2b51-4996-ba2b-a1de1cc5c52e" width="150" height="150" alt="황규혁" />
       </a>
     </td>
   </tr>
