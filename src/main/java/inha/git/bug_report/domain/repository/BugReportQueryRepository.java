@@ -44,6 +44,10 @@ public class BugReportQueryRepository {
             condition = condition.and(bugReport.bugStatus.eq(searchBugReportCond.bugStatus()));
         }
 
+        if (searchBugReportCond.reportType() != null) {
+            condition = condition.and(bugReport.reportType.eq(searchBugReportCond.reportType()));
+        }
+
         JPAQuery<BugReport> query = queryFactory
                 .select(bugReport)
                 .from(bugReport)
@@ -62,6 +66,7 @@ public class BugReportQueryRepository {
                         report.getTitle(),
                         report.getCreatedAt(),
                         report.getBugStatus(),
+                        report.getReportType(),
                         new SearchUserResponse(
                                 report.getUser().getId(),
                                 report.getUser().getName(),
