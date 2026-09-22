@@ -1,6 +1,7 @@
 package inha.git.bug_report.api.controller.dto.request;
 
 import inha.git.bug_report.domain.enums.BugStatus;
+import inha.git.bug_report.domain.enums.ReportType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 public record SearchBugReportCond(
@@ -9,6 +10,9 @@ public record SearchBugReportCond(
         String title,
 
         @Schema(description = "버그 제보 상태", example = "UNCONFIRMED")
-        BugStatus bugStatus
+        BugStatus bugStatus,
+
+        @Schema(description = "제보 유형", example = "BUG")
+        ReportType reportType
 ) {
 }

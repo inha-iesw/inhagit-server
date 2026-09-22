@@ -1,6 +1,7 @@
 package inha.git.bug_report.api.controller.dto.response;
 
 import inha.git.bug_report.domain.enums.BugStatus;
+import inha.git.bug_report.domain.enums.ReportType;
 import inha.git.project.api.controller.dto.response.SearchUserResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -28,6 +29,10 @@ public record SearchBugReportResponse(
         @NotNull
         @Schema(description = "버그 상태", example = "UNCONFIRMED")
         BugStatus bugStatus,
+
+        @NotNull
+        @Schema(description = "제보 유형", example = "BUG")
+        ReportType reportType,
 
         @NotNull
         SearchUserResponse author

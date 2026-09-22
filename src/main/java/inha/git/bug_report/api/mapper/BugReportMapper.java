@@ -31,6 +31,7 @@ public interface BugReportMapper {
     @Mapping(source = "user", target = "user")
     @Mapping(source = "createBugReportRequest.title", target = "title")
     @Mapping(source = "createBugReportRequest.contents", target = "contents")
+    @Mapping(source = "createBugReportRequest.reportType", target = "reportType")
     BugReport createBugReportRequestToBugReport(User user, CreateBugReportRequest createBugReportRequest);
 
     /**
