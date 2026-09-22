@@ -285,6 +285,9 @@ public class AdminQueryRepository {
         if (searchBugReportCond.bugStatus() != null) {
             condition = condition.and(bugReport.bugStatus.eq(searchBugReportCond.bugStatus()));
         }
+        if (searchBugReportCond.reportType() != null) {
+            condition = condition.and(bugReport.reportType.eq(searchBugReportCond.reportType()));
+        }
         JPAQuery<BugReport> query = queryFactory
                 .select(bugReport)
                 .from(bugReport)
@@ -303,6 +306,7 @@ public class AdminQueryRepository {
                         report.getTitle(),
                         report.getCreatedAt(),
                         report.getBugStatus(),
+                        report.getReportType(),
                         new inha.git.project.api.controller.dto.response.SearchUserResponse(
                                 report.getUser().getId(),
                                 report.getUser().getName(),

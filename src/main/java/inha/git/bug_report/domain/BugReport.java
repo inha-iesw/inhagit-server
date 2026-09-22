@@ -1,6 +1,7 @@
 package inha.git.bug_report.domain;
 
 import inha.git.bug_report.domain.enums.BugStatus;
+import inha.git.bug_report.domain.enums.ReportType;
 import inha.git.common.BaseEntity;
 import inha.git.user.domain.User;
 import jakarta.persistence.*;
@@ -33,6 +34,10 @@ public class BugReport extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "bug_status", nullable = false, length = 20)
     private BugStatus bugStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "report_type", nullable = false, length = 20)
+    private ReportType reportType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
