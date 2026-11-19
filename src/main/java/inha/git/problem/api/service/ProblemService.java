@@ -16,4 +16,5 @@ public interface ProblemService {
     ProblemResponse updateProblem(User user, Integer problemIdx, UpdateProblemRequest updateProblemRequest, List<MultipartFile> files);
     ProblemResponse updateProblemStatus(User user, Integer problemIdx, ProblemStatus status);
     ProblemResponse deleteProblem(User user, Integer problemIdx);
+    void completeExpiredProblems();
 }
