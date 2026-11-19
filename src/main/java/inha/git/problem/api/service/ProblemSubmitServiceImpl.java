@@ -11,6 +11,8 @@ import inha.git.problem.domain.enums.ProblemRequestStatus;
 import inha.git.problem.domain.repository.ProblemJpaRepository;
 import inha.git.problem.domain.repository.ProblemRequestJpaRepository;
 import inha.git.problem.domain.repository.ProblemSubmitJpaRepository;
+import inha.git.project.domain.Project;
+import inha.git.project.domain.repository.ProjectJpaRepository;
 import inha.git.user.domain.User;
 import inha.git.user.domain.UserRanking;
 import inha.git.user.domain.repository.UserRankingJpaRepository;
@@ -22,6 +24,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 import static inha.git.common.BaseEntity.State.ACTIVE;
 import static inha.git.common.code.status.ErrorStatus.*;
@@ -41,6 +45,7 @@ public class ProblemSubmitServiceImpl implements ProblemSubmitService {
     private final ProblemSubmitJpaRepository problemSubmitJpaRepository;
     private final ProblemSubmitMapper problemSubmitMapper;
     private final UserRankingJpaRepository userRankingJpaRepository;
+    private final ProjectJpaRepository projectJpaRepository;
 
     /**
      * 문제 제출 목록 조회
@@ -83,6 +88,8 @@ public class ProblemSubmitServiceImpl implements ProblemSubmitService {
         if (isAlreadySubmitted) {
             throw new BaseException(DUPLICATE_PROBLEM_SUBMISSION);
         }
+        validateSubmitProject(user, projectIdx);
+
         ProblemSubmit problemSubmit = problemSubmitMapper.toProblemSubmit(projectIdx, problemRequest);
         problemSubmitJpaRepository.save(problemSubmit);
         problemRequest.setProblemRequestStatus(ProblemRequestStatus.COMPLETE);
@@ -94,5 +101,24 @@ public class ProblemSubmitServiceImpl implements ProblemSubmitService {
         userRankingJpaRepository.save(userRanking);
 
         return problemSubmitMapper.toProblemSubmitResponse(problemSubmit);
+    }
+
+    /**
+     * 제출할 게시글(프로젝트) 검증
+     *
+     * <p>미입력, 존재하지 않거나 삭제된 게시글, 본인이 작성하지 않은 게시글이면 예외를 던진다.</p>
+     *
+     * @param user       사용자 정보
+     * @param projectIdx 프로젝트 인덱스
+     */
+    private void validateSubmitProject(User user, Integer projectIdx) {
+        if (projectIdx == null) {
+            throw new BaseException(PROBLEM_SUBMIT_PROJECT_REQUIRED);
+        }
+        Project project = projectJpaRepository.findByIdAndState(projectIdx, ACTIVE)
+                .orElseThrow(() -> new BaseException(PROBLEM_SUBMIT_PROJECT_NOT_FOUND));
+        if (!Objects.equals(project.getUser().getId(), user.getId())) {
+            throw new BaseException(PROBLEM_SUBMIT_PROJECT_NOT_OWNED);
+        }
     }
 }
