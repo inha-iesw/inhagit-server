@@ -32,12 +32,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -60,6 +65,8 @@ import static inha.git.common.code.status.ErrorStatus.NOT_EXIST_PROBLEM;
 @Slf4j
 @Transactional(readOnly = true)
 public class ProblemServiceImpl implements ProblemService {
+
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     private final ProblemJpaRepository problemJpaRepository;
     private final ProblemAttachmentJpaRepository problemAttachmentJpaRepository;
@@ -174,7 +181,9 @@ public class ProblemServiceImpl implements ProblemService {
                 .map(pf -> pf.getField().getId())
                 .collect(Collectors.toSet());
 
+        String previousDuration = problem.getDuration();
         problemMapper.updateProblemRequestToProblem(updateProblemRequest, problem);
+        reopenIfDeadlineExtended(problem, previousDuration, updateProblemRequest.duration());
         Problem savedProblem = problemJpaRepository.saveAndFlush(problem);
 
         handleAttachments(problem, files);
@@ -200,6 +209,50 @@ public class ProblemServiceImpl implements ProblemService {
 
         Problem finalSavedProblem = problemJpaRepository.saveAndFlush(problem);
         return problemMapper.problemToProblemResponse(finalSavedProblem);
+    }
+
+    /**
+     * 마감일 연장 시 문제 상태 되돌리기
+     *
+     * <p>마감일이 기존보다 늦어졌고 새 마감일이 오늘(KST) 이후이며, 현재 상태가 COMPLETED이면 PROGRESS로 되돌린다.
+     * 마감일이 바뀌지 않았거나 앞당겨진 경우에는 출제자가 수동으로 설정한 상태를 유지한다.</p>
+     *
+     * @param problem          문제
+     * @param previousDuration 수정 전 마감일 ("yyyy-MM-dd")
+     * @param newDuration      수정 후 마감일 ("yyyy-MM-dd")
+     */
+    private void reopenIfDeadlineExtended(Problem problem, String previousDuration, String newDuration) {
+        if (problem.getStatus() != ProblemStatus.COMPLETED || newDuration == null) {
+            return;
+        }
+        boolean isExtended = previousDuration == null || newDuration.compareTo(previousDuration) > 0;
+        boolean isNotExpired = newDuration.compareTo(today()) >= 0;
+        if (isExtended && isNotExpired) {
+            problem.setStatus(ProblemStatus.PROGRESS);
+            log.info("마감일 연장으로 문제 상태 PROGRESS 변경 (문제 ID: {}, 마감일: {} -> {})", problem.getId(), previousDuration, newDuration);
+        }
+    }
+
+    /**
+     * 마감일 지난 문제 상태 COMPLETED로 일괄 변경 - 하루에 한번 (00:00 KST)
+     *
+     * <p>마감일(duration)이 오늘보다 이전이고 PROGRESS 상태인 활성 문제를 COMPLETED로 변경한다.
+     * 마감일 당일은 23:59:59까지 참여 가능하므로 변경 대상에서 제외된다.</p>
+     */
+    @Override
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
+    @Transactional
+    public void completeExpiredProblems() {
+        int updatedCount = problemJpaRepository.bulkUpdateStatusByDurationBefore(
+                today(), ProblemStatus.PROGRESS, ProblemStatus.COMPLETED, ACTIVE, LocalDateTime.now(KST));
+        log.info("마감일 지난 문제 상태 COMPLETED 변경 완료 (변경된 문제 수: {})", updatedCount);
+    }
+
+    /**
+     * 오늘 날짜(KST)를 duration과 같은 "yyyy-MM-dd" 형식으로 반환
+     */
+    private String today() {
+        return LocalDate.now(KST).format(DateTimeFormatter.ISO_LOCAL_DATE);
     }
 
     private void handleAttachments(Problem problem, List<MultipartFile> files) {
