@@ -68,7 +68,7 @@ public class ProblemSubmitController {
     @Operation(summary = "문제 제출 API", description = "문제를 제출합니다.")
     public BaseResponse<ProblemSubmitResponse> problemSubmit(@AuthenticationPrincipal User user,
                                                              @PathVariable("problemIdx") Integer problemIdx,
-                                                             @RequestParam("projectIdx") Integer projectIdx) {
+                                                             @RequestParam(value = "projectIdx", required = false) Integer projectIdx) {
         return BaseResponse.of(PROBLEM_SUBMIT_OK, problemSubmitService.problemSubmit(user, problemIdx, projectIdx));
     }
 }
